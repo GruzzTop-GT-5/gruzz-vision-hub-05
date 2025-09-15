@@ -52,16 +52,20 @@ export const TelegramAuthForm: React.FC<TelegramAuthFormProps> = ({ onSuccess })
 
       if (!existingProfile) {
         // Create new profile for Telegram user
+        // Generate a UUID for the profile
+        const userId = crypto.randomUUID();
+        
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
+            id: userId,
             telegram_id: user.id,
             phone: '', // Will be updated if user provides
             display_name: `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`,
-            telegram_username: user.username,
-            telegram_photo_url: user.photo_url,
+            telegram_username: user.username || '',
+            telegram_photo_url: user.photo_url || '',
             is_premium: user.is_premium || false,
-            role: 'user',
+            role: 'user' as const,
             rating: 0.00,
             balance: 0
           });

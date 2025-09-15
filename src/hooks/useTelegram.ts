@@ -94,14 +94,14 @@ interface TelegramUser {
 
 interface UseTelegramReturn {
   user: TelegramUser | null;
-  webApp: typeof window.Telegram?.WebApp | null;
+  webApp: any;
   isInTelegram: boolean;
   initData: string;
   colorScheme: 'light' | 'dark';
   themeParams: any;
-  mainButton: typeof window.Telegram?.WebApp.MainButton | null;
-  backButton: typeof window.Telegram?.WebApp.BackButton | null;
-  hapticFeedback: typeof window.Telegram?.WebApp.HapticFeedback | null;
+  mainButton: any;
+  backButton: any;
+  hapticFeedback: any;
   ready: () => void;
   expand: () => void;
   close: () => void;
@@ -112,7 +112,7 @@ interface UseTelegramReturn {
 
 export const useTelegram = (): UseTelegramReturn => {
   const [user, setUser] = useState<TelegramUser | null>(null);
-  const [webApp, setWebApp] = useState<typeof window.Telegram?.WebApp | null>(null);
+  const [webApp, setWebApp] = useState<any>(null);
   const [isInTelegram, setIsInTelegram] = useState(false);
 
   useEffect(() => {
