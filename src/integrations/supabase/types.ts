@@ -14,16 +14,211 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_logs: {
+        Row: {
+          action: string
+          id: string
+          target_id: string | null
+          target_type: string | null
+          timestamp: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+          timestamp?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+          timestamp?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          price: number
+          status: Database["public"]["Enums"]["ad_status"] | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          price: number
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          price?: number
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          phone: string | null
+          rating: number | null
+          role: Database["public"]["Enums"]["user_role"] | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          phone?: string | null
+          rating?: number | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          phone?: string | null
+          rating?: number | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_id: string
+          comment: string | null
+          created_at: string | null
+          id: string
+          rating: number | null
+          target_user_id: string
+        }
+        Insert: {
+          author_id: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          target_user_id: string
+        }
+        Update: {
+          author_id?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          target_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          processed_by: string | null
+          proof_image: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          processed_by?: string | null
+          proof_image?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          processed_by?: string | null
+          proof_image?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          type?: Database["public"]["Enums"]["transaction_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      ad_status: "active" | "inactive" | "sold"
+      transaction_status: "pending" | "completed" | "rejected"
+      transaction_type: "deposit" | "withdrawal" | "payment"
+      user_role: "user" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +345,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      ad_status: ["active", "inactive", "sold"],
+      transaction_status: ["pending", "completed", "rejected"],
+      transaction_type: ["deposit", "withdrawal", "payment"],
+      user_role: ["user", "admin"],
+    },
   },
 } as const

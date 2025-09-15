@@ -1,13 +1,127 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect } from 'react';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { Layout } from '@/components/Layout';
+import { WelcomeScreen } from '@/components/WelcomeScreen';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Plus, Search, Filter } from 'lucide-react';
 
 const Index = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setShowWelcome(false);
+        // Check if user is admin (you can implement this logic)
+        // For demo, setting to false
+        setIsAdmin(false);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          setShowWelcome(false);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleGetStarted = () => {
+    setShowWelcome(false);
+  };
+
+  if (showWelcome) {
+    return <WelcomeScreen onGetStarted={handleGetStarted} />;
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <Layout user={user} isAdmin={isAdmin}>
+      <div className="p-4 space-y-6">
+        {/* Header Section */}
+        <div className="text-center space-y-4">
+          <h1 className="text-3xl font-bold text-glow">Доска объявлений</h1>
+          <p className="text-steel-300">Найдите то, что ищете, или разместите свое объявление</p>
+        </div>
+
+        {/* Search and Filter Bar */}
+        <Card className="card-steel p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Поиск объявлений..."
+                className="w-full pl-10 pr-4 py-3 input-steel rounded-lg"
+              />
+            </div>
+            <Button className="btn-3d px-6">
+              <Filter className="w-5 h-5 mr-2" />
+              Фильтры
+            </Button>
+            <Button className="btn-3d px-6 bg-gradient-to-r from-primary to-electric-600 text-steel-900">
+              <Plus className="w-5 h-5 mr-2" />
+              Создать объявление
+            </Button>
+          </div>
+        </Card>
+
+        {/* Categories */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {['Электроника', 'Автомобили', 'Недвижимость', 'Одежда', 'Услуги', 'Другое'].map((category) => (
+            <Button
+              key={category}
+              variant="outline"
+              className="h-20 flex-col space-y-2 border-steel-600 hover:border-primary hover:bg-steel-700"
+            >
+              <div className="w-8 h-8 bg-primary/20 rounded-lg"></div>
+              <span className="text-sm">{category}</span>
+            </Button>
+          ))}
+        </div>
+
+        {/* Ads Grid Placeholder */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((item) => (
+            <Card key={item} className="card-steel p-6 space-y-4 hover:scale-105 transition-transform duration-300">
+              <div className="w-full h-48 bg-steel-700 rounded-lg"></div>
+              <div className="space-y-2">
+                <h3 className="font-bold text-steel-100">Пример объявления #{item}</h3>
+                <p className="text-steel-400 text-sm">Описание товара или услуги</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-primary font-bold text-lg">₽ 10,000</span>
+                  <span className="text-steel-500 text-sm">2 часа назад</span>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Authentication prompt for non-logged users */}
+        {!user && (
+          <Card className="card-steel p-8 text-center">
+            <h2 className="text-2xl font-bold text-steel-100 mb-4">Присоединяйтесь к GruzzTop</h2>
+            <p className="text-steel-400 mb-6">Зарегистрируйтесь или войдите для доступа ко всем функциям</p>
+            <div className="space-x-4">
+              <Button className="btn-3d">Войти</Button>
+              <Button className="btn-3d bg-gradient-to-r from-primary to-electric-600 text-steel-900">
+                Регистрация
+              </Button>
+            </div>
+          </Card>
+        )}
       </div>
-    </div>
+    </Layout>
   );
 };
 

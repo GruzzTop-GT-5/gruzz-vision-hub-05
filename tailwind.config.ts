@@ -57,6 +57,23 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        steel: {
+          50: "hsl(210, 40%, 96%)",
+          100: "hsl(210, 40%, 90%)",
+          200: "hsl(210, 30%, 80%)",
+          300: "hsl(210, 25%, 65%)",
+          400: "hsl(210, 20%, 50%)",
+          500: "hsl(210, 25%, 35%)",
+          600: "hsl(210, 30%, 25%)",
+          700: "hsl(210, 35%, 18%)",
+          800: "hsl(210, 40%, 12%)",
+          900: "hsl(210, 45%, 8%)",
+        },
+        electric: {
+          400: "hsl(195, 100%, 60%)",
+          500: "hsl(195, 100%, 50%)",
+          600: "hsl(195, 100%, 40%)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -80,10 +97,50 @@ export default {
             height: "0",
           },
         },
+        "slide-down": {
+          from: {
+            opacity: "0",
+            transform: "translateY(-10px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "slide-up": {
+          from: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+          to: {
+            opacity: "0",
+            transform: "translateY(-10px)",
+          },
+        },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
+        },
+        "glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 20px hsl(195, 100%, 50%)",
+          },
+          "50%": {
+            boxShadow: "0 0 40px hsl(195, 100%, 60%)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "slide-down": "slide-down 0.3s ease-out",
+        "slide-up": "slide-up 0.3s ease-out",
+        "float": "float 3s ease-in-out infinite",
+        "glow": "glow 2s ease-in-out infinite",
       },
     },
   },
