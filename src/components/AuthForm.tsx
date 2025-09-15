@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { BackButton } from '@/components/BackButton';
 import { TelegramAuthForm } from './TelegramAuthForm';
+import { TermsAcceptance } from './TermsAcceptance';
 import { useTelegram } from '@/hooks/useTelegram';
 
 interface AuthFormProps {
@@ -26,6 +27,8 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   
   const { toast } = useToast();
   const { isInTelegram } = useTelegram();
+  const [showTermsAcceptance, setShowTermsAcceptance] = useState(false);
+  const [pendingSignup, setPendingSignup] = useState<any>(null);
 
   // If running in Telegram, use Telegram auth
   if (isInTelegram) {
@@ -38,7 +41,50 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       </AnimatedBackground>
     );
   }
+  
+  const handleTermsAccept = async (agreements: Record<string, boolean>) => {
+    if (!pendingSignup) return;
+    
+    try {
+      // Proceed with actual signup
+      const { error } = await supabase.auth.signUp({
+        phone: `+${pendingSignup.cleanPhone}`,
+        password: pendingSignup.password,
+        options: {
+          data: {
+            phone: `+${pendingSignup.cleanPhone}`,
+            terms_accepted: true,
+            terms_version: "2.1.0",
+            agreements: agreements
+          }
+        }
+      });
 
+      if (error) {
+        toast({
+          title: "Ошибка регистрации",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Регистрация успешна",
+        description: "Добро пожаловать в GruzzTop!"
+      });
+
+      setShowTermsAcceptance(false);
+      setPendingSignup(null);
+      onSuccess();
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Произошла неожиданная ошибка",
+        variant: "destructive"
+      });
+    }
+  };
   // Форматирование номера телефона
   const formatPhoneNumber = (value: string) => {
     // Удаляем все символы кроме цифр
@@ -140,33 +186,18 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
           description: "Добро пожаловать в GruzzTop!"
         });
       } else {
-        // Регистрация
-        const { error } = await supabase.auth.signUp({
-          phone: `+${cleanPhone}`,
-          password: formData.password,
-          options: {
-            data: {
-              phone: `+${cleanPhone}`
-            }
-          }
+        // Registration - show terms acceptance first
+        setPendingSignup({
+          cleanPhone,
+          password: formData.password
         });
-
-        if (error) {
-          toast({
-            title: "Ошибка регистрации",
-            description: error.message,
-            variant: "destructive"
-          });
-          return;
-        }
-
-        toast({
-          title: "Регистрация успешна",
-          description: "Добро пожаловать в GruzzTop!"
-        });
+        setShowTermsAcceptance(true);
+        return;
       }
 
-      onSuccess();
+      if (!showTermsAcceptance) {
+        onSuccess();
+      }
     } catch (error) {
       toast({
         title: "Ошибка",
@@ -292,6 +323,16 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         </div>
       </Card>
       </div>
+      
+      {/* Terms Acceptance Modal */}
+      <TermsAcceptance
+        isOpen={showTermsAcceptance}
+        onAccept={handleTermsAccept}
+        onCancel={() => {
+          setShowTermsAcceptance(false);
+          setPendingSignup(null);
+        }}
+      />
     </AnimatedBackground>
   );
 };

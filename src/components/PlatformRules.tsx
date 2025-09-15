@@ -1,0 +1,214 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { 
+  FileText, 
+  Shield, 
+  CreditCard, 
+  Scale, 
+  Users,
+  CheckCircle,
+  AlertTriangle,
+  Info
+} from 'lucide-react';
+import { PLATFORM_RULES, TERMS_VERSION, TERMS_LAST_UPDATED } from '@/data/legal';
+
+interface RulesSectionProps {
+  title: string;
+  content: Array<{
+    section: string;
+    items: string[];
+  }>;
+  icon: React.ReactNode;
+  variant?: 'default' | 'warning' | 'success' | 'info';
+}
+
+const RulesSection: React.FC<RulesSectionProps> = ({ 
+  title, 
+  content, 
+  icon, 
+  variant = 'default' 
+}) => {
+  const getVariantClasses = (variant: string) => {
+    switch (variant) {
+      case 'warning':
+        return 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950';
+      case 'success':
+        return 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950';
+      case 'info':
+        return 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950';
+      default:
+        return 'border-border bg-card';
+    }
+  };
+
+  return (
+    <Card className={getVariantClasses(variant)}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {icon}
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {content.map((section, index) => (
+          <div key={index}>
+            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              {section.section}
+            </h4>
+            <ul className="space-y-2">
+              {section.items.map((item, itemIndex) => (
+                <li key={itemIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            {index < content.length - 1 && <Separator className="mt-4" />}
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+};
+
+export const PlatformRules: React.FC = () => {
+  const [activeTab, setActiveTab] = useState("commission");
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold text-foreground">
+          Правила платформы GruzzTop
+        </h1>
+        <p className="text-muted-foreground">
+          Ознакомьтесь с правилами использования нашей платформы
+        </p>
+        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <Badge variant="outline">
+            Версия {TERMS_VERSION}
+          </Badge>
+          <span>Обновлено: {TERMS_LAST_UPDATED}</span>
+        </div>
+      </div>
+
+      {/* Important Notice */}
+      <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div className="space-y-1">
+              <p className="font-medium text-yellow-800 dark:text-yellow-200">
+                Важная информация
+              </p>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                Использование платформы означает полное согласие с данными правилами. 
+                При изменении правил все пользователи получают уведомление.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Rules Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
+          <TabsTrigger value="commission" className="text-xs">
+            <CreditCard className="h-4 w-4 mr-1" />
+            Комиссии
+          </TabsTrigger>
+          <TabsTrigger value="responsibilities" className="text-xs">
+            <Users className="h-4 w-4 mr-1" />
+            Обязанности
+          </TabsTrigger>
+          <TabsTrigger value="disputes" className="text-xs">
+            <Scale className="h-4 w-4 mr-1" />
+            Споры
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="text-xs">
+            <Shield className="h-4 w-4 mr-1" />
+            Платежи
+          </TabsTrigger>
+          <TabsTrigger value="privacy" className="text-xs">
+            <FileText className="h-4 w-4 mr-1" />
+            Конфиденциальность
+          </TabsTrigger>
+        </TabsList>
+
+        <ScrollArea className="h-[600px] w-full">
+          <TabsContent value="commission" className="mt-6">
+            <RulesSection
+              title={PLATFORM_RULES.commission.title}
+              content={PLATFORM_RULES.commission.content}
+              icon={<CreditCard className="h-5 w-5 text-green-600" />}
+              variant="success"
+            />
+          </TabsContent>
+
+          <TabsContent value="responsibilities" className="mt-6">
+            <RulesSection
+              title={PLATFORM_RULES.responsibilities.title}
+              content={PLATFORM_RULES.responsibilities.content}
+              icon={<Users className="h-5 w-5 text-blue-600" />}
+              variant="info"
+            />
+          </TabsContent>
+
+          <TabsContent value="disputes" className="mt-6">
+            <RulesSection
+              title={PLATFORM_RULES.disputes.title}
+              content={PLATFORM_RULES.disputes.content}
+              icon={<Scale className="h-5 w-5 text-orange-600" />}
+              variant="warning"
+            />
+          </TabsContent>
+
+          <TabsContent value="payments" className="mt-6">
+            <RulesSection
+              title={PLATFORM_RULES.payments.title}
+              content={PLATFORM_RULES.payments.content}
+              icon={<Shield className="h-5 w-5 text-purple-600" />}
+            />
+          </TabsContent>
+
+          <TabsContent value="privacy" className="mt-6">
+            <RulesSection
+              title={PLATFORM_RULES.privacy.title}
+              content={PLATFORM_RULES.privacy.content}
+              icon={<FileText className="h-5 w-5 text-indigo-600" />}
+            />
+          </TabsContent>
+        </ScrollArea>
+      </Tabs>
+
+      {/* Contact Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5 text-blue-600" />
+            Контактная информация
+          </CardTitle>
+          <CardDescription>
+            Если у вас есть вопросы по правилам платформы
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm">
+            <strong>Email поддержки:</strong> support@gruzztop.ru
+          </p>
+          <p className="text-sm">
+            <strong>Юридический адрес:</strong> 123456, г. Москва, ул. Примерная, д. 1
+          </p>
+          <p className="text-sm">
+            <strong>Часы работы поддержки:</strong> Пн-Пт 9:00-18:00 (МСК)
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

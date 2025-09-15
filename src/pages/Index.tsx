@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
 import { AuthForm } from '@/components/AuthForm';
+import { LegalFooter } from '@/components/LegalFooter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -113,8 +114,11 @@ const Index = () => {
                   <div className="flex items-center space-x-4 text-sm">
                     <span className="text-primary font-bold">{job.pay}</span>
                     <span className="text-steel-500">{job.location}</span>
-                  </div>
-                </div>
+        </div>
+        
+        {/* Legal Footer */}
+        <LegalFooter />
+      </div>
                 <span className="text-steel-500 text-xs bg-steel-700 px-2 py-1 rounded">2ч назад</span>
               </div>
               <div className="pt-3 border-t border-steel-700">

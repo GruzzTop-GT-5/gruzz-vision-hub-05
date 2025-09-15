@@ -38,12 +38,12 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
 
   const menuItems = [
     { icon: Megaphone, label: 'Доска объявлений', href: '/ads' },
-    { icon: MessageCircle, label: 'Чаты и поддержка', href: '/chat' },
+    { icon: MessageCircle, label: 'Чаты и поддержка', href: '/chat-system' },
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: ShoppingBag, label: 'Мои заказы', href: '/orders' },
     { icon: CreditCard, label: 'Баланс + Пополнение', href: '/balance' },
     { icon: History, label: 'История работ', href: '/history' },
-    { icon: FileText, label: 'Политика приложения', href: '/policy' },
+    { icon: FileText, label: 'Правила платформы', href: '/rules' },
   ];
 
   // Add admin panel for staff users
