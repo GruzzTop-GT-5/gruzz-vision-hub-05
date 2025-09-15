@@ -26,10 +26,10 @@ class ApiService {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as User };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -42,10 +42,10 @@ class ApiService {
         .update(updates)
         .eq('id', userId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as User };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -150,12 +150,12 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('ads')
-        .insert(ad)
+        .insert(ad as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as Ad };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -165,13 +165,13 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('ads')
-        .update(updates)
+        .update(updates as any)
         .eq('id', adId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as Ad };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -203,10 +203,10 @@ class ApiService {
 
       // Apply filters
       if (filters.type) {
-        query = query.eq('type', filters.type);
+        query = query.eq('type', filters.type as any);
       }
       if (filters.status) {
-        query = query.eq('status', filters.status);
+        query = query.eq('status', filters.status as any);
       }
       if (filters.dateFrom) {
         query = query.gte('created_at', filters.dateFrom);
@@ -225,7 +225,11 @@ class ApiService {
       if (error) throw error;
 
       return {
-        data: data || [],
+        data: (data || []).map(item => ({
+          ...item,
+          payment_details: item.payment_details as any,
+          user: item.user as any
+        })) as Transaction[],
         total: count || 0,
         page,
         limit,
@@ -246,12 +250,12 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .insert(transaction)
+        .insert(transaction as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: { ...data, payment_details: data?.payment_details as any } as Transaction };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -261,13 +265,13 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .update(updates)
+        .update(updates as any)
         .eq('id', transactionId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: { ...data, payment_details: data?.payment_details as any } as Transaction };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -319,12 +323,12 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('reviews')
-        .insert(review)
+        .insert(review as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as Review };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -348,7 +352,7 @@ class ApiService {
       if (error) throw error;
 
       return {
-        data: data || [],
+        data: (data || []) as Conversation[],
         total: count || 0,
         page,
         limit,
@@ -369,12 +373,12 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .insert(conversation)
+        .insert(conversation as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as Conversation };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -403,7 +407,7 @@ class ApiService {
       if (error) throw error;
 
       return {
-        data: data || [],
+        data: (data || []) as Message[],
         total: count || 0,
         page,
         limit,
@@ -424,12 +428,12 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .insert(message)
+        .insert(message as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as Message };
     } catch (error) {
       return { error: (error as Error).message };
     }
@@ -453,7 +457,7 @@ class ApiService {
       if (error) throw error;
 
       return {
-        data: data || [],
+        data: (data || []) as Notification[],
         total: count || 0,
         page,
         limit,
@@ -509,7 +513,7 @@ class ApiService {
       if (error) throw error;
 
       return {
-        data: data || [],
+        data: (data || []) as SupportTicket[],
         total: count || 0,
         page,
         limit,
@@ -530,12 +534,12 @@ class ApiService {
     try {
       const { data, error } = await supabase
         .from('support_tickets')
-        .insert(ticket)
+        .insert(ticket as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return { data };
+      return { data: data as SupportTicket };
     } catch (error) {
       return { error: (error as Error).message };
     }
