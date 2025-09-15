@@ -8,6 +8,7 @@ import { Rules } from "./pages/Rules";
 import Ads from "./pages/Ads";
 import CreateAd from "./pages/CreateAd";
 import UserProfile from "./pages/UserProfile";
+import EditProfile from "./pages/EditProfile";
 import AdminPanel from "./pages/AdminPanel";
 import ChatSystem from "./pages/ChatSystem";
 import NotFound from "./pages/NotFound";
@@ -21,13 +22,15 @@ const App = () => (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Index />} />
-          <Route path="/balance" element={<Balance />} />
-          <Route path="/rules" element={<Rules />} />
+        <Route path="/balance" element={<Balance />} />
+        <Route path="/rules" element={<Rules />} />
         <Route path="/ads" element={<Ads />} />
         <Route path="/create-ad" element={<CreateAd />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/chat" element={<ChatSystem />} />
+        <Route path="/chat-system" element={<ChatSystem />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -175,7 +175,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
             <Link 
               to="/ads" 
               onClick={handleMenuClick}
-              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+              className={`flex flex-col items-center py-2 px-2 text-xs transition-colors ${
                 location.pathname === '/ads' ? 'text-primary' : 'text-steel-400'
               }`}
             >
@@ -185,7 +185,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
             <Link 
               to="/create-ad" 
               onClick={handleMenuClick}
-              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+              className={`flex flex-col items-center py-2 px-2 text-xs transition-colors ${
                 location.pathname === '/create-ad' ? 'text-primary' : 'text-steel-400'
               }`}
             >
@@ -193,9 +193,19 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
               Создать
             </Link>
             <Link 
+              to="/profile" 
+              onClick={handleMenuClick}
+              className={`flex flex-col items-center py-2 px-2 text-xs transition-colors ${
+                location.pathname === '/profile' || location.pathname.startsWith('/profile/') ? 'text-primary' : 'text-steel-400'
+              }`}
+            >
+              <UserIcon className="h-5 w-5 mb-1" />
+              Профиль
+            </Link>
+            <Link 
               to="/chat-system" 
               onClick={handleMenuClick}
-              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+              className={`flex flex-col items-center py-2 px-2 text-xs transition-colors ${
                 location.pathname === '/chat-system' ? 'text-primary' : 'text-steel-400'
               }`}
             >
@@ -205,7 +215,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
             <Link 
               to="/balance" 
               onClick={handleMenuClick}
-              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+              className={`flex flex-col items-center py-2 px-2 text-xs transition-colors ${
                 location.pathname === '/balance' ? 'text-primary' : 'text-steel-400'
               }`}
             >
