@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { User, Edit, Star, MapPin, Calendar, Briefcase, Phone, Save, Check, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,6 +30,7 @@ interface ProfileData {
 
 const Profile = () => {
   const { user, userRole, signOut } = useAuth();
+  const { toast } = useToast();
   const [profileData, setProfileData] = useState<ProfileData>({});
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,11 @@ const Profile = () => {
 
       if (error) {
         console.error('Error loading profile:', error);
-        toast.error('Ошибка загрузки профиля');
+        toast({
+          title: "Ошибка",
+          description: "Ошибка загрузки профиля",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -63,7 +68,11 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Ошибка загрузки профиля');
+      toast({
+        title: "Ошибка",
+        description: "Ошибка загрузки профиля",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -83,26 +92,45 @@ const Profile = () => {
           citizenship: profileData.citizenship,
           qualification: profileData.qualification,
           bio: profileData.bio,
+          telegram_username: profileData.telegram_username,
         })
         .eq('id', user.id);
 
       if (error) {
         console.error('Error saving profile:', error);
-        toast.error('Ошибка сохранения профиля');
+        toast({
+          title: "Ошибка",
+          description: "Ошибка сохранения профиля",
+          variant: "destructive",
+        });
         return;
       }
 
-      toast.success('Профиль успешно сохранен');
+      toast({
+        title: "Успешно",
+        description: "Профиль успешно сохранен",
+      });
       setIsEditing(false);
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Ошибка сохранения профиля');
+      toast({
+        title: "Ошибка",
+        description: "Ошибка сохранения профиля",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
   };
 
   const handleInputChange = (field: keyof ProfileData, value: string | number) => {
+    // Автоматически добавляем @ для telegram_username если его нет
+    if (field === 'telegram_username' && typeof value === 'string') {
+      if (value && !value.startsWith('@')) {
+        value = '@' + value;
+      }
+    }
+    
     setProfileData(prev => ({
       ...prev,
       [field]: value
@@ -294,11 +322,18 @@ const Profile = () => {
 
                     <div className="space-y-2">
                       <Label className="text-steel-400 text-sm">Telegram</Label>
-                      <p className="text-steel-100">
-                        {profileData.telegram_username 
-                          ? `@${profileData.telegram_username}` 
-                          : 'Не подключен'}
-                      </p>
+                      {isEditing ? (
+                        <Input
+                          value={profileData.telegram_username || ''}
+                          onChange={(e) => handleInputChange('telegram_username', e.target.value)}
+                          className="bg-steel-700 border-steel-600 text-steel-100"
+                          placeholder="@username"
+                        />
+                      ) : (
+                        <p className="text-steel-100">
+                          {profileData.telegram_username || 'Не указан'}
+                        </p>
+                      )}
                     </div>
                   </div>
 
