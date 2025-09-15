@@ -43,32 +43,32 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
     <div className="min-h-screen flex flex-col justify-center p-4">
       <div className="max-w-4xl mx-auto w-full space-y-8">
         {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-primary to-electric-600 rounded-2xl flex items-center justify-center animate-glow">
-              <span className="text-steel-900 font-bold text-3xl">GT</span>
+        <div className="text-center space-y-6">
+          <div className="flex justify-center mb-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-primary via-electric-500 to-electric-600 rounded-3xl flex items-center justify-center animate-glow hover:animate-float shadow-2xl">
+              <span className="text-steel-900 font-black text-4xl tracking-wider">GT</span>
             </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-glow">
+          <h1 className="text-5xl md:text-7xl font-black text-glow tracking-tight">
             GruzzTop GT-V5
           </h1>
-          <p className="text-xl text-steel-300 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-steel-300 max-w-3xl mx-auto leading-relaxed font-medium">
             Современная платформа для безопасных сделок и торговли. 
             Присоединяйтесь к сообществу надежных пользователей.
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="card-steel p-6 text-center space-y-4 hover:scale-105 transition-transform duration-300">
+            <Card key={index} className="card-steel p-8 text-center space-y-6 hover:scale-110 hover:-rotate-1 transition-all duration-500 group">
               <div className="flex justify-center">
-                <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <feature.icon className="w-6 h-6 text-primary" />
+                <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
+                  <feature.icon className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-steel-100">{feature.title}</h3>
-              <p className="text-sm text-steel-400 leading-relaxed">{feature.description}</p>
+              <h3 className="text-xl font-bold text-steel-100 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
+              <p className="text-sm text-steel-400 leading-relaxed group-hover:text-steel-300 transition-colors duration-300">{feature.description}</p>
             </Card>
           ))}
         </div>
@@ -89,15 +89,15 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         </Card>
 
         {/* CTA Button */}
-        <div className="text-center">
-          <Button
+        <div className="text-center space-y-6">
+          <button
             onClick={onGetStarted}
-            className="btn-3d px-8 py-4 text-lg font-bold bg-gradient-to-r from-primary to-electric-600 hover:from-electric-600 hover:to-primary text-steel-900"
+            className="btn-3d px-12 py-6 text-xl font-black bg-gradient-to-r from-primary via-electric-500 to-electric-600 hover:from-electric-600 hover:via-primary hover:to-electric-500 text-steel-900 rounded-2xl tracking-wide"
           >
-            Начать использование
-          </Button>
-          <p className="mt-4 text-steel-400 text-sm">
-            Нажимая "Начать использование", вы соглашаетесь с правилами платформы
+            НАЧАТЬ ИСПОЛЬЗОВАНИЕ
+          </button>
+          <p className="mt-6 text-steel-400 text-sm max-w-md mx-auto leading-relaxed">
+            Нажимая "Начать использование", вы соглашаетесь с правилами платформы и политикой конфиденциальности
           </p>
         </div>
       </div>
