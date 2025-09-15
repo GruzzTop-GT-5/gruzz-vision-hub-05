@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, Users, Zap, Trophy } from 'lucide-react';
+import { Shield, Users, Zap, Trophy, Star } from 'lucide-react';
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;
@@ -29,7 +29,7 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
       description: 'Низкая комиссия за размещение объявлений о поиске людей'
     },
     {
-      icon: Shield,
+      icon: Star,
       title: 'Система рейтингов',
       description: 'Каждый пользователь имеет рейтинг, что исключает мошенников и повышает доверие'
     }
@@ -64,7 +64,7 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
           {features.map((feature, index) => (
             <Card key={index} className="card-steel p-8 text-center space-y-6 hover:scale-110 hover:-rotate-1 transition-all duration-500 group">
               <div className="flex justify-center">
