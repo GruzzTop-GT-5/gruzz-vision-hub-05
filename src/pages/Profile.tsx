@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { User, Edit, Star, MapPin, Calendar, Briefcase, Phone, Save, Check, X } from 'lucide-react';
+import { User, Edit, Star, MapPin, Calendar, Briefcase, Phone, Save, Check, X, Camera, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileData {
@@ -23,6 +23,7 @@ interface ProfileData {
   phone?: string;
   telegram_username?: string;
   telegram_photo_url?: string;
+  avatar_url?: string;
   rating?: number;
   balance?: number;
   created_at?: string;
@@ -34,6 +35,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   // Load profile data
   useEffect(() => {
@@ -74,19 +76,20 @@ const Profile = () => {
 
     setSaving(true);
     try {
-          const { error } = await supabase
-            .from('profiles')
-            .update({
-              display_name: profileData.display_name,
-              full_name: profileData.full_name,
-              age: profileData.age,
-              citizenship: profileData.citizenship,
-              qualification: profileData.qualification,
-              bio: profileData.bio,
-              phone: profileData.phone,
-              telegram_username: profileData.telegram_username,
-            })
-            .eq('id', user.id);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: profileData.display_name,
+          full_name: profileData.full_name,
+          age: profileData.age,
+          citizenship: profileData.citizenship,
+          qualification: profileData.qualification,
+          bio: profileData.bio,
+          phone: profileData.phone,
+          telegram_username: profileData.telegram_username,
+          avatar_url: profileData.avatar_url,
+        })
+        .eq('id', user.id);
 
       if (error) {
         console.error('Error saving profile:', error);
@@ -109,6 +112,81 @@ const Profile = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Пожалуйста, выберите изображение');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Размер файла не должен превышать 5 МБ');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Delete old avatar if exists
+      if (profileData.avatar_url) {
+        const oldPath = profileData.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user.id}/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast.error('Ошибка загрузки изображения');
+        return;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile data
+      setProfileData(prev => ({
+        ...prev,
+        avatar_url: publicUrl
+      }));
+
+      // Save to database immediately
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('Database update error:', updateError);
+        toast.error('Ошибка сохранения в базе данных');
+        return;
+      }
+
+      toast.success('Фотография успешно обновлена');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error('Ошибка загрузки изображения');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -197,18 +275,43 @@ const Profile = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    <Avatar className="w-20 h-20">
-                      {profileData.telegram_photo_url ? (
-                        <AvatarImage src={profileData.telegram_photo_url} alt="Profile" />
-                      ) : null}
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-electric-600 text-steel-900 text-xl font-bold">
-                        {(profileData.full_name || profileData.display_name || 'User')
-                          .split(' ')
-                          .map(n => n[0])
-                          .join('')
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="w-20 h-20">
+                        {profileData.avatar_url ? (
+                          <AvatarImage src={profileData.avatar_url} alt="Profile" />
+                        ) : profileData.telegram_photo_url ? (
+                          <AvatarImage src={profileData.telegram_photo_url} alt="Profile" />
+                        ) : null}
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-electric-600 text-steel-900 text-xl font-bold">
+                          {(profileData.full_name || profileData.display_name || 'User')
+                            .split(' ')
+                            .map(n => n[0])
+                            .join('')
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      {/* Photo upload button */}
+                      <div className="absolute -bottom-2 -right-2">
+                        <label htmlFor="avatar-upload" className="cursor-pointer">
+                          <div className="w-8 h-8 bg-primary hover:bg-primary/80 rounded-full flex items-center justify-center transition-colors">
+                            {uploading ? (
+                              <div className="w-4 h-4 border-2 border-steel-900 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Camera className="w-4 h-4 text-steel-900" />
+                            )}
+                          </div>
+                        </label>
+                        <input
+                          id="avatar-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={uploadAvatar}
+                          className="hidden"
+                          disabled={uploading}
+                        />
+                      </div>
+                    </div>
                     <div className="space-y-2 flex-1">
                       {isEditing ? (
                         <div className="space-y-2">
