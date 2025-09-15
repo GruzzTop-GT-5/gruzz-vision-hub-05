@@ -115,8 +115,12 @@ const Profile = () => {
   };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Upload avatar function called');
     const file = event.target.files?.[0];
-    if (!file || !user?.id) return;
+    if (!file || !user?.id) {
+      console.log('No file or user:', { file: !!file, userId: user?.id });
+      return;
+    }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -134,11 +138,18 @@ const Profile = () => {
     try {
       // Delete old avatar if exists
       if (profileData.avatar_url) {
-        const oldPath = profileData.avatar_url.split('/').pop();
-        if (oldPath) {
+        try {
+          const url = new URL(profileData.avatar_url);
+          const pathParts = url.pathname.split('/');
+          const fileName = pathParts[pathParts.length - 1];
+          const oldPath = `${user.id}/${fileName}`;
+          
           await supabase.storage
             .from('avatars')
-            .remove([`${user.id}/${oldPath}`]);
+            .remove([oldPath]);
+        } catch (deleteError) {
+          console.log('Could not delete old avatar:', deleteError);
+          // Continue with upload even if delete fails
         }
       }
 
