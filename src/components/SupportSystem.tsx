@@ -1,0 +1,473 @@
+import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { sanitizeInput } from '@/utils/security';
+import { ChatInterface } from '@/components/ChatInterface';
+import { 
+  MessageSquare, 
+  Plus, 
+  Search, 
+  Clock, 
+  CheckCircle, 
+  AlertCircle,
+  XCircle,
+  Filter
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+
+interface SupportTicket {
+  id: string;
+  conversation_id: string;
+  ticket_number: string;
+  subject: string;
+  description: string | null;
+  priority: string;
+  category: string | null;
+  status: string;
+  created_by: string;
+  assigned_to: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Conversation {
+  id: string;
+  type: string;
+  title: string | null;
+  participants: string[];
+  status: string;
+  last_message_at: string;
+  created_at: string;
+}
+
+const SUPPORT_CATEGORIES = [
+  'Техническая проблема',
+  'Платежи и пополнения',
+  'Управление аккаунтом',
+  'Объявления',
+  'Отзывы и рейтинги',
+  'Модерация',
+  'Другое'
+];
+
+const PRIORITY_COLORS = {
+  low: 'text-green-400 bg-green-400/10 border-green-400/20',
+  normal: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+  high: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+  urgent: 'text-red-400 bg-red-400/10 border-red-400/20'
+};
+
+const STATUS_COLORS = {
+  open: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+  in_progress: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+  resolved: 'text-green-400 bg-green-400/10 border-green-400/20',
+  closed: 'text-steel-400 bg-steel-400/10 border-steel-400/20'
+};
+
+export const SupportSystem = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  
+  // New ticket form
+  const [newTicket, setNewTicket] = useState({
+    subject: '',
+    description: '',
+    category: '',
+    priority: 'normal'
+  });
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchSupportData();
+    }
+  }, [user?.id]);
+
+  const fetchSupportData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch support tickets
+      const { data: ticketsData, error: ticketsError } = await supabase
+        .from('support_tickets')
+        .select(`
+          *,
+          conversation:conversations(*)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (ticketsError) throw ticketsError;
+      
+      // Fetch support conversations
+      const { data: conversationsData, error: conversationsError } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('type', 'support')
+        .order('last_message_at', { ascending: false });
+
+      if (conversationsError) throw conversationsError;
+
+      setTickets(ticketsData || []);
+      setConversations(conversationsData || []);
+    } catch (error) {
+      console.error('Error fetching support data:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить данные поддержки",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createSupportTicket = async () => {
+    if (!user?.id || !newTicket.subject.trim() || !newTicket.description.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все обязательные поля",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create conversation first
+      const { data: conversationData, error: conversationError } = await supabase
+        .from('conversations')
+        .insert({
+          type: 'support',
+          title: newTicket.subject,
+          participants: [user.id],
+          created_by: user.id,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (conversationError) throw conversationError;
+
+      // Create support ticket (ticket_number will be auto-generated by trigger)
+      const { data: ticketData, error: ticketError } = await supabase
+        .from('support_tickets')
+        .insert({
+          conversation_id: conversationData.id,
+          subject: sanitizeInput(newTicket.subject),
+          description: sanitizeInput(newTicket.description),
+          category: newTicket.category,
+          priority: newTicket.priority,
+          created_by: user.id,
+          status: 'open',
+          ticket_number: '' // Will be overridden by trigger
+        } as any)
+        .select()
+        .single();
+
+      if (ticketError) throw ticketError;
+
+      // Create initial system message
+      await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversationData.id,
+          sender_id: user.id,
+          content: newTicket.description,
+          message_type: 'text'
+        });
+
+      toast({
+        title: "Тикет создан",
+        description: `Ваш тикет #${ticketData.ticket_number} создан успешно`
+      });
+
+      setNewTicket({
+        subject: '',
+        description: '',
+        category: '',
+        priority: 'normal'
+      });
+      setShowCreateDialog(false);
+      fetchSupportData();
+    } catch (error) {
+      console.error('Error creating support ticket:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось создать тикет",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'open':
+        return <AlertCircle className="w-4 h-4" />;
+      case 'in_progress':
+        return <Clock className="w-4 h-4" />;
+      case 'resolved':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'closed':
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return <MessageSquare className="w-4 h-4" />;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'open': return 'Открыт';
+      case 'in_progress': return 'В работе';
+      case 'resolved': return 'Решен';
+      case 'closed': return 'Закрыт';
+      default: return status;
+    }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case 'low': return 'Низкий';
+      case 'normal': return 'Обычный';
+      case 'high': return 'Высокий';
+      case 'urgent': return 'Срочный';
+      default: return priority;
+    }
+  };
+
+  const filteredTickets = tickets.filter(ticket => {
+    const matchesSearch = ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         ticket.ticket_number.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (selectedConversation) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            onClick={() => setSelectedConversation(null)}
+          >
+            ← Назад к тикетам
+          </Button>
+          <h2 className="text-xl font-bold text-steel-100">Чат поддержки</h2>
+        </div>
+        
+        <ChatInterface
+          conversationId={selectedConversation}
+          onClose={() => setSelectedConversation(null)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-glow">Система поддержки</h1>
+        
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/80">
+              <Plus className="w-4 h-4 mr-2" />
+              Создать тикет
+            </Button>
+          </DialogTrigger>
+          
+          <DialogContent className="card-steel max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-steel-100">Новый тикет поддержки</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="subject">Тема *</Label>
+                <Input
+                  id="subject"
+                  value={newTicket.subject}
+                  onChange={(e) => setNewTicket(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="Кратко опишите проблему"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="category">Категория</Label>
+                <Select
+                  value={newTicket.category}
+                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, category: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите категорию" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORT_CATEGORIES.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="priority">Приоритет</Label>
+                <Select
+                  value={newTicket.priority}
+                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, priority: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Низкий</SelectItem>
+                    <SelectItem value="normal">Обычный</SelectItem>
+                    <SelectItem value="high">Высокий</SelectItem>
+                    <SelectItem value="urgent">Срочный</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="description">Описание проблемы *</Label>
+                <Textarea
+                  id="description"
+                  value={newTicket.description}
+                  onChange={(e) => setNewTicket(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Подробно опишите проблему или вопрос"
+                  className="min-h-[100px]"
+                />
+              </div>
+              
+              <Button
+                onClick={createSupportTicket}
+                disabled={!newTicket.subject.trim() || !newTicket.description.trim()}
+                className="w-full"
+              >
+                Создать тикет
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Filters */}
+      <Card className="card-steel p-4">
+        <div className="flex items-center space-x-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
+            <Input
+              placeholder="Поиск по номеру или теме..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все статусы</SelectItem>
+              <SelectItem value="open">Открытые</SelectItem>
+              <SelectItem value="in_progress">В работе</SelectItem>
+              <SelectItem value="resolved">Решенные</SelectItem>
+              <SelectItem value="closed">Закрытые</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
+
+      {/* Tickets List */}
+      <div className="space-y-4">
+        {isLoading ? (
+          <Card className="card-steel p-8 text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-steel-300">Загрузка тикетов...</p>
+          </Card>
+        ) : filteredTickets.length === 0 ? (
+          <Card className="card-steel p-8 text-center">
+            <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-steel-300 mb-2">Нет тикетов</h3>
+            <p className="text-steel-400">
+              {searchQuery || statusFilter !== 'all' 
+                ? 'По вашему запросу ничего не найдено'
+                : 'У вас пока нет обращений в поддержку'
+              }
+            </p>
+          </Card>
+        ) : (
+          filteredTickets.map((ticket) => (
+            <Card key={ticket.id} className="card-steel p-6 hover:bg-steel-800/50 transition-colors cursor-pointer">
+              <div 
+                className="space-y-4"
+                onClick={() => setSelectedConversation(ticket.conversation_id)}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-3">
+                      <h3 className="font-bold text-steel-100">{ticket.subject}</h3>
+                      <Badge className={STATUS_COLORS[ticket.status as keyof typeof STATUS_COLORS]}>
+                        <div className="flex items-center space-x-1">
+                          {getStatusIcon(ticket.status)}
+                          <span>{getStatusLabel(ticket.status)}</span>
+                        </div>
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4 text-sm text-steel-400">
+                      <span>Тикет #{ticket.ticket_number}</span>
+                      {ticket.category && <span>• {ticket.category}</span>}
+                      <span>• {format(new Date(ticket.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</span>
+                    </div>
+                  </div>
+                  
+                  <Badge className={PRIORITY_COLORS[ticket.priority as keyof typeof PRIORITY_COLORS]}>
+                    {getPriorityLabel(ticket.priority)}
+                  </Badge>
+                </div>
+
+                {/* Description */}
+                {ticket.description && (
+                  <p className="text-steel-300 text-sm line-clamp-2">
+                    {ticket.description}
+                  </p>
+                )}
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-2 border-t border-steel-600">
+                  <div className="text-xs text-steel-400">
+                    Обновлен: {format(new Date(ticket.updated_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                  </div>
+                  
+                  <Button variant="outline" size="sm">
+                    Открыть чат
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
