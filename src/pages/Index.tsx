@@ -49,8 +49,8 @@ const Index = () => {
       <div className="p-4 space-y-6">
         {/* Header Section */}
         <div className="text-center space-y-4">
-          <h1 className="text-3xl font-bold text-glow">Доска объявлений</h1>
-          <p className="text-steel-300">Найдите то, что ищете, или разместите свое объявление</p>
+          <h1 className="text-3xl font-bold text-glow">Поиск работы и исполнителей</h1>
+          <p className="text-steel-300">Найдите подходящую работу или наймите надежных исполнителей</p>
         </div>
 
         {/* Search and Filter Bar */}
@@ -60,7 +60,7 @@ const Index = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Поиск объявлений..."
+                placeholder="Поиск вакансий или исполнителей..."
                 className="w-full pl-10 pr-4 py-3 input-steel rounded-lg"
               />
             </div>
@@ -70,14 +70,14 @@ const Index = () => {
             </Button>
             <Button className="btn-3d px-6 bg-gradient-to-r from-primary to-electric-600 text-steel-900">
               <Plus className="w-5 h-5 mr-2" />
-              Создать объявление
+              Разместить вакансию
             </Button>
           </div>
         </Card>
 
         {/* Categories */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {['Электроника', 'Автомобили', 'Недвижимость', 'Одежда', 'Услуги', 'Другое'].map((category) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {['Строительство', 'Уборка', 'Грузчики', 'Курьеры', 'Промоутеры', 'Другие'].map((category) => (
             <Button
               key={category}
               variant="outline"
@@ -89,18 +89,25 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Ads Grid Placeholder */}
+        {/* Jobs Grid Placeholder */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((item) => (
             <Card key={item} className="card-steel p-6 space-y-4 hover:scale-105 transition-transform duration-300">
-              <div className="w-full h-48 bg-steel-700 rounded-lg"></div>
-              <div className="space-y-2">
-                <h3 className="font-bold text-steel-100">Пример объявления #{item}</h3>
-                <p className="text-steel-400 text-sm">Описание товара или услуги</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-primary font-bold text-lg">₽ 10,000</span>
-                  <span className="text-steel-500 text-sm">2 часа назад</span>
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 flex-1">
+                  <h3 className="font-bold text-steel-100">Требуется грузчик #{item}</h3>
+                  <p className="text-steel-400 text-sm">Разгрузка товара, работа 1 день</p>
+                  <div className="flex items-center space-x-4 text-sm">
+                    <span className="text-primary font-bold">₽ 2,500/день</span>
+                    <span className="text-steel-500">Москва</span>
+                  </div>
                 </div>
+                <span className="text-steel-500 text-xs bg-steel-700 px-2 py-1 rounded">2 часа назад</span>
+              </div>
+              <div className="pt-3 border-t border-steel-700">
+                <Button size="sm" className="btn-3d w-full">
+                  Откликнуться
+                </Button>
               </div>
             </Card>
           ))}

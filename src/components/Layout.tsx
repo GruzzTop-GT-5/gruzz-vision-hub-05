@@ -22,7 +22,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: ShoppingBag, label: 'Мои заказы', href: '/orders' },
     { icon: CreditCard, label: 'Баланс + Пополнение', href: '/balance' },
-    { icon: History, label: 'История заказов', href: '/history' },
+    { icon: History, label: 'История работ', href: '/history' },
     { icon: MessageCircle, label: 'Поддержка', href: '/support' },
     { icon: FileText, label: 'Политика приложения', href: '/policy' },
   ];
