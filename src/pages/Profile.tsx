@@ -74,17 +74,19 @@ const Profile = () => {
 
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          display_name: profileData.display_name,
-          full_name: profileData.full_name,
-          age: profileData.age,
-          citizenship: profileData.citizenship,
-          qualification: profileData.qualification,
-          bio: profileData.bio,
-        })
-        .eq('id', user.id);
+          const { error } = await supabase
+            .from('profiles')
+            .update({
+              display_name: profileData.display_name,
+              full_name: profileData.full_name,
+              age: profileData.age,
+              citizenship: profileData.citizenship,
+              qualification: profileData.qualification,
+              bio: profileData.bio,
+              phone: profileData.phone,
+              telegram_username: profileData.telegram_username,
+            })
+            .eq('id', user.id);
 
       if (error) {
         console.error('Error saving profile:', error);
@@ -286,19 +288,37 @@ const Profile = () => {
 
                     <div className="space-y-2">
                       <Label className="text-steel-400 text-sm">Телефон</Label>
-                      <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4 text-steel-400" />
-                        <p className="text-steel-100">{profileData.phone || 'Не указан'}</p>
-                      </div>
+                      {isEditing ? (
+                        <Input
+                          value={profileData.phone || ''}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          className="bg-steel-700 border-steel-600 text-steel-100"
+                          placeholder="Введите номер телефона"
+                        />
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <Phone className="w-4 h-4 text-steel-400" />
+                          <p className="text-steel-100">{profileData.phone || 'Не указан'}</p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-steel-400 text-sm">Telegram</Label>
-                      <p className="text-steel-100">
-                        {profileData.telegram_username 
-                          ? `@${profileData.telegram_username}` 
-                          : 'Не подключен'}
-                      </p>
+                      {isEditing ? (
+                        <Input
+                          value={profileData.telegram_username || ''}
+                          onChange={(e) => handleInputChange('telegram_username', e.target.value)}
+                          className="bg-steel-700 border-steel-600 text-steel-100"
+                          placeholder="Введите ник в Telegram"
+                        />
+                      ) : (
+                        <p className="text-steel-100">
+                          {profileData.telegram_username 
+                            ? `@${profileData.telegram_username}` 
+                            : 'Не подключен'}
+                        </p>
+                      )}
                     </div>
                   </div>
 
