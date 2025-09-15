@@ -18,7 +18,8 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     phone: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
   
   const { toast } = useToast();
@@ -89,6 +90,15 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         toast({
           title: "Ошибка", 
           description: "Пароль должен содержать минимум 6 символов",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!isLogin && formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Ошибка", 
+          description: "Пароли не совпадают",
           variant: "destructive"
         });
         return;
@@ -167,7 +177,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             {isLogin ? 'Вход в систему' : 'Регистрация'}
           </h1>
           <p className="text-steel-400">
-            {isLogin ? 'Войдите в ваш аккаунт' : 'Создайте новый аккаунт'}
+            {isLogin ? 'Войдите в ваш аккаунт' : 'Создайте новый аккаунт для работы'}
           </p>
         </div>
 
@@ -216,6 +226,27 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
               </button>
             </div>
           </div>
+
+          {/* Confirm Password Input (only for registration) */}
+          {!isLogin && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-steel-200">
+                Повторите пароль
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-5 h-5" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder="Повторите пароль"
+                  className="w-full pl-10 pr-4 py-3 input-steel rounded-lg"
+                  required
+                  minLength={6}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Submit Button */}
           <Button
