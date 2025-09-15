@@ -111,7 +111,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
                   <UserIcon className="w-6 h-6 text-steel-900" />
                 </div>
                 <div>
-                  <p className="text-steel-100 font-medium">{user.phone || user.email}</p>
+                  <p className="text-steel-100 font-medium">Мой аккаунт</p>
                   {userRole && userRole !== 'user' && (
                     <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border ${
                       userRole === 'system_admin' 
