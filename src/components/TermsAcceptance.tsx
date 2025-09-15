@@ -149,6 +149,11 @@ export const TermsAcceptance: React.FC<TermsAcceptanceProps> = ({
                             <AlertTriangle className="h-4 w-4 text-red-500" />
                           )}
                           {agreement.title}
+                          {agreement.required && (
+                            <Badge variant="destructive" className="text-xs">
+                              Обязательно
+                            </Badge>
+                          )}
                         </CardTitle>
                         <CardDescription className="mt-1">
                           {agreement.description}
