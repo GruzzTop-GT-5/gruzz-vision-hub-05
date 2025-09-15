@@ -29,6 +29,11 @@ const Index = () => {
     setShowAuth(false);
   };
 
+  const handleBackToWelcome = () => {
+    setShowAuth(false);
+    setShowWelcome(true);
+  };
+
   if (loading) {
     return (
       <AnimatedBackground className="min-h-screen flex items-center justify-center">
@@ -42,7 +47,7 @@ const Index = () => {
   }
 
   if (showAuth) {
-    return <AuthForm onSuccess={handleAuthSuccess} onBack={() => setShowAuth(false)} />;
+    return <AuthForm onSuccess={handleAuthSuccess} onBack={handleBackToWelcome} />;
   }
 
   return (
