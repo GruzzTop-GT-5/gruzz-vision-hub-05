@@ -46,9 +46,11 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
     if (!pendingSignup) return;
     
     try {
-      // Proceed with actual signup
+      // Create email from phone for simple auth without SMS
+      const email = `${pendingSignup.cleanPhone}@gruzztop.local`;
+      
       const { error } = await supabase.auth.signUp({
-        phone: `+${pendingSignup.cleanPhone}`,
+        email: email,
         password: pendingSignup.password,
         options: {
           data: {
@@ -166,9 +168,11 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       }
 
       if (isLogin) {
-        // Логин
+        // Логин - используем email созданный из телефона
+        const email = `${cleanPhone}@gruzztop.local`;
+        
         const { error } = await supabase.auth.signInWithPassword({
-          phone: `+${cleanPhone}`,
+          email: email,
           password: formData.password
         });
 
