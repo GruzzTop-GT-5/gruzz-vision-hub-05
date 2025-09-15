@@ -46,11 +46,8 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
     if (!pendingSignup) return;
     
     try {
-      // Create email from phone for simple auth without SMS
-      const email = `${pendingSignup.cleanPhone}@gruzztop.local`;
-      
       const { error } = await supabase.auth.signUp({
-        email: email,
+        phone: `+${pendingSignup.cleanPhone}`,
         password: pendingSignup.password,
         options: {
           data: {
@@ -58,14 +55,15 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             terms_accepted: true,
             terms_version: "2.1.0",
             agreements: agreements
-          }
+          },
+          channel: 'sms'
         }
       });
 
       if (error) {
         toast({
-          title: "Ошибка регистрации",
-          description: error.message,
+          title: "Ошибка регистрации", 
+          description: "Проверьте правильность номера телефона",
           variant: "destructive"
         });
         return;
@@ -168,18 +166,16 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       }
 
       if (isLogin) {
-        // Логин - используем email созданный из телефона
-        const email = `${cleanPhone}@gruzztop.local`;
-        
+        // Логин по телефону
         const { error } = await supabase.auth.signInWithPassword({
-          email: email,
+          phone: `+${cleanPhone}`,
           password: formData.password
         });
 
         if (error) {
           toast({
             title: "Ошибка входа",
-            description: error.message,
+            description: "Неверный номер телефона или пароль",
             variant: "destructive"
           });
           return;
