@@ -53,7 +53,7 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         <div className="text-center space-y-6">
           <div className="flex justify-center mb-8">
             <div className="w-24 h-24 rounded-3xl overflow-hidden flex items-center justify-center animate-glow hover:animate-float shadow-2xl">
-              <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover rounded-3xl" />
+              <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
             </div>
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-glow tracking-tight">
