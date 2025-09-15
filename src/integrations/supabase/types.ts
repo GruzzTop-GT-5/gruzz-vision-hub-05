@@ -317,26 +317,41 @@ export type Database = {
         Row: {
           balance: number
           created_at: string | null
+          display_name: string | null
           id: string
+          is_premium: boolean | null
           phone: string | null
           rating: number | null
           role: Database["public"]["Enums"]["user_role"] | null
+          telegram_id: number | null
+          telegram_photo_url: string | null
+          telegram_username: string | null
         }
         Insert: {
           balance?: number
           created_at?: string | null
+          display_name?: string | null
           id: string
+          is_premium?: boolean | null
           phone?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          telegram_id?: number | null
+          telegram_photo_url?: string | null
+          telegram_username?: string | null
         }
         Update: {
           balance?: number
           created_at?: string | null
+          display_name?: string | null
           id?: string
+          is_premium?: boolean | null
           phone?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          telegram_id?: number | null
+          telegram_photo_url?: string | null
+          telegram_username?: string | null
         }
         Relationships: []
       }
