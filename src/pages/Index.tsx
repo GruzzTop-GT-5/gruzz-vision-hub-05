@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
 import { AuthForm } from '@/components/AuthForm';
-
+import { LegalFooter } from '@/components/LegalFooter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -91,6 +91,9 @@ const Index = () => {
             </Button>
           </Card>
         )}
+        
+        {/* Legal Footer */}
+        <LegalFooter />
       </div>
     </Layout>
   );
