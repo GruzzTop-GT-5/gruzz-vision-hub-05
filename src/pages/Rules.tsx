@@ -3,7 +3,7 @@ import { Layout } from '@/components/Layout';
 import { PlatformRules } from '@/components/PlatformRules';
 import { useAuth } from '@/hooks/useAuth';
 
-export const Rules = () => {
+const Rules = () => {
   const { user, userRole, signOut } = useAuth();
 
   return (
@@ -14,3 +14,6 @@ export const Rules = () => {
     </Layout>
   );
 };
+
+export { Rules };
+export default Rules;
