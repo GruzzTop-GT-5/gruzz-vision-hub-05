@@ -315,12 +315,17 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           balance: number
+          bio: string | null
+          citizenship: string | null
           created_at: string | null
           display_name: string | null
+          full_name: string | null
           id: string
           is_premium: boolean | null
           phone: string | null
+          qualification: string | null
           rating: number | null
           role: Database["public"]["Enums"]["user_role"] | null
           telegram_id: number | null
@@ -328,12 +333,17 @@ export type Database = {
           telegram_username: string | null
         }
         Insert: {
+          age?: number | null
           balance?: number
+          bio?: string | null
+          citizenship?: string | null
           created_at?: string | null
           display_name?: string | null
+          full_name?: string | null
           id: string
           is_premium?: boolean | null
           phone?: string | null
+          qualification?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           telegram_id?: number | null
@@ -341,12 +351,17 @@ export type Database = {
           telegram_username?: string | null
         }
         Update: {
+          age?: number | null
           balance?: number
+          bio?: string | null
+          citizenship?: string | null
           created_at?: string | null
           display_name?: string | null
+          full_name?: string | null
           id?: string
           is_premium?: boolean | null
           phone?: string | null
+          qualification?: string | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           telegram_id?: number | null
@@ -652,6 +667,33 @@ export type Database = {
           },
         ]
       }
+      users_auth: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          password_hash: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          password_hash: string
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          password_hash?: string
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -673,6 +715,10 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      hash_password: {
+        Args: { password: string }
+        Returns: string
+      }
       log_security_event: {
         Args: {
           p_details?: Json
@@ -682,6 +728,14 @@ export type Database = {
           p_user_agent?: string
           p_user_id?: string
         }
+        Returns: string
+      }
+      register_user: {
+        Args: { password_input: string; phone_input: string; user_data?: Json }
+        Returns: string
+      }
+      verify_password: {
+        Args: { password_input: string; phone_input: string }
         Returns: string
       }
     }

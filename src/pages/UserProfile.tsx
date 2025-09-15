@@ -9,7 +9,7 @@ import { StarRating } from '@/components/StarRating';
 import { UserReviews } from '@/components/UserReviews';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Phone, Calendar, Award, AlertCircle, Edit, MessageCircle } from 'lucide-react';
+import { User, Phone, Calendar, Award, AlertCircle, Edit, MessageCircle, Users, Flag, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -22,6 +22,11 @@ interface UserProfile {
   created_at: string;
   role: string | null;
   balance: number;
+  full_name: string | null;
+  age: number | null;
+  citizenship: string | null;
+  qualification: string | null;
+  bio: string | null;
 }
 
 export default function UserProfile() {
@@ -50,7 +55,7 @@ export default function UserProfile() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, phone, display_name, telegram_username, rating, created_at, role, balance')
+        .select('id, phone, display_name, telegram_username, rating, created_at, role, balance, full_name, age, citizenship, qualification, bio')
         .eq('id', userId)
         .single();
 
@@ -78,7 +83,7 @@ export default function UserProfile() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, phone, display_name, telegram_username, rating, created_at, role, balance')
+        .select('id, phone, display_name, telegram_username, rating, created_at, role, balance, full_name, age, citizenship, qualification, bio')
         .eq('id', currentUser.id)
         .single();
 
@@ -178,12 +183,41 @@ export default function UserProfile() {
                   <div>
                     <div className="flex items-center space-x-3 mb-2">
                       <h2 className="text-2xl font-bold">
-                        {profile.display_name || `Пользователь ${profile.id.slice(0, 8)}`}
+                        {profile.display_name || profile.full_name || `Пользователь ${profile.id.slice(0, 8)}`}
                       </h2>
                       {roleDisplay && (
                         <Badge className={getRoleBadgeColor(profile.role)}>
                           {roleDisplay}
                         </Badge>
+                      )}
+                    </div>
+                    
+                    {profile.full_name && profile.display_name !== profile.full_name && (
+                      <p className="text-lg text-steel-300 mb-2">
+                        {profile.full_name}
+                      </p>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-4 text-steel-400 text-sm mb-3">
+                      {profile.qualification && (
+                        <span className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {profile.qualification}
+                        </span>
+                      )}
+                      
+                      {profile.age && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {profile.age} лет
+                        </span>
+                      )}
+                      
+                      {profile.citizenship && (
+                        <span className="flex items-center gap-1">
+                          <Flag className="w-4 h-4" />
+                          {profile.citizenship}
+                        </span>
                       )}
                     </div>
                     
@@ -265,6 +299,17 @@ export default function UserProfile() {
               </div>
             </div>
           </Card>
+
+          {/* Bio Section */}
+          {profile.bio && (
+            <Card className="card-steel p-6">
+              <h3 className="text-lg font-semibold text-steel-200 mb-3 flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                О себе
+              </h3>
+              <p className="text-steel-300 leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
+            </Card>
+          )}
 
           {/* Reviews Section */}
           <UserReviews
