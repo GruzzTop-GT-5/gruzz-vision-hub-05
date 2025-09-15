@@ -65,7 +65,7 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 justify-items-center md:justify-items-stretch">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
           {features.map((feature, index) => (
             <Card key={index} className="card-steel p-8 text-center space-y-6 hover:scale-110 hover:-rotate-1 transition-all duration-500 group">
               <div className="flex justify-center">
