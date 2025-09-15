@@ -27,6 +27,11 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
       icon: Trophy,
       title: 'Справедливая комиссия',
       description: 'Низкая комиссия за размещение объявлений о поиске людей'
+    },
+    {
+      icon: Shield,
+      title: 'Система рейтингов',
+      description: 'Каждый пользователь имеет рейтинг, что исключает мошенников и повышает доверие'
     }
   ];
 
