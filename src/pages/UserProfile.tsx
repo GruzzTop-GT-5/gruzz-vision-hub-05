@@ -33,16 +33,12 @@ export default function UserProfile() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('UserProfile useEffect:', { userId, currentUser: !!currentUser, userRole });
-    
     if (userId) {
-      console.log('Fetching profile for userId:', userId);
       fetchUserProfile();
     } else if (currentUser) {
-      console.log('Fetching current user profile:', currentUser.id);
+      // If no userId in URL, show current user's profile
       fetchCurrentUserProfile();
     } else {
-      console.log('No userId and no currentUser found');
       setError('Пользователь не найден');
       setIsLoading(false);
     }
@@ -77,12 +73,7 @@ export default function UserProfile() {
   };
 
   const fetchCurrentUserProfile = async () => {
-    if (!currentUser) {
-      console.log('No currentUser in fetchCurrentUserProfile');
-      return;
-    }
-
-    console.log('Fetching current user profile from database for:', currentUser.id);
+    if (!currentUser) return;
 
     try {
       const { data, error } = await supabase
@@ -91,18 +82,14 @@ export default function UserProfile() {
         .eq('id', currentUser.id)
         .single();
 
-      console.log('Current user profile query result:', { data, error });
-
       if (error) {
         console.error('Error fetching current user profile:', error);
-        setError('Профиль не найден');
         return;
       }
 
       setProfile(data);
     } catch (error) {
-      console.error('Exception in fetchCurrentUserProfile:', error);
-      setError('Ошибка загрузки профиля');
+      console.error('Error fetching current user profile:', error);
     } finally {
       setIsLoading(false);
     }

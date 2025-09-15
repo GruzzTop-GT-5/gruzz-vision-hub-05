@@ -19,7 +19,6 @@ export const useAuth = (): AuthContextType => {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', { session: !!session, user: !!session?.user });
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
