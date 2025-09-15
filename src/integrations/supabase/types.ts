@@ -652,33 +652,6 @@ export type Database = {
           },
         ]
       }
-      users_auth: {
-        Row: {
-          created_at: string
-          id: string
-          is_active: boolean
-          password_hash: string
-          phone: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          password_hash: string
-          phone: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          password_hash?: string
-          phone?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -700,10 +673,6 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
-      hash_password: {
-        Args: { password: string }
-        Returns: string
-      }
       log_security_event: {
         Args: {
           p_details?: Json
@@ -713,14 +682,6 @@ export type Database = {
           p_user_agent?: string
           p_user_id?: string
         }
-        Returns: string
-      }
-      register_user: {
-        Args: { password_input: string; phone_input: string; user_data?: Json }
-        Returns: string
-      }
-      verify_password: {
-        Args: { password_input: string; phone_input: string }
         Returns: string
       }
     }
