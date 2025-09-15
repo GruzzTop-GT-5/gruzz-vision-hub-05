@@ -7,7 +7,8 @@ import { StarRating } from '@/components/StarRating';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, AlertTriangle } from 'lucide-react';
+import { sanitizeInput, detectSuspiciousInput } from '@/utils/security';
 
 interface ReviewFormProps {
   targetUserId: string;
@@ -49,6 +50,17 @@ export const ReviewForm = ({
       return;
     }
 
+    // Security: Check for suspicious content
+    const sanitizedComment = sanitizeInput(comment);
+    if (detectSuspiciousInput(comment)) {
+      toast({
+        title: "Подозрительный контент",
+        description: "Ваш комментарий содержит подозрительный контент и будет проверен модераторами",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -56,7 +68,7 @@ export const ReviewForm = ({
         author_id: user.id,
         target_user_id: targetUserId,
         rating,
-        comment: comment.trim() || null
+        comment: sanitizedComment.trim() || null
       };
 
       if (transactionId) {

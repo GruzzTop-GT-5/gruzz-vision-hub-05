@@ -7,6 +7,7 @@ import Balance from "./pages/Balance";
 import Ads from "./pages/Ads";
 import CreateAd from "./pages/CreateAd";
 import UserProfile from "./pages/UserProfile";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
         <Route path="/ads" element={<Ads />} />
         <Route path="/create-ad" element={<CreateAd />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/admin" element={<AdminPanel />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
