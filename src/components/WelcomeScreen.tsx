@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import logoImage from '@/assets/logo.jpg';
+import logoImage from '@/assets/logo-no-bg.png';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Shield, Users, Zap, Trophy, Star } from 'lucide-react';
 
