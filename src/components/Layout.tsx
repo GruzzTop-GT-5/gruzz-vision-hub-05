@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut } from 'lucide-react';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -44,7 +45,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   };
 
   return (
-    <div className="min-h-screen animated-bg">
+    <AnimatedBackground className="min-h-screen">
       {/* Header */}
       <header className="relative z-50 flex items-center justify-between p-4 border-b border-steel-600">
         <div className="flex items-center space-x-3">
@@ -147,6 +148,6 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
       <main className="relative z-10">
         {children}
       </main>
-    </div>
+    </AnimatedBackground>
   );
 };

@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Search, Filter } from 'lucide-react';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 const Index = () => {
   const { user, userRole, loading, signOut } = useAuth();
@@ -30,9 +31,9 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center animated-bg">
+      <AnimatedBackground className="min-h-screen flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      </AnimatedBackground>
     );
   }
 
@@ -41,7 +42,7 @@ const Index = () => {
   }
 
   if (showAuth) {
-    return <AuthForm onSuccess={handleAuthSuccess} />;
+    return <AuthForm onSuccess={handleAuthSuccess} onBack={() => setShowAuth(false)} />;
   }
 
   return (

@@ -4,12 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
+import { BackButton } from '@/components/BackButton';
 
 interface AuthFormProps {
   onSuccess: () => void;
+  onBack?: () => void;
 }
 
-export const AuthForm = ({ onSuccess }: AuthFormProps) => {
+export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -151,8 +154,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 animated-bg">
-      <Card className="w-full max-w-md card-steel p-8 space-y-6">
+    <AnimatedBackground className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {onBack && <BackButton onClick={onBack} />}
+        <Card className="card-steel p-8 space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-16 h-16 bg-gradient-to-br from-primary to-electric-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -240,6 +245,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           </button>
         </div>
       </Card>
-    </div>
+      </div>
+    </AnimatedBackground>
   );
 };
