@@ -117,30 +117,100 @@ export type Database = {
         }
         Relationships: []
       }
+      review_reports: {
+        Row: {
+          created_at: string | null
+          id: string
+          processed: boolean | null
+          processed_at: string | null
+          processed_by: string | null
+          reason: string
+          reporter_id: string
+          review_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          processed?: boolean | null
+          processed_at?: string | null
+          processed_by?: string | null
+          reason: string
+          reporter_id: string
+          review_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          processed?: boolean | null
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string
+          reporter_id?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_reports_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_reports_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           author_id: string
           comment: string | null
           created_at: string | null
           id: string
+          is_moderated: boolean | null
+          is_reported: boolean | null
+          moderated_at: string | null
+          moderated_by: string | null
           rating: number | null
           target_user_id: string
+          transaction_id: string | null
         }
         Insert: {
           author_id: string
           comment?: string | null
           created_at?: string | null
           id?: string
+          is_moderated?: boolean | null
+          is_reported?: boolean | null
+          moderated_at?: string | null
+          moderated_by?: string | null
           rating?: number | null
           target_user_id: string
+          transaction_id?: string | null
         }
         Update: {
           author_id?: string
           comment?: string | null
           created_at?: string | null
           id?: string
+          is_moderated?: boolean | null
+          is_reported?: boolean | null
+          moderated_at?: string | null
+          moderated_by?: string | null
           rating?: number | null
           target_user_id?: string
+          transaction_id?: string | null
         }
         Relationships: [
           {
@@ -151,10 +221,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reviews_moderated_by_fkey"
+            columns: ["moderated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reviews_target_user_id_fkey"
             columns: ["target_user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
