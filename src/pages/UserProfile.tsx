@@ -9,24 +9,16 @@ import { StarRating } from '@/components/StarRating';
 import { UserReviews } from '@/components/UserReviews';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Phone, Calendar, Award, AlertCircle, Edit, MessageCircle, Users, Flag, FileText } from 'lucide-react';
+import { User, Phone, Calendar, Award, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
 interface UserProfile {
   id: string;
   phone: string | null;
-  display_name: string | null;
-  telegram_username: string | null;
   rating: number | null;
   created_at: string;
   role: string | null;
-  balance: number;
-  full_name: string | null;
-  age: number | null;
-  citizenship: string | null;
-  qualification: string | null;
-  bio: string | null;
 }
 
 export default function UserProfile() {
@@ -40,14 +32,11 @@ export default function UserProfile() {
   useEffect(() => {
     if (userId) {
       fetchUserProfile();
-    } else if (currentUser) {
-      // If no userId in URL, show current user's profile
-      fetchCurrentUserProfile();
     } else {
       setError('Пользователь не найден');
       setIsLoading(false);
     }
-  }, [userId, currentUser]);
+  }, [userId]);
 
   const fetchUserProfile = async () => {
     if (!userId) return;
@@ -55,7 +44,7 @@ export default function UserProfile() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, phone, display_name, telegram_username, rating, created_at, role, balance, full_name, age, citizenship, qualification, bio')
+        .select('id, phone, rating, created_at, role')
         .eq('id', userId)
         .single();
 
@@ -72,29 +61,6 @@ export default function UserProfile() {
     } catch (error) {
       console.error('Error fetching user profile:', error);
       setError('Ошибка загрузки профиля');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchCurrentUserProfile = async () => {
-    if (!currentUser) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, phone, display_name, telegram_username, rating, created_at, role, balance, full_name, age, citizenship, qualification, bio')
-        .eq('id', currentUser.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching current user profile:', error);
-        return;
-      }
-
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching current user profile:', error);
     } finally {
       setIsLoading(false);
     }
@@ -153,7 +119,7 @@ export default function UserProfile() {
 
   if (!profile) return null;
 
-  const isOwnProfile = currentUser?.id === (userId || currentUser?.id);
+  const isOwnProfile = currentUser?.id === userId;
   const roleDisplay = getRoleDisplayName(profile.role);
 
   return (
@@ -179,105 +145,35 @@ export default function UserProfile() {
 
               {/* Profile Info */}
               <div className="flex-1 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h2 className="text-2xl font-bold">
-                        {profile.display_name || profile.full_name || `Пользователь ${profile.id.slice(0, 8)}`}
-                      </h2>
-                      {roleDisplay && (
-                        <Badge className={getRoleBadgeColor(profile.role)}>
-                          {roleDisplay}
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    {profile.full_name && profile.display_name !== profile.full_name && (
-                      <p className="text-lg text-steel-300 mb-2">
-                        {profile.full_name}
-                      </p>
+                <div>
+                  <div className="flex items-center space-x-3 mb-2">
+                    <h2 className="text-2xl font-bold text-steel-100">
+                      ID: {profile.id.slice(0, 8)}...
+                    </h2>
+                    {roleDisplay && (
+                      <Badge className={getRoleBadgeColor(profile.role)}>
+                        {roleDisplay}
+                      </Badge>
                     )}
-                    
-                    <div className="flex flex-wrap gap-4 text-steel-400 text-sm mb-3">
-                      {profile.qualification && (
-                        <span className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {profile.qualification}
-                        </span>
-                      )}
-                      
-                      {profile.age && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {profile.age} лет
-                        </span>
-                      )}
-                      
-                      {profile.citizenship && (
-                        <span className="flex items-center gap-1">
-                          <Flag className="w-4 h-4" />
-                          {profile.citizenship}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center space-x-4">
-                      <StarRating rating={profile.rating || 0} size="md" />
-                    </div>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    {isOwnProfile ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate('/edit-profile')}
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Редактировать
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate('/balance')}
-                        >
-                          Баланс: {profile.balance.toFixed(2)} ₽
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate('/chat-system')}
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Написать
-                      </Button>
-                    )}
+                  
+                  {/* Rating */}
+                  <div className="flex items-center space-x-4">
+                    <StarRating rating={profile.rating || 0} size="md" />
                   </div>
                 </div>
 
                 {/* Profile Details */}
                 <div className="grid md:grid-cols-2 gap-4">
                   {profile.phone && (
-                    <div className="flex items-center space-x-2 text-muted-foreground">
-                      <Phone className="w-4 h-4" />
+                    <div className="flex items-center space-x-2 text-steel-300">
+                      <Phone className="w-4 h-4 text-steel-400" />
                       <span>{profile.phone}</span>
                     </div>
                   )}
                   
-                  {profile.telegram_username && (
-                    <div className="flex items-center space-x-2 text-muted-foreground">
-                      <MessageCircle className="w-4 h-4" />
-                      <span>{profile.telegram_username}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center space-x-2 text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
+                  <div className="flex items-center space-x-2 text-steel-300">
+                    <Calendar className="w-4 h-4 text-steel-400" />
                     <span>
                       Регистрация: {format(new Date(profile.created_at), 'dd MMM yyyy', { locale: ru })}
                     </span>
@@ -285,31 +181,17 @@ export default function UserProfile() {
                 </div>
 
                 {/* Quick Stats */}
-                <div className="flex items-center space-x-6 pt-4 border-t">
+                <div className="flex items-center space-x-6 pt-4 border-t border-steel-600">
                   <div className="flex items-center space-x-2">
                     <Award className="w-4 h-4 text-primary" />
-                    <span className="text-muted-foreground">
+                    <span className="text-steel-300">
                       Рейтинг: {(profile.rating || 0).toFixed(1)}
                     </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    ID: {profile.id.slice(0, 8)}...
                   </div>
                 </div>
               </div>
             </div>
           </Card>
-
-          {/* Bio Section */}
-          {profile.bio && (
-            <Card className="card-steel p-6">
-              <h3 className="text-lg font-semibold text-steel-200 mb-3 flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                О себе
-              </h3>
-              <p className="text-steel-300 leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
-            </Card>
-          )}
 
           {/* Reviews Section */}
           <UserReviews
