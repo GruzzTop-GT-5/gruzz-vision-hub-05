@@ -46,8 +46,11 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
     if (!pendingSignup) return;
     
     try {
+      // Генерируем email из номера телефона для внутренней аутентификации
+      const email = `${pendingSignup.cleanPhone}@gruzztop.local`;
+      
       const { error } = await supabase.auth.signUp({
-        phone: `+${pendingSignup.cleanPhone}`,
+        email: email,
         password: pendingSignup.password,
         options: {
           data: {
@@ -55,15 +58,14 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             terms_accepted: true,
             terms_version: "2.1.0",
             agreements: agreements
-          },
-          channel: 'sms'
+          }
         }
       });
 
       if (error) {
         toast({
-          title: "Ошибка регистрации", 
-          description: "Проверьте правильность номера телефона",
+          title: "Ошибка регистрации",
+          description: "Проверьте правильность данных",
           variant: "destructive"
         });
         return;
@@ -166,9 +168,11 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       }
 
       if (isLogin) {
-        // Логин по телефону
+        // Логин - генерируем email из телефона
+        const email = `${cleanPhone}@gruzztop.local`;
+        
         const { error } = await supabase.auth.signInWithPassword({
-          phone: `+${cleanPhone}`,
+          email: email,
           password: formData.password
         });
 
