@@ -147,9 +147,6 @@ export const LegalFooter: React.FC = () => {
           <div>
             <h4 className="font-medium text-foreground mb-2">Правовая информация</h4>
             <ul className="space-y-1">
-              <li>ООО "ГрузТоп"</li>
-              <li>ОГРН: 1234567890123</li>
-              <li>ИНН: 1234567890</li>
               <li>
                 <span className="text-xs">
                   Версия правил: {TERMS_VERSION}
