@@ -5,7 +5,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Link, useLocation } from 'react-router-dom';
 import { TelegramLayout } from './TelegramLayout';
 import { useTelegram } from '@/hooks/useTelegram';
-import logoImage from '@/assets/logo-no-bg.png';
+import logoImage from '@/assets/logo-transparent.png';
 
 interface LayoutProps {
   children: React.ReactNode;
