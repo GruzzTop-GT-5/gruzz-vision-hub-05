@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut } from 'lucide-react';
+import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone } from 'lucide-react';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Link } from 'react-router-dom';
 
@@ -21,6 +21,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   const isAdmin = userRole && ['system_admin', 'admin'].includes(userRole);
 
   const menuItems = [
+    { icon: Megaphone, label: 'Доска объявлений', href: '/ads' },
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: ShoppingBag, label: 'Мои заказы', href: '/orders' },
     { icon: CreditCard, label: 'Баланс + Пополнение', href: '/balance' },
