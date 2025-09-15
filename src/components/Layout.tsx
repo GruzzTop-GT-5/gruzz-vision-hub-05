@@ -5,6 +5,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Link, useLocation } from 'react-router-dom';
 import { TelegramLayout } from './TelegramLayout';
 import { useTelegram } from '@/hooks/useTelegram';
+import logoImage from '@/assets/logo.jpg';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -68,8 +69,8 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
       {/* Header */}
       <header className="relative z-50 flex items-center justify-between p-4 border-b border-steel-600">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-electric-600 rounded-lg flex items-center justify-center">
-            <span className="text-steel-900 font-bold text-lg">GT</span>
+          <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
+            <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-glow">GruzzTop</h1>
