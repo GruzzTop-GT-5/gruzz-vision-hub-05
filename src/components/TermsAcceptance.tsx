@@ -46,7 +46,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             {content?.content?.map((section: any, index: number) => (
               <div key={index}>
                 <h4 className="font-semibold text-foreground mb-3">
-                  {section.section}
+                  Продавцы/Заказчики
                 </h4>
                 <ul className="space-y-2">
                   {section.items.map((item: string, itemIndex: number) => (
