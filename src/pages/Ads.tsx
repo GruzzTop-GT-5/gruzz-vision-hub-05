@@ -279,10 +279,13 @@ export default function Ads() {
 
                     {/* Footer */}
                     <div className="flex items-center justify-between pt-4 border-t border-steel-600">
-                      <div className="flex items-center space-x-1 text-xs text-steel-400">
+                      <Link 
+                        to={`/profile/${ad.user_id}`}
+                        className="flex items-center space-x-1 text-xs text-steel-400 hover:text-primary transition-colors"
+                      >
                         <User className="w-3 h-3" />
                         <span>ID: {ad.user_id.slice(0, 8)}...</span>
-                      </div>
+                      </Link>
                       <Button size="sm" variant="outline">
                         Подробнее
                       </Button>
