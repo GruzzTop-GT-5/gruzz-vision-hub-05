@@ -1,17 +1,22 @@
 import { useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings } from 'lucide-react';
+import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
   user?: User | null;
-  isAdmin?: boolean;
+  userRole?: string | null;
+  onSignOut?: () => void;
 }
 
-export const Layout = ({ children, user, isAdmin = false }: LayoutProps) => {
+export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Check if user has admin privileges
+  const isStaff = userRole && ['system_admin', 'admin', 'moderator', 'support'].includes(userRole);
+  const isAdmin = userRole && ['system_admin', 'admin'].includes(userRole);
 
   const menuItems = [
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
@@ -22,10 +27,21 @@ export const Layout = ({ children, user, isAdmin = false }: LayoutProps) => {
     { icon: FileText, label: 'Политика приложения', href: '/policy' },
   ];
 
-  // Add admin panel for admin users
-  if (isAdmin) {
-    menuItems.unshift({ icon: Settings, label: 'Админ панель', href: '/admin' });
+  // Add admin panel for staff users
+  if (isStaff) {
+    menuItems.unshift({ icon: Settings, label: 'Панель управления', href: '/admin' });
   }
+
+  // Role display mapping
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'system_admin': return 'Системный администратор';
+      case 'admin': return 'Администратор';
+      case 'moderator': return 'Модератор';
+      case 'support': return 'Поддержка';
+      default: return 'Пользователь';
+    }
+  };
 
   return (
     <div className="min-h-screen animated-bg">
@@ -75,10 +91,18 @@ export const Layout = ({ children, user, isAdmin = false }: LayoutProps) => {
                   <UserIcon className="w-6 h-6 text-steel-900" />
                 </div>
                 <div>
-                  <p className="text-steel-100 font-medium">{user.email}</p>
-                  {isAdmin && (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
-                      Администратор
+                  <p className="text-steel-100 font-medium">{user.phone || user.email}</p>
+                  {userRole && userRole !== 'user' && (
+                    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border ${
+                      userRole === 'system_admin' 
+                        ? 'text-red-400 bg-red-400/10 border-red-400/20'
+                        : userRole === 'admin'
+                        ? 'text-primary bg-primary/10 border-primary/20'
+                        : userRole === 'moderator'
+                        ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20'
+                        : 'text-green-400 bg-green-400/10 border-green-400/20'
+                    }`}>
+                      {getRoleDisplayName(userRole)}
                     </span>
                   )}
                 </div>
@@ -105,10 +129,14 @@ export const Layout = ({ children, user, isAdmin = false }: LayoutProps) => {
           {user && (
             <div className="mt-8 pt-6 border-t border-steel-600">
               <button
-                className="w-full p-3 text-left text-steel-300 hover:text-red-400 transition-colors duration-200"
-                onClick={toggleMenu}
+                className="w-full flex items-center space-x-3 p-3 text-left text-steel-300 hover:text-red-400 hover:bg-steel-700 rounded-lg transition-colors duration-200"
+                onClick={() => {
+                  onSignOut?.();
+                  toggleMenu();
+                }}
               >
-                Выйти из аккаунта
+                <LogOut className="w-5 h-5" />
+                <span>Выйти из аккаунта</span>
               </button>
             </div>
           )}

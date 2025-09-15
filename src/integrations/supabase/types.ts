@@ -218,7 +218,7 @@ export type Database = {
       ad_status: "active" | "inactive" | "sold"
       transaction_status: "pending" | "completed" | "rejected"
       transaction_type: "deposit" | "withdrawal" | "payment"
-      user_role: "user" | "admin"
+      user_role: "user" | "system_admin" | "admin" | "moderator" | "support"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -349,7 +349,7 @@ export const Constants = {
       ad_status: ["active", "inactive", "sold"],
       transaction_status: ["pending", "completed", "rejected"],
       transaction_type: ["deposit", "withdrawal", "payment"],
-      user_role: ["user", "admin"],
+      user_role: ["user", "system_admin", "admin", "moderator", "support"],
     },
   },
 } as const

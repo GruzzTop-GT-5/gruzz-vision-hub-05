@@ -1,52 +1,51 @@
 import { useState, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 import { Layout } from '@/components/Layout';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
+import { AuthForm } from '@/components/AuthForm';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Search, Filter } from 'lucide-react';
 
 const Index = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, userRole, loading, signOut } = useAuth();
   const [showWelcome, setShowWelcome] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setShowWelcome(false);
-        // Check if user is admin (you can implement this logic)
-        // For demo, setting to false
-        setIsAdmin(false);
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setShowWelcome(false);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (user) {
+      setShowWelcome(false);
+      setShowAuth(false);
+    }
+  }, [user]);
 
   const handleGetStarted = () => {
     setShowWelcome(false);
+    setShowAuth(true);
   };
+
+  const handleAuthSuccess = () => {
+    setShowAuth(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center animated-bg">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (showWelcome) {
     return <WelcomeScreen onGetStarted={handleGetStarted} />;
   }
 
+  if (showAuth) {
+    return <AuthForm onSuccess={handleAuthSuccess} />;
+  }
+
   return (
-    <Layout user={user} isAdmin={isAdmin}>
+    <Layout user={user} userRole={userRole} onSignOut={signOut}>
       <div className="p-4 space-y-6">
         {/* Header Section */}
         <div className="text-center space-y-4">
@@ -113,9 +112,11 @@ const Index = () => {
             <h2 className="text-2xl font-bold text-steel-100 mb-4">Присоединяйтесь к GruzzTop</h2>
             <p className="text-steel-400 mb-6">Зарегистрируйтесь или войдите для доступа ко всем функциям</p>
             <div className="space-x-4">
-              <Button className="btn-3d">Войти</Button>
-              <Button className="btn-3d bg-gradient-to-r from-primary to-electric-600 text-steel-900">
-                Регистрация
+              <Button 
+                className="btn-3d"
+                onClick={() => setShowAuth(true)}
+              >
+                Войти / Регистрация
               </Button>
             </div>
           </Card>
