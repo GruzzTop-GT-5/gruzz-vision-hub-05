@@ -37,7 +37,7 @@ const countries = [
   'Другое'
 ];
 
-export const EditProfile = () => {
+const EditProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -338,3 +338,5 @@ export const EditProfile = () => {
     </AnimatedBackground>
   );
 };
+
+export default EditProfile;

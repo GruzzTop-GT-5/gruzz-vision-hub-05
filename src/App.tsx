@@ -8,7 +8,7 @@ import { Rules } from "./pages/Rules";
 import Ads from "./pages/Ads";
 import CreateAd from "./pages/CreateAd";
 import UserProfile from "./pages/UserProfile";
-import { EditProfile } from "./pages/EditProfile";
+import EditProfile from "./pages/EditProfile";
 import AdminPanel from "./pages/AdminPanel";
 import ChatSystem from "./pages/ChatSystem";
 import NotFound from "./pages/NotFound";
