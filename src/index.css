@@ -3,6 +3,65 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Telegram Mini App specific styles */
+.telegram-webapp {
+  /* Remove default margins and paddings */
+  margin: 0;
+  padding: 0;
+  
+  /* Telegram WebApp specific optimizations */
+  touch-action: pan-x pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Prevent overscroll bounce */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Telegram theme integration */
+[data-telegram-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-telegram-theme="light"] {
+  color-scheme: light;
+}
+
+/* Telegram-specific button styles */
+.telegram-webapp .tg-main-button {
+  background-color: var(--tg-button-color, hsl(var(--primary)));
+  color: var(--tg-button-text-color, hsl(var(--primary-foreground)));
+}
+
+/* Optimize for mobile Telegram clients */
+@media (max-width: 480px) {
+  .telegram-webapp {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .telegram-webapp input,
+  .telegram-webapp textarea,
+  .telegram-webapp select {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+/* Haptic feedback visual enhancement */
+.telegram-webapp button:active,
+.telegram-webapp .clickable:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+/* Telegram-specific scrollbar */
+.telegram-webapp::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
 @layer base {
   :root {
     /* Enhanced Masculine Theme - Steel and Electric Blue Palette */

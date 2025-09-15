@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { BackButton } from '@/components/BackButton';
+import { TelegramAuthForm } from './TelegramAuthForm';
+import { useTelegram } from '@/hooks/useTelegram';
 
 interface AuthFormProps {
   onSuccess: () => void;
@@ -23,6 +25,19 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   });
   
   const { toast } = useToast();
+  const { isInTelegram } = useTelegram();
+
+  // If running in Telegram, use Telegram auth
+  if (isInTelegram) {
+    return (
+      <AnimatedBackground className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-6">
+          {onBack && <BackButton onClick={onBack} />}
+          <TelegramAuthForm onSuccess={onSuccess} />
+        </div>
+      </AnimatedBackground>
+    );
+  }
 
   // Форматирование номера телефона
   const formatPhoneNumber = (value: string) => {

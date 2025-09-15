@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone } from 'lucide-react';
+import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone, Search, Plus, Wallet } from 'lucide-react';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { TelegramLayout } from './TelegramLayout';
+import { useTelegram } from '@/hooks/useTelegram';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,8 +15,22 @@ interface LayoutProps {
 
 export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const { isInTelegram, hapticFeedback } = useTelegram();
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    if (isInTelegram) {
+      hapticFeedback?.selectionChanged();
+    }
+  };
+
+  const handleMenuClick = () => {
+    if (isInTelegram) {
+      hapticFeedback?.selectionChanged();
+    }
+    setIsMenuOpen(false);
+  };
 
   // Check if user has admin privileges
   const isStaff = userRole && ['system_admin', 'admin', 'moderator', 'support'].includes(userRole);
@@ -47,7 +63,8 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   };
 
   return (
-    <AnimatedBackground className="min-h-screen">
+    <TelegramLayout>
+      <AnimatedBackground className="min-h-screen">
       {/* Header */}
       <header className="relative z-50 flex items-center justify-between p-4 border-b border-steel-600">
         <div className="flex items-center space-x-3">
@@ -120,7 +137,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
                 key={index}
                 to={item.href}
                 className="flex items-center space-x-3 p-3 rounded-lg text-steel-100 hover:bg-steel-700 transition-colors duration-200 group"
-                onClick={toggleMenu}
+                onClick={handleMenuClick}
               >
                 <item.icon className="w-5 h-5 text-steel-400 group-hover:text-primary transition-colors" />
                 <span className="font-medium">{item.label}</span>
@@ -150,6 +167,55 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
       <main className="relative z-10">
         {children}
       </main>
+      
+      {/* Mobile bottom navigation for Telegram */}
+      {isInTelegram && (
+        <nav className="fixed bottom-0 left-0 right-0 bg-steel-800/95 backdrop-blur border-t border-steel-600 md:hidden z-50">
+          <div className="flex items-center justify-around py-2">
+            <Link 
+              to="/ads" 
+              onClick={handleMenuClick}
+              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+                location.pathname === '/ads' ? 'text-primary' : 'text-steel-400'
+              }`}
+            >
+              <Search className="h-5 w-5 mb-1" />
+              Объявления
+            </Link>
+            <Link 
+              to="/create-ad" 
+              onClick={handleMenuClick}
+              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+                location.pathname === '/create-ad' ? 'text-primary' : 'text-steel-400'
+              }`}
+            >
+              <Plus className="h-5 w-5 mb-1" />
+              Создать
+            </Link>
+            <Link 
+              to="/chat-system" 
+              onClick={handleMenuClick}
+              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+                location.pathname === '/chat-system' ? 'text-primary' : 'text-steel-400'
+              }`}
+            >
+              <MessageCircle className="h-5 w-5 mb-1" />
+              Чаты
+            </Link>
+            <Link 
+              to="/balance" 
+              onClick={handleMenuClick}
+              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+                location.pathname === '/balance' ? 'text-primary' : 'text-steel-400'
+              }`}
+            >
+              <Wallet className="h-5 w-5 mb-1" />
+              Баланс
+            </Link>
+          </div>
+        </nav>
+      )}
     </AnimatedBackground>
+    </TelegramLayout>
   );
 };
