@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut } from 'lucide-react';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
+import { Link } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -114,15 +115,15 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
           {/* Menu Items */}
           <nav className="space-y-2">
             {menuItems.map((item, index) => (
-              <a
+              <Link
                 key={index}
-                href={item.href}
+                to={item.href}
                 className="flex items-center space-x-3 p-3 rounded-lg text-steel-100 hover:bg-steel-700 transition-colors duration-200 group"
                 onClick={toggleMenu}
               >
                 <item.icon className="w-5 h-5 text-steel-400 group-hover:text-primary transition-colors" />
                 <span className="font-medium">{item.label}</span>
-              </a>
+              </Link>
             ))}
           </nav>
 

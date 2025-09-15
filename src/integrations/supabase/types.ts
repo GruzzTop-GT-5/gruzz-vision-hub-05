@@ -92,6 +92,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          balance: number
           created_at: string | null
           id: string
           phone: string | null
@@ -99,6 +100,7 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role"] | null
         }
         Insert: {
+          balance?: number
           created_at?: string | null
           id: string
           phone?: string | null
@@ -106,6 +108,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"] | null
         }
         Update: {
+          balance?: number
           created_at?: string | null
           id?: string
           phone?: string | null
@@ -158,9 +161,13 @@ export type Database = {
       }
       transactions: {
         Row: {
+          admin_notes: string | null
           amount: number
+          completed_at: string | null
           created_at: string | null
           id: string
+          payment_details: Json | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
           processed_by: string | null
           proof_image: string | null
           status: Database["public"]["Enums"]["transaction_status"] | null
@@ -168,9 +175,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_notes?: string | null
           amount: number
+          completed_at?: string | null
           created_at?: string | null
           id?: string
+          payment_details?: Json | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
           processed_by?: string | null
           proof_image?: string | null
           status?: Database["public"]["Enums"]["transaction_status"] | null
@@ -178,9 +189,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_notes?: string | null
           amount?: number
+          completed_at?: string | null
           created_at?: string | null
           id?: string
+          payment_details?: Json | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
           processed_by?: string | null
           proof_image?: string | null
           status?: Database["public"]["Enums"]["transaction_status"] | null
@@ -209,6 +224,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_payment_details: {
+        Args: {
+          p_amount: number
+          p_method: Database["public"]["Enums"]["payment_method"]
+          p_user_id: string
+        }
+        Returns: Json
+      }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]
@@ -216,6 +239,7 @@ export type Database = {
     }
     Enums: {
       ad_status: "active" | "inactive" | "sold"
+      payment_method: "bank_card" | "yoomoney" | "ozon" | "manual_transfer"
       transaction_status: "pending" | "completed" | "rejected"
       transaction_type: "deposit" | "withdrawal" | "payment"
       user_role: "user" | "system_admin" | "admin" | "moderator" | "support"
@@ -347,6 +371,7 @@ export const Constants = {
   public: {
     Enums: {
       ad_status: ["active", "inactive", "sold"],
+      payment_method: ["bank_card", "yoomoney", "ozon", "manual_transfer"],
       transaction_status: ["pending", "completed", "rejected"],
       transaction_type: ["deposit", "withdrawal", "payment"],
       user_role: ["user", "system_admin", "admin", "moderator", "support"],

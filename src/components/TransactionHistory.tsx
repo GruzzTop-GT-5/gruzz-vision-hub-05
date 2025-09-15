@@ -1,0 +1,235 @@
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowUpCircle, ArrowDownCircle, Clock, CheckCircle, XCircle, FileImage } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface TransactionHistoryProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+}
+
+interface Transaction {
+  id: string;
+  type: string;
+  amount: number;
+  status: string;
+  payment_method?: string;
+  proof_image?: string;
+  created_at: string;
+  completed_at?: string;
+  admin_notes?: string;
+}
+
+export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHistoryProps) => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchTransactions();
+    }
+  }, [isOpen, userId]);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setTransactions(data || []);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить историю транзакций",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge className="bg-green-500/20 text-green-400 border-green-400/20">Завершено</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-400/20">В обработке</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-500/20 text-red-400 border-red-400/20">Отклонено</Badge>;
+      case 'cancelled':
+        return <Badge className="bg-gray-500/20 text-gray-400 border-gray-400/20">Отменено</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'topup_direct':
+      case 'topup_manual':
+      case 'refund':
+        return <ArrowUpCircle className="w-5 h-5 text-green-400" />;
+      case 'purchase':
+        return <ArrowDownCircle className="w-5 h-5 text-red-400" />;
+      default:
+        return <ArrowUpCircle className="w-5 h-5 text-steel-400" />;
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'topup_direct':
+        return 'Пополнение (прямой платеж)';
+      case 'topup_manual':
+        return 'Пополнение (ручной перевод)';
+      case 'purchase':
+        return 'Покупка услуги';
+      case 'refund':
+        return 'Возврат средств';
+      case 'admin_adjustment':
+        return 'Корректировка администратора';
+      default:
+        return type;
+    }
+  };
+
+  const getPaymentMethodLabel = (method?: string) => {
+    switch (method) {
+      case 'bank_card':
+        return 'Банковская карта';
+      case 'yoomoney':
+        return 'ЮMoney';
+      case 'ozon':
+        return 'Ozon';
+      case 'manual_transfer':
+        return 'Ручной перевод';
+      default:
+        return method || 'Не указан';
+    }
+  };
+
+  const viewProofImage = async (imagePath: string) => {
+    try {
+      const { data } = await supabase.storage
+        .from('payment-proofs')
+        .createSignedUrl(imagePath, 3600);
+
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть изображение",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl bg-steel-800 border-steel-600">
+          <DialogHeader>
+            <DialogTitle className="text-glow">История транзакций</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-20 bg-steel-700 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl bg-steel-800 border-steel-600 max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-glow">История транзакций</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          {transactions.length === 0 ? (
+            <Card className="card-steel p-8 text-center">
+              <Clock className="w-12 h-12 text-steel-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-steel-200 mb-2">Нет транзакций</h3>
+              <p className="text-steel-400">Ваши транзакции будут отображаться здесь</p>
+            </Card>
+          ) : (
+            transactions.map((transaction) => (
+              <Card key={transaction.id} className="card-steel p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    {getTypeIcon(transaction.type)}
+                    <div className="space-y-1">
+                      <h4 className="font-medium text-steel-100">
+                        {getTypeLabel(transaction.type)}
+                      </h4>
+                      <p className="text-sm text-steel-400">
+                        {getPaymentMethodLabel(transaction.payment_method)}
+                      </p>
+                      <p className="text-xs text-steel-500">
+                        {new Date(transaction.created_at).toLocaleString('ru-RU')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-lg font-bold ${
+                        transaction.type === 'purchase' ? 'text-red-400' : 'text-green-400'
+                      }`}>
+                        {transaction.type === 'purchase' ? '-' : '+'}
+                        {transaction.amount.toFixed(2)} GT
+                      </span>
+                    </div>
+                    {getStatusBadge(transaction.status)}
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                {(transaction.proof_image || transaction.admin_notes) && (
+                  <div className="mt-4 pt-4 border-t border-steel-600 space-y-2">
+                    {transaction.proof_image && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => viewProofImage(transaction.proof_image!)}
+                        className="text-xs"
+                      >
+                        <FileImage className="w-4 h-4 mr-1" />
+                        Просмотреть скриншот
+                      </Button>
+                    )}
+                    {transaction.admin_notes && (
+                      <div className="bg-steel-700 p-2 rounded text-xs">
+                        <p className="text-steel-400 mb-1">Комментарий администратора:</p>
+                        <p className="text-steel-200">{transaction.admin_notes}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Card>
+            ))
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
