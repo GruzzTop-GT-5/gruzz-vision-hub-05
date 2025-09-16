@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/components/SimpleOrderFilters';
-import { CreateOrderModal } from '@/components/CreateOrderModal';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -18,8 +17,7 @@ import {
   Users, 
   DollarSign,
   MessageSquare,
-  Calendar,
-  Plus
+  Calendar
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -57,7 +55,6 @@ const AvailableOrders = () => {
   const { toast } = useToast();
 
   const [orders, setOrders] = useState<Order[]>([]);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<OrderFiltersType>({
@@ -235,16 +232,6 @@ const AvailableOrders = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button 
-                onClick={() => {
-                  console.log('Создать заказ clicked');
-                  setShowCreateModal(true);
-                }}
-                className="bg-primary hover:bg-primary/80"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Создать заказ
-              </Button>
               <div className="text-sm text-steel-400">
                 Найдено: {orders.length} заказов
               </div>
@@ -402,16 +389,6 @@ const AvailableOrders = () => {
           )}
         </div>
       </div>
-
-      {/* Create Order Modal */}
-      <CreateOrderModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onOrderCreated={() => {
-          fetchAvailableOrders();
-          setShowCreateModal(false);
-        }}
-      />
     </Layout>
   );
 };
