@@ -2583,69 +2583,71 @@ export default function AdminPanel() {
                       <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {adminLogs
-                        .filter(log => {
-                          if (!logFilter) return true;
-                          const searchTerm = logFilter.toLowerCase();
-                          const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
-                          return log.action.toLowerCase().includes(searchTerm) || 
-                                 adminName.toLowerCase().includes(searchTerm);
-                        })
-                        .map((log) => {
-                          const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
-                          
-                          return (
-                            <div key={log.id} className="bg-muted/30 rounded-lg p-4 border border-border/50">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center space-x-3">
-                                  <div className="p-2 bg-primary/20 rounded-lg">
-                                    <Activity className="w-4 h-4 text-primary" />
+                    <ScrollArea className="h-[600px] w-full">
+                      <div className="space-y-3 pr-4">
+                        {adminLogs
+                          .filter(log => {
+                            if (!logFilter) return true;
+                            const searchTerm = logFilter.toLowerCase();
+                            const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
+                            return log.action.toLowerCase().includes(searchTerm) || 
+                                   adminName.toLowerCase().includes(searchTerm);
+                          })
+                          .map((log) => {
+                            const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
+                            
+                            return (
+                              <div key={log.id} className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-primary/20 rounded-lg">
+                                      <Activity className="w-4 h-4 text-primary" />
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-foreground">{log.action}</p>
+                                      <p className="text-sm text-muted-foreground">
+                                        Администратор: {adminName}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <p className="font-medium text-foreground">{log.action}</p>
+                                  <div className="text-right">
                                     <p className="text-sm text-muted-foreground">
-                                      Администратор: {adminName}
+                                      {format(new Date(log.timestamp), 'dd.MM.yyyy HH:mm', { locale: ru })}
                                     </p>
                                   </div>
                                 </div>
-                                <div className="text-right">
-                                  <p className="text-sm text-muted-foreground">
-                                    {format(new Date(log.timestamp), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                                  </p>
-                                </div>
-                              </div>
-                              
-                              {(log.target_id || log.target_type) && (
-                                <div className="mt-3 pt-3 border-t border-border/30">
-                                  <div className="grid grid-cols-2 gap-4 text-sm">
-                                    {log.target_type && (
-                                      <div>
-                                        <span className="text-muted-foreground">Тип объекта:</span>
-                                        <span className="ml-2 text-foreground">{log.target_type}</span>
-                                      </div>
-                                    )}
-                                    {log.target_id && (
-                                      <div>
-                                        <span className="text-muted-foreground">ID объекта:</span>
-                                        <span className="ml-2 text-foreground font-mono text-xs">{log.target_id.slice(0, 8)}...</span>
-                                      </div>
-                                    )}
+                                
+                                {(log.target_id || log.target_type) && (
+                                  <div className="mt-3 pt-3 border-t border-border/30">
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                      {log.target_type && (
+                                        <div>
+                                          <span className="text-muted-foreground">Тип объекта:</span>
+                                          <span className="ml-2 text-foreground">{log.target_type}</span>
+                                        </div>
+                                      )}
+                                      {log.target_id && (
+                                        <div>
+                                          <span className="text-muted-foreground">ID объекта:</span>
+                                          <span className="ml-2 text-foreground font-mono text-xs">{log.target_id.slice(0, 8)}...</span>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      
-                      {adminLogs.length === 0 && (
-                        <div className="text-center py-16">
-                          <Activity className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
-                          <h4 className="text-lg font-medium text-foreground mb-2">История пуста</h4>
-                          <p className="text-muted-foreground">Действия администраторов будут отображаться здесь</p>
-                        </div>
-                      )}
-                    </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        
+                        {adminLogs.length === 0 && (
+                          <div className="text-center py-16">
+                            <Activity className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
+                            <h4 className="text-lg font-medium text-foreground mb-2">История пуста</h4>
+                            <p className="text-muted-foreground">Действия администраторов будут отображаться здесь</p>
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
                   )}
                 </Card>
               </TabsContent>
