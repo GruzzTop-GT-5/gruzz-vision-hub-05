@@ -152,7 +152,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         .from('transactions')
         .insert({
           user_id: user.id,
-          type: 'payment' as any,
+          type: 'purchase',
           amount: price,
           status: 'completed',
           payment_details: {

@@ -1111,7 +1111,7 @@ export type Database = {
       ban_type: "order_mute" | "payment_mute" | "account_block"
       payment_method: "bank_card" | "yoomoney" | "ozon" | "manual_transfer"
       transaction_status: "pending" | "completed" | "rejected"
-      transaction_type: "deposit" | "withdrawal" | "payment"
+      transaction_type: "deposit" | "withdrawal" | "payment" | "purchase"
       user_role: "user" | "system_admin" | "admin" | "moderator" | "support"
     }
     CompositeTypes: {
@@ -1244,7 +1244,7 @@ export const Constants = {
       ban_type: ["order_mute", "payment_mute", "account_block"],
       payment_method: ["bank_card", "yoomoney", "ozon", "manual_transfer"],
       transaction_status: ["pending", "completed", "rejected"],
-      transaction_type: ["deposit", "withdrawal", "payment"],
+      transaction_type: ["deposit", "withdrawal", "payment", "purchase"],
       user_role: ["user", "system_admin", "admin", "moderator", "support"],
     },
   },
