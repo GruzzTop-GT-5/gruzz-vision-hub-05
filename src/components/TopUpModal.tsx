@@ -333,12 +333,57 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
           <TabsContent value="manual" className="space-y-4">
             <div className="space-y-4">
               <Card className="card-steel p-4">
-                <h4 className="font-medium text-steel-100 mb-2">Реквизиты для перевода:</h4>
-                <div className="space-y-2 text-sm">
-                  <p><span className="text-steel-400">Карта:</span> 4274 3200 2456 8901</p>
-                  <p><span className="text-steel-400">Получатель:</span> GRUZZTOP PAYMENTS</p>
-                  <p className="text-xs text-steel-400 mt-2">
-                    Укажите в комментарии ваш номер телефона для идентификации
+                <h4 className="font-medium text-steel-100 mb-3">Реквизиты для ручного пополнения:</h4>
+                
+                <div className="space-y-4">
+                  {/* Юмани карта */}
+                  <div className="border border-steel-600 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-medium text-purple-400">ЮMoney</h5>
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <CreditCard className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-steel-400">Карта:</span>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-mono">2204 1201 2644 4419</span>
+                          <CopyButton text="2204120126444419" field="yoomoney-card" />
+                        </div>
+                      </div>
+                      <p className="text-xs text-steel-400">
+                        Переводите с указанием вашего номера телефона в комментарии
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Озон карта */}
+                  <div className="border border-steel-600 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-medium text-orange-400">Озон Банк</h5>
+                      <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                        <CreditCard className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-steel-400">Карта:</span>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-mono">2204 3204 7436 8950</span>
+                          <CopyButton text="2204320474368950" field="ozon-card" />
+                        </div>
+                      </div>
+                      <p className="text-xs text-steel-400">
+                        Переводите с указанием вашего номера телефона в комментарии
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-3 bg-steel-900/50 rounded-lg">
+                  <p className="text-xs text-steel-300">
+                    <strong>Важно:</strong> Обязательно укажите ваш номер телефона в комментарии к переводу для быстрой идентификации платежа.
                   </p>
                 </div>
               </Card>
