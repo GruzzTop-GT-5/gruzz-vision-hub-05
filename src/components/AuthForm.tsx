@@ -19,12 +19,20 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    phone: '',
-    password: '',
-    confirmPassword: ''
+  const [formData, setFormData] = useState(() => {
+    // Загружаем сохраненные данные при инициализации
+    const savedPhone = localStorage.getItem('rememberedPhone');
+    const savedPassword = localStorage.getItem('rememberedPassword');
+    return {
+      phone: savedPhone || '',
+      password: savedPassword || '',
+      confirmPassword: ''
+    };
   });
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => {
+    // Проверяем есть ли сохраненные данные
+    return localStorage.getItem('rememberedPhone') !== null;
+  });
   
   const { toast } = useToast();
   const { isInTelegram } = useTelegram();
@@ -190,6 +198,15 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             variant: "destructive"
           });
           return;
+        }
+
+        // Сохраняем или удаляем данные в зависимости от настройки
+        if (rememberMe) {
+          localStorage.setItem('rememberedPhone', formData.phone);
+          localStorage.setItem('rememberedPassword', formData.password);
+        } else {
+          localStorage.removeItem('rememberedPhone');
+          localStorage.removeItem('rememberedPassword');
         }
 
         toast({
