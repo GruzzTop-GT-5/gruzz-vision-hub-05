@@ -336,7 +336,7 @@ export default function Ads() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAds.map((ad) => (
-                <Card key={ad.id} className="card-steel hover:scale-105 transition-transform duration-300">
+                <Card key={ad.id} className="card-steel hover:border-primary/40 transition-all duration-200">
                   <div className="p-6 space-y-4">
                     {/* Header */}
                     <div className="flex items-start justify-between">
@@ -349,7 +349,7 @@ export default function Ads() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-lg font-bold text-steel-100 line-clamp-2 hover:text-primary transition-colors">
+                    <h3 className="text-lg font-bold text-steel-100 line-clamp-2">
                       {ad.title}
                     </h3>
 
