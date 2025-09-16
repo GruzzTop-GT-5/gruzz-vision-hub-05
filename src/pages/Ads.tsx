@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BackButton } from '@/components/BackButton';
 import { format } from 'date-fns';
@@ -167,6 +168,78 @@ export default function Ads() {
             </Link>
           </div>
 
+          {/* Information Banner */}
+          <Card className="card-steel border-primary/20">
+            <div className="p-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <Info className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-steel-100 mb-2">Что такое доска объявлений?</h3>
+                    <Link to="/orders" className="text-primary hover:text-primary/80 text-sm font-medium">
+                      Перейти к заказам →
+                    </Link>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm text-steel-300">
+                    <div className="space-y-2">
+                      <p className="flex items-center space-x-2">
+                        <Lightbulb className="w-4 h-4 text-yellow-400" />
+                        <span><strong>Объявления</strong> - это долгосрочные предложения услуг</span>
+                      </p>
+                      <p className="flex items-center space-x-2">
+                        <User className="w-4 h-4 text-blue-400" />
+                        <span>Исполнители размещают: "Грузчик, работаю по выходным"</span>
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-green-400" />
+                        <span><strong>Заказы</strong> - это конкретные задания с дедлайном</span>
+                      </p>
+                      <p className="flex items-center space-x-2">
+                        <DollarSign className="w-4 h-4 text-primary" />
+                        <span>Заказчики создают: "Нужен переезд 20 января"</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Quick Navigation */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="card-steel p-4 hover:border-primary/40 transition-colors">
+              <Link to="/orders" className="block">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-steel-100">Заказы</h3>
+                    <p className="text-sm text-steel-400">Конкретные задания с дедлайном</p>
+                  </div>
+                  <div className="text-primary">→</div>
+                </div>
+              </Link>
+            </Card>
+            
+            <Card className="card-steel p-4 border-primary/40">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <User className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-steel-100">Объявления</h3>
+                  <p className="text-sm text-steel-400">Долгосрочные предложения услуг</p>
+                </div>
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+              </div>
+            </Card>
+          </div>
+
           {/* Filters */}
           <Card className="card-steel p-6">
             <div className="grid md:grid-cols-4 gap-4">
@@ -220,23 +293,41 @@ export default function Ads() {
 
           {/* Ads Grid */}
           {filteredAds.length === 0 ? (
-            <Card className="card-steel p-12 text-center">
+            <Card className="card-steel p-8 text-center">
               <div className="space-y-4">
-                <Search className="w-16 h-16 text-steel-500 mx-auto" />
-                <h3 className="text-xl font-bold text-steel-300">Объявления не найдены</h3>
-                <p className="text-steel-400">
+                <div className="w-16 h-16 bg-steel-600/20 rounded-full flex items-center justify-center mx-auto">
+                  <HelpCircle className="w-8 h-8 text-steel-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-steel-100">Объявлений не найдено</h3>
+                <p className="text-steel-300 max-w-md mx-auto">
                   {searchQuery || selectedCategory !== 'Все категории'
-                    ? 'Попробуйте изменить параметры поиска'
-                    : 'Пока нет активных объявлений'}
+                    ? 'Попробуйте изменить параметры поиска или стать первым в этой категории'
+                    : 'Станьте первым, кто разместит объявление на платформе!'}
                 </p>
-                {user && (
+                <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
                   <Link to="/create-ad">
-                    <Button className="mt-4">
+                    <Button className="bg-primary hover:bg-primary/80">
                       <Plus className="w-4 h-4 mr-2" />
-                      Разместить первое объявление
+                      Разместить объявление
                     </Button>
                   </Link>
-                )}
+                  <Link to="/orders">
+                    <Button variant="outline">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Перейти к заказам
+                    </Button>
+                  </Link>
+                </div>
+                <div className="mt-6 p-4 bg-steel-800/30 rounded-lg text-left">
+                  <h4 className="font-semibold text-steel-100 mb-2 flex items-center">
+                    <Lightbulb className="w-4 h-4 mr-2 text-yellow-400" />
+                    Подсказка
+                  </h4>
+                  <p className="text-sm text-steel-300">
+                    <strong>Объявления</strong> подходят для постоянных услуг: "Грузчик на выходные", "Репетитор английского". 
+                    <strong> Заказы</strong> - для разовых задач: "Переезд 20 января", "Сделать сайт за неделю".
+                  </p>
+                </div>
               </div>
             </Card>
           ) : (

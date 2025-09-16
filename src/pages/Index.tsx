@@ -6,7 +6,8 @@ import { LegalFooter } from '@/components/LegalFooter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, Calendar, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 const Index = () => {
@@ -66,21 +67,56 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 gap-4">
-          <Button className="btn-3d p-6 h-auto flex-col space-y-2">
-            <Plus className="w-8 h-8" />
-            <div>
-              <div className="font-bold">Разместить задание</div>
-              <div className="text-sm opacity-70">Найти исполнителя</div>
-            </div>
-          </Button>
-          <Button className="btn-3d p-6 h-auto flex-col space-y-2">
-            <Search className="w-8 h-8" />
-            <div>
-              <div className="font-bold">Найти работу</div>
-              <div className="text-sm opacity-70">Просмотреть задания</div>
-            </div>
-          </Button>
+          <Link to="/orders">
+            <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+              <Plus className="w-8 h-8" />
+              <div>
+                <div className="font-bold">Разместить задание</div>
+                <div className="text-sm opacity-70">Найти исполнителя</div>
+              </div>
+            </Button>
+          </Link>
+          <Link to="/ads">
+            <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+              <Search className="w-8 h-8" />
+              <div>
+                <div className="font-bold">Найти работу</div>
+                <div className="text-sm opacity-70">Просмотреть объявления</div>
+              </div>
+            </Button>
+          </Link>
         </div>
+
+        {/* Information Cards */}
+        {user && (
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="card-steel p-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-steel-100 mb-1">Заказы</h3>
+                  <p className="text-sm text-steel-400 mb-2">Конкретные задания с дедлайном</p>
+                  <p className="text-xs text-steel-500">Создайте заказ → Получите отклики → Выберите исполнителя</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="card-steel p-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <User className="w-5 h-5 text-green-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-steel-100 mb-1">Объявления</h3>
+                  <p className="text-sm text-steel-400 mb-2">Долгосрочные предложения услуг</p>
+                  <p className="text-xs text-steel-500">Найдите постоянных исполнителей → Договоритесь о сотрудничестве</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Authentication prompt for non-logged users */}
         {!user && (
