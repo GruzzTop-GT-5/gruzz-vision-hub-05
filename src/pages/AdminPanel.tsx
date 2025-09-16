@@ -2886,10 +2886,19 @@ export default function AdminPanel() {
       </AlertDialog>
 
       {/* AdModerationModal */}
+      {(() => {
+        console.log('About to render AdModerationModal:', {
+          selectedAd: selectedAd,
+          isOpen: adModerationOpen,
+          adId: selectedAd?.id
+        });
+        return null;
+      })()}
       <AdModerationModal
         ad={selectedAd}
         isOpen={adModerationOpen}
         onClose={() => {
+          console.log('AdModerationModal onClose called');
           setAdModerationOpen(false);
           setSelectedAd(null);
         }}

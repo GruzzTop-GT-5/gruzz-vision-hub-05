@@ -297,6 +297,8 @@ export const AdModerationModal = ({ ad, isOpen, onClose, onAdUpdate }: AdModerat
     }
   };
 
+  console.log('AdModerationModal render:', { ad, isOpen, title: ad?.title });
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
