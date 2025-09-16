@@ -52,7 +52,7 @@ const Balance = () => {
                 <h3 className="font-medium text-steel-100">Как это работает</h3>
               </div>
               <ul className="text-sm text-steel-300 space-y-1">
-                <li>• 1 GT Coin = 1 GT</li>
+                <li>• 1 GT Coin = 1 ₽</li>
                 <li>• Пополнение от 100 GT</li>
                 <li>• Комиссия за размещение объявлений</li>
                 <li>• Быстрое подтверждение платежей</li>
