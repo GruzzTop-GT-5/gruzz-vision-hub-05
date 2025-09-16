@@ -61,6 +61,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
   const [isCreating, setIsCreating] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [userBalance, setUserBalance] = useState<number>(0);
+  const [publicationFee, setPublicationFee] = useState<number>(50);
   
   const [orderData, setOrderData] = useState({
     title: '',
@@ -81,7 +82,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     }
   });
 
-  // Загружаем баланс пользователя при открытии модала
+  // Загружаем баланс пользователя и стоимость публикации при открытии модала
   const loadUserBalance = async () => {
     if (!user?.id) return;
     
@@ -99,9 +100,26 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     }
   };
 
-  // Загружаем баланс при открытии модала
+  const loadPublicationFee = async () => {
+    try {
+      const { data: setting, error } = await supabase
+        .from('system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'order_publication_fee')
+        .single();
+
+      if (error) throw error;
+      setPublicationFee(parseFloat(setting?.setting_value?.toString() || '50'));
+    } catch (error) {
+      console.error('Error loading publication fee:', error);
+      setPublicationFee(50); // Fallback значение
+    }
+  };
+
+  // Загружаем баланс и стоимость публикации при открытии модала
   if (isOpen && user?.id && userBalance === 0) {
     loadUserBalance();
+    loadPublicationFee();
   }
 
   const handleCreateOrder = async () => {
@@ -135,10 +153,8 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       return;
     }
 
-    // Calculate total cost with platform fee
-    const commissionRate = 10;
-    const platformFee = (price * commissionRate) / 100;
-    const totalCost = price + platformFee;
+    // Общая стоимость = только фиксированная плата за публикацию
+    const totalCost = publicationFee;
 
     setIsCreating(true);
 
@@ -155,13 +171,13 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       if (!profileData || profileData.balance < totalCost) {
         toast({
           title: "Недостаточно средств",
-          description: `Необходимо ${formatBalance(totalCost).gtCoins} для создания заказа. Пополните баланс.`,
+          description: `Необходимо ${formatBalance(totalCost).gtCoins} для публикации заказа. Пополните баланс.`,
           variant: "destructive"
         });
         return;
       }
 
-      // Platform fee already calculated above
+      // Заказ без комиссии, оплачивается только фиксированная плата за публикацию
 
       // Создаем заказ
       const { data: newOrder, error: orderError } = await supabase
@@ -177,8 +193,8 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
           ad_id: adId || null,
           delivery_format: orderData.work_format,
           max_revisions: parseInt(orderData.people_count),
-          commission_rate: commissionRate,
-          platform_fee: platformFee,
+          commission_rate: 0,
+          platform_fee: 0,
           payment_method: orderData.payment_type,
           client_requirements: {
             ...orderData.client_requirements,
@@ -224,8 +240,8 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         console.log('Conversation created successfully:', conversation.id);
       }
 
-      // Создаем транзакцию для списания средств (сначала pending, потом completed для срабатывания триггера)
-      console.log('Creating transaction for user:', user.id, 'amount:', price);
+      // Создаем транзакцию для списания фиксированной платы за публикацию
+      console.log('Creating transaction for user:', user.id, 'publication fee:', totalCost);
       const { data: transaction, error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -236,10 +252,9 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
           payment_details: {
             order_id: newOrder.id,
             order_number: newOrder.order_number,
-            description: `Оплата заказа: ${sanitizeInput(orderData.title)}`,
+            description: `Плата за публикацию заказа: ${sanitizeInput(orderData.title)}`,
             breakdown: {
-              executor_payment: price,
-              platform_fee: platformFee,
+              publication_fee: totalCost,
               total: totalCost
             }
           }
@@ -268,7 +283,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
       toast({
         title: "Заказ создан",
-        description: `Заказ успешно создан. Списано ${formatBalance(totalCost).gtCoins} с баланса`
+        description: `Заказ успешно создан. Списано ${formatBalance(totalCost).gtCoins} за публикацию`
       });
 
       // Reset form
@@ -590,45 +605,50 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               </div>
             </div>
             
-            {orderData.price && !isNaN(parseFloat(orderData.price)) && (
-              <>
-                <div className="border-t border-steel-600 pt-3">
-                  <h4 className="font-semibold text-steel-100 mb-2">Расчет стоимости:</h4>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-steel-300">Вознаграждение исполнителя:</span>
-                      <div className="text-right">
-                        <div className="text-steel-100">{formatBalance(parseFloat(orderData.price)).gtCoins}</div>
-                        <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price)).rubles}</div>
-                      </div>
+            <div className="border-t border-steel-600 pt-3">
+              <h4 className="font-semibold text-steel-100 mb-2">Стоимость публикации:</h4>
+              <div className="space-y-1 text-sm">
+                {orderData.price && !isNaN(parseFloat(orderData.price)) && (
+                  <div className="flex justify-between">
+                    <span className="text-steel-300">Вознаграждение исполнителя:</span>
+                    <div className="text-right">
+                      <div className="text-steel-100">{formatBalance(parseFloat(orderData.price)).gtCoins}</div>
+                      <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price)).rubles}</div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-steel-300">Комиссия платформы (10%):</span>
-                      <div className="text-right">
-                        <div className="text-steel-100">{formatBalance((parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
-                        <div className="text-xs text-steel-400">{formatBalance((parseFloat(orderData.price) * 10) / 100).rubles}</div>
-                      </div>
-                    </div>
-                    <div className="border-t border-steel-600 pt-1 mt-2">
-                      <div className="flex justify-between font-semibold">
-                        <span className="text-steel-100">Итого к оплате:</span>
-                        <div className="text-right">
-                          <div className="text-primary">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
-                          <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).rubles}</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Warning if insufficient balance */}
-                    {parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100 > userBalance && (
-                      <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
-                        ⚠️ Недостаточно средств на балансе. Пополните баланс для создания заказа.
-                      </div>
-                    )}
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-steel-300">Плата за публикацию:</span>
+                  <div className="text-right">
+                    <div className="text-steel-100">{formatBalance(publicationFee).gtCoins}</div>
+                    <div className="text-xs text-steel-400">{formatBalance(publicationFee).rubles}</div>
                   </div>
                 </div>
-              </>
-            )}
+                <div className="border-t border-steel-600 pt-1 mt-2">
+                  <div className="flex justify-between font-semibold">
+                    <span className="text-steel-100">К списанию с баланса:</span>
+                    <div className="text-right">
+                      <div className="text-primary">{formatBalance(publicationFee).gtCoins}</div>
+                      <div className="text-xs text-steel-400">{formatBalance(publicationFee).rubles}</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Warning if insufficient balance */}
+                {publicationFee > userBalance && (
+                  <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                    ⚠️ Недостаточно средств на балансе. Пополните баланс для создания заказа.
+                  </div>
+                )}
+                
+                {/* Info about executor payment */}
+                {orderData.price && !isNaN(parseFloat(orderData.price)) && (
+                  <div className="mt-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded text-blue-400 text-sm">
+                    ℹ️ Исполнитель получит полную сумму без комиссий: {formatBalance(parseFloat(orderData.price)).gtCoins}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons */}

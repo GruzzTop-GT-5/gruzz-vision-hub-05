@@ -1846,10 +1846,52 @@ export default function AdminPanel() {
                       </div>
                     </div>
 
+                    {/* Fees */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <DollarSign className="w-5 h-5 text-green-400" />
+                        <h3 className="text-lg font-semibold text-steel-100">Платежи</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {systemSettings
+                          .filter(setting => setting.setting_type === 'fee')
+                          .map(setting => (
+                            <div key={setting.id} className="bg-steel-800/30 rounded-lg p-4 space-y-3">
+                              <div>
+                                <label className="text-steel-100 font-medium text-sm">
+                                  {setting.display_name}
+                                </label>
+                                {setting.description && (
+                                  <p className="text-steel-400 text-xs mt-1">{setting.description}</p>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="number"
+                                  value={setting.setting_value}
+                                  onChange={(e) => updateSystemSetting(setting.id, e.target.value)}
+                                  min={setting.min_value || 0}
+                                  max={setting.max_value || undefined}
+                                  className="bg-steel-700 border-steel-600"
+                                  disabled={!setting.is_editable}
+                                />
+                                <span className="text-steel-400 text-sm">GT</span>
+                              </div>
+                              {setting.min_value !== null && setting.max_value !== null && (
+                                <p className="text-steel-500 text-xs">
+                                  Диапазон: {setting.min_value} - {setting.max_value} GT
+                                </p>
+                              )}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+
                     {/* Tariffs */}
                     <div className="space-y-4">
                       <div className="flex items-center space-x-3">
-                        <DollarSign className="w-5 h-5 text-purple-400" />
+                        <Percent className="w-5 h-5 text-purple-400" />
                         <h3 className="text-lg font-semibold text-steel-100">Тарифы</h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
