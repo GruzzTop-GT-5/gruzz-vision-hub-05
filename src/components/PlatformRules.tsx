@@ -106,10 +106,13 @@ export const PlatformRules: React.FC = () => {
               <p className="font-medium text-yellow-800 dark:text-yellow-200">
                 Важная информация
               </p>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">
                 Использование платформы означает полное согласие с данными правилами. 
                 При изменении правил все пользователи получают уведомление.
-              </p>
+            </p>
+            <p className="text-sm text-orange-700 dark:text-orange-300 mt-2 font-medium">
+                ⚠️ Приложение находится в стадии разработки. Возможно, не все правила работают корректно.
+            </p>
             </div>
           </div>
         </CardContent>
