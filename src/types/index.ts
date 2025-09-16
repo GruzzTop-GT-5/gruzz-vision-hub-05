@@ -52,6 +52,11 @@ export interface Review {
   comment?: string;
   is_moderated: boolean;
   is_reported: boolean;
+  admin_bonus_points: number;
+  admin_comment?: string;
+  is_hidden: boolean;
+  hidden_by?: string;
+  hidden_at?: string;
   moderated_by?: string;
   moderated_at?: string;
   created_at?: string;
@@ -123,8 +128,10 @@ export interface SupportTicket {
   description?: string;
   category?: string;
   priority: 'low' | 'normal' | 'high' | 'urgent';
+  urgency: 'low' | 'normal' | 'high' | 'critical';
   status: 'open' | 'in_progress' | 'resolved' | 'closed';
   assigned_to?: string;
+  response_time_minutes?: number;
   resolved_at?: string;
   created_at?: string;
   updated_at?: string;
@@ -206,6 +213,7 @@ export interface SupportTicketForm {
   description: string;
   category: string;
   priority: 'low' | 'normal' | 'high' | 'urgent';
+  urgency: 'low' | 'normal' | 'high' | 'critical';
 }
 
 // Filter and search types

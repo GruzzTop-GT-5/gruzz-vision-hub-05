@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { StarRating } from '@/components/StarRating';
+import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { UserReviews } from '@/components/UserReviews';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
@@ -159,7 +159,7 @@ export default function UserProfile() {
                   
                   {/* Rating */}
                   <div className="flex items-center space-x-4">
-                    <StarRating rating={profile.rating || 0} size="md" />
+                    <UserRatingDisplay userId={profile.id} showDetails={true} />
                   </div>
                 </div>
 

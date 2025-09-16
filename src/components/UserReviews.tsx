@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { StarRating } from '@/components/StarRating';
+import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { ReviewCard } from '@/components/ReviewCard';
 import { ReviewForm } from '@/components/ReviewForm';
 import { useAuth } from '@/hooks/useAuth';
@@ -112,7 +112,7 @@ export const UserReviews = ({ userId, canLeaveReview = false, transactionId }: U
 
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <StarRating rating={averageRating} size="lg" />
+              <UserRatingDisplay userId={userId} showDetails={true} />
               <p className="text-steel-300">
                 {totalReviews === 0 
                   ? "Пока нет отзывов" 

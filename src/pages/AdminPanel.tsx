@@ -43,7 +43,7 @@ import {
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { AdminOrderManagement } from '@/components/AdminOrderManagement';
-import { StarRating } from '@/components/StarRating';
+import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminReviewModeration } from '@/components/AdminReviewModeration';
 import { format } from 'date-fns';
@@ -1506,7 +1506,7 @@ export default function AdminPanel() {
                               <p>Баланс: {userData.balance} GT Coins</p>
                               <div className="flex items-center space-x-2">
                                 <span>Рейтинг:</span>
-                                <StarRating rating={userData.rating || 0} size="sm" />
+                                <UserRatingDisplay userId={userData.id} />
                               </div>
                               <p>Регистрация: {format(new Date(userData.created_at), 'dd.MM.yyyy', { locale: ru })}</p>
                             </div>
@@ -2529,7 +2529,7 @@ export default function AdminPanel() {
                               <span className="font-medium text-steel-100">
                                 Пользователь: {review.target_user_id.slice(0, 8)}...
                               </span>
-                              {review.rating && <StarRating rating={review.rating} size="sm" />}
+                              {review.rating && <UserRatingDisplay userId={review.target_user_id} />}
                             </div>
                             {review.comment && (
                               <div className="bg-steel-700/50 rounded p-3">
