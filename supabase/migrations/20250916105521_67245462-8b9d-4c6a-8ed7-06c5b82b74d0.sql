@@ -1,0 +1,51 @@
+-- Обновляем функцию для правильной обработки всех типов транзакций
+CREATE OR REPLACE FUNCTION public.update_user_balance()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+DECLARE
+  balance_change NUMERIC := 0;
+BEGIN
+  -- Логирование для отладки
+  RAISE NOTICE 'Transaction update: ID=%, Type=%, Amount=%, Old Status=%, New Status=%', 
+    NEW.id, NEW.type, NEW.amount, OLD.status, NEW.status;
+  
+  -- Обновляем баланс только при смене статуса на completed
+  IF NEW.status = 'completed' AND (OLD.status IS NULL OR OLD.status != 'completed') THEN
+    
+    -- Определяем изменение баланса в зависимости от типа транзакции
+    CASE NEW.type
+      -- Пополнения (увеличивают баланс)
+      WHEN 'topup_direct', 'topup_manual', 'refund', 'admin_adjustment', 'deposit' THEN
+        balance_change := NEW.amount;
+      
+      -- Списания (уменьшают баланс)
+      WHEN 'purchase', 'payment', 'withdrawal', 'commission' THEN
+        balance_change := -NEW.amount;
+        
+      ELSE
+        RAISE NOTICE 'Unknown transaction type: %', NEW.type;
+    END CASE;
+    
+    -- Обновляем баланс пользователя
+    IF balance_change != 0 THEN
+      UPDATE public.profiles 
+      SET balance = balance + balance_change,
+          updated_at = now()
+      WHERE id = NEW.user_id;
+      
+      RAISE NOTICE 'Balance updated for user % by %', NEW.user_id, balance_change;
+    END IF;
+    
+    -- Устанавливаем время завершения
+    NEW.completed_at = now();
+  END IF;
+  
+  -- Обновляем время изменения
+  NEW.updated_at = now();
+  
+  RETURN NEW;
+END;
+$function$;
