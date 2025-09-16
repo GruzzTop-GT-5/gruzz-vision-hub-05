@@ -4,8 +4,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Shield, CreditCard, Scale, Users, CheckCircle, AlertTriangle, Info } from 'lucide-react';
+import { 
+  FileText, 
+  Shield, 
+  CreditCard, 
+  Scale, 
+  Users,
+  CheckCircle,
+  AlertTriangle,
+  Info
+} from 'lucide-react';
 import { PLATFORM_RULES, TERMS_VERSION, TERMS_LAST_UPDATED } from '@/data/legal';
+
 interface RulesSectionProps {
   title: string;
   content: Array<{
@@ -15,13 +25,10 @@ interface RulesSectionProps {
   icon: React.ReactNode;
   variant?: 'default' | 'warning' | 'success' | 'info';
 }
-const RulesSection = ({
-  title,
-  content,
-  icon,
-  variant = 'default'
-}: RulesSectionProps) => {
+
+const RulesSection = ({ title, content, icon, variant = 'default' }: RulesSectionProps) => {
   let cardClasses = 'bg-card border-border';
+  
   if (variant === 'warning') {
     cardClasses = 'bg-orange-500/5 border-orange-500/20';
   } else if (variant === 'success') {
@@ -29,7 +36,9 @@ const RulesSection = ({
   } else if (variant === 'info') {
     cardClasses = 'bg-blue-500/5 border-blue-500/20';
   }
-  return <Card className={cardClasses}>
+
+  return (
+    <Card className={cardClasses}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {icon}
@@ -37,25 +46,33 @@ const RulesSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {content.map((section, index) => <div key={index}>
+        {content.map((section, index) => (
+          <div key={index}>
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-500" />
               {section.section}
             </h4>
             <ul className="space-y-2">
-              {section.items.map((item, itemIndex) => <li key={itemIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
+              {section.items.map((item, itemIndex) => (
+                <li key={itemIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
                   {item}
-                </li>)}
+                </li>
+              ))}
             </ul>
             {index < content.length - 1 && <Separator className="mt-4" />}
-          </div>)}
+          </div>
+        ))}
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export const PlatformRules = () => {
   const [activeTab, setActiveTab] = useState("commission");
-  return <div className="max-w-4xl mx-auto p-6 space-y-6">
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-foreground">
@@ -76,11 +93,7 @@ export const PlatformRules = () => {
       <Card className="bg-orange-500/5 border-orange-500/20">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <div className="flex gap-1">
-              <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
-              <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
-              
-            </div>
+            <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
             <div className="space-y-1">
               <p className="font-medium text-orange-300 text-center">
                 Важная информация
@@ -124,23 +137,46 @@ export const PlatformRules = () => {
 
         <ScrollArea className="h-[600px] w-full">
           <TabsContent value="commission" className="mt-6">
-            <RulesSection title={PLATFORM_RULES.commission.title} content={PLATFORM_RULES.commission.content} icon={<CreditCard className="h-5 w-5 text-green-500" />} variant="success" />
+            <RulesSection
+              title={PLATFORM_RULES.commission.title}
+              content={PLATFORM_RULES.commission.content}
+              icon={<CreditCard className="h-5 w-5 text-green-500" />}
+              variant="success"
+            />
           </TabsContent>
 
           <TabsContent value="responsibilities" className="mt-6">
-            <RulesSection title={PLATFORM_RULES.responsibilities.title} content={PLATFORM_RULES.responsibilities.content} icon={<Users className="h-5 w-5 text-blue-500" />} variant="info" />
+            <RulesSection
+              title={PLATFORM_RULES.responsibilities.title}
+              content={PLATFORM_RULES.responsibilities.content}
+              icon={<Users className="h-5 w-5 text-blue-500" />}
+              variant="info"
+            />
           </TabsContent>
 
           <TabsContent value="disputes" className="mt-6">
-            <RulesSection title={PLATFORM_RULES.disputes.title} content={PLATFORM_RULES.disputes.content} icon={<Scale className="h-5 w-5 text-orange-500" />} variant="warning" />
+            <RulesSection
+              title={PLATFORM_RULES.disputes.title}
+              content={PLATFORM_RULES.disputes.content}
+              icon={<Scale className="h-5 w-5 text-orange-500" />}
+              variant="warning"
+            />
           </TabsContent>
 
           <TabsContent value="payments" className="mt-6">
-            <RulesSection title={PLATFORM_RULES.payments.title} content={PLATFORM_RULES.payments.content} icon={<Shield className="h-5 w-5 text-purple-500" />} />
+            <RulesSection
+              title={PLATFORM_RULES.payments.title}
+              content={PLATFORM_RULES.payments.content}
+              icon={<Shield className="h-5 w-5 text-purple-500" />}
+            />
           </TabsContent>
 
           <TabsContent value="privacy" className="mt-6">
-            <RulesSection title={PLATFORM_RULES.privacy.title} content={PLATFORM_RULES.privacy.content} icon={<FileText className="h-5 w-5 text-indigo-500" />} />
+            <RulesSection
+              title={PLATFORM_RULES.privacy.title}
+              content={PLATFORM_RULES.privacy.content}
+              icon={<FileText className="h-5 w-5 text-indigo-500" />}
+            />
           </TabsContent>
         </ScrollArea>
       </Tabs>
@@ -165,5 +201,6 @@ export const PlatformRules = () => {
           </p>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
