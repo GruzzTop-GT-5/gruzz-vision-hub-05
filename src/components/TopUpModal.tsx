@@ -260,7 +260,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs text-steel-400">Номер карты</p>
-                        <p className="font-mono">{paymentDetails.card_number}</p>
+                        <p className="font-mono">2204 3204 7436 8950</p>
                       </div>
                       <CopyButton text={paymentDetails.card_number} field="card" />
                     </div>
