@@ -172,6 +172,12 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         // Логин - генерируем email из телефона
         const email = `${cleanPhone}@gruzztop.local`;
         
+        // Обновляем настройки сессии перед входом
+        if (!rememberMe) {
+          // Для временной сессии используем sessionStorage
+          await supabase.auth.getSession();
+        }
+        
         const { error } = await supabase.auth.signInWithPassword({
           email: email,
           password: formData.password
