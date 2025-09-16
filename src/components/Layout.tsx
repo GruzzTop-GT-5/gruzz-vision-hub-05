@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
-import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone, Search, Plus, Wallet, Package } from 'lucide-react';
+import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone, Search, Plus, Wallet, Package, Bell } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Link, useLocation } from 'react-router-dom';
 import { TelegramLayout } from './TelegramLayout';
 import { useTelegram } from '@/hooks/useTelegram';
+import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import logoImage from '@/assets/logo-round.png';
 
@@ -21,6 +22,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   const [profileData, setProfileData] = useState<{ avatar_url?: string; telegram_photo_url?: string } | null>(null);
   const location = useLocation();
   const { isInTelegram, hapticFeedback } = useTelegram();
+  const { unreadCount } = useNotifications();
 
   // Fetch user profile data
   useEffect(() => {
@@ -165,11 +167,19 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
               <Link
                 key={index}
                 to={item.href}
-                className="flex items-center space-x-3 p-3 rounded-lg text-steel-100 hover:bg-steel-700 transition-colors duration-200 group"
+                className="flex items-center justify-between p-3 rounded-lg text-steel-100 hover:bg-steel-700 transition-colors duration-200 group"
                 onClick={handleMenuClick}
               >
-                <item.icon className="w-5 h-5 text-steel-400 group-hover:text-primary transition-colors" />
-                <span className="font-medium">{item.label}</span>
+                <div className="flex items-center space-x-3">
+                  <item.icon className="w-5 h-5 text-steel-400 group-hover:text-primary transition-colors" />
+                  <span className="font-medium">{item.label}</span>
+                </div>
+                {/* Notification badge for relevant menu items */}
+                {((item.href === '/chat-system' || item.href === '/balance') && unreadCount > 0) && (
+                  <div className="flex items-center justify-center w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </div>
+                )}
               </Link>
             ))}
           </nav>
@@ -224,22 +234,32 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
             <Link 
               to="/chat-system" 
               onClick={handleMenuClick}
-              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+              className={`relative flex flex-col items-center py-2 px-3 text-xs transition-colors ${
                 location.pathname === '/chat-system' ? 'text-primary' : 'text-steel-400'
               }`}
             >
               <MessageCircle className="h-5 w-5 mb-1" />
               Чаты
+              {unreadCount > 0 && (
+                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </div>
+              )}
             </Link>
             <Link 
               to="/balance" 
               onClick={handleMenuClick}
-              className={`flex flex-col items-center py-2 px-3 text-xs transition-colors ${
+              className={`relative flex flex-col items-center py-2 px-3 text-xs transition-colors ${
                 location.pathname === '/balance' ? 'text-primary' : 'text-steel-400'
               }`}
             >
               <Wallet className="h-5 w-5 mb-1" />
               Баланс
+              {unreadCount > 0 && (
+                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </div>
+              )}
             </Link>
           </div>
         </nav>

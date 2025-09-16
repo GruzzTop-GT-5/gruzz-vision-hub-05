@@ -46,6 +46,7 @@ import { AdminOrderManagement } from '@/components/AdminOrderManagement';
 import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminReviewModeration } from '@/components/AdminReviewModeration';
+import { AdminTicketManagement } from '@/components/AdminTicketManagement';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -1278,7 +1279,7 @@ export default function AdminPanel() {
 
           {/* Admin Tabs */}
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Дашборд</span>
@@ -1294,6 +1295,10 @@ export default function AdminPanel() {
               <TabsTrigger value="orders" className="flex items-center space-x-2">
                 <MessageSquare className="w-4 h-4" />
                 <span>Заказы</span>
+              </TabsTrigger>
+              <TabsTrigger value="tickets" className="flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4" />
+                <span>Тикеты</span>
               </TabsTrigger>
               <TabsTrigger value="transactions" className="flex items-center space-x-2">
                 <CreditCard className="w-4 h-4" />
@@ -1702,6 +1707,11 @@ export default function AdminPanel() {
                 orders={orders as any} 
                 onOrderUpdate={fetchOrders}
               />
+            </TabsContent>
+
+            {/* Tickets Management */}
+            <TabsContent value="tickets" className="space-y-6">
+              <AdminTicketManagement />
             </TabsContent>
 
             {/* Transactions Management */}
