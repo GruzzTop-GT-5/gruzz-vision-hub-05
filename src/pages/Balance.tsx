@@ -81,12 +81,12 @@ const Balance = () => {
             </div>
             
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-2 opacity-50">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto">
                   <TrendingUp className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="font-medium text-steel-200">Банковская карта</h4>
-                <p className="text-xs text-steel-400">Мгновенное зачисление</p>
+                <p className="text-xs text-steel-400">В разработке</p>
               </div>
               
               <div className="text-center space-y-2">
