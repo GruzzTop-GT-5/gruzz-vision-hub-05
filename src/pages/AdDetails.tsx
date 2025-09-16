@@ -37,12 +37,19 @@ export default function AdDetails() {
             )
           `)
           .eq('id', id)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
-        setAd(data);
+        
+        if (data) {
+          setAd(data);
+        } else {
+          console.warn('Ad not found with ID:', id);
+          setAd(null);
+        }
       } catch (error) {
         console.error('Error fetching ad:', error);
+        setAd(null);
       } finally {
         setLoading(false);
       }

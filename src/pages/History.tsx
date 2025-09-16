@@ -30,22 +30,39 @@ const History = () => {
       // Fetch completed orders where user is executor
       const { data: orders, error } = await supabase
         .from('orders')
-        .select(`
-          *,
-          client:profiles!orders_client_id_fkey(display_name, full_name),
-          reviews:order_reviews!order_reviews_order_id_fkey(rating, comment)
-        `)
+        .select('*')
         .eq('executor_id', user.id)
         .eq('status', 'completed')
         .order('completed_at', { ascending: false });
 
       if (error) throw error;
 
-      setCompletedOrders(orders || []);
+      // Fetch client profiles separately
+      const clientIds = orders?.map(order => order.client_id).filter(Boolean) || [];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, display_name, full_name')
+        .in('id', clientIds);
+
+      // Fetch reviews separately  
+      const orderIds = orders?.map(order => order.id) || [];
+      const { data: reviews } = await supabase
+        .from('order_reviews')
+        .select('order_id, rating, comment')
+        .in('order_id', orderIds);
+
+      // Map profiles and reviews to orders
+      const ordersWithData = orders?.map(order => ({
+        ...order,
+        client: profiles?.find(p => p.id === order.client_id) || null,
+        reviews: reviews?.filter(r => r.order_id === order.id) || []
+      })) || [];
+
+      setCompletedOrders(ordersWithData);
       
       // Calculate stats
-      const totalEarnings = orders?.reduce((sum, order) => sum + Number(order.price), 0) || 0;
-      const ratingsArray = orders?.flatMap(order => 
+      const totalEarnings = ordersWithData?.reduce((sum, order) => sum + Number(order.price), 0) || 0;
+      const ratingsArray = ordersWithData?.flatMap(order => 
         order.reviews?.map(review => review.rating) || []
       ) || [];
       const averageRating = ratingsArray.length > 0 
@@ -53,7 +70,7 @@ const History = () => {
         : 0;
 
       setStats({
-        completedCount: orders?.length || 0,
+        completedCount: ordersWithData?.length || 0,
         totalEarnings,
         averageRating
       });
