@@ -221,6 +221,9 @@ const Orders = () => {
                 <Package className="w-8 h-8 text-primary" />
                 <h1 className="text-3xl font-bold text-glow">Мои заказы</h1>
               </div>
+              <p className="text-steel-400 text-sm mt-1">
+                Заказы, где вы участвуете как клиент или исполнитель
+              </p>
             </div>
             
             <Button 

@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BackButton } from '@/components/BackButton';
+import { CreateOrderModal } from '@/components/CreateOrderModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Package, Plus, Edit3, Trash2, Search, Filter, DollarSign, Calendar, Clock, Eye, Loader2 } from 'lucide-react';
@@ -26,7 +27,25 @@ interface Ad {
   status: string;
   created_at: string;
   user_id: string;
+  type: 'ad'; // Маркер типа
 }
+
+interface Vacancy {
+  id: string;
+  order_number: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  price: number;
+  status: string;
+  priority: string;
+  deadline: string | null;
+  client_id: string;
+  created_at: string;
+  type: 'vacancy'; // Маркер типа
+}
+
+type MyItem = Ad | Vacancy;
 
 const categories = [
   'Все категории',
@@ -51,17 +70,19 @@ const MyAds = () => {
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
 
-  const [ads, setAds] = useState<Ad[]>([]);
-  const [filteredAds, setFilteredAds] = useState<Ad[]>([]);
+  const [items, setItems] = useState<MyItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<MyItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Все категории');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedType, setSelectedType] = useState('all');
   
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateVacancyModal, setShowCreateVacancyModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MyItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -75,32 +96,53 @@ const MyAds = () => {
 
   useEffect(() => {
     if (user?.id) {
-      fetchAds();
+      fetchItems();
     }
   }, [user?.id]);
 
   useEffect(() => {
-    filterAds();
-  }, [ads, searchQuery, selectedCategory, selectedStatus]);
+    filterItems();
+  }, [items, searchQuery, selectedCategory, selectedStatus, selectedType]);
 
-  const fetchAds = async () => {
+  const fetchItems = async () => {
     if (!user?.id) return;
 
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch user's ads
+      const { data: adsData, error: adsError } = await supabase
         .from('ads')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setAds(data || []);
+      if (adsError) throw adsError;
+
+      // Fetch user's created orders (vacancies)
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('client_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (ordersError) throw ordersError;
+
+      // Combine and mark with type
+      const allItems: MyItem[] = [
+        ...(adsData || []).map(ad => ({ ...ad, type: 'ad' as const })),
+        ...(ordersData || []).map(order => ({ ...order, type: 'vacancy' as const }))
+      ];
+
+      // Sort by creation date
+      allItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      setItems(allItems);
     } catch (error) {
-      console.error('Error fetching ads:', error);
+      console.error('Error fetching items:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить объявления",
+        description: "Не удалось загрузить объявления и вакансии",
         variant: "destructive"
       });
     } finally {
@@ -108,29 +150,35 @@ const MyAds = () => {
     }
   };
 
-  const filterAds = () => {
-    let filtered = [...ads];
+  const filterItems = () => {
+    let filtered = [...items];
+
+    // Type filter
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(item => item.type === selectedType);
+    }
 
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(ad =>
-        ad.title.toLowerCase().includes(query) ||
-        (ad.description && ad.description.toLowerCase().includes(query))
+      filtered = filtered.filter(item =>
+        item.title.toLowerCase().includes(query) ||
+        (item.description && item.description.toLowerCase().includes(query)) ||
+        (item.type === 'vacancy' && (item as Vacancy).order_number.toLowerCase().includes(query))
       );
     }
 
     // Category filter
     if (selectedCategory !== 'Все категории') {
-      filtered = filtered.filter(ad => ad.category === selectedCategory);
+      filtered = filtered.filter(item => item.category === selectedCategory);
     }
 
     // Status filter
     if (selectedStatus !== 'all') {
-      filtered = filtered.filter(ad => ad.status === selectedStatus);
+      filtered = filtered.filter(item => item.status === selectedStatus);
     }
 
-    setFilteredAds(filtered);
+    setFilteredItems(filtered);
   };
 
   const resetForm = () => {
@@ -182,7 +230,7 @@ const MyAds = () => {
 
       resetForm();
       setShowCreateModal(false);
-      fetchAds();
+      fetchItems();
     } catch (error) {
       console.error('Error creating ad:', error);
       toast({
@@ -195,8 +243,8 @@ const MyAds = () => {
     }
   };
 
-  const handleEditAd = async () => {
-    if (!selectedAd || !formData.title || !formData.category || !formData.price) {
+  const handleEditItem = async () => {
+    if (!selectedItem || !formData.title || !formData.category || !formData.price) {
       toast({
         title: "Ошибка",
         description: "Заполните все обязательные поля",
@@ -207,36 +255,51 @@ const MyAds = () => {
 
     setIsSubmitting(true);
     try {
-      // First, find the category_id for the selected category
-      const { data: categoryData } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('name', formData.category)
-        .single();
+      if (selectedItem?.type === 'ad') {
+        // First, find the category_id for the selected category
+        const { data: categoryData } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('name', formData.category)
+          .single();
 
-      const { error } = await supabase
-        .from('ads')
-        .update({
-          title: formData.title,
-          description: formData.description || null,
-          category: formData.category,
-          category_id: categoryData?.id || null,
-          price: parseFloat(formData.price)
-        })
-        .eq('id', selectedAd.id)
-        .eq('user_id', user?.id);
+        const { error } = await supabase
+          .from('ads')
+          .update({
+            title: formData.title,
+            description: formData.description || null,
+            category: formData.category,
+            category_id: categoryData?.id || null,
+            price: parseFloat(formData.price)
+          })
+          .eq('id', selectedItem.id)
+          .eq('user_id', user?.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else if (selectedItem?.type === 'vacancy') {
+        const { error } = await supabase
+          .from('orders')
+          .update({
+            title: formData.title,
+            description: formData.description || null,
+            category: formData.category,
+            price: parseFloat(formData.price)
+          })
+          .eq('id', selectedItem.id)
+          .eq('client_id', user?.id);
+
+        if (error) throw error;
+      }
 
       toast({
-        title: "Объявление обновлено",
-        description: "Ваше объявление было успешно обновлено"
+        title: "Успешно обновлено",
+        description: selectedItem?.type === 'ad' ? "Объявление обновлено" : "Вакансия обновлена"
       });
 
       resetForm();
       setShowEditModal(false);
-      setSelectedAd(null);
-      fetchAds();
+      setSelectedItem(null);
+      fetchItems();
     } catch (error) {
       console.error('Error updating ad:', error);
       toast({
@@ -249,27 +312,37 @@ const MyAds = () => {
     }
   };
 
-  const handleDeleteAd = async () => {
-    if (!selectedAd) return;
+  const handleDeleteItem = async () => {
+    if (!selectedItem) return;
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase
-        .from('ads')
-        .delete()
-        .eq('id', selectedAd.id)
-        .eq('user_id', user?.id);
+      if (selectedItem.type === 'ad') {
+        const { error } = await supabase
+          .from('ads')
+          .delete()
+          .eq('id', selectedItem.id)
+          .eq('user_id', user?.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else if (selectedItem.type === 'vacancy') {
+        const { error } = await supabase
+          .from('orders')
+          .delete()
+          .eq('id', selectedItem.id)
+          .eq('client_id', user?.id);
+
+        if (error) throw error;
+      }
 
       toast({
-        title: "Объявление удалено",
-        description: "Ваше объявление было успешно удалено"
+        title: selectedItem.type === 'ad' ? "Объявление удалено" : "Вакансия удалена",
+        description: selectedItem.type === 'ad' ? "Объявление успешно удалено" : "Вакансия успешно удалена"
       });
 
       setShowDeleteDialog(false);
-      setSelectedAd(null);
-      fetchAds();
+      setSelectedItem(null);
+      fetchItems();
     } catch (error) {
       console.error('Error deleting ad:', error);
       toast({
@@ -282,45 +355,69 @@ const MyAds = () => {
     }
   };
 
-  const openEditModal = (ad: Ad) => {
-    setSelectedAd(ad);
+  const openEditModal = (item: MyItem) => {
+    setSelectedItem(item);
     setFormData({
-      title: ad.title,
-      description: ad.description || '',
-      category: ad.category,
-      price: ad.price.toString()
+      title: item.title,
+      description: item.description || '',
+      category: item.category || '',
+      price: item.price.toString()
     });
     setShowEditModal(true);
   };
 
-  const openDeleteDialog = (ad: Ad) => {
-    setSelectedAd(ad);
+  const openDeleteDialog = (item: MyItem) => {
+    setSelectedItem(item);
     setShowDeleteDialog(true);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-500/10 text-green-400 border-green-500/20">Активно</Badge>;
-      case 'inactive':
-        return <Badge className="bg-gray-500/10 text-gray-400 border-gray-500/20">Неактивно</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-500/10 text-yellow-400 border-yellow-500/20">На модерации</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  const getStatusBadge = (status: string, type: 'ad' | 'vacancy') => {
+    if (type === 'ad') {
+      switch (status) {
+        case 'active':
+          return <Badge className="bg-green-500/10 text-green-400 border-green-500/20">Активно</Badge>;
+        case 'inactive':
+          return <Badge className="bg-gray-500/10 text-gray-400 border-gray-500/20">Неактивно</Badge>;
+        case 'pending':
+          return <Badge className="bg-yellow-500/10 text-yellow-400 border-yellow-500/20">На модерации</Badge>;
+        default:
+          return <Badge variant="outline">{status}</Badge>;
+      }
+    } else {
+      switch (status) {
+        case 'pending':
+          return <Badge className="bg-yellow-500/10 text-yellow-400 border-yellow-500/20">Ожидает исполнителя</Badge>;
+        case 'accepted':
+          return <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">Принята</Badge>;
+        case 'in_progress':
+          return <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">В работе</Badge>;
+        case 'completed':
+          return <Badge className="bg-green-500/10 text-green-400 border-green-500/20">Завершена</Badge>;
+        case 'cancelled':
+          return <Badge className="bg-red-500/10 text-red-400 border-red-500/20">Отменена</Badge>;
+        default:
+          return <Badge variant="outline">{status}</Badge>;
+      }
     }
   };
 
-  const getAdStats = () => {
+  const getItemStats = () => {
     return {
-      total: ads.length,
-      active: ads.filter(ad => ad.status === 'active').length,
-      inactive: ads.filter(ad => ad.status === 'inactive').length,
-      pending: ads.filter(ad => ad.status === 'pending').length
+      total: items.length,
+      ads: items.filter(item => item.type === 'ad').length,
+      vacancies: items.filter(item => item.type === 'vacancy').length,
+      active: items.filter(item => 
+        (item.type === 'ad' && item.status === 'active') || 
+        (item.type === 'vacancy' && ['pending', 'accepted', 'in_progress'].includes(item.status))
+      ).length,
+      completed: items.filter(item => 
+        (item.type === 'ad' && item.status === 'inactive') || 
+        (item.type === 'vacancy' && ['completed', 'cancelled'].includes(item.status))
+      ).length
     };
   };
 
-  const stats = getAdStats();
+  const stats = getItemStats();
 
   if (!user) {
     return (
@@ -346,20 +443,30 @@ const MyAds = () => {
               <BackButton onClick={() => window.history.back()} />
               <div className="flex items-center space-x-3">
                 <Package className="w-8 h-8 text-primary" />
-                <h1 className="text-3xl font-bold text-glow">Мои объявления</h1>
+                <h1 className="text-3xl font-bold text-glow">Мои публикации</h1>
               </div>
             </div>
             
-            <Button 
-              onClick={() => {
-                resetForm();
-                setShowCreateModal(true);
-              }}
-              className="bg-primary hover:bg-primary/80"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Создать объявление
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => {
+                  resetForm();
+                  setShowCreateModal(true);
+                }}
+                className="bg-primary hover:bg-primary/80"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Создать объявление
+              </Button>
+              
+              <Button 
+                variant="outline"
+                onClick={() => setShowCreateVacancyModal(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Создать вакансию
+              </Button>
+            </div>
           </div>
 
           {/* Stats */}
@@ -371,7 +478,31 @@ const MyAds = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-steel-100">{stats.total}</p>
-                  <p className="text-sm text-steel-400">Всего объявлений</p>
+                  <p className="text-sm text-steel-400">Всего публикаций</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="card-steel p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <Package className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-steel-100">{stats.ads}</p>
+                  <p className="text-sm text-steel-400">Объявлений</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="card-steel p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                  <Package className="w-5 h-5 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-steel-100">{stats.vacancies}</p>
+                  <p className="text-sm text-steel-400">Вакансий</p>
                 </div>
               </div>
             </Card>
@@ -387,35 +518,11 @@ const MyAds = () => {
                 </div>
               </div>
             </Card>
-
-            <Card className="card-steel p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gray-500/20 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-gray-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-steel-100">{stats.inactive}</p>
-                  <p className="text-sm text-steel-400">Неактивных</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="card-steel p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-steel-100">{stats.pending}</p>
-                  <p className="text-sm text-steel-400">На модерации</p>
-                </div>
-              </div>
-            </Card>
           </div>
 
           {/* Filters */}
           <Card className="card-steel p-4">
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-5 gap-4">
               <div className="relative md:col-span-2">
                 <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
                 <Input
@@ -425,6 +532,17 @@ const MyAds = () => {
                   className="pl-10"
                 />
               </div>
+
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Тип" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Все типы</SelectItem>
+                  <SelectItem value="ad">Объявления</SelectItem>
+                  <SelectItem value="vacancy">Вакансии</SelectItem>
+                </SelectContent>
+              </Select>
 
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger>
@@ -444,79 +562,108 @@ const MyAds = () => {
                 <SelectContent>
                   <SelectItem value="all">Все статусы</SelectItem>
                   <SelectItem value="active">Активные</SelectItem>
-                  <SelectItem value="inactive">Неактивные</SelectItem>
-                  <SelectItem value="pending">На модерации</SelectItem>
+                  <SelectItem value="pending">Ожидающие</SelectItem>
+                  <SelectItem value="completed">Завершенные</SelectItem>
+                  <SelectItem value="cancelled">Отмененные</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </Card>
 
-          {/* Ads List */}
+          {/* Items List */}
           {isLoading ? (
             <Card className="card-steel p-8 text-center">
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-              <p className="text-steel-300">Загрузка объявлений...</p>
+              <p className="text-steel-300">Загрузка...</p>
             </Card>
-          ) : filteredAds.length === 0 ? (
+          ) : filteredItems.length === 0 ? (
             <Card className="card-steel p-8 text-center space-y-4">
               <Package className="w-16 h-16 text-steel-500 mx-auto" />
               <h3 className="text-xl font-bold text-steel-300">
-                {ads.length === 0 ? 'Нет объявлений' : 'Объявления не найдены'}
+                {items.length === 0 ? 'Нет публикаций' : 'Ничего не найдено'}
               </h3>
               <p className="text-steel-400">
-                {ads.length === 0 
-                  ? 'Создайте ваше первое объявление' 
+                {items.length === 0 
+                  ? 'Создайте ваше первое объявление или вакансию' 
                   : 'Попробуйте изменить параметры поиска'
                 }
               </p>
-              {ads.length === 0 && (
-                <Button onClick={() => {
-                  resetForm();
-                  setShowCreateModal(true);
-                }}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Создать объявление
-                </Button>
+              {items.length === 0 && (
+                <div className="flex gap-4 justify-center">
+                  <Button onClick={() => {
+                    resetForm();
+                    setShowCreateModal(true);
+                  }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Создать объявление
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowCreateVacancyModal(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Создать вакансию
+                  </Button>
+                </div>
               )}
             </Card>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAds.map((ad) => (
-                <Card key={ad.id} className="card-steel border border-steel-600 h-full">
+              {filteredItems.map((item) => (
+                <Card key={`${item.type}-${item.id}`} className="card-steel border border-steel-600 h-full">
                   <div className="p-6 space-y-4">
                     {/* Header */}
                     <div className="flex items-start justify-between">
-                      {getStatusBadge(ad.status)}
+                      <div className="flex gap-2">
+                        {getStatusBadge(item.status, item.type)}
+                        <Badge variant="outline" className="text-xs">
+                          {item.type === 'ad' ? 'Объявление' : 'Вакансия'}
+                        </Badge>
+                      </div>
                       <span className="text-xs text-steel-400">
-                        {format(new Date(ad.created_at), 'dd MMM yyyy', { locale: ru })}
+                        {format(new Date(item.created_at), 'dd MMM yyyy', { locale: ru })}
                       </span>
                     </div>
 
                     {/* Title */}
                     <h3 className="text-lg font-bold text-steel-100 line-clamp-2">
-                      {ad.title}
+                      {item.title}
                     </h3>
+
+                    {/* Order Number for vacancies */}
+                    {item.type === 'vacancy' && (
+                      <p className="text-xs text-steel-400">
+                        № {(item as Vacancy).order_number}
+                      </p>
+                    )}
 
                     {/* Description */}
                     <p className="text-steel-300 text-sm line-clamp-3">
-                      {ad.description || 'Описание не указано'}
+                      {item.description || 'Описание не указано'}
                     </p>
 
                     {/* Category */}
                     <div className="flex items-center space-x-2 text-sm text-steel-400">
                       <Package className="w-4 h-4" />
-                      <span>{ad.category}</span>
+                      <span>{item.category || 'Не указано'}</span>
                     </div>
+
+                    {/* Deadline for vacancies */}
+                    {item.type === 'vacancy' && (item as Vacancy).deadline && (
+                      <div className="flex items-center space-x-2 text-sm text-steel-400">
+                        <Clock className="w-4 h-4" />
+                        <span>До: {format(new Date((item as Vacancy).deadline!), 'dd MMM yyyy', { locale: ru })}</span>
+                      </div>
+                    )}
 
                     {/* Price and Actions */}
                     <div className="flex items-center justify-between pt-4 border-t border-steel-600">
                       <div className="flex items-center space-x-2">
                         <DollarSign className="w-4 h-4 text-green-400" />
-                        <span className="text-lg font-bold text-steel-100">{ad.price} ₽</span>
+                        <span className="text-lg font-bold text-steel-100">
+                          {item.price} {item.type === 'ad' ? '₽' : 'GT'}
+                        </span>
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Link to={`/ad/${ad.id}`}>
+                        <Link to={item.type === 'ad' ? `/ad/${item.id}` : `/order/${item.id}`}>
                           <Button variant="outline" size="sm">
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -525,7 +672,7 @@ const MyAds = () => {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => openEditModal(ad)}
+                          onClick={() => openEditModal(item)}
                         >
                           <Edit3 className="w-4 h-4" />
                         </Button>
@@ -533,7 +680,7 @@ const MyAds = () => {
                         <Button 
                           variant="destructive" 
                           size="sm"
-                          onClick={() => openDeleteDialog(ad)}
+                          onClick={() => openDeleteDialog(item)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -686,7 +833,7 @@ const MyAds = () => {
             
             <div className="flex space-x-2">
               <Button
-                onClick={handleEditAd}
+                onClick={handleEditItem}
                 disabled={isSubmitting}
                 className="flex-1"
               >
@@ -702,7 +849,7 @@ const MyAds = () => {
                 onClick={() => {
                   resetForm();
                   setShowEditModal(false);
-                  setSelectedAd(null);
+                  setSelectedItem(null);
                 }}
                 disabled={isSubmitting}
                 className="flex-1"
@@ -723,7 +870,7 @@ const MyAds = () => {
           
           <div className="space-y-4">
             <p className="text-steel-300">
-              Вы уверены, что хотите удалить объявление "{selectedAd?.title}"?
+              Вы уверены, что хотите удалить {selectedItem?.type === 'ad' ? 'объявление' : 'вакансию'} "{selectedItem?.title}"?
             </p>
             <p className="text-steel-400 text-sm">
               Это действие нельзя отменить.
@@ -732,7 +879,7 @@ const MyAds = () => {
             <div className="flex space-x-2">
               <Button
                 variant="destructive"
-                onClick={handleDeleteAd}
+                onClick={handleDeleteItem}
                 disabled={isDeleting}
                 className="flex-1"
               >
@@ -747,7 +894,7 @@ const MyAds = () => {
                 variant="outline"
                 onClick={() => {
                   setShowDeleteDialog(false);
-                  setSelectedAd(null);
+                  setSelectedItem(null);
                 }}
                 disabled={isDeleting}
                 className="flex-1"
@@ -758,6 +905,17 @@ const MyAds = () => {
           </div>
         </DialogContent>
       </Dialog>
+      {/* Create Vacancy Modal */}
+      {showCreateVacancyModal && (
+        <CreateOrderModal
+          isOpen={showCreateVacancyModal}
+          onClose={() => setShowCreateVacancyModal(false)}
+          onOrderCreated={() => {
+            setShowCreateVacancyModal(false);
+            fetchItems();
+          }}
+        />
+      )}
     </Layout>
   );
 };

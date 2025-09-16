@@ -228,7 +228,7 @@ export default function Ads() {
                 <h3 className="text-xl font-semibold text-steel-100">Заказы на работу</h3>
               </div>
               <p className="text-steel-300 text-base mb-4">
-                Здесь размещаются заказы на различные виды работ от заказчиков
+                Здесь размещаются заказы на различные виды работ от заказчиков. Найдите подходящую работу или разместите свой заказ.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
                 <div className="flex items-center space-x-2 text-steel-400">
@@ -237,7 +237,11 @@ export default function Ads() {
                 </div>
                 <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
                 <Link to="/available-orders" className="text-primary hover:text-primary/80 font-medium">
-                  Ищете вакансии? Смотреть вакансии →
+                  Ищете работу? Смотреть вакансии →
+                </Link>
+                <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
+                <Link to="/my-ads" className="text-primary hover:text-primary/80 font-medium">
+                  Управлять публикациями →
                 </Link>
               </div>
             </div>
