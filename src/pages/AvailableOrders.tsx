@@ -9,6 +9,7 @@ import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/com
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 import { 
   Package, 
   Loader2, 
@@ -17,7 +18,8 @@ import {
   Users, 
   DollarSign,
   MessageSquare,
-  Calendar
+  Calendar,
+  Plus
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -178,6 +180,7 @@ const AvailableOrders = () => {
   };
 
   const clearFilters = () => {
+    console.log('clearFilters called');
     setFilters({
       search: '',
       status: 'pending',
@@ -232,6 +235,12 @@ const AvailableOrders = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              <Link to="/create-ad">
+                <Button className="bg-primary hover:bg-primary/80">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Разместить резюме
+                </Button>
+              </Link>
               <div className="text-sm text-steel-400">
                 Найдено: {orders.length} заказов
               </div>
