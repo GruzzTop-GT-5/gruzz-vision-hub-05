@@ -57,6 +57,15 @@ export default function ChatSystem() {
   const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  // Обрабатываем URL параметры для прямого перехода к чату
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const conversationId = urlParams.get('conversation');
+    if (conversationId) {
+      setSelectedConversation(conversationId);
+    }
+  }, []);
+
   useEffect(() => {
     if (user?.id) {
       fetchConversations();

@@ -76,6 +76,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
   const [newStatus, setNewStatus] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
 
   const isClient = user?.id === order.client_id;
   const isExecutor = user?.id === order.executor_id;
@@ -241,6 +242,64 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
     }
   };
 
+  const handleChatClick = async () => {
+    if (!user?.id) return;
+    
+    setIsCreatingChat(true);
+    try {
+      // Ищем существующую беседу для этого заказа
+      const { data: existingConversations, error: searchError } = await supabase
+        .from('conversations')
+        .select('id')
+        .contains('participants', [user.id])
+        .eq('type', 'chat')
+        .ilike('title', `%${order.order_number}%`)
+        .limit(1);
+
+      if (searchError) throw searchError;
+
+      let conversationId = null;
+
+      if (existingConversations && existingConversations.length > 0) {
+        conversationId = existingConversations[0].id;
+      } else {
+        // Создаем новую беседу
+        const participants = [order.client_id];
+        if (order.executor_id && !participants.includes(order.executor_id)) {
+          participants.push(order.executor_id);
+        }
+
+        const { data: newConversation, error: createError } = await supabase
+          .from('conversations')
+          .insert({
+            type: 'chat',
+            title: `Чат по заказу ${order.order_number}`,
+            participants: participants,
+            created_by: user.id,
+            status: 'active'
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        conversationId = newConversation.id;
+      }
+
+      // Переходим к чату
+      window.location.href = `/chat?conversation=${conversationId}`;
+      
+    } catch (error) {
+      console.error('Error creating/finding chat:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть чат",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingChat(false);
+    }
+  };
+
   const statusTransitions = getAvailableStatusTransitions();
 
   return (
@@ -341,8 +400,17 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-steel-600">
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
-              <MessageSquare className="w-4 h-4 mr-1" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleChatClick}
+              disabled={isCreatingChat}
+            >
+              {isCreatingChat ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+              ) : (
+                <MessageSquare className="w-4 h-4 mr-1" />
+              )}
               Чат
             </Button>
             

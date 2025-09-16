@@ -334,10 +334,59 @@ export const OrderDetailsModal = ({
                   <div>
                     <Label className="text-steel-300">Требования клиента</Label>
                     <Card className="card-steel mt-1">
-                      <CardContent className="p-3">
-                        <pre className="text-steel-200 text-sm whitespace-pre-wrap">
-                          {JSON.stringify(order.client_requirements, null, 2)}
-                        </pre>
+                      <CardContent className="p-3 space-y-3">
+                        {typeof order.client_requirements === 'object' ? (
+                          <>
+                            {order.client_requirements.location && (
+                              <div>
+                                <p className="text-sm font-medium text-steel-300">Адрес объекта:</p>
+                                <p className="text-steel-200">{order.client_requirements.location}</p>
+                              </div>
+                            )}
+                            {order.client_requirements.specifications && (
+                              <div>
+                                <p className="text-sm font-medium text-steel-300">Требования к работникам:</p>
+                                <p className="text-steel-200">{order.client_requirements.specifications}</p>
+                              </div>
+                            )}
+                            {order.client_requirements.additional_notes && (
+                              <div>
+                                <p className="text-sm font-medium text-steel-300">Условия работы:</p>
+                                <p className="text-steel-200">{order.client_requirements.additional_notes}</p>
+                              </div>
+                            )}
+                            {order.client_requirements.people_count && (
+                              <div>
+                                <p className="text-sm font-medium text-steel-300">Количество рабочих:</p>
+                                <p className="text-steel-200">{order.client_requirements.people_count} человек</p>
+                              </div>
+                            )}
+                            {order.client_requirements.payment_type && (
+                              <div>
+                                <p className="text-sm font-medium text-steel-300">Тип оплаты:</p>
+                                <p className="text-steel-200">
+                                  {order.client_requirements.payment_type === 'hourly' && 'Почасовая оплата'}
+                                  {order.client_requirements.payment_type === 'daily' && 'Дневная оплата'}
+                                  {order.client_requirements.payment_type === 'project' && 'За весь объем работ'}
+                                </p>
+                              </div>
+                            )}
+                            {order.client_requirements.work_duration && (
+                              <div>
+                                <p className="text-sm font-medium text-steel-300">Продолжительность:</p>
+                                <p className="text-steel-200">{order.client_requirements.work_duration}</p>
+                              </div>
+                            )}
+                            {order.client_requirements.preferred_communication && (
+                              <div>
+                                <p className="text-sm font-medium text-steel-300">Предпочтительная связь:</p>
+                                <p className="text-steel-200">{order.client_requirements.preferred_communication}</p>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-steel-200">{order.client_requirements}</p>
+                        )}
                       </CardContent>
                     </Card>
                   </div>

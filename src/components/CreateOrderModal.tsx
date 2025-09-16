@@ -168,6 +168,35 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
       if (orderError) throw orderError;
 
+      // Создаем чат для заказа автоматически
+      console.log('Creating conversation for order:', newOrder.id);
+      const { data: conversation, error: conversationError } = await supabase
+        .from('conversations')
+        .insert({
+          type: 'chat',
+          title: `Чат по заказу: ${sanitizeInput(orderData.title)}`,
+          participants: [user.id], // Сначала добавляем только клиента
+          created_by: user.id,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      console.log('Conversation creation result:', { error: conversationError, conversation });
+      
+      if (conversationError) {
+        console.error('Conversation creation error:', conversationError);
+        // Не бросаем ошибку, так как заказ уже создан
+        toast({
+          title: "Заказ создан",
+          description: "Заказ создан, но возникла проблема с созданием чата",
+          variant: "default"
+        });
+      } else {
+        // Обновляем заказ с ID беседы (если есть поле для этого)
+        console.log('Conversation created successfully:', conversation.id);
+      }
+
       // Создаем транзакцию для списания средств (сначала pending, потом completed для срабатывания триггера)
       console.log('Creating transaction for user:', user.id, 'amount:', price);
       const { data: transaction, error: transactionError } = await supabase
