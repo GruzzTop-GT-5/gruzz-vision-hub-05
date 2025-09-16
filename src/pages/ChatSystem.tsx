@@ -298,14 +298,22 @@ export default function ChatSystem() {
           <div className="flex items-center justify-between">
             <BackButton onClick={() => window.history.back()} />
             <h1 className="text-3xl font-bold text-glow">Чаты и поддержка</h1>
-            <div className="relative">
+            <Button
+              variant="ghost" 
+              size="sm"
+              className="relative p-2"
+              onClick={() => {
+                const notificationsTab = document.querySelector('[value="notifications"]') as HTMLElement;
+                notificationsTab?.click();
+              }}
+            >
               <Bell className="w-6 h-6 text-steel-300" />
               {unreadCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 px-1 min-w-[1.2rem] h-5 text-xs bg-red-500 text-white">
+                <Badge className="absolute -top-1 -right-1 px-1 min-w-[1.2rem] h-5 text-xs bg-red-500 text-white">
                   {unreadCount}
                 </Badge>
               )}
-            </div>
+            </Button>
           </div>
 
           {/* Tabs */}
