@@ -389,22 +389,32 @@ const Profile = () => {
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-steel-400 text-sm">Телефон</Label>
-                      {isEditing ? (
-                        <Input
-                          value={profileData.phone || ''}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
-                          className="bg-steel-700 border-steel-600 text-steel-100"
-                          placeholder="Введите номер телефона"
-                        />
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <Phone className="w-4 h-4 text-steel-400" />
-                          <p className="text-steel-100">{profileData.phone || 'Не указан'}</p>
-                        </div>
-                      )}
-                    </div>
+                   <div className="space-y-2">
+                     <Label className="text-steel-400 text-sm">Логин аккаунта</Label>
+                     <div className="flex items-center space-x-2">
+                       <User className="w-4 h-4 text-steel-400" />
+                       <p className="text-steel-100 font-mono bg-steel-800 px-2 py-1 rounded text-sm">
+                         {profileData.phone || profileData.id || 'Не определен'}
+                       </p>
+                     </div>
+                   </div>
+
+                   <div className="space-y-2">
+                     <Label className="text-steel-400 text-sm">Телефон</Label>
+                     {isEditing ? (
+                       <Input
+                         value={profileData.phone || ''}
+                         onChange={(e) => handleInputChange('phone', e.target.value)}
+                         className="bg-steel-700 border-steel-600 text-steel-100"
+                         placeholder="Введите номер телефона"
+                       />
+                     ) : (
+                       <div className="flex items-center space-x-2">
+                         <Phone className="w-4 h-4 text-steel-400" />
+                         <p className="text-steel-100">{profileData.phone || 'Не указан'}</p>
+                       </div>
+                     )}
+                   </div>
 
                     <div className="space-y-2">
                       <Label className="text-steel-400 text-sm">Telegram</Label>
