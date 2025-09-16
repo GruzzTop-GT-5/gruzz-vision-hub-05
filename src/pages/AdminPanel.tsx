@@ -33,7 +33,9 @@ import {
   Settings,
   Percent,
   Sliders,
-  Tag
+  Tag,
+  Plus,
+  Minus
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { StarRating } from '@/components/StarRating';
@@ -207,6 +209,12 @@ export default function AdminPanel() {
   const [adStatusFilter, setAdStatusFilter] = useState('all');
   const [transactionStatusFilter, setTransactionStatusFilter] = useState('all');
   const [logFilter, setLogFilter] = useState('');
+  
+  // Balance management state
+  const [balanceModalOpen, setBalanceModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [balanceAmount, setBalanceAmount] = useState('');
+  const [balanceOperation, setBalanceOperation] = useState<'add' | 'subtract'>('add');
 
   const isAdmin = userRole && ['system_admin', 'admin', 'moderator'].includes(userRole);
 
@@ -623,6 +631,105 @@ export default function AdminPanel() {
     }
   };
 
+  const handleBalanceChange = async () => {
+    if (!selectedUserId || !balanceAmount) {
+      toast({
+        title: "Ошибка",
+        description: "Выберите пользователя и укажите сумму",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const amount = parseFloat(balanceAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Ошибка", 
+        description: "Введите корректную сумму",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create transaction record
+      const transactionType = balanceOperation === 'add' ? 'deposit' : 'withdrawal';
+      
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: selectedUserId,
+          amount: Math.abs(amount),
+          type: transactionType,
+          status: 'completed',
+          admin_notes: `Админ ${balanceOperation === 'add' ? 'начислил' : 'списал'} ${amount} GT Coins`,
+          processed_by: user?.id,
+          completed_at: new Date().toISOString(),
+          payment_method: 'manual_transfer'
+        });
+
+      if (transactionError) throw transactionError;
+
+      // Get current balance first
+      const { data: userProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', selectedUserId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const currentBalance = userProfile.balance || 0;
+      const newBalance = balanceOperation === 'add' 
+        ? currentBalance + amount 
+        : currentBalance - amount;
+
+      // Update user balance
+      const { error: balanceError } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance })
+        .eq('id', selectedUserId);
+
+      if (balanceError) throw balanceError;
+
+      // Log admin action
+      await logAdminAction(
+        `${balanceOperation === 'add' ? 'Начисление' : 'Списание'} баланса: ${amount} GT Coins`, 
+        selectedUserId, 
+        'user'
+      );
+
+      toast({
+        title: "Баланс обновлен",
+        description: `${balanceOperation === 'add' ? 'Начислено' : 'Списано'} ${amount} GT Coins`
+      });
+
+      // Reset form and close modal
+      setBalanceModalOpen(false);
+      setSelectedUserId('');
+      setBalanceAmount('');
+      setBalanceOperation('add');
+      
+      // Refresh data
+      fetchUsers();
+      fetchTransactions();
+      fetchAdminLogs();
+    } catch (error) {
+      console.error('Error updating balance:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить баланс пользователя",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openBalanceModal = (userId: string, operation: 'add' | 'subtract') => {
+    setSelectedUserId(userId);
+    setBalanceOperation(operation);
+    setBalanceModalOpen(true);
+  };
+
   const moderateAd = async (adId: string, status: string) => {
     try {
       const { error } = await supabase
@@ -997,8 +1104,26 @@ export default function AdminPanel() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center space-x-2">
-                            <Select
+                           <div className="flex items-center space-x-2">
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               onClick={() => openBalanceModal(userData.id, 'add')}
+                               className="text-green-400 border-green-400/20 hover:bg-green-400/10"
+                               title="Начислить баланс"
+                             >
+                               <Plus className="w-4 h-4" />
+                             </Button>
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               onClick={() => openBalanceModal(userData.id, 'subtract')}
+                               className="text-red-400 border-red-400/20 hover:bg-red-400/10"
+                               title="Списать баланс"
+                             >
+                               <Minus className="w-4 h-4" />
+                             </Button>
+                             <Select
                               value={userData.role}
                               onValueChange={(newRole) => updateUserRole(userData.id, newRole)}
                             >
@@ -1869,6 +1994,81 @@ export default function AdminPanel() {
           </div>
         </div>
       </div>
+
+      {/* Balance Management Modal */}
+      {balanceModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="card-steel p-6 w-full max-w-md">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-steel-100">
+                  {balanceOperation === 'add' ? 'Начислить баланс' : 'Списать баланс'}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setBalanceModalOpen(false)}
+                  className="text-steel-400 hover:text-steel-100"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-2 block">
+                    Сумма GT Coins
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Введите сумму..."
+                    value={balanceAmount}
+                    onChange={(e) => setBalanceAmount(e.target.value)}
+                    className="w-full"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div className="text-sm text-steel-400">
+                  Пользователь: {selectedUserId.slice(0, 8)}...
+                </div>
+
+                <div className="flex space-x-3">
+                  <Button
+                    onClick={handleBalanceChange}
+                    className={
+                      balanceOperation === 'add' 
+                        ? "bg-green-600 hover:bg-green-700 flex-1" 
+                        : "bg-red-600 hover:bg-red-700 flex-1"
+                    }
+                    disabled={!balanceAmount || parseFloat(balanceAmount) <= 0}
+                  >
+                    {balanceOperation === 'add' ? (
+                      <>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Начислить
+                      </>
+                    ) : (
+                      <>
+                        <Minus className="w-4 h-4 mr-2" />
+                        Списать
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setBalanceModalOpen(false)}
+                    className="flex-1"
+                  >
+                    Отмена
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </Layout>
   );
 }
