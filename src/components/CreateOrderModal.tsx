@@ -147,26 +147,41 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
       if (orderError) throw orderError;
 
-      // Создаем транзакцию для списания средств
+      // Создаем транзакцию для списания средств (сначала pending, потом completed для срабатывания триггера)
       console.log('Creating transaction for user:', user.id, 'amount:', price);
-      const { error: transactionError } = await supabase
+      const { data: transaction, error: transactionError } = await supabase
         .from('transactions')
         .insert({
           user_id: user.id,
           type: 'purchase',
           amount: price,
-          status: 'completed',
+          status: 'pending',
           payment_details: {
             order_id: newOrder.id,
             order_number: newOrder.order_number,
             description: `Оплата заказа: ${sanitizeInput(orderData.title)}`
           }
-        });
+        })
+        .select()
+        .single();
 
-      console.log('Transaction creation result:', { error: transactionError });
+      console.log('Transaction creation result:', { error: transactionError, transaction });
       if (transactionError) {
         console.error('Transaction error:', transactionError);
         throw transactionError;
+      }
+
+      // Обновляем статус транзакции на completed для автоматического списания средств
+      console.log('Updating transaction status to completed:', transaction.id);
+      const { error: updateError } = await supabase
+        .from('transactions')
+        .update({ status: 'completed' })
+        .eq('id', transaction.id);
+
+      console.log('Transaction update result:', { error: updateError });
+      if (updateError) {
+        console.error('Transaction update error:', updateError);
+        throw updateError;
       }
 
       toast({
