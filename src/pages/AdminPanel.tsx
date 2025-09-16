@@ -1748,11 +1748,14 @@ export default function AdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                console.log('Opening moderation modal for ad:', ad.id);
-                                setSelectedAd(ad);
-                                setAdModerationOpen(true);
-                              }}
+              onClick={() => {
+                console.log('Opening moderation modal for ad:', ad.id);
+                console.log('Selected ad data:', ad);
+                console.log('Current adModerationOpen state:', adModerationOpen);
+                setSelectedAd(ad);
+                setAdModerationOpen(true);
+                console.log('After setting state - adModerationOpen should be true');
+              }}
                               className="text-orange-400 border-orange-400/20 hover:bg-orange-400/10"
                               title="Расширенная модерация"
                             >
