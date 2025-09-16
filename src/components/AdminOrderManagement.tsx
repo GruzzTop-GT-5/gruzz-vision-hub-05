@@ -60,7 +60,7 @@ export const AdminOrderManagement: React.FC<AdminOrderManagementProps> = ({
     price: '',
     people_needed: '1',
     start_time: '',
-    admin_priority_override: ''
+    admin_priority_override: 'none'
   });
 
   useEffect(() => {
@@ -125,7 +125,7 @@ export const AdminOrderManagement: React.FC<AdminOrderManagementProps> = ({
       price: order.price.toString(),
       people_needed: order.people_needed.toString(),
       start_time: order.start_time || '',
-      admin_priority_override: order.admin_priority_override || ''
+      admin_priority_override: order.admin_priority_override || 'none'
     });
     setIsEditModalOpen(true);
   };
@@ -146,8 +146,8 @@ export const AdminOrderManagement: React.FC<AdminOrderManagementProps> = ({
         admin_modified_at: new Date().toISOString()
       };
 
-      // Добавляем админский приоритет, если он отличается от обычного
-      if (editData.admin_priority_override && editData.admin_priority_override !== editData.priority) {
+      // Добавляем админский приоритет, если он отличается от обычного и не равен "none"
+      if (editData.admin_priority_override && editData.admin_priority_override !== 'none' && editData.admin_priority_override !== editData.priority) {
         updateData.admin_priority_override = editData.admin_priority_override;
       } else {
         updateData.admin_priority_override = null;
@@ -455,7 +455,7 @@ export const AdminOrderManagement: React.FC<AdminOrderManagementProps> = ({
                     <SelectValue placeholder="Не задан" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Не задан</SelectItem>
+                    <SelectItem value="none">Не задан</SelectItem>
                     <SelectItem value="normal">Обычный</SelectItem>
                     <SelectItem value="high">Высокий</SelectItem>
                     <SelectItem value="urgent">Срочно</SelectItem>
