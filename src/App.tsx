@@ -13,6 +13,7 @@ import Orders from "./pages/Orders";
 import History from "./pages/History";
 import AdminPanel from "./pages/AdminPanel";
 import ChatSystem from "./pages/ChatSystem";
+import AdDetails from "./pages/AdDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
         <Route path="/rules" element={<Rules />} />
         <Route path="/ads" element={<Ads />} />
         <Route path="/create-ad" element={<CreateAd />} />
+        <Route path="/ad/:id" element={<AdDetails />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/orders" element={<Orders />} />
