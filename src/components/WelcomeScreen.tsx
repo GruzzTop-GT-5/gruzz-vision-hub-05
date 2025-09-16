@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import logoImage from '@/assets/logo.jpg';
+import logoImage from '@/assets/logo-round.png';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Shield, Users, Zap, Trophy, Star } from 'lucide-react';
 
@@ -52,7 +52,7 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         {/* Header */}
         <div className="text-center space-y-6">
           <div className="flex justify-center mb-8">
-            <div className="w-24 h-24 rounded-3xl overflow-hidden flex items-center justify-center animate-glow hover:animate-float shadow-2xl">
+            <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center animate-glow hover:animate-float shadow-2xl bg-gradient-to-br from-primary to-electric-600">
               <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
             </div>
           </div>
