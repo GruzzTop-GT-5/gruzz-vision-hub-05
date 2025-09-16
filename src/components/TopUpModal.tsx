@@ -358,27 +358,6 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
                     </div>
                   </div>
 
-                  {/* Озон карта */}
-                  <div className="border border-steel-600 rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h5 className="font-medium text-orange-400">Озон Банк</h5>
-                      <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-                        <CreditCard className="w-4 h-4 text-white" />
-                      </div>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-steel-400">Карта:</span>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-mono">2204 3204 7436 8950</span>
-                          <CopyButton text="2204320474368950" field="ozon-card" />
-                        </div>
-                      </div>
-                      <p className="text-xs text-steel-400">
-                        Переводите с указанием вашего номера телефона в комментарии
-                      </p>
-                    </div>
-                  </div>
                 </div>
                 
                 <div className="mt-4 p-3 bg-steel-900/50 rounded-lg">
