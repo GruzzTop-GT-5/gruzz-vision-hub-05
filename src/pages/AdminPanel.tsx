@@ -64,6 +64,9 @@ import {
 interface User {
   id: string;
   phone: string | null;
+  display_name: string | null;
+  full_name: string | null;
+  bio: string | null;
   role: string;
   rating: number | null;
   balance: number;
@@ -268,6 +271,11 @@ export default function AdminPanel() {
   const [banDuration, setBanDuration] = useState('60'); // in minutes
   const [banReason, setBanReason] = useState('');
   const [banFilter, setBanFilter] = useState('');
+  
+  // User modal state
+  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [selectedUserData, setSelectedUserData] = useState<User | null>(null);
+  const [loadingUserData, setLoadingUserData] = useState(false);
 
   // Clear filter functions
   const clearUserFilter = () => setUserFilter('');
@@ -1667,11 +1675,30 @@ export default function AdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                console.log('Profile button clicked for user:', ad.user_id);
-                                const profileUrl = `/profile/${ad.user_id}`;
-                                console.log('Opening profile URL:', profileUrl);
-                                window.open(profileUrl, '_blank');
+                              onClick={async () => {
+                                setLoadingUserData(true);
+                                setUserModalOpen(true);
+                                
+                                // Fetch user data
+                                try {
+                                  const { data: userData, error } = await supabase
+                                    .from('profiles')
+                                    .select('*')
+                                    .eq('id', ad.user_id)
+                                    .single();
+                                  
+                                  if (error) throw error;
+                                  setSelectedUserData(userData);
+                                } catch (error) {
+                                  console.error('Error fetching user data:', error);
+                                  toast({
+                                    title: "Ошибка",
+                                    description: "Не удалось загрузить данные пользователя",
+                                    variant: "destructive"
+                                  });
+                                } finally {
+                                  setLoadingUserData(false);
+                                }
                               }}
                               className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
                               title="Профиль автора"
@@ -2793,6 +2820,137 @@ export default function AdminPanel() {
                   </Button>
                 </div>
               </div>
+            </div>
+          </Card>
+        </div>
+      )}
+      
+      {/* User Profile Modal */}
+      {userModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <Card className="card-steel w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-steel-100">Профиль пользователя</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setUserModalOpen(false);
+                    setSelectedUserData(null);
+                  }}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              {loadingUserData ? (
+                <div className="text-center py-8">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-steel-300">Загрузка данных пользователя...</p>
+                </div>
+              ) : selectedUserData ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">ID пользователя</label>
+                      <p className="text-steel-100 font-mono text-xs">{selectedUserData.id}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">Телефон</label>
+                      <p className="text-steel-100">{selectedUserData.phone || 'Не указан'}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">Отображаемое имя</label>
+                      <p className="text-steel-100">{selectedUserData.display_name || 'Не указано'}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">Полное имя</label>
+                      <p className="text-steel-100">{selectedUserData.full_name || 'Не указано'}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">Роль</label>
+                      <Badge className={`${
+                        selectedUserData.role === 'system_admin' 
+                          ? 'text-red-400 bg-red-400/10 border-red-400/20'
+                          : selectedUserData.role === 'admin'
+                          ? 'text-primary bg-primary/10 border-primary/20'
+                          : selectedUserData.role === 'moderator'
+                          ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20'
+                          : 'text-green-400 bg-green-400/10 border-green-400/20'
+                      }`}>
+                        {selectedUserData.role === 'system_admin' ? 'Системный администратор' :
+                         selectedUserData.role === 'admin' ? 'Администратор' :
+                         selectedUserData.role === 'moderator' ? 'Модератор' :
+                         selectedUserData.role === 'support' ? 'Поддержка' :
+                         'Пользователь'}
+                      </Badge>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">Рейтинг</label>
+                      <div className="flex items-center space-x-2">
+                        <UserRatingDisplay userId={selectedUserData.id} showDetails={true} />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">Баланс</label>
+                      <p className="text-steel-100 font-medium">{selectedUserData.balance?.toFixed(2) || '0.00'} GT Coins</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">Дата регистрации</label>
+                      <p className="text-steel-100">
+                        {format(new Date(selectedUserData.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {selectedUserData.bio && (
+                    <div>
+                      <label className="text-sm font-medium text-steel-300">О себе</label>
+                      <p className="text-steel-100 bg-steel-700 p-3 rounded mt-1">{selectedUserData.bio}</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex space-x-2 pt-4 border-t border-steel-600">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedUserId(selectedUserData.id);
+                        setBalanceModalOpen(true);
+                        setUserModalOpen(false);
+                      }}
+                      className="flex-1"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Управление балансом
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedUserId(selectedUserData.id);
+                        setBanModalOpen(true);
+                        setUserModalOpen(false);
+                      }}
+                      className="flex-1"
+                    >
+                      <Ban className="w-4 h-4 mr-2" />
+                      Управление банами
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-steel-400">Не удалось загрузить данные пользователя</p>
+                </div>
+              )}
             </div>
           </Card>
         </div>
