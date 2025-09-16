@@ -156,6 +156,20 @@ interface SystemSetting {
   updated_by: string | null;
 }
 
+interface AdminLog {
+  id: string;
+  action: string;
+  user_id: string;
+  target_id: string | null;
+  target_type: string | null;
+  timestamp: string;
+  profiles?: {
+    display_name: string | null;
+    full_name: string | null;
+    phone: string;
+  };
+}
+
 export default function AdminPanel() {
   const { user, userRole, loading, signOut } = useAuth();
   const { toast } = useToast();
@@ -166,6 +180,7 @@ export default function AdminPanel() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [reportedReviews, setReportedReviews] = useState<ReportedReview[]>([]);
+  const [adminLogs, setAdminLogs] = useState<AdminLog[]>([]);
   const [systemSettings, setSystemSettings] = useState<SystemSetting[]>([]);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -184,12 +199,14 @@ export default function AdminPanel() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [isLoadingAdminLogs, setIsLoadingAdminLogs] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   
   // Filter states
   const [userFilter, setUserFilter] = useState('');
   const [adStatusFilter, setAdStatusFilter] = useState('all');
   const [transactionStatusFilter, setTransactionStatusFilter] = useState('all');
+  const [logFilter, setLogFilter] = useState('');
 
   const isAdmin = userRole && ['system_admin', 'admin', 'moderator'].includes(userRole);
 
@@ -312,6 +329,7 @@ export default function AdminPanel() {
       fetchReportedReviews();
       fetchSystemSettings();
       fetchDashboardStats();
+      fetchAdminLogs();
     }
   }, [isAdmin]);
 
@@ -498,6 +516,51 @@ export default function AdminPanel() {
     }
   };
 
+  const fetchAdminLogs = async () => {
+    setIsLoadingAdminLogs(true);
+    try {
+      const { data, error } = await supabase
+        .from('admin_logs')
+        .select(`
+          *,
+          profiles!admin_logs_user_id_fkey (
+            display_name,
+            full_name,
+            phone
+          )
+        `)
+        .order('timestamp', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+      setAdminLogs(data || []);
+    } catch (error) {
+      console.error('Error fetching admin logs:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить историю действий",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingAdminLogs(false);
+    }
+  };
+
+  const logAdminAction = async (action: string, targetId?: string, targetType?: string) => {
+    try {
+      await supabase
+        .from('admin_logs')
+        .insert({
+          action,
+          user_id: user?.id,
+          target_id: targetId || null,
+          target_type: targetType || null
+        });
+    } catch (error) {
+      console.error('Error logging admin action:', error);
+    }
+  };
+
   const updateSystemSetting = async (settingId: string, newValue: string) => {
     try {
       const { error } = await supabase
@@ -516,7 +579,11 @@ export default function AdminPanel() {
         description: "Системная настройка успешно изменена"
       });
 
+      // Log admin action
+      await logAdminAction(`Изменение системной настройки: ${settingId}`, settingId, 'system_setting');
+
       fetchSystemSettings();
+      fetchAdminLogs();
     } catch (error) {
       console.error('Error updating system setting:', error);
       toast({
@@ -536,12 +603,16 @@ export default function AdminPanel() {
 
       if (error) throw error;
 
+      // Log admin action
+      await logAdminAction(`Изменение роли пользователя на ${newRole}`, userId, 'user');
+
       toast({
         title: "Роль обновлена",
         description: "Роль пользователя успешно изменена"
       });
 
       fetchUsers();
+      fetchAdminLogs();
     } catch (error) {
       console.error('Error updating user role:', error);
       toast({
@@ -561,12 +632,16 @@ export default function AdminPanel() {
 
       if (error) throw error;
 
+      // Log admin action
+      await logAdminAction(`Модерация объявления - статус: ${status}`, adId, 'ad');
+
       toast({
         title: "Объявление обновлено",
         description: `Статус объявления изменен на: ${status}`
       });
 
       fetchAds();
+      fetchAdminLogs();
     } catch (error) {
       console.error('Error moderating ad:', error);
       toast({
@@ -595,12 +670,16 @@ export default function AdminPanel() {
 
       if (error) throw error;
 
+      // Log admin action
+      await logAdminAction(`Верификация транзакции - статус: ${status}`, transactionId, 'transaction');
+
       toast({
         title: "Транзакция обновлена",
         description: `Статус транзакции изменен на: ${status}`
       });
 
       fetchTransactions();
+      fetchAdminLogs();
     } catch (error) {
       console.error('Error verifying transaction:', error);
       toast({
@@ -625,12 +704,16 @@ export default function AdminPanel() {
 
       if (error) throw error;
 
+      // Log admin action
+      await logAdminAction(`Модерация отзыва - ${action === 'approve' ? 'одобрен' : 'заблокирован'}`, reviewId, 'review');
+
       toast({
         title: "Отзыв обработан",
         description: action === 'approve' ? "Отзыв одобрен" : "Отзыв заблокирован"
       });
 
       fetchReportedReviews();
+      fetchAdminLogs();
     } catch (error) {
       console.error('Error moderating review:', error);
       toast({
@@ -693,7 +776,7 @@ export default function AdminPanel() {
 
           {/* Admin Tabs */}
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8">
+            <TabsList className="grid w-full grid-cols-9">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Дашборд</span>
@@ -721,6 +804,10 @@ export default function AdminPanel() {
               <TabsTrigger value="settings" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span>Настройки</span>
+              </TabsTrigger>
+              <TabsTrigger value="admin-logs" className="flex items-center space-x-2">
+                <Activity className="w-4 h-4" />
+                <span>История действий</span>
               </TabsTrigger>
               <TabsTrigger value="reviews" className="flex items-center space-x-2">
                 <MessageSquare className="w-4 h-4" />
@@ -1443,6 +1530,109 @@ export default function AdminPanel() {
                         }
                       </div>
                     </div>
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+
+            {/* Admin Logs */}
+            <TabsContent value="admin-logs" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+              <Card className="card-steel p-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-foreground">📋 История действий администраторов</h2>
+                  <Badge variant="outline" className="text-primary border-primary/20">
+                    {adminLogs.length} записей
+                  </Badge>
+                </div>
+
+                {/* Search and filters */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Поиск по действию или пользователю..."
+                      value={logFilter}
+                      onChange={(e) => setLogFilter(e.target.value)}
+                      className="pl-10 bg-background border-border"
+                    />
+                  </div>
+                  <Button 
+                    onClick={fetchAdminLogs}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Activity className="w-4 h-4" />
+                    <span>Обновить</span>
+                  </Button>
+                </div>
+
+                {isLoadingAdminLogs ? (
+                  <div className="text-center py-8">
+                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {adminLogs
+                      .filter(log => {
+                        if (!logFilter) return true;
+                        const searchTerm = logFilter.toLowerCase();
+                        const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
+                        return log.action.toLowerCase().includes(searchTerm) || 
+                               adminName.toLowerCase().includes(searchTerm);
+                      })
+                      .map((log) => {
+                        const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
+                        
+                        return (
+                          <div key={log.id} className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-3">
+                                <div className="p-2 bg-primary/20 rounded-lg">
+                                  <Activity className="w-4 h-4 text-primary" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-foreground">{log.action}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Администратор: {adminName}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm text-muted-foreground">
+                                  {format(new Date(log.timestamp), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {(log.target_id || log.target_type) && (
+                              <div className="mt-3 pt-3 border-t border-border/30">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  {log.target_type && (
+                                    <div>
+                                      <span className="text-muted-foreground">Тип объекта:</span>
+                                      <span className="ml-2 text-foreground">{log.target_type}</span>
+                                    </div>
+                                  )}
+                                  {log.target_id && (
+                                    <div>
+                                      <span className="text-muted-foreground">ID объекта:</span>
+                                      <span className="ml-2 text-foreground font-mono text-xs">{log.target_id.slice(0, 8)}...</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    
+                    {adminLogs.length === 0 && (
+                      <div className="text-center py-16">
+                        <Activity className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium text-foreground mb-2">История пуста</h3>
+                        <p className="text-muted-foreground">Действия администраторов будут отображаться здесь</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </Card>
