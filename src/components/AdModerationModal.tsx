@@ -298,13 +298,9 @@ export const AdModerationModal = ({ ad, isOpen, onClose, onAdUpdate }: AdModerat
   };
 
   
-  if (!ad || !isOpen) {
-    return null;
-  }
-
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto z-[60] bg-steel-800 border border-steel-600">
+    <Dialog open={isOpen && !!ad} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-primary" />

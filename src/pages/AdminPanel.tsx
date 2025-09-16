@@ -1743,14 +1743,8 @@ export default function AdminPanel() {
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                console.log('Settings button clicked for ad:', ad.id);
-                                // Сначала закрываем, потом открываем
-                                setAdModerationOpen(false);
-                                setSelectedAd(null);
-                                setTimeout(() => {
-                                  setSelectedAd(ad);
-                                  setAdModerationOpen(true);
-                                }, 100);
+                                setSelectedAd(ad);
+                                setAdModerationOpen(true);
                               }}
                               className="text-orange-400 border-orange-400/20 hover:bg-orange-400/10"
                               title="Расширенная модерация"
@@ -1762,14 +1756,8 @@ export default function AdminPanel() {
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                console.log('Delete button clicked for ad:', ad.id);
-                                // Сначала закрываем, потом открываем
-                                setDeleteAdModalOpen(false);
-                                setDeleteAdId(null);
-                                setTimeout(() => {
-                                  setDeleteAdId(ad.id);
-                                  setDeleteAdModalOpen(true);
-                                }, 100);
+                                setDeleteAdId(ad.id);
+                                setDeleteAdModalOpen(true);
                               }}
                               className="text-red-500 border-red-500/20 hover:bg-red-500/10"
                               title="Удалить объявление"
@@ -2853,8 +2841,8 @@ export default function AdminPanel() {
       
       {/* Ad Moderation Modal */}
       {/* Delete Ad Modal */}
-      <AlertDialog open={deleteAdModalOpen} onOpenChange={setDeleteAdModalOpen}>
-        <AlertDialogContent className="z-[60] bg-steel-800 border border-steel-600">
+      <AlertDialog open={deleteAdModalOpen && !!deleteAdId} onOpenChange={setDeleteAdModalOpen}>
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Удалить объявление</AlertDialogTitle>
             <AlertDialogDescription>
