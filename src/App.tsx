@@ -6,6 +6,7 @@ import Index from "./pages/Index";
 import Balance from "./pages/Balance";
 import { Rules } from "./pages/Rules";
 import Ads from "./pages/Ads";
+import CreateAd from "./pages/CreateAd";
 import CreateOrder from "./pages/CreateOrder";
 import UserProfile from "./pages/UserProfile";
 import Profile from "./pages/Profile";
