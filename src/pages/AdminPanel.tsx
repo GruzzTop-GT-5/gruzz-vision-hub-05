@@ -29,7 +29,10 @@ import {
   Activity,
   DollarSign,
   TrendingUp,
-  UserCheck
+  UserCheck,
+  Settings,
+  Percent,
+  Sliders
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { StarRating } from '@/components/StarRating';
@@ -135,6 +138,22 @@ interface DashboardStats {
   }>;
 }
 
+interface SystemSetting {
+  id: string;
+  setting_key: string;
+  setting_value: any;
+  setting_type: string;
+  category: string;
+  display_name: string;
+  description: string | null;
+  is_editable: boolean;
+  min_value: number | null;
+  max_value: number | null;
+  created_at: string;
+  updated_at: string;
+  updated_by: string | null;
+}
+
 export default function AdminPanel() {
   const { user, userRole, loading, signOut } = useAuth();
   const { toast } = useToast();
@@ -145,6 +164,7 @@ export default function AdminPanel() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [reportedReviews, setReportedReviews] = useState<ReportedReview[]>([]);
+  const [systemSettings, setSystemSettings] = useState<SystemSetting[]>([]);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
     totalUsers: 0,
     onlineUsers: 0,
@@ -162,6 +182,7 @@ export default function AdminPanel() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   
   // Filter states
   const [userFilter, setUserFilter] = useState('');
@@ -287,6 +308,7 @@ export default function AdminPanel() {
       fetchTransactions();
       fetchWithdrawals();
       fetchReportedReviews();
+      fetchSystemSettings();
       fetchDashboardStats();
     }
   }, [isAdmin]);
@@ -449,6 +471,57 @@ export default function AdminPanel() {
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
+    }
+  };
+
+  const fetchSystemSettings = async () => {
+    setIsLoadingSettings(true);
+    try {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('*')
+        .order('setting_type, category, display_name');
+
+      if (error) throw error;
+      setSystemSettings(data || []);
+    } catch (error) {
+      console.error('Error fetching system settings:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить системные настройки",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingSettings(false);
+    }
+  };
+
+  const updateSystemSetting = async (settingId: string, newValue: string) => {
+    try {
+      const { error } = await supabase
+        .from('system_settings')
+        .update({ 
+          setting_value: newValue,
+          updated_by: user?.id,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', settingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Настройка обновлена",
+        description: "Системная настройка успешно изменена"
+      });
+
+      fetchSystemSettings();
+    } catch (error) {
+      console.error('Error updating system setting:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить настройку",
+        variant: "destructive"
+      });
     }
   };
 
@@ -618,7 +691,7 @@ export default function AdminPanel() {
 
           {/* Admin Tabs */}
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Дашборд</span>
@@ -638,6 +711,10 @@ export default function AdminPanel() {
               <TabsTrigger value="withdrawals" className="flex items-center space-x-2">
                 <Banknote className="w-4 h-4" />
                 <span>Вывод</span>
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center space-x-2">
+                <Settings className="w-4 h-4" />
+                <span>Настройки</span>
               </TabsTrigger>
               <TabsTrigger value="reviews" className="flex items-center space-x-2">
                 <MessageSquare className="w-4 h-4" />
@@ -1168,6 +1245,198 @@ export default function AdminPanel() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+
+            {/* System Settings */}
+            <TabsContent value="settings" className="space-y-6">
+              <Card className="card-steel p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-steel-100">Системные настройки</h2>
+                  <div className="flex items-center space-x-2">
+                    <Sliders className="w-5 h-5 text-primary" />
+                    <Badge variant="outline" className="text-primary border-primary/20">
+                      {systemSettings.length} настроек
+                    </Badge>
+                  </div>
+                </div>
+
+                {isLoadingSettings ? (
+                  <div className="text-center py-8">
+                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {/* Commission Settings */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <Percent className="w-5 h-5 text-green-400" />
+                        <h3 className="text-lg font-semibold text-steel-100">Комиссии</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {systemSettings
+                          .filter(setting => setting.setting_type === 'commission')
+                          .map(setting => (
+                            <div key={setting.id} className="bg-steel-800/30 rounded-lg p-4 space-y-3">
+                              <div>
+                                <label className="text-steel-100 font-medium text-sm">
+                                  {setting.display_name}
+                                </label>
+                                {setting.description && (
+                                  <p className="text-steel-400 text-xs mt-1">{setting.description}</p>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="number"
+                                  value={setting.setting_value}
+                                  onChange={(e) => updateSystemSetting(setting.id, e.target.value)}
+                                  min={setting.min_value || 0}
+                                  max={setting.max_value || 100}
+                                  className="bg-steel-700 border-steel-600"
+                                  disabled={!setting.is_editable}
+                                />
+                                <span className="text-steel-400 text-sm">%</span>
+                              </div>
+                              {setting.min_value !== null && setting.max_value !== null && (
+                                <p className="text-steel-500 text-xs">
+                                  Диапазон: {setting.min_value}% - {setting.max_value}%
+                                </p>
+                              )}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+
+                    {/* Limits */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <Shield className="w-5 h-5 text-blue-400" />
+                        <h3 className="text-lg font-semibold text-steel-100">Лимиты</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {systemSettings
+                          .filter(setting => setting.setting_type === 'limit')
+                          .map(setting => (
+                            <div key={setting.id} className="bg-steel-800/30 rounded-lg p-4 space-y-3">
+                              <div>
+                                <label className="text-steel-100 font-medium text-sm">
+                                  {setting.display_name}
+                                </label>
+                                {setting.description && (
+                                  <p className="text-steel-400 text-xs mt-1">{setting.description}</p>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="number"
+                                  value={setting.setting_value}
+                                  onChange={(e) => updateSystemSetting(setting.id, e.target.value)}
+                                  min={setting.min_value || 0}
+                                  max={setting.max_value || undefined}
+                                  className="bg-steel-700 border-steel-600"
+                                  disabled={!setting.is_editable}
+                                />
+                                <span className="text-steel-400 text-sm">GT Coins</span>
+                              </div>
+                              {setting.min_value !== null && setting.max_value !== null && (
+                                <p className="text-steel-500 text-xs">
+                                  Диапазон: {setting.min_value} - {setting.max_value}
+                                </p>
+                              )}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+
+                    {/* Tariffs */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <DollarSign className="w-5 h-5 text-purple-400" />
+                        <h3 className="text-lg font-semibold text-steel-100">Тарифы</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {systemSettings
+                          .filter(setting => setting.setting_type === 'tariff')
+                          .map(setting => (
+                            <div key={setting.id} className="bg-steel-800/30 rounded-lg p-4 space-y-3">
+                              <div>
+                                <label className="text-steel-100 font-medium text-sm">
+                                  {setting.display_name}
+                                </label>
+                                {setting.description && (
+                                  <p className="text-steel-400 text-xs mt-1">{setting.description}</p>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="number"
+                                  value={setting.setting_value}
+                                  onChange={(e) => updateSystemSetting(setting.id, e.target.value)}
+                                  min={setting.min_value || 0}
+                                  max={setting.max_value || 100}
+                                  className="bg-steel-700 border-steel-600"
+                                  disabled={!setting.is_editable}
+                                />
+                                <span className="text-steel-400 text-sm">%</span>
+                              </div>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+
+                    {/* General Settings */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <Settings className="w-5 h-5 text-orange-400" />
+                        <h3 className="text-lg font-semibold text-steel-100">Общие настройки</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {systemSettings
+                          .filter(setting => setting.setting_type === 'general')
+                          .map(setting => (
+                            <div key={setting.id} className="bg-steel-800/30 rounded-lg p-4 space-y-3">
+                              <div>
+                                <label className="text-steel-100 font-medium text-sm">
+                                  {setting.display_name}
+                                </label>
+                                {setting.description && (
+                                  <p className="text-steel-400 text-xs mt-1">{setting.description}</p>
+                                )}
+                              </div>
+                              <div>
+                                {setting.setting_value === 'true' || setting.setting_value === 'false' ? (
+                                  <Button
+                                    variant={setting.setting_value === 'true' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => updateSystemSetting(setting.id, setting.setting_value === 'true' ? 'false' : 'true')}
+                                    disabled={!setting.is_editable}
+                                    className="w-full"
+                                  >
+                                    {setting.setting_value === 'true' ? 'Включено' : 'Выключено'}
+                                  </Button>
+                                ) : (
+                                  <Input
+                                    type="number"
+                                    value={setting.setting_value}
+                                    onChange={(e) => updateSystemSetting(setting.id, e.target.value)}
+                                    min={setting.min_value || 0}
+                                    max={setting.max_value || undefined}
+                                    className="bg-steel-700 border-steel-600"
+                                    disabled={!setting.is_editable}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
                   </div>
                 )}
               </Card>

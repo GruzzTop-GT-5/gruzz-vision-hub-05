@@ -826,6 +826,54 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          display_name: string
+          id: string
+          is_editable: boolean
+          max_value: number | null
+          min_value: number | null
+          setting_key: string
+          setting_type: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          display_name: string
+          id?: string
+          is_editable?: boolean
+          max_value?: number | null
+          min_value?: number | null
+          setting_key: string
+          setting_type: string
+          setting_value: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_editable?: boolean
+          max_value?: number | null
+          min_value?: number | null
+          setting_key?: string
+          setting_type?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           admin_notes: string | null
