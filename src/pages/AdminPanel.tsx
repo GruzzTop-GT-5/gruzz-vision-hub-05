@@ -2854,7 +2854,7 @@ export default function AdminPanel() {
       {/* Ad Moderation Modal */}
       {/* Delete Ad Modal */}
       <AlertDialog open={deleteAdModalOpen} onOpenChange={setDeleteAdModalOpen}>
-        <AlertDialogContent className="z-[60]">
+        <AlertDialogContent className="z-[60] bg-steel-800 border border-steel-600">
           <AlertDialogHeader>
             <AlertDialogTitle>Удалить объявление</AlertDialogTitle>
             <AlertDialogDescription>
