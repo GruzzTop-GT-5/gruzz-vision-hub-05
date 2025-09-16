@@ -216,6 +216,61 @@ export const OrderDetailsModal = ({
     }
   };
 
+  const handleViewFile = async (file: OrderFile) => {
+    try {
+      // Извлекаем путь к файлу из URL
+      const urlParts = file.file_url.split('/');
+      const bucketIndex = urlParts.findIndex(part => part === 'order-files');
+      const filePath = urlParts.slice(bucketIndex + 1).join('/');
+      
+      const { data, error } = await supabase.storage
+        .from('order-files')
+        .createSignedUrl(filePath, 3600); // 1 час
+
+      if (error) throw error;
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating signed URL:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть файл",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadFile = async (file: OrderFile) => {
+    try {
+      // Извлекаем путь к файлу из URL
+      const urlParts = file.file_url.split('/');
+      const bucketIndex = urlParts.findIndex(part => part === 'order-files');
+      const filePath = urlParts.slice(bucketIndex + 1).join('/');
+      
+      const { data, error } = await supabase.storage
+        .from('order-files')
+        .createSignedUrl(filePath, 3600); // 1 час
+
+      if (error) throw error;
+      if (data?.signedUrl) {
+        const link = document.createElement('a');
+        link.href = data.signedUrl;
+        link.download = file.file_name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось скачать файл",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -485,17 +540,21 @@ export const OrderDetailsModal = ({
                         </div>
                         
                         <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={file.file_url} target="_blank" rel="noopener noreferrer">
-                              <Eye className="w-4 h-4 mr-1" />
-                              Просмотр
-                            </a>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleViewFile(file)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Просмотр
                           </Button>
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={file.file_url} download={file.file_name}>
-                              <Download className="w-4 h-4 mr-1" />
-                              Скачать
-                            </a>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDownloadFile(file)}
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            Скачать
                           </Button>
                         </div>
                       </div>
