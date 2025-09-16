@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { OrderDetailsModal } from '@/components/OrderDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -27,10 +28,21 @@ interface Order {
   deadline: string | null;
   client_id: string;
   executor_id: string | null;
+  ad_id: string | null;
   created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  cancelled_at: string | null;
+  payment_status: string;
   payment_method: string | null;
   client_requirements: any;
+  executor_proposal: any;
+  delivery_format: string | null;
+  revision_count: number;
   max_revisions: number;
+  escrow_amount: number | null;
+  commission_rate: number;
+  platform_fee: number | null;
 }
 
 interface Profile {
@@ -77,6 +89,8 @@ export default function Ads() {
   const [selectedCategory, setSelectedCategory] = useState('Все категории');
   const [sortBy, setSortBy] = useState('newest');
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -165,6 +179,15 @@ export default function Ads() {
   };
 
   const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== 'Все категории' || sortBy !== 'newest';
+
+  const handleViewDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setShowDetailsModal(true);
+  };
+
+  const handleOrderUpdate = () => {
+    fetchOrders();
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -395,7 +418,11 @@ export default function Ads() {
                           <DollarSign className="w-4 h-4 text-green-400" />
                           <span className="text-lg font-bold text-steel-100">{order.price} ₽</span>
                         </div>
-                        <Button size="sm" className="bg-primary hover:bg-primary/80">
+                        <Button 
+                          size="sm" 
+                          className="bg-primary hover:bg-primary/80"
+                          onClick={() => handleViewDetails(order)}
+                        >
                           Подробнее
                         </Button>
                       </div>
@@ -407,6 +434,15 @@ export default function Ads() {
           )}
         </div>
       </div>
+      
+      {/* Order Details Modal */}
+      <OrderDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        order={selectedOrder}
+        clientProfile={selectedOrder ? profiles[selectedOrder.client_id] : undefined}
+        onUpdate={handleOrderUpdate}
+      />
     </Layout>
   );
 }
