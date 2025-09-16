@@ -236,7 +236,10 @@ const AvailableOrders = () => {
             
             <div className="flex items-center space-x-4">
               <Button 
-                onClick={() => setShowCreateModal(true)}
+                onClick={() => {
+                  console.log('Создать заказ clicked');
+                  setShowCreateModal(true);
+                }}
                 className="bg-primary hover:bg-primary/80"
               >
                 <Plus className="w-4 h-4 mr-2" />
