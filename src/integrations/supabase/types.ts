@@ -980,6 +980,45 @@ export type Database = {
           },
         ]
       }
+      user_bans: {
+        Row: {
+          ban_type: Database["public"]["Enums"]["ban_type"]
+          created_at: string
+          duration_minutes: number
+          expires_at: string
+          id: string
+          is_active: boolean
+          issued_by: string
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ban_type: Database["public"]["Enums"]["ban_type"]
+          created_at?: string
+          duration_minutes: number
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          issued_by: string
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ban_type?: Database["public"]["Enums"]["ban_type"]
+          created_at?: string
+          duration_minutes?: number
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          issued_by?: string
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       users_auth: {
         Row: {
           created_at: string
@@ -1012,6 +1051,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      deactivate_expired_bans: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1031,6 +1074,13 @@ export type Database = {
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_active_ban: {
+        Args: {
+          p_ban_type: Database["public"]["Enums"]["ban_type"]
+          p_user_id: string
+        }
+        Returns: boolean
       }
       hash_password: {
         Args: { password: string }
@@ -1058,6 +1108,7 @@ export type Database = {
     }
     Enums: {
       ad_status: "active" | "inactive" | "sold"
+      ban_type: "order_mute" | "payment_mute" | "account_block"
       payment_method: "bank_card" | "yoomoney" | "ozon" | "manual_transfer"
       transaction_status: "pending" | "completed" | "rejected"
       transaction_type: "deposit" | "withdrawal" | "payment"
@@ -1190,6 +1241,7 @@ export const Constants = {
   public: {
     Enums: {
       ad_status: ["active", "inactive", "sold"],
+      ban_type: ["order_mute", "payment_mute", "account_block"],
       payment_method: ["bank_card", "yoomoney", "ozon", "manual_transfer"],
       transaction_status: ["pending", "completed", "rejected"],
       transaction_type: ["deposit", "withdrawal", "payment"],

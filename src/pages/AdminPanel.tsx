@@ -35,7 +35,10 @@ import {
   Sliders,
   Tag,
   Plus,
-  Minus
+  Minus,
+  UserX,
+  Clock,
+  Trash2
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { StarRating } from '@/components/StarRating';
@@ -172,6 +175,19 @@ interface AdminLog {
   };
 }
 
+interface UserBan {
+  id: string;
+  user_id: string;
+  ban_type: 'order_mute' | 'payment_mute' | 'account_block';
+  duration_minutes: number;
+  reason: string | null;
+  issued_by: string;
+  expires_at: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function AdminPanel() {
   const { user, userRole, loading, signOut } = useAuth();
   const { toast } = useToast();
@@ -215,6 +231,15 @@ export default function AdminPanel() {
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceOperation, setBalanceOperation] = useState<'add' | 'subtract'>('add');
+  
+  // Ban management state
+  const [userBans, setUserBans] = useState<UserBan[]>([]);
+  const [isLoadingBans, setIsLoadingBans] = useState(false);
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banType, setBanType] = useState<'order_mute' | 'payment_mute' | 'account_block'>('order_mute');
+  const [banDuration, setBanDuration] = useState('60'); // in minutes
+  const [banReason, setBanReason] = useState('');
+  const [banFilter, setBanFilter] = useState('');
 
   const isAdmin = userRole && ['system_admin', 'admin', 'moderator'].includes(userRole);
 
@@ -338,6 +363,7 @@ export default function AdminPanel() {
       fetchSystemSettings();
       fetchDashboardStats();
       fetchAdminLogs();
+      fetchUserBans();
     }
   }, [isAdmin]);
 
@@ -724,6 +750,182 @@ export default function AdminPanel() {
     }
   };
 
+  // Ban management functions
+  const fetchUserBans = async () => {
+    if (!isAdmin) return;
+    
+    setIsLoadingBans(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_bans')
+        .select(`
+          *,
+          profiles!user_bans_user_id_fkey (
+            display_name,
+            full_name,
+            phone
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUserBans(data || []);
+    } catch (error) {
+      console.error('Error fetching user bans:', error);
+    } finally {
+      setIsLoadingBans(false);
+    }
+  };
+
+  const createUserBan = async () => {
+    if (!selectedUserId || !banDuration) {
+      toast({
+        title: "Ошибка",
+        description: "Выберите пользователя и укажите продолжительность",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const durationMinutes = parseInt(banDuration);
+    if (isNaN(durationMinutes) || durationMinutes <= 0) {
+      toast({
+        title: "Ошибка",
+        description: "Введите корректную продолжительность",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + durationMinutes);
+
+      const { error } = await supabase
+        .from('user_bans')
+        .insert({
+          user_id: selectedUserId,
+          ban_type: banType,
+          duration_minutes: durationMinutes,
+          reason: banReason || null,
+          issued_by: user?.id,
+          expires_at: expiresAt.toISOString()
+        });
+
+      if (error) throw error;
+
+      // Log admin action
+      const banTypeNames = {
+        order_mute: 'Мут на заказы',
+        payment_mute: 'Мут на пополнение',
+        account_block: 'Блокировка аккаунта'
+      };
+
+      await logAdminAction(
+        `${banTypeNames[banType]}: ${durationMinutes} мин. Причина: ${banReason || 'Не указана'}`,
+        selectedUserId,
+        'user'
+      );
+
+      toast({
+        title: "Бан выдан",
+        description: `${banTypeNames[banType]} на ${durationMinutes} минут`
+      });
+
+      // Reset form and close modal
+      setBanModalOpen(false);
+      setSelectedUserId('');
+      setBanDuration('60');
+      setBanReason('');
+      
+      // Refresh data
+      fetchUserBans();
+      fetchAdminLogs();
+    } catch (error) {
+      console.error('Error creating ban:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось выдать бан",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const removeUserBan = async (banId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_bans')
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('id', banId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Бан снят",
+        description: "Бан успешно снят с пользователя"
+      });
+
+      fetchUserBans();
+    } catch (error) {
+      console.error('Error removing ban:', error);
+      toast({
+        title: "Ошибка", 
+        description: "Не удалось снять бан",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      // Deactivate user account instead of deleting
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: 'user', balance: 0 })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      // Create permanent account block
+      const { error: banError } = await supabase
+        .from('user_bans')
+        .insert({
+          user_id: userId,
+          ban_type: 'account_block',
+          duration_minutes: 525600 * 365, // 1 year in minutes
+          reason: 'Аккаунт удален администратором',
+          issued_by: user?.id,
+          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+        });
+
+      if (banError) throw banError;
+
+      await logAdminAction('Удаление пользователя', userId, 'user');
+
+      toast({
+        title: "Пользователь удален",
+        description: "Аккаунт пользователя заблокирован"
+      });
+
+      fetchUsers();
+      fetchUserBans();
+      fetchAdminLogs();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить пользователя",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openBanModal = (userId: string, type: 'order_mute' | 'payment_mute' | 'account_block') => {
+    setSelectedUserId(userId);
+    setBanType(type);
+    setBanModalOpen(true);
+  };
+
   const openBalanceModal = (userId: string, operation: 'add' | 'subtract') => {
     setSelectedUserId(userId);
     setBalanceOperation(operation);
@@ -910,11 +1112,15 @@ export default function AdminPanel() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Second Row for Settings */}
-            <TabsList className="grid w-full grid-cols-1">
+            {/* Second Row for Settings and Bans */}
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="settings" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span>Настройки</span>
+              </TabsTrigger>
+              <TabsTrigger value="bans" className="flex items-center space-x-2">
+                <UserX className="w-4 h-4" />
+                <span>Бан Зона</span>
               </TabsTrigger>
             </TabsList>
 
@@ -1656,6 +1862,162 @@ export default function AdminPanel() {
               </Card>
             </TabsContent>
 
+            {/* Ban Zone */}
+            <TabsContent value="bans" className="space-y-6">
+              <Card className="card-steel p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <UserX className="w-6 h-6 text-red-400" />
+                    <h2 className="text-xl font-bold text-steel-100">Бан Зона</h2>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400" />
+                      <Input
+                        placeholder="Поиск по ID пользователя..."
+                        value={banFilter}
+                        onChange={(e) => setBanFilter(e.target.value)}
+                        className="w-64 pl-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {isLoadingBans ? (
+                  <div className="text-center py-8">
+                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {users
+                      .filter(user => 
+                        banFilter === '' || 
+                        user.id.includes(banFilter) || 
+                        (user.phone && user.phone.includes(banFilter))
+                      )
+                      .map((userData) => {
+                        const activeBans = userBans.filter(ban => 
+                          ban.user_id === userData.id && 
+                          ban.is_active && 
+                          new Date(ban.expires_at) > new Date()
+                        );
+
+                        return (
+                          <div key={userData.id} className="bg-steel-800/50 rounded-lg p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-2 flex-1">
+                                <div className="flex items-center space-x-3">
+                                  <span className="font-medium text-steel-100">
+                                    ID: {userData.id.slice(0, 8)}...
+                                  </span>
+                                  <Badge className={
+                                    userData.role === 'system_admin' ? 'text-red-400 bg-red-400/10 border-red-400/20' :
+                                    userData.role === 'admin' ? 'text-primary bg-primary/10 border-primary/20' :
+                                    userData.role === 'moderator' ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20' :
+                                    userData.role === 'support' ? 'text-green-400 bg-green-400/10 border-green-400/20' :
+                                    'text-steel-400 bg-steel-400/10 border-steel-400/20'
+                                  }>
+                                    {userData.role}
+                                  </Badge>
+                                </div>
+
+                                <div className="text-sm text-steel-300 space-y-1">
+                                  <p>Телефон: {userData.phone || 'Не указан'}</p>
+                                  <p>Баланс: {userData.balance} GT Coins</p>
+                                  <p>Регистрация: {format(new Date(userData.created_at), 'dd.MM.yyyy', { locale: ru })}</p>
+                                </div>
+
+                                {/* Active Bans Display */}
+                                {activeBans.length > 0 && (
+                                  <div className="space-y-2 mt-3">
+                                    <p className="text-red-400 font-medium text-sm">Активные баны:</p>
+                                    {activeBans.map((ban) => (
+                                      <div key={ban.id} className="bg-red-900/20 rounded p-2">
+                                        <div className="flex items-center justify-between">
+                                          <div className="space-y-1">
+                                            <Badge className="text-red-400 bg-red-400/10 border-red-400/20">
+                                              {ban.ban_type === 'order_mute' ? 'Мут на заказы' :
+                                               ban.ban_type === 'payment_mute' ? 'Мут на пополнение' :
+                                               'Блокировка аккаунта'}
+                                            </Badge>
+                                            <p className="text-xs text-steel-400">
+                                              До: {format(new Date(ban.expires_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                                            </p>
+                                            {ban.reason && (
+                                              <p className="text-xs text-steel-400">Причина: {ban.reason}</p>
+                                            )}
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => removeUserBan(ban.id)}
+                                            className="text-green-400 border-green-400/20 hover:bg-green-400/10"
+                                          >
+                                            Снять
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Action Buttons */}
+                              <div className="flex flex-col space-y-2 ml-4">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openBanModal(userData.id, 'order_mute')}
+                                  className="text-yellow-400 border-yellow-400/20 hover:bg-yellow-400/10"
+                                  title="Мут на создание заказов"
+                                >
+                                  <MessageSquare className="w-4 h-4 mr-1" />
+                                  Мут заказы
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openBanModal(userData.id, 'payment_mute')}
+                                  className="text-orange-400 border-orange-400/20 hover:bg-orange-400/10"
+                                  title="Мут на пополнение баланса"
+                                >
+                                  <CreditCard className="w-4 h-4 mr-1" />
+                                  Мут пополнение
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openBanModal(userData.id, 'account_block')}
+                                  className="text-red-400 border-red-400/20 hover:bg-red-400/10"
+                                  title="Блокировка аккаунта"
+                                >
+                                  <UserX className="w-4 h-4 mr-1" />
+                                  Блокировать
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    if (confirm('Вы уверены, что хотите удалить этого пользователя? Это действие нельзя отменить.')) {
+                                      deleteUser(userData.id);
+                                    }
+                                  }}
+                                  className="text-red-500 border-red-500/20 hover:bg-red-500/10"
+                                  title="Удалить пользователя"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-1" />
+                                  Удалить
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+
             {/* Categories Management */}
             <TabsContent value="categories" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
               <CategoriesManagement />
@@ -2059,6 +2421,91 @@ export default function AdminPanel() {
                   <Button
                     variant="outline"
                     onClick={() => setBalanceModalOpen(false)}
+                    className="flex-1"
+                  >
+                    Отмена
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Ban Management Modal */}
+      {banModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="card-steel p-6 w-full max-w-md">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-steel-100">
+                  {banType === 'order_mute' ? 'Мут на заказы' :
+                   banType === 'payment_mute' ? 'Мут на пополнение' :
+                   'Блокировка аккаунта'}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setBanModalOpen(false)}
+                  className="text-steel-400 hover:text-steel-100"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-2 block">
+                    Продолжительность
+                  </label>
+                  <Select value={banDuration} onValueChange={setBanDuration}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Выберите продолжительность" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="30">30 минут</SelectItem>
+                      <SelectItem value="60">1 час</SelectItem>
+                      <SelectItem value="180">3 часа</SelectItem>
+                      <SelectItem value="360">6 часов</SelectItem>
+                      <SelectItem value="720">12 часов</SelectItem>
+                      <SelectItem value="1440">1 день</SelectItem>
+                      <SelectItem value="4320">3 дня</SelectItem>
+                      <SelectItem value="10080">7 дней</SelectItem>
+                      <SelectItem value="20160">14 дней</SelectItem>
+                      <SelectItem value="43200">30 дней</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-2 block">
+                    Причина (опционально)
+                  </label>
+                  <Textarea
+                    placeholder="Укажите причину бана..."
+                    value={banReason}
+                    onChange={(e) => setBanReason(e.target.value)}
+                    className="w-full"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="text-sm text-steel-400">
+                  Пользователь: {selectedUserId.slice(0, 8)}...
+                </div>
+
+                <div className="flex space-x-3">
+                  <Button
+                    onClick={createUserBan}
+                    className="bg-red-600 hover:bg-red-700 flex-1"
+                    disabled={!banDuration}
+                  >
+                    <UserX className="w-4 h-4 mr-2" />
+                    Выдать бан
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setBanModalOpen(false)}
                     className="flex-1"
                   >
                     Отмена
