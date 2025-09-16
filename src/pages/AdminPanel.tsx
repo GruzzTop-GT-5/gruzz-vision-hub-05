@@ -1742,9 +1742,8 @@ export default function AdminPanel() {
                              <Button
                               size="sm"
                               variant="outline"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
+                              onClick={() => {
+                                console.log('Settings button clicked for ad:', ad.id);
                                 setSelectedAd(ad);
                                 setAdModerationOpen(true);
                               }}
@@ -1757,9 +1756,8 @@ export default function AdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
+                              onClick={() => {
+                                console.log('Delete button clicked for ad:', ad.id);
                                 setDeleteAdId(ad.id);
                                 setDeleteAdModalOpen(true);
                               }}
