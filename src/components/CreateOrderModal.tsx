@@ -98,11 +98,30 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     setIsCreating(true);
 
     try {
+      // Проверяем баланс пользователя
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      if (!profileData || profileData.balance < price) {
+        toast({
+          title: "Недостаточно средств",
+          description: "Пополните баланс для создания заказа",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Calculate platform fee (10% commission)
       const commissionRate = 10;
       const platformFee = (price * commissionRate) / 100;
 
-      const { error } = await supabase
+      // Создаем заказ
+      const { data: newOrder, error: orderError } = await supabase
         .from('orders')
         .insert({
           title: sanitizeInput(orderData.title),
@@ -122,13 +141,32 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             specifications: sanitizeInput(orderData.client_requirements.specifications),
             additional_notes: sanitizeInput(orderData.client_requirements.additional_notes)
           }
-        } as any);
+        } as any)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (orderError) throw orderError;
+
+      // Создаем транзакцию для списания средств (используем тип 'payment')
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          type: 'payment' as any,
+          amount: price,
+          status: 'completed',
+          payment_details: {
+            order_id: newOrder.id,
+            order_number: newOrder.order_number,
+            description: `Оплата заказа: ${sanitizeInput(orderData.title)}`
+          }
+        });
+
+      if (transactionError) throw transactionError;
 
       toast({
         title: "Заказ создан",
-        description: "Ваш заказ успешно создан и ожидает исполнителя"
+        description: "Ваш заказ успешно создан и оплачен с баланса"
       });
 
       // Reset form
