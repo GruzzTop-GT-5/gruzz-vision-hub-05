@@ -1254,7 +1254,7 @@ export default function AdminPanel() {
             <TabsContent value="settings" className="space-y-6">
               <Card className="card-steel p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-steel-100">Системные настройки</h2>
+                  <h2 className="text-xl font-bold text-foreground">Системные настройки</h2>
                   <div className="flex items-center space-x-2">
                     <Sliders className="w-5 h-5 text-primary" />
                     <Badge variant="outline" className="text-primary border-primary/20">
