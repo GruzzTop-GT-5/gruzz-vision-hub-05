@@ -141,6 +141,35 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       return;
     }
 
+    // Проверка на дублирование - ищем похожие активные заказы пользователя
+    try {
+      const { data: existingOrders, error: checkError } = await supabase
+        .from('orders')
+        .select('id, title, order_number')
+        .eq('client_id', user.id)
+        .in('status', ['pending', 'accepted', 'in_progress']) // Активные заказы
+        .ilike('title', `%${orderData.title.substring(0, 20)}%`); // Проверяем по первым 20 символам заголовка
+
+      if (checkError) throw checkError;
+
+      if (existingOrders && existingOrders.length > 0) {
+        const existingTitle = existingOrders[0].title;
+        const similarity = orderData.title.toLowerCase().includes(existingTitle.toLowerCase().substring(0, 15)) ||
+                          existingTitle.toLowerCase().includes(orderData.title.toLowerCase().substring(0, 15));
+        
+        if (similarity) {
+          toast({
+            title: "Похожий заказ уже существует",
+            description: `У вас уже есть активный заказ: "${existingTitle}" (${existingOrders[0].order_number}). Нельзя создавать дубликаты заказов.`,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for duplicate orders:', error);
+    }
+
     const price = parseFloat(orderData.price);
     const validation = validateAmount(price);
     

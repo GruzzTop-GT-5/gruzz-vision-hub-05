@@ -120,6 +120,36 @@ export default function CreateAd() {
       return;
     }
 
+    // Проверка на дублирование - ищем похожие активные объявления пользователя
+    try {
+      const { data: existingAds, error: checkError } = await supabase
+        .from('ads')
+        .select('id, title')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .ilike('title', `%${data.title.substring(0, 20)}%`); // Проверяем по первым 20 символам заголовка
+
+      if (checkError) throw checkError;
+
+      if (existingAds && existingAds.length > 0) {
+        const existingTitle = existingAds[0].title;
+        const similarity = data.title.toLowerCase().includes(existingTitle.toLowerCase().substring(0, 15)) ||
+                          existingTitle.toLowerCase().includes(data.title.toLowerCase().substring(0, 15));
+        
+        if (similarity) {
+          toast({
+            title: "Похожее объявление уже существует",
+            description: `У вас уже есть активное объявление: "${existingTitle}". Отредактируйте существующее или удалите его перед созданием нового.`,
+            variant: "destructive"
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for duplicates:', error);
+    }
+
     setIsSubmitting(true);
 
     try {

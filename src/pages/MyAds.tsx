@@ -392,10 +392,12 @@ const MyAds = () => {
           return <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">Принята</Badge>;
         case 'in_progress':
           return <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">В работе</Badge>;
+        case 'review':
+          return <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20">На проверке</Badge>;
         case 'completed':
           return <Badge className="bg-green-500/10 text-green-400 border-green-500/20">Завершена</Badge>;
         case 'cancelled':
-          return <Badge className="bg-red-500/10 text-red-400 border-red-500/20">Отменена</Badge>;
+          return <Badge className="bg-red-500/10 text-red-400 border-red-500/20">Отклонена</Badge>;
         default:
           return <Badge variant="outline">{status}</Badge>;
       }

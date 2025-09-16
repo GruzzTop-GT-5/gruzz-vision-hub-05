@@ -93,6 +93,7 @@ export default function Ads() {
         .select('*')
         .eq('status', 'pending')
         .is('executor_id', null)
+        .neq('status', 'cancelled') // Исключаем отклоненные заказы
         .order('created_at', { ascending: false });
 
       if (error) throw error;
