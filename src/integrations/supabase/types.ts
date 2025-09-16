@@ -313,6 +313,222 @@ export type Database = {
           },
         ]
       }
+      order_files: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_category: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          order_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_category?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          order_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_category?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          order_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_files_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          is_public: boolean | null
+          order_id: string
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          order_id: string
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          order_id?: string
+          rating?: number
+          reviewed_user_id?: string
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_history: {
+        Row: {
+          changed_by: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          order_id: string
+          reason: string | null
+          status_from: string | null
+          status_to: string
+        }
+        Insert: {
+          changed_by: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          reason?: string | null
+          status_from?: string | null
+          status_to: string
+        }
+        Update: {
+          changed_by?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          reason?: string | null
+          status_from?: string | null
+          status_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          ad_id: string | null
+          cancelled_at: string | null
+          category: string | null
+          client_id: string
+          client_requirements: Json | null
+          commission_rate: number | null
+          completed_at: string | null
+          created_at: string
+          deadline: string | null
+          delivery_format: string | null
+          description: string | null
+          escrow_amount: number | null
+          executor_id: string | null
+          executor_proposal: Json | null
+          id: string
+          max_revisions: number | null
+          order_number: string
+          payment_method: string | null
+          payment_status: string | null
+          platform_fee: number | null
+          price: number
+          priority: string | null
+          revision_count: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ad_id?: string | null
+          cancelled_at?: string | null
+          category?: string | null
+          client_id: string
+          client_requirements?: Json | null
+          commission_rate?: number | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          delivery_format?: string | null
+          description?: string | null
+          escrow_amount?: number | null
+          executor_id?: string | null
+          executor_proposal?: Json | null
+          id?: string
+          max_revisions?: number | null
+          order_number: string
+          payment_method?: string | null
+          payment_status?: string | null
+          platform_fee?: number | null
+          price: number
+          priority?: string | null
+          revision_count?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ad_id?: string | null
+          cancelled_at?: string | null
+          category?: string | null
+          client_id?: string
+          client_requirements?: Json | null
+          commission_rate?: number | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          delivery_format?: string | null
+          description?: string | null
+          escrow_amount?: number | null
+          executor_id?: string | null
+          executor_proposal?: Json | null
+          id?: string
+          max_revisions?: number | null
+          order_number?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          platform_fee?: number | null
+          price?: number
+          priority?: string | null
+          revision_count?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
@@ -702,6 +918,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_payment_details: {
         Args: {
           p_amount: number
