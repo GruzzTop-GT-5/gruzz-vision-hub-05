@@ -343,13 +343,13 @@ export default function Ads() {
                     : 'Пока что заказчики не разместили заказы на работу'}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
-                  <Link to="/create-ad">
+                  <Link to="/create-order">
                     <Button className="bg-primary hover:bg-primary/80">
                       <Plus className="w-4 h-4 mr-2" />
                       Разместить заказ
                     </Button>
                   </Link>
-                  <Link to="/orders">
+                  <Link to="/available-orders">
                     <Button variant="outline">
                       <Calendar className="w-4 h-4 mr-2" />
                       Смотреть вакансии
