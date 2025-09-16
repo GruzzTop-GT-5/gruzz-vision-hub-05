@@ -429,52 +429,17 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
           {/* Actions */}
           <div className="space-y-4">
-            {/* Balance Management */}
+            {/* Quick Actions Note */}
             <Card className="card-steel-lighter p-4">
-              <h3 className="text-lg font-semibold text-steel-100 mb-4">Управление балансом</h3>
-              
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant={balanceOperation === 'add' ? 'default' : 'outline'}
-                    onClick={() => setBalanceOperation('add')}
-                    className="flex items-center space-x-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Начислить</span>
-                  </Button>
-                  
-                  <Button
-                    variant={balanceOperation === 'subtract' ? 'default' : 'outline'}
-                    onClick={() => setBalanceOperation('subtract')}
-                    className="flex items-center space-x-2"
-                  >
-                    <Minus className="w-4 h-4" />
-                    <span>Списать</span>
-                  </Button>
-                </div>
-                
-                <Input
-                  type="number"
-                  placeholder="Сумма"
-                  value={balanceAmount}
-                  onChange={(e) => setBalanceAmount(e.target.value)}
-                />
-                
-                <Textarea
-                  placeholder="Причина операции (обязательно)"
-                  value={balanceReason}
-                  onChange={(e) => setBalanceReason(e.target.value)}
-                  rows={2}
-                />
-                
-                <Button
-                  onClick={handleBalanceOperation}
-                  disabled={loading || !balanceAmount.trim() || !balanceReason.trim()}
-                  className="w-full"
-                >
-                  {balanceOperation === 'add' ? 'Начислить' : 'Списать'} средства
-                </Button>
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Баланс пользователя</h3>
+              <div className="text-center">
+                <p className="text-steel-100 font-medium flex items-center justify-center">
+                  <Wallet className="w-5 h-5 mr-2" />
+                  {user.balance.toFixed(2)} GT Coins
+                </p>
+                <p className="text-sm text-steel-300 mt-2">
+                  Для изменения баланса используйте кнопку "⚙️" в списке пользователей
+                </p>
               </div>
             </Card>
 
