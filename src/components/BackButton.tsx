@@ -35,7 +35,7 @@ export const BackButton = ({
     <Button
       onClick={handleClick}
       variant="outline"
-      className={`mb-6 border-steel-600 hover:border-primary hover:bg-steel-700 text-steel-300 hover:text-primary transition-all duration-300 ${className}`}
+      className={`mb-6 border-steel-600 hover:bg-steel-700 text-steel-300 hover:text-primary transition-colors duration-200 ${className}`}
     >
       <ArrowLeft className="w-4 h-4 mr-2" />
       {text}

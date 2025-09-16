@@ -359,7 +359,7 @@ export const ConversationList = ({
             {filteredConversations.map((conversation) => (
               <Card
                 key={conversation.id}
-                className={`p-3 cursor-pointer transition-all duration-200 ${
+                className={`p-3 cursor-pointer transition-colors duration-200 ${
                   selectedConversationId === conversation.id
                     ? 'bg-primary/10 border-primary/20'
                     : 'hover:bg-steel-700/30 border-transparent'

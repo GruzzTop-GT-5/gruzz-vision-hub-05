@@ -262,7 +262,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
                 {paymentMethods.map((method) => (
                   <Card
                     key={method.id}
-                    className="card-steel p-4 cursor-pointer hover:border-primary transition-colors"
+                    className="card-steel p-4 cursor-pointer hover:bg-steel-700 transition-colors"
                     onClick={() => generatePaymentDetails(method.id)}
                   >
                     <div className="flex items-center space-x-3">

@@ -90,7 +90,7 @@ export const BalanceCard = ({ userId, onTopUpClick, onHistoryClick }: BalanceCar
         <Button
           onClick={onHistoryClick}
           variant="outline"
-          className="text-sm py-2 border-steel-600 hover:border-primary hover:bg-steel-700"
+          className="text-sm py-2 border-steel-600 hover:bg-steel-700"
         >
           <History className="w-4 h-4 mr-1" />
           История
