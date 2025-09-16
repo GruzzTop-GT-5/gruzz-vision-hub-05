@@ -776,7 +776,7 @@ export default function AdminPanel() {
 
           {/* Admin Tabs */}
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-9">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Дашборд</span>
@@ -804,14 +804,6 @@ export default function AdminPanel() {
               <TabsTrigger value="settings" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span>Настройки</span>
-              </TabsTrigger>
-              <TabsTrigger value="admin-logs" className="flex items-center space-x-2">
-                <Activity className="w-4 h-4" />
-                <span>История действий</span>
-              </TabsTrigger>
-              <TabsTrigger value="reviews" className="flex items-center space-x-2">
-                <MessageSquare className="w-4 h-4" />
-                <span>Модерация отзывов</span>
               </TabsTrigger>
             </TabsList>
 
@@ -1535,46 +1527,6 @@ export default function AdminPanel() {
               </Card>
             </TabsContent>
 
-            {/* Admin Logs */}
-            <TabsContent value="admin-logs" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
-              <Card className="card-steel p-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-foreground">📋 История действий администраторов</h2>
-                  <Badge variant="outline" className="text-primary border-primary/20">
-                    {adminLogs.length} записей
-                  </Badge>
-                </div>
-
-                {/* Search and filters */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      placeholder="Поиск по действию или пользователю..."
-                      value={logFilter}
-                      onChange={(e) => setLogFilter(e.target.value)}
-                      className="pl-10 bg-background border-border"
-                    />
-                  </div>
-                  <Button 
-                    onClick={fetchAdminLogs}
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
-                    <Activity className="w-4 h-4" />
-                    <span>Обновить</span>
-                  </Button>
-                </div>
-
-                {isLoadingAdminLogs ? (
-                  <div className="text-center py-8">
-                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {adminLogs
-                      .filter(log => {
-                        if (!logFilter) return true;
                         const searchTerm = logFilter.toLowerCase();
                         const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
                         return log.action.toLowerCase().includes(searchTerm) || 
@@ -1731,6 +1683,249 @@ export default function AdminPanel() {
               <CategoriesManagement />
             </TabsContent>
           </Tabs>
+
+          {/* Advanced Admin Functions */}
+          <div className="bg-muted/20 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-foreground mb-4">🔧 Расширенные функции</h2>
+            <Tabs defaultValue="admin-logs" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="admin-logs" className="flex items-center space-x-2">
+                  <Activity className="w-4 h-4" />
+                  <span>История действий</span>
+                </TabsTrigger>
+                <TabsTrigger value="reviews" className="flex items-center space-x-2">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Модерация отзывов</span>
+                </TabsTrigger>
+                <TabsTrigger value="security" className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4" />
+                  <span>Безопасность</span>
+                </TabsTrigger>
+                <TabsTrigger value="reports" className="flex items-center space-x-2">
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Отчёты</span>
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Admin Logs */}
+              <TabsContent value="admin-logs" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                <Card className="card-steel p-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-foreground">📋 История действий администраторов</h3>
+                    <Badge variant="outline" className="text-primary border-primary/20">
+                      {adminLogs.length} записей
+                    </Badge>
+                  </div>
+
+                  {/* Search and filters */}
+                  <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Поиск по действию или пользователю..."
+                        value={logFilter}
+                        onChange={(e) => setLogFilter(e.target.value)}
+                        className="pl-10 bg-background border-border"
+                      />
+                    </div>
+                    <Button 
+                      onClick={fetchAdminLogs}
+                      variant="outline"
+                      className="flex items-center space-x-2"
+                    >
+                      <Activity className="w-4 h-4" />
+                      <span>Обновить</span>
+                    </Button>
+                  </div>
+
+                  {isLoadingAdminLogs ? (
+                    <div className="text-center py-8">
+                      <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {adminLogs
+                        .filter(log => {
+                          if (!logFilter) return true;
+                          const searchTerm = logFilter.toLowerCase();
+                          const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
+                          return log.action.toLowerCase().includes(searchTerm) || 
+                                 adminName.toLowerCase().includes(searchTerm);
+                        })
+                        .map((log) => {
+                          const adminName = log.profiles?.display_name || log.profiles?.full_name || log.profiles?.phone || 'Неизвестно';
+                          
+                          return (
+                            <div key={log.id} className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center space-x-3">
+                                  <div className="p-2 bg-primary/20 rounded-lg">
+                                    <Activity className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-foreground">{log.action}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      Администратор: {adminName}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm text-muted-foreground">
+                                    {format(new Date(log.timestamp), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              {(log.target_id || log.target_type) && (
+                                <div className="mt-3 pt-3 border-t border-border/30">
+                                  <div className="grid grid-cols-2 gap-4 text-sm">
+                                    {log.target_type && (
+                                      <div>
+                                        <span className="text-muted-foreground">Тип объекта:</span>
+                                        <span className="ml-2 text-foreground">{log.target_type}</span>
+                                      </div>
+                                    )}
+                                    {log.target_id && (
+                                      <div>
+                                        <span className="text-muted-foreground">ID объекта:</span>
+                                        <span className="ml-2 text-foreground font-mono text-xs">{log.target_id.slice(0, 8)}...</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      
+                      {adminLogs.length === 0 && (
+                        <div className="text-center py-16">
+                          <Activity className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
+                          <h4 className="text-lg font-medium text-foreground mb-2">История пуста</h4>
+                          <p className="text-muted-foreground">Действия администраторов будут отображаться здесь</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Card>
+              </TabsContent>
+
+              {/* Reviews Management */}
+              <TabsContent value="reviews" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                <Card className="card-steel p-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-steel-100">Модерация отзывов</h3>
+                    <Badge variant="outline" className="text-red-400 border-red-400/20">
+                      {reportedReviews.length} жалоб
+                    </Badge>
+                  </div>
+
+                  {isLoadingReviews ? (
+                    <div className="text-center py-8">
+                      <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    </div>
+                  ) : reportedReviews.length === 0 ? (
+                    <div className="text-center py-16">
+                      <MessageSquare className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
+                      <h4 className="text-lg font-medium text-foreground mb-2">Нет жалоб</h4>
+                      <p className="text-muted-foreground">Жалобы на отзывы будут отображаться здесь</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {reportedReviews.map((review) => (
+                        <div key={review.id} className="bg-muted/30 rounded-lg p-4 border border-red-500/20">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Badge variant="destructive" className="text-xs">
+                                  {review.reports.length} жалоб
+                                </Badge>
+                                {review.rating && (
+                                  <StarRating rating={review.rating} size="sm" />
+                                )}
+                              </div>
+                              {review.comment && (
+                                <p className="text-foreground mb-3">{review.comment}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground">
+                                Создан: {format(new Date(review.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mb-4">
+                            <p className="text-sm font-medium text-steel-100 mb-2">Причины жалоб:</p>
+                            <div className="space-y-1">
+                              {review.reports.map((report: any, index: number) => (
+                                <div key={index} className="text-sm text-steel-300 bg-steel-800/30 rounded px-2 py-1">
+                                  {report.reason}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="flex space-x-2">
+                            <Button
+                              onClick={() => moderateReview(review.id, 'approve')}
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <Check className="w-4 h-4 mr-1" />
+                              Одобрить
+                            </Button>
+                            <Button
+                              onClick={() => moderateReview(review.id, 'block')}
+                              size="sm"
+                              variant="destructive"
+                            >
+                              <Ban className="w-4 h-4 mr-1" />
+                              Заблокировать
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              </TabsContent>
+
+              {/* Security Tab */}
+              <TabsContent value="security" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                <Card className="card-steel p-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-foreground">🔒 Безопасность</h3>
+                    <Badge variant="outline" className="text-green-400 border-green-400/20">
+                      Активно
+                    </Badge>
+                  </div>
+                  
+                  <div className="text-center py-16">
+                    <Shield className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
+                    <h4 className="text-lg font-medium text-foreground mb-2">Функции безопасности</h4>
+                    <p className="text-muted-foreground">Здесь будут настройки безопасности и мониторинг</p>
+                  </div>
+                </Card>
+              </TabsContent>
+
+              {/* Reports Tab */}
+              <TabsContent value="reports" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                <Card className="card-steel p-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-foreground">📊 Отчёты и аналитика</h3>
+                    <Badge variant="outline" className="text-blue-400 border-blue-400/20">
+                      Новое
+                    </Badge>
+                  </div>
+                  
+                  <div className="text-center py-16">
+                    <BarChart3 className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
+                    <h4 className="text-lg font-medium text-foreground mb-2">Аналитические отчёты</h4>
+                    <p className="text-muted-foreground">Здесь будут детальные отчёты и аналитика</p>
+                  </div>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </Layout>
