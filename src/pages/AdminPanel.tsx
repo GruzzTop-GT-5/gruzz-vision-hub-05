@@ -188,6 +188,27 @@ interface UserBan {
   updated_at: string;
 }
 
+interface Order {
+  id: string;
+  order_number: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  price: number;
+  status: string;
+  priority: string;
+  deadline: string | null;
+  client_id: string;
+  executor_id: string | null;
+  created_at: string;
+  client_requirements: any;
+  profiles?: {
+    display_name: string | null;
+    full_name: string | null;
+    phone: string | null;
+  } | null;
+}
+
 export default function AdminPanel() {
   const { user, userRole, loading, signOut } = useAuth();
   const { toast } = useToast();
@@ -195,6 +216,7 @@ export default function AdminPanel() {
   // States for different admin sections
   const [users, setUsers] = useState<User[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [reportedReviews, setReportedReviews] = useState<ReportedReview[]>([]);
@@ -214,6 +236,7 @@ export default function AdminPanel() {
   // Loading states
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isLoadingAds, setIsLoadingAds] = useState(false);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
@@ -223,6 +246,7 @@ export default function AdminPanel() {
   // Filter states
   const [userFilter, setUserFilter] = useState('');
   const [adStatusFilter, setAdStatusFilter] = useState('all');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
   const [transactionStatusFilter, setTransactionStatusFilter] = useState('all');
   const [logFilter, setLogFilter] = useState('');
   
@@ -244,6 +268,7 @@ export default function AdminPanel() {
   // Clear filter functions
   const clearUserFilter = () => setUserFilter('');
   const clearAdFilter = () => setAdStatusFilter('all');
+  const clearOrderFilter = () => setOrderStatusFilter('all');
   const clearTransactionFilter = () => setTransactionStatusFilter('all');
   const clearLogFilter = () => setLogFilter('');
   const clearBanFilter = () => setBanFilter('');
@@ -364,6 +389,7 @@ export default function AdminPanel() {
     if (isAdmin) {
       fetchUsers();
       fetchAds();
+      fetchOrders();
       fetchTransactions();
       fetchWithdrawals();
       fetchReportedReviews();
@@ -415,6 +441,34 @@ export default function AdminPanel() {
       });
     } finally {
       setIsLoadingAds(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    setIsLoadingOrders(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`*,
+          profiles!orders_client_id_fkey (
+            display_name,
+            full_name,
+            phone
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data as any || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить заказы",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingOrders(false);
     }
   };
 
@@ -975,6 +1029,47 @@ export default function AdminPanel() {
     }
   };
 
+  const moderateOrder = async (orderId: string, status: string, reason?: string) => {
+    try {
+      console.log('Moderating order:', orderId, 'to status:', status);
+      
+      const updateData: any = { status };
+      if (reason) {
+        updateData.admin_notes = reason;
+      }
+
+      const { error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', orderId);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      // Log admin action
+      await logAdminAction(`Модерация заказа - статус: ${status}`, orderId, 'order');
+
+      const statusText = status === 'pending' ? 'одобрен' : status === 'cancelled' ? 'отклонен' : status;
+      toast({
+        title: "Заказ обновлен",
+        description: `Заказ ${statusText}${reason ? `: ${reason}` : ''}`,
+      });
+
+      // Refresh data
+      fetchOrders();
+      fetchAdminLogs();
+    } catch (error) {
+      console.error('Error moderating order:', error);
+      toast({
+        title: "Ошибка модерации",
+        description: error instanceof Error ? error.message : "Не удалось обновить заказ",
+        variant: "destructive"
+      });
+    }
+  };
+
   const verifyTransaction = async (transactionId: string, status: string, adminNotes?: string) => {
     try {
       const updateData: any = { 
@@ -1100,7 +1195,7 @@ export default function AdminPanel() {
 
           {/* Admin Tabs */}
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Дашборд</span>
@@ -1112,6 +1207,10 @@ export default function AdminPanel() {
               <TabsTrigger value="ads" className="flex items-center space-x-2">
                 <Megaphone className="w-4 h-4" />
                 <span>Объявления</span>
+              </TabsTrigger>
+              <TabsTrigger value="orders" className="flex items-center space-x-2">
+                <MessageSquare className="w-4 h-4" />
+                <span>Заказы</span>
               </TabsTrigger>
               <TabsTrigger value="transactions" className="flex items-center space-x-2">
                 <CreditCard className="w-4 h-4" />
@@ -1478,6 +1577,151 @@ export default function AdminPanel() {
                               onClick={() => window.open(`/profile/${ad.user_id}`, '_blank')}
                               className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
                               title="Профиль автора"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+
+            {/* Orders Management */}
+            <TabsContent value="orders" className="space-y-6">
+              <Card className="card-steel p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-steel-100">Модерация заказов</h2>
+                  <div className="flex items-center space-x-4">
+                    <Badge variant="outline" className="text-yellow-400 border-yellow-400/20">
+                      {orders.filter(order => order.status === 'pending').length} на модерации
+                    </Badge>
+                    <Select value={orderStatusFilter} onValueChange={setOrderStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все статусы</SelectItem>
+                        <SelectItem value="pending">На модерации</SelectItem>
+                        <SelectItem value="cancelled">Отклоненные</SelectItem>
+                        <SelectItem value="accepted">Принятые</SelectItem>
+                        <SelectItem value="in_progress">В работе</SelectItem>
+                        <SelectItem value="completed">Завершенные</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {orderStatusFilter !== 'all' && (
+                      <Button variant="outline" onClick={clearOrderFilter} size="sm">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {isLoadingOrders ? (
+                  <div className="text-center py-8">
+                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  </div>
+                ) : orders.filter(order => orderStatusFilter === 'all' || order.status === orderStatusFilter).length === 0 ? (
+                  <div className="text-center py-16">
+                    <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
+                    <p className="text-steel-400 text-lg">
+                      {orderStatusFilter === 'all' ? 'Заказов нет' : `Нет заказов со статусом "${orderStatusFilter}"`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {orders.filter(order => orderStatusFilter === 'all' || order.status === orderStatusFilter).map((order) => (
+                      <div key={order.id} className="border border-steel-600/20 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <h3 className="font-medium text-steel-100">{order.title}</h3>
+                              <Badge className={
+                                order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                                order.status === 'cancelled' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                order.status === 'accepted' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                                order.status === 'in_progress' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
+                                order.status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                                'bg-steel-600/10 text-steel-400 border-steel-600/20'
+                              }>
+                                {order.status === 'pending' ? 'На модерации' :
+                                 order.status === 'cancelled' ? 'Отклонен' :
+                                 order.status === 'accepted' ? 'Принят' :
+                                 order.status === 'in_progress' ? 'В работе' :
+                                 order.status === 'completed' ? 'Завершен' : order.status}
+                              </Badge>
+                            </div>
+                            <p className="text-steel-300 text-sm">{order.description}</p>
+                            <div className="flex items-center space-x-4 text-sm text-steel-400">
+                              <span>№ {order.order_number}</span>
+                              <span>Цена: {order.price} ₽</span>
+                              <span>Категория: {order.category || 'Не указана'}</span>
+                              <span>
+                                Клиент: {order.profiles?.display_name || order.profiles?.full_name || 'Аноним'}
+                              </span>
+                              <span>{format(new Date(order.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {order.status === 'pending' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => moderateOrder(order.id, 'pending')}
+                                  className="text-green-400 border-green-400/20 hover:bg-green-400/10"
+                                  title="Одобрить заказ"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="text-red-400 border-red-400/20 hover:bg-red-400/10"
+                                      title="Отклонить заказ"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent className="card-steel-dialog">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Отклонить заказ</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Укажите причину отклонения заказа:
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <div className="py-4">
+                                      <Textarea
+                                        placeholder="Причина отклонения..."
+                                        id={`order-rejection-reason-${order.id}`}
+                                      />
+                                    </div>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => {
+                                          const textarea = document.getElementById(`order-rejection-reason-${order.id}`) as HTMLTextAreaElement;
+                                          moderateOrder(order.id, 'cancelled', textarea?.value);
+                                        }}
+                                        className="bg-red-600 hover:bg-red-700"
+                                      >
+                                        Отклонить
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open(`/profile/${order.client_id}`, '_blank')}
+                              className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
+                              title="Профиль клиента"
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
