@@ -292,7 +292,7 @@ export const SupportSystem = () => {
             </Button>
           </DialogTrigger>
           
-          <DialogContent className="card-steel-dialog max-w-md">
+          <DialogContent className="card-steel-dialog max-w-md data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
             <DialogHeader>
               <DialogTitle className="text-steel-100">Новый тикет поддержки</DialogTitle>
               <DialogDescription className="text-steel-400">

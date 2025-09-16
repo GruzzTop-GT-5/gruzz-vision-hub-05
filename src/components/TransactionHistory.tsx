@@ -142,7 +142,7 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl bg-steel-800 border-steel-600">
+        <DialogContent className="max-w-2xl bg-steel-800 border-steel-600 data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
           <DialogHeader>
             <DialogTitle className="text-glow">История транзакций</DialogTitle>
           </DialogHeader>
@@ -160,7 +160,7 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-steel-800 border-steel-600 max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl bg-steel-800 border-steel-600 max-h-[80vh] overflow-y-auto data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <DialogHeader>
           <DialogTitle className="text-glow">История транзакций</DialogTitle>
         </DialogHeader>

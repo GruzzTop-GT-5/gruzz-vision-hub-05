@@ -119,7 +119,7 @@ export const VoiceCallModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="card-steel max-w-sm p-0 border-none">
+      <DialogContent className="card-steel max-w-sm p-0 border-none data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <div className="relative overflow-hidden rounded-lg">
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-steel-800 to-steel-900" />

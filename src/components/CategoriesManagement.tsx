@@ -251,7 +251,7 @@ export function CategoriesManagement() {
                 Добавить категорию
               </Button>
             </DialogTrigger>
-            <DialogContent className="card-steel-dialog max-w-md">
+            <DialogContent className="card-steel-dialog max-w-md data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
               <DialogHeader>
                 <DialogTitle>
                   {editingCategory ? 'Редактировать категорию' : 'Создать категорию'}

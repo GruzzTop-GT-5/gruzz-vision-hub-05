@@ -241,7 +241,7 @@ export const OrderDetailsModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="card-steel-dialog max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="card-steel-dialog max-w-4xl max-h-[90vh] overflow-y-auto data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <DialogHeader>
           <DialogTitle className="text-steel-100 flex items-center space-x-2">
             <Package className="w-5 h-5 text-primary" />

@@ -220,7 +220,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-steel-800 border-steel-600">
+      <DialogContent className="max-w-md bg-steel-800 border-steel-600 data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <DialogHeader>
           <DialogTitle className="text-glow">Пополнение GT Coins</DialogTitle>
         </DialogHeader>
