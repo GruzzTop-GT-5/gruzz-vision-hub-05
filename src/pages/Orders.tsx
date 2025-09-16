@@ -1,3 +1,4 @@
+// Страница вакансий - где люди ищут работу и откликаются на предложения
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { useAuth } from '@/hooks/useAuth';
@@ -219,10 +220,10 @@ const Orders = () => {
               <BackButton onClick={() => window.history.back()} />
               <div className="flex items-center space-x-3">
                 <Package className="w-8 h-8 text-primary" />
-                <h1 className="text-3xl font-bold text-glow">Мои заказы</h1>
+                <h1 className="text-3xl font-bold text-glow">Мои вакансии</h1>
               </div>
               <p className="text-steel-400 text-sm mt-1">
-                Заказы, где вы участвуете как клиент или исполнитель
+                Вакансии, где вы участвуете как работодатель или соискатель
               </p>
             </div>
             
@@ -231,7 +232,7 @@ const Orders = () => {
               className="bg-primary hover:bg-primary/80"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Создать заказ
+              Создать вакансию
             </Button>
           </div>
 
@@ -311,13 +312,13 @@ const Orders = () => {
               <p className="text-steel-400">
                 {Object.values(filters).some(v => v !== '' && v !== 'all' && v !== 'created_at' && v !== 'desc')
                   ? 'Попробуйте изменить параметры поиска'
-                  : 'Ваши заказы будут отображаться здесь'
+                  : 'Ваши вакансии будут отображаться здесь'
                 }
               </p>
               {!Object.values(filters).some(v => v !== '' && v !== 'all' && v !== 'created_at' && v !== 'desc') && (
                 <Button onClick={() => setShowCreateModal(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Создать первый заказ
+                  Создать первую вакансию
                 </Button>
               )}
             </Card>

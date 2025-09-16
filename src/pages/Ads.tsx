@@ -1,3 +1,4 @@
+// Страница заказов на работу - где заказчики размещают задания, требующие исполнителей
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { useAuth } from '@/hooks/useAuth';

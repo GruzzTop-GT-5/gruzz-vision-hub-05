@@ -162,8 +162,8 @@ export default function CreateAd() {
       }
 
       toast({
-        title: "Объявление создано!",
-        description: `Объявление размещено. Списано ${AD_COST} GT Coins.`
+        title: "Заказ создан!",
+        description: `Заказ на работу размещен. Списано ${AD_COST} GT Coins.`
       });
 
       navigate('/ads');
@@ -171,7 +171,7 @@ export default function CreateAd() {
       console.error('Error creating ad:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось создать объявление. Попробуйте еще раз.",
+        description: "Не удалось создать заказ. Попробуйте еще раз.",
         variant: "destructive"
       });
     } finally {
@@ -212,7 +212,7 @@ export default function CreateAd() {
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <BackButton onClick={() => window.history.back()} />
-            <h1 className="text-3xl font-bold text-glow">Разместить объявление</h1>
+            <h1 className="text-3xl font-bold text-glow">Разместить заказ на работу</h1>
             <div></div>
           </div>
 
