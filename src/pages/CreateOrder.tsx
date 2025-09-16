@@ -20,7 +20,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-
+// Updated to use dynamic priority costs
 
 const orderFormSchema = z.object({
   title: z.string().min(5, 'Название заказа должно содержать минимум 5 символов').max(100, 'Название слишком длинное'),
