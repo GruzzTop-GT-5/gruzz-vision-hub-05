@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
-import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone, Search, Plus, Wallet } from 'lucide-react';
+import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone, Search, Plus, Wallet, Package } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Link, useLocation } from 'react-router-dom';
@@ -58,6 +58,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   const menuItems = [
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: Megaphone, label: 'Доска объявлений', href: '/ads' },
+    { icon: Package, label: 'Мои объявления', href: '/my-ads' },
     { icon: Search, label: 'Вакансии', href: '/available-orders' },
     { icon: ShoppingBag, label: 'Мои заказы', href: '/orders' },
     { icon: MessageCircle, label: 'Чаты и поддержка', href: '/chat-system' },

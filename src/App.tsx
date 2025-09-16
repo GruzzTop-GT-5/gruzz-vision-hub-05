@@ -15,6 +15,7 @@ import History from "./pages/History";
 import AdminPanel from "./pages/AdminPanel";
 import ChatSystem from "./pages/ChatSystem";
 import AdDetails from "./pages/AdDetails";
+import MyAds from "./pages/MyAds";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
         <Route path="/ads" element={<Ads />} />
         <Route path="/create-ad" element={<CreateAd />} />
         <Route path="/ad/:id" element={<AdDetails />} />
+        <Route path="/my-ads" element={<MyAds />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/orders" element={<Orders />} />

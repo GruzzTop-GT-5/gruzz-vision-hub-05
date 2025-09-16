@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { OrderDetailsModal } from '@/components/OrderDetailsModal';
 import { ReviewModal } from '@/components/ReviewModal';
+import { EditOrderModal } from '@/components/EditOrderModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +27,9 @@ import {
   Star,
   FileText,
   Play,
-  Pause
+  Pause,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -77,6 +80,9 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const isClient = user?.id === order.client_id;
   const isExecutor = user?.id === order.executor_id;
@@ -310,6 +316,38 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
     }
   };
 
+  const handleDeleteOrder = async () => {
+    if (!isClient) return;
+    
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', order.id)
+        .eq('client_id', user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Заказ удален",
+        description: "Заказ успешно удален"
+      });
+
+      onUpdate();
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить заказ",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const statusTransitions = getAvailableStatusTransitions();
 
   return (
@@ -443,6 +481,29 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
                 Оценить
               </Button>
             )}
+
+            {/* Edit and Delete buttons for order owner (client) */}
+            {isClient && ['pending', 'accepted'].includes(order.status) && (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowEditModal(true)}
+                >
+                  <Edit3 className="w-4 h-4 mr-1" />
+                  Изменить
+                </Button>
+                
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Удалить
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="flex items-center space-x-2">
@@ -546,6 +607,58 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
             onReviewSubmitted={onUpdate}
           />
         )}
+
+        {/* Edit Order Modal */}
+        {showEditModal && (
+          <EditOrderModal
+            isOpen={showEditModal}
+            onClose={() => setShowEditModal(false)}
+            onOrderUpdated={onUpdate}
+            order={order}
+          />
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <DialogContent className="card-steel-dialog max-w-md">
+            <DialogHeader>
+              <DialogTitle>Удалить заказ</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <p className="text-steel-300">
+                Вы уверены, что хотите удалить заказ "{order.title}"?
+              </p>
+              <p className="text-steel-400 text-sm">
+                Это действие нельзя отменить.
+              </p>
+              
+              <div className="flex space-x-2">
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteOrder}
+                  disabled={isDeleting}
+                  className="flex-1"
+                >
+                  {isDeleting ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-2" />
+                  )}
+                  Удалить
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={isDeleting}
+                  className="flex-1"
+                >
+                  Отмена
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
