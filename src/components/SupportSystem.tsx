@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -292,9 +292,18 @@ export const SupportSystem = () => {
             </Button>
           </DialogTrigger>
           
-          <DialogContent className="sm:max-w-md bg-steel-900/95 border-steel-700 backdrop-blur-sm">
+          <DialogContent className="sm:max-w-md bg-steel-900/95 border-steel-700 backdrop-blur-sm shadow-steel relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, hsl(210, 35%, 22%) 0%, hsl(210, 40%, 15%) 30%, hsl(210, 45%, 10%) 70%, hsl(210, 50%, 6%) 100%)',
+              border: '2px solid transparent',
+              backgroundClip: 'padding-box'
+            }}
+          >
             <DialogHeader>
               <DialogTitle className="text-steel-100">Новый тикет поддержки</DialogTitle>
+              <DialogDescription className="text-steel-400">
+                Создайте обращение в службу поддержки для решения вашего вопроса
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4">
