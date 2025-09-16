@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AdDetailsModal } from '@/components/AdDetailsModal';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -25,20 +24,29 @@ import {
   Search,
   X,
   HelpCircle,
-  Star
+  Star,
+  Award,
+  FileText
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-interface Ad {
+interface Resume {
   id: string;
   title: string;
   description: string | null;
-  category: string | null;
-  price: number;
+  category_id: string;
+  hourly_rate: number;
+  experience_years: number;
+  skills: string[];
+  location: string | null;
+  contact_info: string;
   status: string;
   user_id: string;
   created_at: string;
+  categories?: {
+    name: string;
+  };
 }
 
 interface Profile {
@@ -51,64 +59,64 @@ interface Profile {
   rating: number;
 }
 
-const categories = [
-  'Все категории',
-  'Грузчики',
-  'Разнорабочие',
-  'Квартирный переезд',
-  'Офисный переезд',
-  'Погрузка/разгрузка',
-  'Сборка мебели',
-  'Уборка помещений',
-  'Строительные работы',
-  'Ремонтные работы',
-  'Демонтаж',
-  'Подсобные работы',
-  'Складские работы',
-  'Курьерские услуги',
-  'Садовые работы',
-  'Другое'
-];
+interface Category {
+  id: string;
+  name: string;
+}
 
 const AvailableOrders = () => {
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
 
-  const [ads, setAds] = useState<Ad[]>([]);
+  const [resumes, setResumes] = useState<Resume[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Все категории');
-  const [filteredAds, setFilteredAds] = useState<Ad[]>([]);
-  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [filteredResumes, setFilteredResumes] = useState<Resume[]>([]);
 
   useEffect(() => {
-    fetchAds();
+    fetchData();
   }, []);
 
   useEffect(() => {
-    filterAds();
-  }, [ads, searchQuery, selectedCategory]);
+    filterResumes();
+  }, [resumes, searchQuery, selectedCategory]);
 
-  const fetchAds = async () => {
+  const fetchData = async () => {
     try {
       setIsLoading(true);
 
-      // Fetch active ads
-      const { data: adsData, error } = await supabase
-        .from('ads')
-        .select('*')
+      // Fetch categories first
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (categoriesError) throw categoriesError;
+      setCategories(categoriesData || []);
+
+      // Fetch active resumes with category info
+      const { data: resumesData, error } = await supabase
+        .from('resumes')
+        .select(`
+          *,
+          categories!inner (
+            name
+          )
+        `)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setAds(adsData || []);
+      setResumes(resumesData || []);
 
       // Fetch user profiles
-      if (adsData && adsData.length > 0) {
-        const userIds = Array.from(new Set(adsData.map(ad => ad.user_id)));
+      if (resumesData && resumesData.length > 0) {
+        const userIds = Array.from(new Set(resumesData.map(resume => resume.user_id)));
 
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
@@ -124,10 +132,10 @@ const AvailableOrders = () => {
         setProfiles(profilesMap);
       }
     } catch (error) {
-      console.error('Error fetching ads:', error);
+      console.error('Error fetching resumes:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить вакансии",
+        description: "Не удалось загрузить резюме",
         variant: "destructive"
       });
     } finally {
@@ -135,42 +143,34 @@ const AvailableOrders = () => {
     }
   };
 
-  const filterAds = () => {
-    let filtered = [...ads];
+  const filterResumes = () => {
+    let filtered = [...resumes];
 
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(ad =>
-        ad.title.toLowerCase().includes(query) ||
-        (ad.description && ad.description.toLowerCase().includes(query)) ||
-        (ad.category && ad.category.toLowerCase().includes(query))
+      filtered = filtered.filter(resume =>
+        resume.title.toLowerCase().includes(query) ||
+        (resume.description && resume.description.toLowerCase().includes(query)) ||
+        (resume.location && resume.location.toLowerCase().includes(query)) ||
+        resume.skills.some(skill => skill.toLowerCase().includes(query))
       );
     }
 
     // Category filter
-    if (selectedCategory !== 'Все категории') {
-      filtered = filtered.filter(ad => ad.category === selectedCategory);
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(resume => resume.category_id === selectedCategory);
     }
 
-    setFilteredAds(filtered);
+    setFilteredResumes(filtered);
   };
 
   const clearFilters = () => {
     setSearchQuery('');
-    setSelectedCategory('Все категории');
+    setSelectedCategory('all');
   };
 
-  const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== 'Все категории';
-
-  const handleViewDetails = (ad: Ad) => {
-    setSelectedAd(ad);
-    setShowDetailsModal(true);
-  };
-
-  const handleAdUpdate = () => {
-    fetchAds();
-  };
+  const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== 'all';
 
   if (!user) {
     return (
@@ -205,7 +205,7 @@ const AvailableOrders = () => {
                 </Button>
               </Link>
               <div className="text-sm text-steel-400">
-                Найдено: {filteredAds.length} резюме
+                Найдено: {filteredResumes.length} резюме
               </div>
             </div>
           </div>
@@ -214,24 +214,20 @@ const AvailableOrders = () => {
           <Card className="card-steel border-primary/20">
             <div className="p-4 text-center">
               <div className="flex items-center justify-center space-x-2 mb-3">
-                <Briefcase className="w-6 h-6 text-primary" />
-                <h3 className="text-xl font-semibold text-steel-100">Вакансии</h3>
+                <Users className="w-6 h-6 text-primary" />
+                <h3 className="text-xl font-semibold text-steel-100">Резюме исполнителей</h3>
               </div>
               <p className="text-steel-300 text-base mb-4">
                 Здесь исполнители размещают свои резюме и предлагают свои услуги. Найдите подходящего специалиста для вашей задачи.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
                 <div className="flex items-center space-x-2 text-steel-400">
-                  <Users className="w-4 h-4 text-yellow-400" />
-                  <span>Пример: "Вася Пупкин, опытный грузчик"</span>
+                  <Award className="w-4 h-4 text-yellow-400" />
+                  <span>Проверенные специалисты с опытом работы</span>
                 </div>
                 <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
                 <Link to="/ads" className="text-primary hover:text-primary/80 font-medium">
                   Нужен исполнитель? Разместить заказ →
-                </Link>
-                <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
-                <Link to="/my-ads" className="text-primary hover:text-primary/80 font-medium">
-                  Управлять резюме →
                 </Link>
               </div>
             </div>
@@ -246,7 +242,7 @@ const AvailableOrders = () => {
                   <div className="relative md:col-span-2">
                     <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
                     <Input
-                      placeholder="Найти исполнителя по навыкам..."
+                      placeholder="Найти исполнителя по навыкам, локации..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10"
@@ -259,9 +255,10 @@ const AvailableOrders = () => {
                       <SelectValue placeholder="Все категории" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="all">Все категории</SelectItem>
                       {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -277,7 +274,7 @@ const AvailableOrders = () => {
                     <X className="w-4 h-4 mr-2" />
                     Сбросить
                     <Badge className="ml-2 bg-primary/20 text-primary border-primary/20">
-                      {[searchQuery.trim() !== '', selectedCategory !== 'Все категории'].filter(Boolean).length}
+                      {[searchQuery.trim() !== '', selectedCategory !== 'all'].filter(Boolean).length}
                     </Badge>
                   </Button>
                 )}
@@ -285,27 +282,27 @@ const AvailableOrders = () => {
             </div>
             
             {/* Results Count */}
-            {filteredAds.length > 0 && (
+            {filteredResumes.length > 0 && (
               <div className="mt-3 text-center">
                 <span className="text-steel-400 text-sm">
-                  Найдено {filteredAds.length} резюме
+                  Найдено {filteredResumes.length} резюме
                 </span>
               </div>
             )}
           </Card>
 
-          {/* Ads List */}
+          {/* Resumes List */}
           {isLoading ? (
             <Card className="card-steel p-8 text-center">
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-steel-300">Загрузка резюме...</p>
             </Card>
-          ) : filteredAds.length === 0 ? (
+          ) : filteredResumes.length === 0 ? (
             <Card className="card-steel p-8 text-center space-y-4">
               <HelpCircle className="w-16 h-16 text-steel-500 mx-auto" />
               <h3 className="text-xl font-bold text-steel-300">Резюме не найдены</h3>
               <p className="text-steel-400">
-                {searchQuery || selectedCategory !== 'Все категории'
+                {searchQuery || selectedCategory !== 'all'
                   ? 'Попробуйте изменить параметры поиска'
                   : 'Пока что специалисты не разместили свои резюме'}
               </p>
@@ -326,26 +323,41 @@ const AvailableOrders = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {filteredAds.map((ad) => {
-                const profile = profiles[ad.user_id];
+              {filteredResumes.map((resume) => {
+                const profile = profiles[resume.user_id];
                 return (
-                  <Card key={ad.id} className="card-steel p-6">
+                  <Card key={resume.id} className="card-steel p-6">
                     <div className="space-y-4">
                       {/* Header */}
                       <div className="flex items-start justify-between">
-                        <div className="space-y-2">
+                        <div className="space-y-2 flex-1">
                           <div className="flex items-center space-x-2">
-                            <Briefcase className="w-5 h-5 text-primary" />
-                            <h3 className="text-xl font-bold text-steel-100">{ad.title}</h3>
+                            <Award className="w-5 h-5 text-primary" />
+                            <h3 className="text-xl font-bold text-steel-100">{resume.title}</h3>
                           </div>
-                          <div className="flex items-center space-x-2 text-sm text-steel-400">
-                            <span>{ad.category || 'Без категории'}</span>
+                          <div className="flex items-center space-x-4 text-sm text-steel-400">
+                            <span>{resume.categories?.name || 'Без категории'}</span>
+                            {resume.experience_years > 0 && (
+                              <>
+                                <span>•</span>
+                                <span>Опыт: {resume.experience_years} лет</span>
+                              </>
+                            )}
+                            {resume.location && (
+                              <>
+                                <span>•</span>
+                                <div className="flex items-center space-x-1">
+                                  <MapPin className="w-3 h-3" />
+                                  <span>{resume.location}</span>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
                         
                         <div className="text-right space-y-2">
                           <div className="text-2xl font-bold text-primary">
-                            {ad.price.toLocaleString('ru-RU')} ₽
+                            {resume.hourly_rate.toLocaleString('ru-RU')} ₽/час
                           </div>
                           <Badge className="text-green-400 bg-green-400/10 border-green-400/20">
                             Активное резюме
@@ -353,17 +365,35 @@ const AvailableOrders = () => {
                         </div>
                       </div>
 
+                      {/* Skills */}
+                      {resume.skills && resume.skills.length > 0 && (
+                        <div>
+                          <div className="flex flex-wrap gap-2">
+                            {resume.skills.slice(0, 5).map((skill, index) => (
+                              <Badge key={index} variant="outline" className="text-steel-300 border-steel-500">
+                                {skill}
+                              </Badge>
+                            ))}
+                            {resume.skills.length > 5 && (
+                              <Badge variant="outline" className="text-steel-400 border-steel-600">
+                                +{resume.skills.length - 5} еще
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Description */}
-                      {ad.description && (
-                        <p className="text-steel-200">{ad.description}</p>
+                      {resume.description && (
+                        <p className="text-steel-200 line-clamp-3">{resume.description}</p>
                       )}
 
                       {/* Profile Info */}
                       <div className="flex items-center justify-between pt-4 border-t border-steel-600">
                         <div className="flex items-center space-x-3">
-                          <Avatar className="w-10 h-10">
+                          <Avatar className="w-12 h-12">
                             <AvatarImage src={profile?.avatar_url || profile?.telegram_photo_url} />
-                            <AvatarFallback>
+                            <AvatarFallback className="bg-gradient-to-br from-primary to-electric-600">
                               {(profile?.display_name || profile?.full_name || 'И').charAt(0)}
                             </AvatarFallback>
                           </Avatar>
@@ -377,14 +407,14 @@ const AvailableOrders = () => {
                                   <Star
                                     key={index}
                                     className={`w-3 h-3 ${
-                                      index < (profile?.rating || 0) ? 'text-yellow-400 fill-current' : 'text-steel-500'
+                                      index < Math.floor(profile?.rating || 0) ? 'text-yellow-400 fill-current' : 'text-steel-500'
                                     }`}
                                   />
                                 ))}
                               </div>
                               <span className="text-xs text-steel-500">•</span>
                               <p className="text-xs text-steel-400">
-                                {format(new Date(ad.created_at), 'dd.MM.yyyy', { locale: ru })}
+                                {format(new Date(resume.created_at), 'dd.MM.yyyy', { locale: ru })}
                               </p>
                             </div>
                           </div>
@@ -397,9 +427,9 @@ const AvailableOrders = () => {
                           </Button>
                           <Button 
                             size="sm"
-                            onClick={() => handleViewDetails(ad)}
                             className="bg-primary hover:bg-primary/80"
                           >
+                            <FileText className="w-4 h-4 mr-1" />
                             Подробнее
                           </Button>
                         </div>
@@ -412,13 +442,6 @@ const AvailableOrders = () => {
           )}
         </div>
       </div>
-
-      {/* Ad Details Modal */}
-      <AdDetailsModal
-        isOpen={showDetailsModal}
-        onClose={() => setShowDetailsModal(false)}
-        ad={selectedAd}
-      />
     </Layout>
   );
 };

@@ -635,6 +635,71 @@ export type Database = {
         }
         Relationships: []
       }
+      resumes: {
+        Row: {
+          availability: string | null
+          category_id: string
+          contact_info: string | null
+          created_at: string
+          description: string | null
+          education: string | null
+          experience_years: number | null
+          hourly_rate: number
+          id: string
+          location: string | null
+          portfolio_url: string | null
+          skills: string[] | null
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string | null
+          category_id: string
+          contact_info?: string | null
+          created_at?: string
+          description?: string | null
+          education?: string | null
+          experience_years?: number | null
+          hourly_rate?: number
+          id?: string
+          location?: string | null
+          portfolio_url?: string | null
+          skills?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string | null
+          category_id?: string
+          contact_info?: string | null
+          created_at?: string
+          description?: string | null
+          education?: string | null
+          experience_years?: number | null
+          hourly_rate?: number
+          id?: string
+          location?: string | null
+          portfolio_url?: string | null
+          skills?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_resumes_category"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_reports: {
         Row: {
           created_at: string | null
