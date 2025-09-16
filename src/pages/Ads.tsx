@@ -162,95 +162,46 @@ export default function Ads() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <BackButton onClick={() => window.history.back()} />
-            <h1 className="text-3xl font-bold text-glow">Доска объявлений</h1>
+            <h1 className="text-3xl font-bold text-glow">Поиск исполнителей</h1>
             <Link to="/create-ad">
               <Button className="bg-primary hover:bg-primary/80">
                 <Plus className="w-4 h-4 mr-2" />
-                Разместить
+                Создать резюме
               </Button>
             </Link>
           </div>
 
-          {/* Information Banner */}
+          {/* Simple Information Banner */}
           <Card className="card-steel border-primary/20">
-            <div className="p-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <Info className="w-5 h-5 text-primary" />
+            <div className="p-4 text-center">
+              <div className="flex items-center justify-center space-x-2 mb-3">
+                <User className="w-6 h-6 text-primary" />
+                <h3 className="text-xl font-semibold text-steel-100">Резюме исполнителей</h3>
+              </div>
+              <p className="text-steel-300 text-base mb-4">
+                Здесь исполнители размещают свои резюме и предлагают услуги
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+                <div className="flex items-center space-x-2 text-steel-400">
+                  <Lightbulb className="w-4 h-4 text-yellow-400" />
+                  <span>Пример: "Опытный грузчик, работаю по выходным"</span>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-steel-100 mb-2">Что такое доска объявлений?</h3>
-                    <Link to="/orders" className="text-primary hover:text-primary/80 text-sm font-medium">
-                      Перейти к заказам →
-                    </Link>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm text-steel-300">
-                    <div className="space-y-2">
-                      <p className="flex items-center space-x-2">
-                        <Lightbulb className="w-4 h-4 text-yellow-400" />
-                        <span><strong>Объявления</strong> - это долгосрочные предложения услуг</span>
-                      </p>
-                      <p className="flex items-center space-x-2">
-                        <User className="w-4 h-4 text-blue-400" />
-                        <span>Рабочие размещают: "Грузчик, работаю по выходным"</span>
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4 text-green-400" />
-                        <span><strong>Заказы</strong> - это конкретные задания с дедлайном</span>
-                      </p>
-                      <p className="flex items-center space-x-2">
-                        <DollarSign className="w-4 h-4 text-primary" />
-                        <span>Заказчики создают: "Нужен переезд 20 января"</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
+                <Link to="/orders" className="text-primary hover:text-primary/80 font-medium">
+                  Ищете конкретную работу? Перейти к заказам →
+                </Link>
               </div>
             </div>
           </Card>
 
-          {/* Quick Navigation */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="card-steel p-4 hover:border-primary/40 transition-colors">
-              <Link to="/orders" className="block">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-steel-100">Заказы</h3>
-                    <p className="text-sm text-steel-400">Разовые задания на работу</p>
-                  </div>
-                  <div className="text-primary">→</div>
-                </div>
-              </Link>
-            </Card>
-            
-            <Card className="card-steel p-4 border-primary/40">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <User className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-steel-100">Объявления</h3>
-                  <p className="text-sm text-steel-400">Резюме рабочих</p>
-                </div>
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Filters */}
-          <Card className="card-steel p-6">
-            <div className="grid md:grid-cols-4 gap-4">
+          {/* Simple Filters */}
+          <Card className="card-steel p-4">
+            <div className="grid md:grid-cols-3 gap-4">
               {/* Search */}
-              <div className="relative">
+              <div className="relative md:col-span-2">
                 <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
                 <Input
-                  placeholder="Поиск объявлений..."
+                  placeholder="Найти исполнителя по навыкам или опыту..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -260,38 +211,26 @@ export default function Ads() {
               {/* Category Filter */}
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Категория" />
+                  <SelectValue placeholder="Все специальности" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
-                      {category}
+                      {category === 'Все категории' ? 'Все специальности' : category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
-              {/* Sort */}
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Сортировка" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Results Count */}
-              <div className="flex items-center justify-center">
-                <span className="text-steel-300 text-sm">
-                  Найдено: {filteredAds.length} объявлений
+            </div>
+            
+            {/* Results Count */}
+            {filteredAds.length > 0 && (
+              <div className="mt-3 text-center">
+                <span className="text-steel-400 text-sm">
+                  Найдено {filteredAds.length} исполнителей
                 </span>
               </div>
-            </div>
+            )}
           </Card>
 
           {/* Ads Grid */}
@@ -301,35 +240,25 @@ export default function Ads() {
                 <div className="w-16 h-16 bg-steel-600/20 rounded-full flex items-center justify-center mx-auto">
                   <HelpCircle className="w-8 h-8 text-steel-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-steel-100">Объявлений не найдено</h3>
+                <h3 className="text-xl font-semibold text-steel-100">Исполнители не найдены</h3>
                 <p className="text-steel-300 max-w-md mx-auto">
                   {searchQuery || selectedCategory !== 'Все категории'
-                    ? 'Попробуйте изменить параметры поиска или стать первым в этой категории'
-                    : 'Станьте первым, кто разместит объявление на платформе!'}
+                    ? 'Попробуйте изменить параметры поиска'
+                    : 'Пока что исполнители не разместили свои резюме'}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
                   <Link to="/create-ad">
                     <Button className="bg-primary hover:bg-primary/80">
                       <Plus className="w-4 h-4 mr-2" />
-                      Разместить объявление
+                      Создать резюме
                     </Button>
                   </Link>
                   <Link to="/orders">
                     <Button variant="outline">
                       <Calendar className="w-4 h-4 mr-2" />
-                      Перейти к заказам
+                      Найти работу
                     </Button>
                   </Link>
-                </div>
-                <div className="mt-6 p-4 bg-steel-800/30 rounded-lg text-left">
-                  <h4 className="font-semibold text-steel-100 mb-2 flex items-center">
-                    <Lightbulb className="w-4 h-4 mr-2 text-yellow-400" />
-                    Подсказка
-                  </h4>
-                  <p className="text-sm text-steel-300">
-                    <strong>Объявления</strong> подходят для постоянных услуг: "Грузчик на выходные", "Бригада разнорабочих". 
-                    <strong> Заказы</strong> - для разовых задач: "Переезд 20 января", "Разгрузка фуры завтра".
-                  </p>
                 </div>
               </div>
             </Card>
