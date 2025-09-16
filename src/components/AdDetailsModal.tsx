@@ -57,7 +57,7 @@ export function AdDetailsModal({ ad, isOpen, onClose }: AdDetailsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="card-steel max-w-2xl max-h-[80vh] overflow-y-auto !animate-none !transition-none !transform-none">
+      <DialogContent className="card-steel max-w-2xl max-h-[80vh] overflow-y-auto data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <DialogTitle className="text-xl font-bold text-steel-100 pr-4">
