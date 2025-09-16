@@ -393,7 +393,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             </div>
 
             <div>
-              <Label htmlFor="max_revisions">Максимум доработок</Label>
+              <Label htmlFor="max_revisions">Количество людей</Label>
               <Select
                 value={orderData.max_revisions}
                 onValueChange={(value) => setOrderData(prev => ({ ...prev, max_revisions: value }))}
@@ -402,11 +402,11 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">1 доработка</SelectItem>
-                  <SelectItem value="2">2 доработки</SelectItem>
-                  <SelectItem value="3">3 доработки (рекомендуется)</SelectItem>
-                  <SelectItem value="5">5 доработок</SelectItem>
-                  <SelectItem value="unlimited">Без ограничений</SelectItem>
+                  <SelectItem value="1">1 человек</SelectItem>
+                  <SelectItem value="2">2 человека</SelectItem>
+                  <SelectItem value="3">3 человека (рекомендуется)</SelectItem>
+                  <SelectItem value="5">5 человек</SelectItem>
+                  <SelectItem value="10">10+ человек</SelectItem>
                 </SelectContent>
               </Select>
             </div>
