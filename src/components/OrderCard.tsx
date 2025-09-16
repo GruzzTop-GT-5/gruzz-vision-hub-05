@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { OrderDetailsModal } from '@/components/OrderDetailsModal';
+import { ReviewModal } from '@/components/ReviewModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -72,6 +74,8 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
   const [statusReason, setStatusReason] = useState('');
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [newStatus, setNewStatus] = useState('');
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const isClient = user?.id === order.client_id;
   const isExecutor = user?.id === order.executor_id;
@@ -342,13 +346,21 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
               Чат
             </Button>
             
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowDetailsModal(true)}
+            >
               <FileText className="w-4 h-4 mr-1" />
               Детали
             </Button>
 
             {order.status === 'completed' && (
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowReviewModal(true)}
+              >
                 <Star className="w-4 h-4 mr-1" />
                 Оценить
               </Button>
@@ -430,6 +442,32 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
             <div>Отменен: {format(new Date(order.cancelled_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</div>
           )}
         </div>
+
+        {/* Order Details Modal */}
+        <OrderDetailsModal
+          isOpen={showDetailsModal}
+          onClose={() => setShowDetailsModal(false)}
+          order={order}
+          clientProfile={clientProfile}
+          executorProfile={executorProfile}
+          onUpdate={onUpdate}
+        />
+
+        {/* Review Modal */}
+        {showReviewModal && (
+          <ReviewModal
+            isOpen={showReviewModal}
+            onClose={() => setShowReviewModal(false)}
+            orderId={order.id}
+            reviewedUserId={isClient ? order.executor_id! : order.client_id}
+            reviewedUserName={
+              isClient 
+                ? (executorProfile?.display_name || executorProfile?.full_name || 'Исполнитель')
+                : (clientProfile?.display_name || clientProfile?.full_name || 'Клиент')
+            }
+            onReviewSubmitted={onUpdate}
+          />
+        )}
       </CardContent>
     </Card>
   );
