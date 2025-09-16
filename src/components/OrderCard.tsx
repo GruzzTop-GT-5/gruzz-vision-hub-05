@@ -245,6 +245,16 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
   const handleChatClick = async () => {
     if (!user?.id) return;
     
+    // Проверяем, что у нас есть второй участник для чата
+    if (!order.executor_id) {
+      toast({
+        title: "Чат недоступен",
+        description: "Чат будет доступен после назначения исполнителя",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsCreatingChat(true);
     try {
       // Ищем существующую беседу для этого заказа

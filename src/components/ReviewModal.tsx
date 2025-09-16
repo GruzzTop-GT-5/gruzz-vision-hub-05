@@ -43,6 +43,17 @@ export const ReviewModal = ({
       return;
     }
 
+    // Проверяем лимит слов
+    const wordCount = comment.trim() ? comment.trim().split(/\s+/).length : 0;
+    if (wordCount > 100) {
+      toast({
+        title: "Ошибка",
+        description: "Комментарий не должен содержать более 100 слов",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase
@@ -55,7 +66,18 @@ export const ReviewModal = ({
           comment: comment.trim() || null
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Ошибка",
+            description: "Вы уже оставляли отзыв по этому заказу",
+            variant: "destructive"
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
 
       toast({
         title: "Отзыв отправлен",
@@ -133,15 +155,23 @@ export const ReviewModal = ({
           </div>
 
           <div>
-            <Label htmlFor="comment">Комментарий (необязательно)</Label>
+            <Label htmlFor="comment">Комментарий (необязательно, не более 100 слов)</Label>
             <Textarea
               id="comment"
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              onChange={(e) => {
+                const words = e.target.value.trim().split(/\s+/);
+                if (words.length <= 100 || words[0] === '') {
+                  setComment(e.target.value);
+                }
+              }}
               placeholder="Расскажите о своем опыте работы..."
               className="mt-1"
               rows={4}
             />
+            <p className="text-xs text-steel-400 mt-1">
+              Слов: {comment.trim() ? comment.trim().split(/\s+/).length : 0}/100
+            </p>
           </div>
 
           <div className="flex space-x-2">

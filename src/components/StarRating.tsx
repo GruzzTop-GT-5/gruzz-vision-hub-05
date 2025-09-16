@@ -26,6 +26,7 @@ export const StarRating = ({
 
   const handleStarClick = (starRating: number) => {
     if (interactive && onRatingChange) {
+      // Предотвращаем сброс рейтинга при повторном клике
       onRatingChange(starRating);
     }
   };
@@ -38,7 +39,7 @@ export const StarRating = ({
         const isHalfStar = starRating === Math.ceil(rating) && rating % 1 !== 0;
         
         return (
-          <button
+            <button
             key={index}
             type="button"
             onClick={() => handleStarClick(starRating)}
@@ -46,7 +47,7 @@ export const StarRating = ({
             className={cn(
               sizes[size],
               interactive 
-                ? "cursor-pointer hover:scale-110 transition-transform duration-200" 
+                ? "cursor-pointer hover:scale-110 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded" 
                 : "cursor-default",
               "relative"
             )}
