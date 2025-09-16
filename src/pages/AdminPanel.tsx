@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -286,6 +287,11 @@ export default function AdminPanel() {
   // Ad moderation modal state
   const [adModerationOpen, setAdModerationOpen] = useState(false);
   const [selectedAd, setSelectedAd] = useState<any>(null);
+  
+  // Delete ad modal state
+  const [deleteAdModalOpen, setDeleteAdModalOpen] = useState(false);
+  const [deleteAdId, setDeleteAdId] = useState('');
+  const [deleteAdReason, setDeleteAdReason] = useState('');
 
   // Clear filter functions
   const clearUserFilter = () => setUserFilter('');
@@ -1091,24 +1097,48 @@ export default function AdminPanel() {
     }
   };
 
-  const deleteAd = async (adId: string) => {
+  const deleteAd = async (adId: string, reason: string) => {
     try {
-      console.log('Deleting ad:', adId);
+      console.log('Deleting ad:', adId, 'reason:', reason);
       
-      const { error } = await supabase
+      // First update the ad status to inactive and add the reason
+      const { error: updateError } = await supabase
         .from('ads')
-        .delete()
+        .update({ 
+          status: 'inactive',
+          moderation_comment: reason,
+          moderated_at: new Date().toISOString(),
+          moderated_by: user?.id
+        })
         .eq('id', adId);
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+      if (updateError) {
+        console.error('Supabase update error:', updateError);
+        throw updateError;
       }
 
       console.log('Ad deletion successful');
 
-      // Log admin action
-      await logAdminAction(`Удаление объявления`, adId, 'ad');
+      // Log admin action with reason
+      await logAdminAction(`Удаление объявления. Причина: ${reason}`, adId, 'ad');
+
+      // Send notification to user
+      const { data: adData } = await supabase
+        .from('ads')
+        .select('user_id, title')
+        .eq('id', adId)
+        .single();
+
+      if (adData) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: adData.user_id,
+            type: 'ad_moderation',
+            title: 'Объявление удалено',
+            content: `Ваше объявление "${adData.title}" было удалено администратором. Причина: ${reason}`
+          });
+      }
 
       toast({
         title: "Объявление удалено",
@@ -1126,6 +1156,22 @@ export default function AdminPanel() {
         variant: "destructive"
       });
     }
+  };
+
+  const handleDeleteAd = () => {
+    if (!deleteAdReason.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Укажите причину удаления объявления",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    deleteAd(deleteAdId, deleteAdReason);
+    setDeleteAdModalOpen(false);
+    setDeleteAdReason('');
+    setDeleteAdId('');
   };
 
   const moderateOrder = async (orderId: string, status: string, reason?: string) => {
@@ -1703,6 +1749,7 @@ export default function AdminPanel() {
                               size="sm"
                               variant="outline"
                               onClick={() => {
+                                console.log('Opening moderation modal for ad:', ad.id);
                                 setSelectedAd(ad);
                                 setAdModerationOpen(true);
                               }}
@@ -1710,16 +1757,15 @@ export default function AdminPanel() {
                               title="Расширенная модерация"
                             >
                               <Settings className="w-4 h-4" />
-                             </Button>
+                            </Button>
                             
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                console.log('Deleting ad:', ad.id);
-                                if (confirm('Вы уверены, что хотите удалить это объявление?')) {
-                                  deleteAd(ad.id);
-                                }
+                                console.log('Opening delete modal for ad:', ad.id);
+                                setDeleteAdId(ad.id);
+                                setDeleteAdModalOpen(true);
                               }}
                               className="text-red-500 border-red-500/20 hover:bg-red-500/10"
                               title="Удалить объявление"
@@ -2802,6 +2848,48 @@ export default function AdminPanel() {
       )}
       
       {/* Ad Moderation Modal */}
+      {/* Delete Ad Modal */}
+      {deleteAdModalOpen && (
+        <AlertDialog open={deleteAdModalOpen} onOpenChange={setDeleteAdModalOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Удалить объявление</AlertDialogTitle>
+              <AlertDialogDescription>
+                Укажите причину удаления объявления. Эта информация будет отправлена пользователю.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="deleteReason">Причина удаления</Label>
+                <Textarea
+                  id="deleteReason"
+                  placeholder="Укажите причину удаления..."
+                  value={deleteAdReason}
+                  onChange={(e) => setDeleteAdReason(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setDeleteAdModalOpen(false);
+                setDeleteAdReason('');
+                setDeleteAdId('');
+              }}>
+                Отмена
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteAd}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={!deleteAdReason.trim()}
+              >
+                Удалить
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
       <AdModerationModal
         ad={selectedAd}
         isOpen={adModerationOpen}
