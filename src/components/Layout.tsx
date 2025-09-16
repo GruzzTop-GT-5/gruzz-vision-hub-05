@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone, Search, Plus, Wallet } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Link, useLocation } from 'react-router-dom';
 import { TelegramLayout } from './TelegramLayout';
 import { useTelegram } from '@/hooks/useTelegram';
+import { supabase } from '@/integrations/supabase/client';
 import logoImage from '@/assets/logo-round.png';
 
 interface LayoutProps {
@@ -16,8 +18,24 @@ interface LayoutProps {
 
 export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [profileData, setProfileData] = useState<{ avatar_url?: string; telegram_photo_url?: string } | null>(null);
   const location = useLocation();
   const { isInTelegram, hapticFeedback } = useTelegram();
+
+  // Fetch user profile data
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('avatar_url, telegram_photo_url')
+          .eq('id', user.id)
+          .maybeSingle();
+        setProfileData(data);
+      };
+      fetchProfile();
+    }
+  }, [user]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -108,9 +126,17 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
           {user && (
             <div className="mb-8 pb-6 border-b border-steel-600">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center">
-                  <UserIcon className="w-6 h-6 text-steel-900" />
-                </div>
+                <Avatar className="w-12 h-12">
+                  {profileData?.avatar_url ? (
+                    <AvatarImage src={profileData.avatar_url} alt="Profile" />
+                  ) : profileData?.telegram_photo_url ? (
+                    <AvatarImage src={profileData.telegram_photo_url} alt="Profile" />
+                  ) : (
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-electric-600">
+                      <UserIcon className="w-6 h-6 text-steel-900" />
+                    </AvatarFallback>
+                  )}
+                </Avatar>
                 <div>
                   <p className="text-steel-100 font-medium">Мой аккаунт</p>
                   {userRole && userRole !== 'user' && (
