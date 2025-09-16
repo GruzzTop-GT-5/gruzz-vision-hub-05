@@ -111,6 +111,15 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
   };
 
   const submitTransaction = async (method: string, isManual: boolean = false) => {
+    // Validate payment method
+    if (!method || !['bank_card', 'yoomoney', 'ozon', 'manual_transfer'].includes(method)) {
+      toast({
+        title: "Ошибка",
+        description: "Выберите способ оплаты",
+        variant: "destructive"
+      });
+      return;
+    }
     if (!amount || parseFloat(amount) <= 0) {
       toast({
         title: "Ошибка",
@@ -153,9 +162,9 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
           user_id: userId,
           type: 'deposit' as Database['public']['Enums']['transaction_type'],
           amount: parseFloat(amount),
-          payment_method: method as Database['public']['Enums']['payment_method'],
+          payment_method: method as 'bank_card' | 'yoomoney' | 'ozon' | 'manual_transfer',
           proof_image: proofImageUrl || null,
-          payment_details: paymentDetails as any
+          payment_details: paymentDetails ? JSON.parse(JSON.stringify(paymentDetails)) : null
         });
 
       if (error) throw error;
@@ -324,7 +333,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
 
                 <Button
                   onClick={() => submitTransaction(selectedPaymentMethod)}
-                  disabled={loading || !proofImage}
+                  disabled={loading || !proofImage || !selectedPaymentMethod}
                   className="w-full btn-3d"
                 >
                   {loading ? "Отправка..." : "Подтвердить платеж"}
