@@ -58,8 +58,8 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   const menuItems = [
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: Megaphone, label: 'Заказы на работу', href: '/ads' },
-    { icon: Package, label: 'Мои публикации', href: '/my-ads' },
     { icon: Search, label: 'Вакансии', href: '/available-orders' },
+    { icon: Package, label: 'Мои публикации', href: '/my-ads' },
     { icon: ShoppingBag, label: 'Мои заказы', href: '/orders' },
     { icon: MessageCircle, label: 'Чаты и поддержка', href: '/chat-system' },
     { icon: CreditCard, label: 'Баланс + Пополнение', href: '/balance' },
