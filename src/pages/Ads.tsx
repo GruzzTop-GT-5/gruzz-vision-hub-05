@@ -187,8 +187,8 @@ export default function Ads() {
                   <span>Пример: "Опытный грузчик, работаю по выходным"</span>
                 </div>
                 <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
-                <Link to="/orders" className="text-primary hover:text-primary/80 font-medium">
-                  Ищете конкретную работу? Перейти к заказам →
+                <Link to="/available-orders" className="text-primary hover:text-primary/80 font-medium">
+                  Ищете конкретную работу? Найти работу →
                 </Link>
               </div>
             </div>
