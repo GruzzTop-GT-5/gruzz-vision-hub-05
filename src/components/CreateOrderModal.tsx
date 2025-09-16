@@ -18,7 +18,7 @@ import { ru } from 'date-fns/locale';
 
 const ORDER_CATEGORIES = [
   'Грузчики',
-  'Разнорабочие',
+  'Разнорабочие', 
   'Квартирный переезд',
   'Офисный переезд',
   'Погрузка/разгрузка',
@@ -34,12 +34,17 @@ const ORDER_CATEGORIES = [
   'Другое'
 ];
 
-const DELIVERY_FORMATS = [
-  'Работа на объекте',
-  'Почасовая оплата',
-  'Сдельная работа',
-  'Фотоотчет о выполнении',
-  'Другое'
+const PAYMENT_TYPES = [
+  'hourly', // Почасовая оплата
+  'daily',  // Дневная оплата  
+  'project' // За весь объем работ
+];
+
+const WORK_FORMATS = [
+  'На объекте заказчика',
+  'С проживанием на объекте',
+  'Удаленно (если возможно)',
+  'По графику заказчика'
 ];
 
 interface CreateOrderModalProps {
@@ -61,12 +66,15 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     description: '',
     category: '',
     price: '',
+    payment_type: 'daily', // hourly, daily, project
     priority: 'normal',
     deadline: null as Date | null,
-    delivery_format: '',
-    max_revisions: '3',
+    work_format: '',
+    people_count: '2',
+    work_duration: '',
     client_requirements: {
       specifications: '',
+      location: '',
       additional_notes: '',
       preferred_communication: 'chat'
     }
@@ -140,13 +148,18 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
           deadline: orderData.deadline?.toISOString(),
           client_id: user.id,
           ad_id: adId || null,
-          delivery_format: orderData.delivery_format,
-          max_revisions: parseInt(orderData.max_revisions),
+          delivery_format: orderData.work_format,
+          max_revisions: parseInt(orderData.people_count),
           commission_rate: commissionRate,
           platform_fee: platformFee,
+          payment_method: orderData.payment_type,
           client_requirements: {
             ...orderData.client_requirements,
+            payment_type: orderData.payment_type,
+            work_duration: orderData.work_duration,
+            people_count: orderData.people_count,
             specifications: sanitizeInput(orderData.client_requirements.specifications),
+            location: sanitizeInput(orderData.client_requirements.location),
             additional_notes: sanitizeInput(orderData.client_requirements.additional_notes)
           }
         } as any)
@@ -203,12 +216,15 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         description: '',
         category: '',
         price: '',
+        payment_type: 'daily',
         priority: 'normal',
         deadline: null,
-        delivery_format: '',
-        max_revisions: '3',
+        work_format: '',
+        people_count: '2',
+        work_duration: '',
         client_requirements: {
           specifications: '',
+          location: '',
           additional_notes: '',
           preferred_communication: 'chat'
         }
@@ -255,25 +271,25 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             </div>
 
             <div>
-              <Label htmlFor="description">Подробное описание *</Label>
+              <Label htmlFor="description">Описание работы *</Label>
               <Textarea
                 id="description"
                 value={orderData.description}
                 onChange={(e) => setOrderData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Детали: адрес, этажность, объем груза, время работы"
-                className="mt-1 min-h-[100px]"
+                placeholder="Подробно опишите что нужно сделать, условия работы, требования"
+                className="mt-1 min-h-[120px]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="category">Категория</Label>
+                <Label htmlFor="category">Тип работы</Label>
                 <Select
                   value={orderData.category}
                   onValueChange={(value) => setOrderData(prev => ({ ...prev, category: value }))}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Выберите категорию" />
+                    <SelectValue placeholder="Выберите тип работы" />
                   </SelectTrigger>
                   <SelectContent>
                     {ORDER_CATEGORIES.map(category => (
@@ -286,7 +302,31 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               </div>
 
               <div>
-                <Label htmlFor="price">Оплата (₽) *</Label>
+                <Label htmlFor="payment_type">Тип оплаты</Label>
+                <Select
+                  value={orderData.payment_type}
+                  onValueChange={(value) => setOrderData(prev => ({ ...prev, payment_type: value }))}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hourly">Почасовая оплата</SelectItem>
+                    <SelectItem value="daily">Дневная оплата</SelectItem>
+                    <SelectItem value="project">За весь объем</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price">
+                  Оплата (₽) * 
+                  {orderData.payment_type === 'hourly' && ' за час'}
+                  {orderData.payment_type === 'daily' && ' за день'}
+                  {orderData.payment_type === 'project' && ' за весь объем'}
+                </Label>
                 <Input
                   id="price"
                   type="number"
@@ -294,38 +334,40 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   step="0.01"
                   value={orderData.price}
                   onChange={(e) => setOrderData(prev => ({ ...prev, price: e.target.value }))}
-                  placeholder="Сумма оплаты за работу"
+                  placeholder={
+                    orderData.payment_type === 'hourly' ? "Ставка за час" :
+                    orderData.payment_type === 'daily' ? "Оплата за день" :
+                    "Общая сумма"
+                  }
                   className="mt-1"
                 />
-                {orderData.price && !isNaN(parseFloat(orderData.price)) && parseFloat(orderData.price) > 0 && (
-                  <div className="text-xs text-steel-400 mt-1">
-                    ≈ {formatRubles(parseFloat(orderData.price))} (курс: 1 GT = 1 ₽)
-                  </div>
-                )}
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="priority">Приоритет</Label>
+                <Label htmlFor="people_count">Количество рабочих</Label>
                 <Select
-                  value={orderData.priority}
-                  onValueChange={(value) => setOrderData(prev => ({ ...prev, priority: value }))}
+                  value={orderData.people_count}
+                  onValueChange={(value) => setOrderData(prev => ({ ...prev, people_count: value }))}
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Низкий</SelectItem>
-                    <SelectItem value="normal">Обычный</SelectItem>
-                    <SelectItem value="high">Высокий</SelectItem>
-                    <SelectItem value="urgent">Срочный (+20% к стоимости)</SelectItem>
+                    <SelectItem value="1">1 человек</SelectItem>
+                    <SelectItem value="2">2 человека</SelectItem>
+                    <SelectItem value="3">3 человека</SelectItem>
+                    <SelectItem value="4">4 человека</SelectItem>
+                    <SelectItem value="5">5 человек</SelectItem>
+                    <SelectItem value="6">6 человек</SelectItem>
+                    <SelectItem value="10">10+ человек</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Срок выполнения</Label>
+                <Label>Дата начала работы</Label>
                 <Popover open={showCalendar} onOpenChange={setShowCalendar}>
                   <PopoverTrigger asChild>
                     <Button
@@ -354,24 +396,62 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   </PopoverContent>
                 </Popover>
               </div>
+
+              <div>
+                <Label htmlFor="work_duration">Продолжительность работы</Label>
+                <Select
+                  value={orderData.work_duration}
+                  onValueChange={(value) => setOrderData(prev => ({ ...prev, work_duration: value }))}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Сколько дней/часов" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-day">1 день</SelectItem>
+                    <SelectItem value="2-days">2 дня</SelectItem>
+                    <SelectItem value="3-days">3 дня</SelectItem>
+                    <SelectItem value="1-week">1 неделя</SelectItem>
+                    <SelectItem value="2-weeks">2 недели</SelectItem>
+                    <SelectItem value="1-month">1 месяц</SelectItem>
+                    <SelectItem value="ongoing">На постоянной основе</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
           {/* Requirements */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-steel-100">Требования к выполнению</h3>
+            <h3 className="text-lg font-semibold text-steel-100">Условия работы</h3>
             
             <div>
-              <Label htmlFor="delivery_format">Формат предоставления результата</Label>
+              <Label htmlFor="location">Адрес объекта *</Label>
+              <Textarea
+                id="location"
+                value={orderData.client_requirements.location}
+                onChange={(e) => setOrderData(prev => ({
+                  ...prev,
+                  client_requirements: {
+                    ...prev.client_requirements,
+                    location: e.target.value
+                  }
+                }))}
+                placeholder="Точный адрес, этажность, наличие лифта, особенности объекта"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="work_format">Формат работы</Label>
               <Select
-                value={orderData.delivery_format}
-                onValueChange={(value) => setOrderData(prev => ({ ...prev, delivery_format: value }))}
+                value={orderData.work_format}
+                onValueChange={(value) => setOrderData(prev => ({ ...prev, work_format: value }))}
               >
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Как должен быть предоставлен результат" />
+                  <SelectValue placeholder="Выберите формат работы" />
                 </SelectTrigger>
                 <SelectContent>
-                  {DELIVERY_FORMATS.map(format => (
+                  {WORK_FORMATS.map(format => (
                     <SelectItem key={format} value={format}>
                       {format}
                     </SelectItem>
@@ -381,7 +461,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             </div>
 
             <div>
-              <Label htmlFor="specifications">Особые требования</Label>
+              <Label htmlFor="specifications">Требования к рабочим</Label>
               <Textarea
                 id="specifications"
                 value={orderData.client_requirements.specifications}
@@ -392,32 +472,13 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                     specifications: e.target.value
                   }
                 }))}
-                placeholder="Требования к рабочим: опыт, физическая подготовка, наличие инструментов"
+                placeholder="Опыт работы, физическая подготовка, наличие инструментов, спецодежды"
                 className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="max_revisions">Количество людей</Label>
-              <Select
-                value={orderData.max_revisions}
-                onValueChange={(value) => setOrderData(prev => ({ ...prev, max_revisions: value }))}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 человек</SelectItem>
-                  <SelectItem value="2">2 человека</SelectItem>
-                  <SelectItem value="3">3 человека (рекомендуется)</SelectItem>
-                  <SelectItem value="5">5 человек</SelectItem>
-                  <SelectItem value="10">10+ человек</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="additional_notes">Дополнительные замечания</Label>
+              <Label htmlFor="additional_notes">График и условия оплаты</Label>
               <Textarea
                 id="additional_notes"
                 value={orderData.client_requirements.additional_notes}
@@ -428,13 +489,13 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                     additional_notes: e.target.value
                   }
                 }))}
-                placeholder="Дополнительная информация об условиях работы, времени, оплате"
+                placeholder="Рабочее время, перерывы, питание, когда и как будет производиться оплата"
                 className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="communication">Предпочитаемый способ связи</Label>
+              <Label htmlFor="communication">Способ связи</Label>
               <Select
                 value={orderData.client_requirements.preferred_communication}
                 onValueChange={(value) => setOrderData(prev => ({
@@ -449,10 +510,10 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="chat">Чат на платформе</SelectItem>
                   <SelectItem value="telegram">Telegram</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="phone">Телефон</SelectItem>
+                  <SelectItem value="chat">Чат на платформе</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
                 </SelectContent>
               </Select>
             </div>
