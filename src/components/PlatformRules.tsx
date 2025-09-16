@@ -199,7 +199,7 @@ export const PlatformRules: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm">
-            <strong>Email поддержки:</strong> support@gruzztop.ru
+            <strong>Email поддержки:</strong> gruztop00@gmail.com
           </p>
           <p className="text-sm">
             <strong>Часы работы поддержки:</strong> Пн-Пт 9:00-18:00 (МСК)
