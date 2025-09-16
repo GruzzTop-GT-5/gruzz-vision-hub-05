@@ -82,18 +82,20 @@ const Orders = () => {
     try {
       setIsLoading(true);
 
-      // Build query
+      // Build query - показываем только заказы пользователя
       let query = supabase
         .from('orders')
         .select('*');
 
-      // Apply role filter
+      // Показываем заказы где пользователь участвует как клиент или исполнитель
+      query = query.or(`client_id.eq.${user.id},executor_id.eq.${user.id}`);
+
+      // Apply role filter for more specific filtering
       if (filters.role === 'client') {
-        query = query.eq('client_id', user.id);
+        query = supabase.from('orders').select('*').eq('client_id', user.id);
       } else if (filters.role === 'executor') {
-        query = query.eq('executor_id', user.id);
+        query = supabase.from('orders').select('*').eq('executor_id', user.id);
       }
-      // If 'all', RLS will handle showing only orders where user is participant
 
       // Apply status filter
       if (filters.status !== 'all') {
@@ -217,7 +219,7 @@ const Orders = () => {
               <BackButton onClick={() => window.history.back()} />
               <div className="flex items-center space-x-3">
                 <Package className="w-8 h-8 text-primary" />
-                <h1 className="text-3xl font-bold text-glow">Заказы на работу</h1>
+                <h1 className="text-3xl font-bold text-glow">Мои заказы</h1>
               </div>
             </div>
             

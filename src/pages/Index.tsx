@@ -66,22 +66,31 @@ const Index = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           <Link to="/orders">
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
-              <Plus className="w-8 h-8" />
+              <User className="w-8 h-8" />
               <div>
-                <div className="font-bold">Создать заказ</div>
-                <div className="text-sm opacity-70">Найти рабочих</div>
+                <div className="font-bold">Мои заказы</div>
+                <div className="text-sm opacity-70">Созданные мной</div>
+              </div>
+            </Button>
+          </Link>
+          <Link to="/available-orders">
+            <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+              <Search className="w-8 h-8" />
+              <div>
+                <div className="font-bold">Найти работу</div>
+                <div className="text-sm opacity-70">Доступные заказы</div>
               </div>
             </Button>
           </Link>
           <Link to="/ads">
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
-              <Search className="w-8 h-8" />
+              <Plus className="w-8 h-8" />
               <div>
-                <div className="font-bold">Найти работу</div>
-                <div className="text-sm opacity-70">Просмотреть заказы</div>
+                <div className="font-bold">Мое объявление</div>
+                <div className="text-sm opacity-70">Разместить резюме</div>
               </div>
             </Button>
           </Link>
@@ -89,32 +98,48 @@ const Index = () => {
 
         {/* Information Cards */}
         {user && (
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="card-steel p-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-primary" />
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card className="card-steel p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <User className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-steel-100 mb-1">Мои заказы</h3>
+                    <p className="text-sm text-steel-400 mb-2">Заказы которые я создал</p>
+                    <p className="text-xs text-steel-500">Создавайте заказы → Получайте отклики → Выбирайте исполнителей</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-steel-100 mb-1">Заказы</h3>
-                  <p className="text-sm text-steel-400 mb-2">Разовые задания с оплатой</p>
-                  <p className="text-xs text-steel-500">Создайте заказ на грузчиков → Получите отклики → Выберите исполнителей</p>
+              </Card>
+              <Card className="card-steel p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                    <Search className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-steel-100 mb-1">Поиск работы</h3>
+                    <p className="text-sm text-steel-400 mb-2">Доступные заказы от клиентов</p>
+                    <p className="text-xs text-steel-500">Просматривайте заказы → Откликайтесь → Получайте работу</p>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
             
-            <Card className="card-steel p-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <User className="w-5 h-5 text-green-400" />
+            <div className="grid md:grid-cols-1 gap-4">
+              <Card className="card-steel p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-steel-100 mb-1">Объявления</h3>
+                    <p className="text-sm text-steel-400 mb-2">Разместите свое резюме</p>
+                    <p className="text-xs text-steel-500">Создайте объявление → Получайте заказы → Работайте с клиентами</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-steel-100 mb-1">Объявления</h3>
-                  <p className="text-sm text-steel-400 mb-2">Резюме рабочих и бригад</p>
-                  <p className="text-xs text-steel-500">Найдите постоянных грузчиков → Договоритесь о сотрудничестве</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         )}
 

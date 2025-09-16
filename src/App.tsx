@@ -10,6 +10,7 @@ import CreateAd from "./pages/CreateAd";
 import UserProfile from "./pages/UserProfile";
 import Profile from "./pages/Profile";
 import Orders from "./pages/Orders";
+import AvailableOrders from "./pages/AvailableOrders";
 import History from "./pages/History";
 import AdminPanel from "./pages/AdminPanel";
 import ChatSystem from "./pages/ChatSystem";
@@ -33,6 +34,7 @@ const App = () => (
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/available-orders" element={<AvailableOrders />} />
         <Route path="/history" element={<History />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/chat-system" element={<ChatSystem />} />
