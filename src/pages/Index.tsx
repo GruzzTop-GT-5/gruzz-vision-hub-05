@@ -18,6 +18,10 @@ const Index = () => {
     if (user) {
       setShowWelcome(false);
       setShowAuth(false);
+    } else {
+      // When user logs out, show welcome screen
+      setShowWelcome(true);
+      setShowAuth(false);
     }
   }, [user]);
 
