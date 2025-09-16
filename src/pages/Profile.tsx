@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
+import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -199,23 +200,6 @@ const Profile = () => {
     } finally {
       setUploading(false);
     }
-  };
-
-  const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    
-    return (
-      <div className="flex items-center space-x-1">
-        {Array.from({ length: fullStars }, (_, index) => (
-          <Star key={index} className="w-4 h-4 text-yellow-400 fill-current" />
-        ))}
-        {hasHalfStar && (
-          <Star className="w-4 h-4 text-yellow-400 fill-current opacity-50" />
-        )}
-        <span className="text-steel-300 ml-2">{rating.toFixed(1)}</span>
-      </div>
-    );
   };
 
   if (loading) {
@@ -515,8 +499,8 @@ const Profile = () => {
                   </div>
 
                   <div className="text-center">
-                    <div className="mb-1">
-                      {renderStars(profileData.rating || 0)}
+                    <div className="flex justify-center mb-1">
+                      <UserRatingDisplay userId={user.id} showDetails={false} />
                     </div>
                     <div className="text-steel-300 text-sm">Рейтинг</div>
                   </div>
