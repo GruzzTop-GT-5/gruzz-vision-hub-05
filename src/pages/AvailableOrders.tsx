@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/components/SimpleOrderFilters';
-import { BackButton } from '@/components/BackButton';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
@@ -226,12 +226,9 @@ const AvailableOrders = () => {
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <BackButton onClick={() => window.history.back()} />
-              <div className="flex items-center space-x-3">
-                <Package className="w-8 h-8 text-primary" />
-                <h1 className="text-3xl font-bold text-glow">Вакансии</h1>
-              </div>
+            <div className="flex items-center space-x-3">
+              <Package className="w-8 h-8 text-primary" />
+              <h1 className="text-3xl font-bold text-glow">Вакансии</h1>
             </div>
             
             <div className="flex items-center space-x-4">

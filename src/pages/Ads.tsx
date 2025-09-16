@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { BackButton } from '@/components/BackButton';
+
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -211,7 +211,6 @@ export default function Ads() {
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <BackButton onClick={() => window.history.back()} />
             <h1 className="text-3xl font-bold text-glow">Заказы на работу</h1>
             <Link to="/create-ad">
               <Button className="bg-primary hover:bg-primary/80">
