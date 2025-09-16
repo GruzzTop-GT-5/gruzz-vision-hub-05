@@ -291,16 +291,8 @@ export const SupportSystem = () => {
               Создать тикет
             </Button>
           </DialogTrigger>
-            
-            <div className="absolute top-0 left-0 w-full h-0.5 opacity-50" style={{
-              background: 'linear-gradient(90deg, transparent, hsl(195, 100%, 50%) 20%, hsl(195, 100%, 50%) 80%, transparent)'
-            }}></div>
-          <DialogContent className="max-w-md relative overflow-hidden" style={{
-            background: 'linear-gradient(135deg, hsl(210, 35%, 22%) 0%, hsl(210, 40%, 15%) 30%, hsl(210, 45%, 10%) 70%, hsl(210, 50%, 6%) 100%)',
-            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.9), 0 6px 12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.5)',
-            border: '2px solid transparent',
-            backgroundClip: 'padding-box'
-          }}>
+          
+          <DialogContent className="card-steel max-w-md">
             <DialogHeader>
               <DialogTitle className="text-steel-100">Новый тикет поддержки</DialogTitle>
             </DialogHeader>
@@ -424,7 +416,7 @@ export const SupportSystem = () => {
           </Card>
         ) : (
           filteredTickets.map((ticket) => (
-            <Card key={ticket.id} className="card-steel p-6 hover:bg-steel-800/30 transition-all duration-200 cursor-pointer">
+            <Card key={ticket.id} className="card-steel p-6 hover:bg-steel-800/50 transition-colors cursor-pointer">
               <div 
                 className="space-y-4"
                 onClick={() => setSelectedConversation(ticket.conversation_id)}
