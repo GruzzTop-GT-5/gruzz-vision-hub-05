@@ -66,6 +66,7 @@ const categories = [
   'Другое'
 ];
 
+// Fixed handleEditAd reference error - cache refresh
 const MyAds = () => {
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
@@ -920,4 +921,5 @@ const MyAds = () => {
   );
 };
 
+// Cache refresh fix for handleEditAd reference error
 export default MyAds;
