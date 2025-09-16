@@ -5,13 +5,15 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/components/SimpleOrderFilters';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AdDetailsModal } from '@/components/AdDetailsModal';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { 
-  Package, 
+  Briefcase, 
   Loader2, 
   Clock, 
   MapPin, 
@@ -19,27 +21,24 @@ import {
   DollarSign,
   MessageSquare,
   Calendar,
-  Plus
+  Plus,
+  Search,
+  X,
+  HelpCircle,
+  Star
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-interface Order {
+interface Ad {
   id: string;
-  order_number: string;
   title: string;
   description: string | null;
   category: string | null;
   price: number;
   status: string;
-  priority: string;
-  deadline: string | null;
-  client_id: string;
-  executor_id: string | null;
+  user_id: string;
   created_at: string;
-  payment_method: string | null;
-  client_requirements: any;
-  max_revisions: number;
 }
 
 interface Profile {
@@ -52,80 +51,69 @@ interface Profile {
   rating: number;
 }
 
+const categories = [
+  'Все категории',
+  'Грузчики',
+  'Разнорабочие',
+  'Квартирный переезд',
+  'Офисный переезд',
+  'Погрузка/разгрузка',
+  'Сборка мебели',
+  'Уборка помещений',
+  'Строительные работы',
+  'Ремонтные работы',
+  'Демонтаж',
+  'Подсобные работы',
+  'Складские работы',
+  'Курьерские услуги',
+  'Садовые работы',
+  'Другое'
+];
+
 const AvailableOrders = () => {
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [ads, setAds] = useState<Ad[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [filters, setFilters] = useState<OrderFiltersType>({
-    search: '',
-    status: 'pending', // По умолчанию показываем только доступные заказы
-    category: 'all',
-    priority: 'all',
-    role: 'all',
-    priceMin: '',
-    priceMax: '',
-    sortBy: 'created_at',
-    sortOrder: 'desc'
-  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Все категории');
+  const [filteredAds, setFilteredAds] = useState<Ad[]>([]);
+  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
-    fetchAvailableOrders();
-  }, [filters]);
+    fetchAds();
+  }, []);
 
-  const fetchAvailableOrders = async () => {
+  useEffect(() => {
+    filterAds();
+  }, [ads, searchQuery, selectedCategory]);
+
+  const fetchAds = async () => {
     try {
       setIsLoading(true);
 
-      // Fetch only available orders (pending status, no executor assigned)
-      let query = supabase
-        .from('orders')
+      // Fetch active ads
+      const { data: adsData, error } = await supabase
+        .from('ads')
         .select('*')
-        .eq('status', 'pending')
-        .is('executor_id', null);
-
-      // Apply category filter
-      if (filters.category !== 'all') {
-        query = query.eq('category', filters.category);
-      }
-
-      // Apply priority filter
-      if (filters.priority !== 'all') {
-        query = query.eq('priority', filters.priority);
-      }
-
-      // Apply price range filters
-      if (filters.priceMin) {
-        query = query.gte('price', parseFloat(filters.priceMin));
-      }
-      if (filters.priceMax) {
-        query = query.lte('price', parseFloat(filters.priceMax));
-      }
-
-      // Apply search filter
-      if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,category.ilike.%${filters.search}%`);
-      }
-
-      // Apply sorting
-      query = query.order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
-
-      const { data: ordersData, error } = await query;
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setOrders(ordersData || []);
+      setAds(adsData || []);
 
-      // Fetch client profiles
-      if (ordersData && ordersData.length > 0) {
-        const clientIds = Array.from(new Set(ordersData.map(order => order.client_id)));
+      // Fetch user profiles
+      if (adsData && adsData.length > 0) {
+        const userIds = Array.from(new Set(adsData.map(ad => ad.user_id)));
 
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
           .select('id, display_name, full_name, avatar_url, telegram_photo_url, role, rating')
-          .in('id', clientIds);
+          .in('id', userIds);
 
         if (profilesError) throw profilesError;
 
@@ -136,10 +124,10 @@ const AvailableOrders = () => {
         setProfiles(profilesMap);
       }
     } catch (error) {
-      console.error('Error fetching available orders:', error);
+      console.error('Error fetching ads:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить доступные заказы",
+        description: "Не удалось загрузить вакансии",
         variant: "destructive"
       });
     } finally {
@@ -147,63 +135,41 @@ const AvailableOrders = () => {
     }
   };
 
-  const handleTakeOrder = async (orderId: string) => {
-    if (!user?.id) return;
+  const filterAds = () => {
+    let filtered = [...ads];
 
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ 
-          executor_id: user.id,
-          status: 'accepted'
-        })
-        .eq('id', orderId)
-        .eq('status', 'pending') // Double check it's still pending
-        .is('executor_id', null); // Double check no one else took it
-
-      if (error) throw error;
-
-      toast({
-        title: "Заказ принят",
-        description: "Вы успешно приняли заказ к выполнению"
-      });
-
-      fetchAvailableOrders(); // Refresh list
-    } catch (error) {
-      console.error('Error taking order:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось принять заказ. Возможно, его уже взял другой исполнитель",
-        variant: "destructive"
-      });
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(ad =>
+        ad.title.toLowerCase().includes(query) ||
+        (ad.description && ad.description.toLowerCase().includes(query)) ||
+        (ad.category && ad.category.toLowerCase().includes(query))
+      );
     }
+
+    // Category filter
+    if (selectedCategory !== 'Все категории') {
+      filtered = filtered.filter(ad => ad.category === selectedCategory);
+    }
+
+    setFilteredAds(filtered);
   };
 
   const clearFilters = () => {
-    console.log('clearFilters called');
-    setFilters({
-      search: '',
-      status: 'pending',
-      category: 'all',
-      priority: 'all',
-      role: 'all',
-      priceMin: '',
-      priceMax: '',
-      sortBy: 'created_at',
-      sortOrder: 'desc'
-    });
+    setSearchQuery('');
+    setSelectedCategory('Все категории');
   };
 
-  const getPaymentTypeLabel = (paymentMethod: string | null, requirements: any) => {
-    if (requirements?.payment_type) {
-      switch (requirements.payment_type) {
-        case 'hourly': return 'Почасовая оплата';
-        case 'daily': return 'Дневная оплата';
-        case 'project': return 'За весь объем';
-        default: return 'Договорная';
-      }
-    }
-    return 'Договорная';
+  const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== 'Все категории';
+
+  const handleViewDetails = (ad: Ad) => {
+    setSelectedAd(ad);
+    setShowDetailsModal(true);
+  };
+
+  const handleAdUpdate = () => {
+    fetchAds();
   };
 
   if (!user) {
@@ -211,9 +177,9 @@ const AvailableOrders = () => {
       <Layout user={user} userRole={userRole} onSignOut={signOut}>
         <div className="min-h-screen flex items-center justify-center p-4">
           <Card className="card-steel max-w-md w-full p-8 text-center space-y-6">
-            <Package className="w-16 h-16 text-primary mx-auto" />
+            <Briefcase className="w-16 h-16 text-primary mx-auto" />
             <h2 className="text-2xl font-bold text-steel-100">Требуется авторизация</h2>
-            <p className="text-steel-300">Для просмотра заказов необходимо войти в систему</p>
+            <p className="text-steel-300">Для просмотра вакансий необходимо войти в систему</p>
           </Card>
         </div>
       </Layout>
@@ -227,7 +193,7 @@ const AvailableOrders = () => {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Package className="w-8 h-8 text-primary" />
+              <Briefcase className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold text-glow">Вакансии</h1>
             </div>
             
@@ -239,135 +205,186 @@ const AvailableOrders = () => {
                 </Button>
               </Link>
               <div className="text-sm text-steel-400">
-                Найдено: {orders.length} заказов
+                Найдено: {filteredAds.length} резюме
               </div>
             </div>
           </div>
 
-          {/* Filters */}
-          <SimpleOrderFilters 
-            filters={filters}
-            onFiltersChange={setFilters}
-            onClearFilters={clearFilters}
-          />
+          {/* Information Banner */}
+          <Card className="card-steel border-primary/20">
+            <div className="p-4 text-center">
+              <div className="flex items-center justify-center space-x-2 mb-3">
+                <Briefcase className="w-6 h-6 text-primary" />
+                <h3 className="text-xl font-semibold text-steel-100">Вакансии</h3>
+              </div>
+              <p className="text-steel-300 text-base mb-4">
+                Здесь исполнители размещают свои резюме и предлагают свои услуги. Найдите подходящего специалиста для вашей задачи.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+                <div className="flex items-center space-x-2 text-steel-400">
+                  <Users className="w-4 h-4 text-yellow-400" />
+                  <span>Пример: "Вася Пупкин, опытный грузчик"</span>
+                </div>
+                <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
+                <Link to="/ads" className="text-primary hover:text-primary/80 font-medium">
+                  Нужен исполнитель? Разместить заказ →
+                </Link>
+                <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
+                <Link to="/my-ads" className="text-primary hover:text-primary/80 font-medium">
+                  Управлять резюме →
+                </Link>
+              </div>
+            </div>
+          </Card>
 
-          {/* Orders List */}
+          {/* Filters */}
+          <Card className="card-steel p-4">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="grid md:grid-cols-3 gap-4 flex-1">
+                  {/* Search */}
+                  <div className="relative md:col-span-2">
+                    <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
+                    <Input
+                      placeholder="Найти исполнителя по навыкам..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Category Filter */}
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Все категории" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {hasActiveFilters && (
+                  <Button
+                    variant="outline"
+                    onClick={clearFilters}
+                    className="shrink-0"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Сбросить
+                    <Badge className="ml-2 bg-primary/20 text-primary border-primary/20">
+                      {[searchQuery.trim() !== '', selectedCategory !== 'Все категории'].filter(Boolean).length}
+                    </Badge>
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {/* Results Count */}
+            {filteredAds.length > 0 && (
+              <div className="mt-3 text-center">
+                <span className="text-steel-400 text-sm">
+                  Найдено {filteredAds.length} резюме
+                </span>
+              </div>
+            )}
+          </Card>
+
+          {/* Ads List */}
           {isLoading ? (
             <Card className="card-steel p-8 text-center">
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-              <p className="text-steel-300">Загрузка заказов...</p>
+              <p className="text-steel-300">Загрузка резюме...</p>
             </Card>
-          ) : orders.length === 0 ? (
+          ) : filteredAds.length === 0 ? (
             <Card className="card-steel p-8 text-center space-y-4">
-              <Package className="w-16 h-16 text-steel-500 mx-auto" />
-              <h3 className="text-xl font-bold text-steel-300">Нет доступных заказов</h3>
+              <HelpCircle className="w-16 h-16 text-steel-500 mx-auto" />
+              <h3 className="text-xl font-bold text-steel-300">Резюме не найдены</h3>
               <p className="text-steel-400">
-                Попробуйте изменить параметры поиска или зайдите позже
+                {searchQuery || selectedCategory !== 'Все категории'
+                  ? 'Попробуйте изменить параметры поиска'
+                  : 'Пока что специалисты не разместили свои резюме'}
               </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                <Link to="/create-ad">
+                  <Button className="bg-primary hover:bg-primary/80">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Разместить резюме
+                  </Button>
+                </Link>
+                <Link to="/ads">
+                  <Button variant="outline">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Разместить заказ
+                  </Button>
+                </Link>
+              </div>
             </Card>
           ) : (
             <div className="space-y-4">
-              {orders.map((order) => {
-                const clientProfile = profiles[order.client_id];
+              {filteredAds.map((ad) => {
+                const profile = profiles[ad.user_id];
                 return (
-                  <Card key={order.id} className="card-steel p-6">
+                  <Card key={ad.id} className="card-steel p-6">
                     <div className="space-y-4">
                       {/* Header */}
                       <div className="flex items-start justify-between">
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <Package className="w-5 h-5 text-primary" />
-                            <h3 className="text-xl font-bold text-steel-100">{order.title}</h3>
+                            <Briefcase className="w-5 h-5 text-primary" />
+                            <h3 className="text-xl font-bold text-steel-100">{ad.title}</h3>
                           </div>
                           <div className="flex items-center space-x-2 text-sm text-steel-400">
-                            <span>#{order.order_number}</span>
-                            <span>•</span>
-                            <span>{order.category || 'Без категории'}</span>
+                            <span>{ad.category || 'Без категории'}</span>
                           </div>
                         </div>
                         
                         <div className="text-right space-y-2">
                           <div className="text-2xl font-bold text-primary">
-                            {order.price.toLocaleString('ru-RU')} ₽
+                            {ad.price.toLocaleString('ru-RU')} ₽
                           </div>
                           <Badge className="text-green-400 bg-green-400/10 border-green-400/20">
-                            {getPaymentTypeLabel(order.payment_method, order.client_requirements)}
+                            Активное резюме
                           </Badge>
                         </div>
                       </div>
 
                       {/* Description */}
-                      {order.description && (
-                        <p className="text-steel-200">{order.description}</p>
+                      {ad.description && (
+                        <p className="text-steel-200">{ad.description}</p>
                       )}
 
-                      {/* Requirements */}
-                      {order.client_requirements && (
-                        <div className="grid md:grid-cols-2 gap-4 p-4 bg-steel-800/30 rounded-lg">
-                          {order.client_requirements.location && (
-                            <div className="flex items-start space-x-2">
-                              <MapPin className="w-4 h-4 text-steel-400 mt-1" />
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Адрес:</p>
-                                <p className="text-sm text-steel-200">{order.client_requirements.location}</p>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {order.client_requirements.people_count && (
-                            <div className="flex items-start space-x-2">
-                              <Users className="w-4 h-4 text-steel-400 mt-1" />
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Требуется:</p>
-                                <p className="text-sm text-steel-200">{order.client_requirements.people_count} человек</p>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {order.client_requirements.work_duration && (
-                            <div className="flex items-start space-x-2">
-                              <Clock className="w-4 h-4 text-steel-400 mt-1" />
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Продолжительность:</p>
-                                <p className="text-sm text-steel-200">{order.client_requirements.work_duration}</p>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {order.deadline && (
-                            <div className="flex items-start space-x-2">
-                              <Calendar className="w-4 h-4 text-steel-400 mt-1" />
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Срок:</p>
-                                <p className="text-sm text-steel-200">
-                                  {format(new Date(order.deadline), 'dd.MM.yyyy', { locale: ru })}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Client Info */}
+                      {/* Profile Info */}
                       <div className="flex items-center justify-between pt-4 border-t border-steel-600">
                         <div className="flex items-center space-x-3">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={clientProfile?.avatar_url || clientProfile?.telegram_photo_url} />
+                          <Avatar className="w-10 h-10">
+                            <AvatarImage src={profile?.avatar_url || profile?.telegram_photo_url} />
                             <AvatarFallback>
-                              {(clientProfile?.display_name || clientProfile?.full_name || 'К').charAt(0)}
+                              {(profile?.display_name || profile?.full_name || 'И').charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-sm font-medium text-steel-100">
-                              {clientProfile?.display_name || clientProfile?.full_name || 'Заказчик'}
+                            <p className="text-base font-medium text-steel-100">
+                              {profile?.display_name || profile?.full_name || 'Исполнитель'}
                             </p>
                             <div className="flex items-center space-x-2">
-                              <p className="text-xs text-steel-400">
-                                Рейтинг: {clientProfile?.rating || 0}
-                              </p>
+                              <div className="flex items-center space-x-1">
+                                {Array.from({ length: 5 }, (_, index) => (
+                                  <Star
+                                    key={index}
+                                    className={`w-3 h-3 ${
+                                      index < (profile?.rating || 0) ? 'text-yellow-400 fill-current' : 'text-steel-500'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
                               <span className="text-xs text-steel-500">•</span>
                               <p className="text-xs text-steel-400">
-                                {format(new Date(order.created_at), 'dd.MM.yyyy', { locale: ru })}
+                                {format(new Date(ad.created_at), 'dd.MM.yyyy', { locale: ru })}
                               </p>
                             </div>
                           </div>
@@ -380,10 +397,10 @@ const AvailableOrders = () => {
                           </Button>
                           <Button 
                             size="sm"
-                            onClick={() => handleTakeOrder(order.id)}
+                            onClick={() => handleViewDetails(ad)}
                             className="bg-primary hover:bg-primary/80"
                           >
-                            Взять заказ
+                            Подробнее
                           </Button>
                         </div>
                       </div>
@@ -395,6 +412,13 @@ const AvailableOrders = () => {
           )}
         </div>
       </div>
+
+      {/* Ad Details Modal */}
+      <AdDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        ad={selectedAd}
+      />
     </Layout>
   );
 };

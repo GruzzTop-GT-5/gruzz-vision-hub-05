@@ -80,8 +80,8 @@ const Index = () => {
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
               <Search className="w-8 h-8" />
               <div>
-                <div className="font-bold">Найти работу</div>
-                <div className="text-sm opacity-70">Доступные заказы</div>
+                <div className="font-bold">Найти исполнителя</div>
+                <div className="text-sm opacity-70">Резюме специалистов</div>
               </div>
             </Button>
           </Link>
@@ -89,8 +89,8 @@ const Index = () => {
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
               <Plus className="w-8 h-8" />
               <div>
-                <div className="font-bold">Мое объявление</div>
-                <div className="text-sm opacity-70">Разместить резюме</div>
+                <div className="font-bold">Найти работу</div>
+                <div className="text-sm opacity-70">Заказы от клиентов</div>
               </div>
             </Button>
           </Link>
@@ -118,9 +118,9 @@ const Index = () => {
                     <Search className="w-5 h-5 text-green-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-steel-100 mb-1">Поиск работы</h3>
-                    <p className="text-sm text-steel-400 mb-2">Доступные заказы от клиентов</p>
-                    <p className="text-xs text-steel-500">Просматривайте заказы → Откликайтесь → Получайте работу</p>
+                    <h3 className="font-semibold text-steel-100 mb-1">Поиск исполнителя</h3>
+                    <p className="text-sm text-steel-400 mb-2">Резюме специалистов</p>
+                    <p className="text-xs text-steel-500">Просматривайте резюме → Выбирайте исполнителя → Договаривайтесь</p>
                   </div>
                 </div>
               </Card>
@@ -133,9 +133,9 @@ const Index = () => {
                     <Plus className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-steel-100 mb-1">Объявления</h3>
-                    <p className="text-sm text-steel-400 mb-2">Разместите свое резюме</p>
-                    <p className="text-xs text-steel-500">Создайте объявление → Получайте заказы → Работайте с клиентами</p>
+                    <h3 className="font-semibold text-steel-100 mb-1">Заказы на работу</h3>
+                    <p className="text-sm text-steel-400 mb-2">Заказы от клиентов</p>
+                    <p className="text-xs text-steel-500">Просматривайте заказы → Откликайтесь → Работайте с клиентами</p>
                   </div>
                 </div>
               </Card>
