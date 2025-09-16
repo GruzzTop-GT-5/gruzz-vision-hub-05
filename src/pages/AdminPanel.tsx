@@ -1554,18 +1554,39 @@ export default function AdminPanel() {
                                </SelectContent>
                              </Select>
                              
-                             <Button
-                               size="sm"
-                               variant="outline"
-                               onClick={async () => {
-                                 setSelectedUserData(userData);
-                                 setUserModalOpen(true);
-                               }}
-                               className="text-purple-400 border-purple-400/20 hover:bg-purple-400/10"
-                               title="Расширенное управление"
-                             >
-                               <Settings className="w-4 h-4" />
-                             </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async () => {
+                                  setLoadingUserData(true);
+                                  
+                                  try {
+                                    const { data: fullUserData, error } = await supabase
+                                      .from('profiles')
+                                      .select('id, phone, display_name, full_name, bio, role, rating, balance, created_at, age, citizenship, qualification')
+                                      .eq('id', userData.id)
+                                      .single();
+                                    
+                                    if (error) throw error;
+                                    setSelectedUserData(fullUserData);
+                                    setUserModalOpen(true);
+                                  } catch (error) {
+                                    console.error('Error fetching user data:', error);
+                                    toast({
+                                      title: "Ошибка",
+                                      description: "Не удалось загрузить данные пользователя",
+                                      variant: "destructive"
+                                    });
+                                  } finally {
+                                    setLoadingUserData(false);
+                                  }
+                                }}
+                                className="text-purple-400 border-purple-400/20 hover:bg-purple-400/10"
+                                title="Расширенное управление"
+                                disabled={loadingUserData}
+                              >
+                                <Settings className="w-4 h-4" />
+                              </Button>
                           </div>
                         </div>
                       </div>
@@ -1691,38 +1712,6 @@ export default function AdminPanel() {
                               <Settings className="w-4 h-4" />
                              </Button>
                             
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={async () => {
-                                setLoadingUserData(true);
-                                
-                                try {
-                                  const { data: userData, error } = await supabase
-                                    .from('profiles')
-                                    .select('id, phone, display_name, full_name, bio, role, rating, balance, created_at, age, citizenship, qualification')
-                                    .eq('id', ad.user_id)
-                                    .single();
-                                  
-                                  if (error) throw error;
-                                  setSelectedUserData(userData);
-                                  setUserModalOpen(true);
-                                } catch (error) {
-                                  console.error('Error fetching user data:', error);
-                                  toast({
-                                    title: "Ошибка",
-                                    description: "Не удалось загрузить данные пользователя",
-                                    variant: "destructive"
-                                  });
-                                } finally {
-                                  setLoadingUserData(false);
-                                }
-                              }}
-                              className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
-                              title="Профиль автора"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
                             <Button
                               size="sm"
                               variant="outline"
