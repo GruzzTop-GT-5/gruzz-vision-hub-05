@@ -232,7 +232,7 @@ export function CategoriesManagement() {
   }
 
   return (
-    <Card className="card-steel">
+    <Card className="card-steel transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
