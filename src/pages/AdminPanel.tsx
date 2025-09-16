@@ -477,13 +477,7 @@ export default function AdminPanel() {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select(`*,
-          profiles!client_id (
-            display_name,
-            full_name,
-            phone
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;

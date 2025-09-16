@@ -174,7 +174,12 @@ export const AdModerationModal = ({ ad, isOpen, onClose, onAdUpdate }: AdModerat
     }
   };
 
-  if (!ad) return null;
+  if (!ad) {
+    console.log('AdModerationModal: No ad provided');
+    return null;
+  }
+
+  console.log('AdModerationModal: Rendering with ad:', ad, 'isOpen:', isOpen);
 
   const handleStatusChange = async (status: string) => {
     if (!moderationComment.trim() && status !== 'active') {
