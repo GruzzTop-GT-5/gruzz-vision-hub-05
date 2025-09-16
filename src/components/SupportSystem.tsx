@@ -292,7 +292,7 @@ export const SupportSystem = () => {
             </Button>
           </DialogTrigger>
           
-          <DialogContent className="card-steel max-w-md">
+          <DialogContent className="bg-steel-800 border border-steel-600 max-w-md p-6 rounded-lg shadow-lg backdrop-blur-sm">
             <DialogHeader>
               <DialogTitle className="text-steel-100">Новый тикет поддержки</DialogTitle>
             </DialogHeader>
