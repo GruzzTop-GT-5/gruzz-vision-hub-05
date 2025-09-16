@@ -286,7 +286,11 @@ export default function Ads() {
                         <User className="w-3 h-3" />
                         <span>ID: {ad.user_id.slice(0, 8)}...</span>
                       </Link>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => window.open(`/ad/${ad.id}`, '_blank')}
+                      >
                         Подробнее
                       </Button>
                     </div>
