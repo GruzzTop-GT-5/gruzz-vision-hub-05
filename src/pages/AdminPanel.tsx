@@ -1257,7 +1257,7 @@ export default function AdminPanel() {
             </TabsContent>
 
             {/* System Settings */}
-            <TabsContent value="settings" className="space-y-6">
+            <TabsContent value="settings" className="space-y-6 transform-none">
               <Card className="card-steel p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-foreground">Системные настройки</h2>
