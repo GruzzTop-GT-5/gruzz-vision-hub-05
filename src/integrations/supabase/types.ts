@@ -787,10 +787,15 @@ export type Database = {
       }
       reviews: {
         Row: {
+          admin_bonus_points: number | null
+          admin_comment: string | null
           author_id: string
           comment: string | null
           created_at: string | null
+          hidden_at: string | null
+          hidden_by: string | null
           id: string
+          is_hidden: boolean | null
           is_moderated: boolean | null
           is_reported: boolean | null
           moderated_at: string | null
@@ -800,10 +805,15 @@ export type Database = {
           transaction_id: string | null
         }
         Insert: {
+          admin_bonus_points?: number | null
+          admin_comment?: string | null
           author_id: string
           comment?: string | null
           created_at?: string | null
+          hidden_at?: string | null
+          hidden_by?: string | null
           id?: string
+          is_hidden?: boolean | null
           is_moderated?: boolean | null
           is_reported?: boolean | null
           moderated_at?: string | null
@@ -813,10 +823,15 @@ export type Database = {
           transaction_id?: string | null
         }
         Update: {
+          admin_bonus_points?: number | null
+          admin_comment?: string | null
           author_id?: string
           comment?: string | null
           created_at?: string | null
+          hidden_at?: string | null
+          hidden_by?: string | null
           id?: string
+          is_hidden?: boolean | null
           is_moderated?: boolean | null
           is_reported?: boolean | null
           moderated_at?: string | null
@@ -908,10 +923,12 @@ export type Database = {
           id: string
           priority: string | null
           resolved_at: string | null
+          response_time_minutes: number | null
           status: string | null
           subject: string
           ticket_number: string
           updated_at: string | null
+          urgency: string | null
         }
         Insert: {
           assigned_to?: string | null
@@ -923,10 +940,12 @@ export type Database = {
           id?: string
           priority?: string | null
           resolved_at?: string | null
+          response_time_minutes?: number | null
           status?: string | null
           subject: string
           ticket_number: string
           updated_at?: string | null
+          urgency?: string | null
         }
         Update: {
           assigned_to?: string | null
@@ -938,10 +957,12 @@ export type Database = {
           id?: string
           priority?: string | null
           resolved_at?: string | null
+          response_time_minutes?: number | null
           status?: string | null
           subject?: string
           ticket_number?: string
           updated_at?: string | null
+          urgency?: string | null
         }
         Relationships: [
           {

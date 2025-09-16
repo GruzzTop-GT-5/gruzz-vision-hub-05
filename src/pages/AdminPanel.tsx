@@ -45,6 +45,7 @@ import { BackButton } from '@/components/BackButton';
 import { AdminOrderManagement } from '@/components/AdminOrderManagement';
 import { StarRating } from '@/components/StarRating';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
+import { AdminReviewModeration } from '@/components/AdminReviewModeration';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -2584,81 +2585,7 @@ export default function AdminPanel() {
 
               {/* Reviews Management */}
               <TabsContent value="reviews" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
-                <Card className="card-steel p-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-steel-100">Модерация отзывов</h3>
-                    <Badge variant="outline" className="text-red-400 border-red-400/20">
-                      {reportedReviews.length} жалоб
-                    </Badge>
-                  </div>
-
-                  {isLoadingReviews ? (
-                    <div className="text-center py-8">
-                      <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    </div>
-                  ) : reportedReviews.length === 0 ? (
-                    <div className="text-center py-16">
-                      <MessageSquare className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
-                      <h4 className="text-lg font-medium text-foreground mb-2">Нет жалоб</h4>
-                      <p className="text-muted-foreground">Жалобы на отзывы будут отображаться здесь</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {reportedReviews.map((review) => (
-                        <div key={review.id} className="bg-muted/30 rounded-lg p-4 border border-red-500/20">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-2">
-                                <Badge variant="destructive" className="text-xs">
-                                  {review.reports.length} жалоб
-                                </Badge>
-                                {review.rating && (
-                                  <StarRating rating={review.rating} size="sm" />
-                                )}
-                              </div>
-                              {review.comment && (
-                                <p className="text-foreground mb-3">{review.comment}</p>
-                              )}
-                              <p className="text-xs text-muted-foreground">
-                                Создан: {format(new Date(review.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="mb-4">
-                            <p className="text-sm font-medium text-steel-100 mb-2">Причины жалоб:</p>
-                            <div className="space-y-1">
-                              {review.reports.map((report: any, index: number) => (
-                                <div key={index} className="text-sm text-steel-300 bg-steel-800/30 rounded px-2 py-1">
-                                  {report.reason}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="flex space-x-2">
-                            <Button
-                              onClick={() => moderateReview(review.id, 'approve')}
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <Check className="w-4 h-4 mr-1" />
-                              Одобрить
-                            </Button>
-                            <Button
-                              onClick={() => moderateReview(review.id, 'block')}
-                              size="sm"
-                              variant="destructive"
-                            >
-                              <Ban className="w-4 h-4 mr-1" />
-                              Заблокировать
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
+                <AdminReviewModeration />
               </TabsContent>
 
               {/* Security Tab */}

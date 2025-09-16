@@ -32,10 +32,12 @@ interface SupportTicket {
   subject: string;
   description: string | null;
   priority: string;
+  urgency: string;
   category: string | null;
   status: string;
   created_by: string;
   assigned_to: string | null;
+  response_time_minutes: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,7 +66,14 @@ const PRIORITY_COLORS = {
   low: 'text-green-400 bg-green-400/10 border-green-400/20',
   normal: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
   high: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
-  urgent: 'text-red-400 bg-red-400/10 border-red-400/20'
+  critical: 'text-red-400 bg-red-400/10 border-red-400/20'
+};
+
+const URGENCY_COLORS = {
+  low: 'text-green-400 bg-green-400/10 border-green-400/20',
+  normal: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+  high: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+  critical: 'text-red-400 bg-red-400/10 border-red-400/20'
 };
 
 const STATUS_COLORS = {
@@ -91,7 +100,8 @@ export const SupportSystem = () => {
     subject: '',
     description: '',
     category: '',
-    priority: 'normal'
+    priority: 'normal',
+    urgency: 'normal'
   });
 
   useEffect(() => {
@@ -173,6 +183,7 @@ export const SupportSystem = () => {
           description: sanitizeInput(newTicket.description),
           category: newTicket.category,
           priority: newTicket.priority,
+          urgency: newTicket.urgency,
           created_by: user.id,
           status: 'open',
           ticket_number: '' // Will be overridden by trigger
@@ -201,7 +212,8 @@ export const SupportSystem = () => {
         subject: '',
         description: '',
         category: '',
-        priority: 'normal'
+        priority: 'normal',
+        urgency: 'normal'
       });
       setShowCreateDialog(false);
       fetchSupportData();
@@ -245,8 +257,18 @@ export const SupportSystem = () => {
       case 'low': return 'Низкий';
       case 'normal': return 'Обычный';
       case 'high': return 'Высокий';
-      case 'urgent': return 'Срочный';
+      case 'critical': return 'Критический';
       default: return priority;
+    }
+  };
+
+  const getUrgencyLabel = (urgency: string) => {
+    switch (urgency) {
+      case 'low': return 'Низкая';
+      case 'normal': return 'Обычная';
+      case 'high': return 'Высокая';
+      case 'critical': return 'Критическая';
+      default: return urgency;
     }
   };
 
@@ -343,7 +365,25 @@ export const SupportSystem = () => {
                     <SelectItem value="low">Низкий</SelectItem>
                     <SelectItem value="normal">Обычный</SelectItem>
                     <SelectItem value="high">Высокий</SelectItem>
-                    <SelectItem value="urgent">Срочный</SelectItem>
+                    <SelectItem value="critical">Критический</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="urgency">Срочность</Label>
+                <Select
+                  value={newTicket.urgency}
+                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, urgency: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Низкая</SelectItem>
+                    <SelectItem value="normal">Обычная</SelectItem>
+                    <SelectItem value="high">Высокая</SelectItem>
+                    <SelectItem value="critical">Критическая</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -441,12 +481,22 @@ export const SupportSystem = () => {
                       <span>Тикет #{ticket.ticket_number}</span>
                       {ticket.category && <span>• {ticket.category}</span>}
                       <span>• {format(new Date(ticket.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</span>
+                      {ticket.response_time_minutes && (
+                        <span>• Время ответа: {ticket.response_time_minutes} мин</span>
+                      )}
                     </div>
                   </div>
                   
-                  <Badge className={PRIORITY_COLORS[ticket.priority as keyof typeof PRIORITY_COLORS]}>
-                    {getPriorityLabel(ticket.priority)}
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={PRIORITY_COLORS[ticket.priority as keyof typeof PRIORITY_COLORS]}>
+                      {getPriorityLabel(ticket.priority)}
+                    </Badge>
+                    {ticket.urgency && ticket.urgency !== 'normal' && (
+                      <Badge className={URGENCY_COLORS[ticket.urgency as keyof typeof URGENCY_COLORS]}>
+                        Срочность: {getUrgencyLabel(ticket.urgency)}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
 
                 {/* Description */}
