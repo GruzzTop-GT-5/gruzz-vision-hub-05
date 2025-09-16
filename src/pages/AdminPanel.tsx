@@ -42,6 +42,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
+import { AdminOrderManagement } from '@/components/AdminOrderManagement';
 import { StarRating } from '@/components/StarRating';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { format } from 'date-fns';
@@ -1696,169 +1697,10 @@ export default function AdminPanel() {
 
             {/* Orders Management */}
             <TabsContent value="orders" className="space-y-6">
-              <Card className="card-steel p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-steel-100">Модерация заказов</h2>
-                  <div className="flex items-center space-x-4">
-                    <Badge variant="outline" className="text-yellow-400 border-yellow-400/20">
-                      {orders.filter(order => order.status === 'pending').length} на модерации
-                    </Badge>
-                    <Select value={orderStatusFilter} onValueChange={setOrderStatusFilter}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Все статусы</SelectItem>
-                        <SelectItem value="pending">На модерации</SelectItem>
-                        <SelectItem value="cancelled">Отклоненные</SelectItem>
-                        <SelectItem value="accepted">Принятые</SelectItem>
-                        <SelectItem value="in_progress">В работе</SelectItem>
-                        <SelectItem value="completed">Завершенные</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {orderStatusFilter !== 'all' && (
-                      <Button variant="outline" onClick={clearOrderFilter} size="sm">
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {isLoadingOrders ? (
-                  <div className="text-center py-8">
-                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                  </div>
-                ) : orders.filter(order => orderStatusFilter === 'all' || order.status === orderStatusFilter).length === 0 ? (
-                  <div className="text-center py-16">
-                    <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
-                    <p className="text-steel-400 text-lg">
-                      {orderStatusFilter === 'all' ? 'Заказов нет' : `Нет заказов со статусом "${orderStatusFilter}"`}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {orders.filter(order => orderStatusFilter === 'all' || order.status === orderStatusFilter).map((order) => (
-                      <div key={order.id} className="border border-steel-600/20 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <h3 className="font-medium text-steel-100">{order.title}</h3>
-                              <Badge className={
-                                order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                                order.status === 'cancelled' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                order.status === 'accepted' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                                order.status === 'in_progress' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
-                                order.status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                                'bg-steel-600/10 text-steel-400 border-steel-600/20'
-                              }>
-                                {order.status === 'pending' ? 'На модерации' :
-                                 order.status === 'cancelled' ? 'Отклонен' :
-                                 order.status === 'accepted' ? 'Принят' :
-                                 order.status === 'in_progress' ? 'В работе' :
-                                 order.status === 'completed' ? 'Завершен' : order.status}
-                              </Badge>
-                            </div>
-                            <p className="text-steel-300 text-sm">{order.description}</p>
-                            <div className="flex items-center space-x-4 text-sm text-steel-400">
-                              <span>№ {order.order_number}</span>
-                              <span>Цена: {order.price} ₽</span>
-                              <span>Категория: {order.category || 'Не указана'}</span>
-                              <span>
-                                Клиент: {order.profiles?.display_name || order.profiles?.full_name || 'Аноним'}
-                              </span>
-                              <span>{format(new Date(order.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {order.status === 'pending' && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => {
-                                    console.log('Approving order:', order.id);
-                                    moderateOrder(order.id, 'pending');
-                                  }}
-                                  className="text-green-400 border-green-400/20 hover:bg-green-400/10"
-                                  title="Одобрить заказ"
-                                >
-                                  <Check className="w-4 h-4" />
-                                </Button>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="text-red-400 border-red-400/20 hover:bg-red-400/10"
-                                      title="Отклонить заказ"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent className="card-steel-dialog">
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Отклонить заказ</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Укажите причину отклонения заказа:
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <div className="py-4">
-                                      <Textarea
-                                        placeholder="Причина отклонения..."
-                                        id={`order-rejection-reason-${order.id}`}
-                                      />
-                                    </div>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Отмена</AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() => {
-                                          const textarea = document.getElementById(`order-rejection-reason-${order.id}`) as HTMLTextAreaElement;
-                                          moderateOrder(order.id, 'cancelled', textarea?.value);
-                                        }}
-                                        className="bg-red-600 hover:bg-red-700"
-                                      >
-                                        Отклонить
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </>
-                            )}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                console.log('Profile button clicked for user:', order.client_id);
-                                const profileUrl = `/profile/${order.client_id}`;
-                                console.log('Opening profile URL:', profileUrl);
-                                window.open(profileUrl, '_blank');
-                              }}
-                              className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
-                              title="Профиль клиента"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                console.log('Deleting order:', order.id);
-                                if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
-                                  deleteOrder(order.id);
-                                }
-                              }}
-                              className="text-red-500 border-red-500/20 hover:bg-red-500/10"
-                              title="Удалить заказ"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Card>
+              <AdminOrderManagement 
+                orders={orders as any} 
+                onOrderUpdate={fetchOrders}
+              />
             </TabsContent>
 
             {/* Transactions Management */}
