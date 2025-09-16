@@ -1744,8 +1744,10 @@ export default function AdminPanel() {
                               variant="outline"
                               onClick={() => {
                                 console.log('Settings button clicked for ad:', ad.id);
+                                console.log('Before setting state - adModerationOpen:', adModerationOpen);
                                 setSelectedAd(ad);
                                 setAdModerationOpen(true);
+                                console.log('After setting state - should be true');
                               }}
                               className="text-orange-400 border-orange-400/20 hover:bg-orange-400/10"
                               title="Расширенная модерация"
@@ -1758,8 +1760,10 @@ export default function AdminPanel() {
                               variant="outline"
                               onClick={() => {
                                 console.log('Delete button clicked for ad:', ad.id);
+                                console.log('Before setting state - deleteAdModalOpen:', deleteAdModalOpen);
                                 setDeleteAdId(ad.id);
                                 setDeleteAdModalOpen(true);
+                                console.log('After setting state - should be true');
                               }}
                               className="text-red-500 border-red-500/20 hover:bg-red-500/10"
                               title="Удалить объявление"
