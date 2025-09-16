@@ -934,28 +934,35 @@ export default function AdminPanel() {
 
   const moderateAd = async (adId: string, status: string) => {
     try {
+      console.log('Moderating ad:', adId, 'to status:', status);
+      
       const { error } = await supabase
         .from('ads')
         .update({ status: status as any })
         .eq('id', adId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       // Log admin action
       await logAdminAction(`Модерация объявления - статус: ${status}`, adId, 'ad');
 
+      const statusText = status === 'active' ? 'одобрено' : status === 'inactive' ? 'отклонено' : status;
       toast({
         title: "Объявление обновлено",
-        description: `Статус объявления изменен на: ${status}`
+        description: `Объявление ${statusText}`,
       });
 
+      // Refresh data
       fetchAds();
       fetchAdminLogs();
     } catch (error) {
       console.error('Error moderating ad:', error);
       toast({
-        title: "Ошибка",
-        description: "Не удалось обновить объявление",
+        title: "Ошибка модерации",
+        description: error instanceof Error ? error.message : "Не удалось обновить объявление",
         variant: "destructive"
       });
     }
@@ -1034,15 +1041,16 @@ export default function AdminPanel() {
   };
 
   const getStatusBadge = (status: string, type: 'ad' | 'transaction') => {
-    const colors = {
-      active: 'bg-green-500/10 text-green-400 border-green-500/20',
-      inactive: 'bg-red-500/10 text-red-400 border-red-500/20',
-      pending: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-      completed: 'bg-green-500/10 text-green-400 border-green-500/20',
-      rejected: 'bg-red-500/10 text-red-400 border-red-500/20',
+    const statusMap = {
+      active: { text: 'Активно', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
+      inactive: { text: 'Неактивно', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+      pending: { text: 'На модерации', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
+      completed: { text: 'Завершено', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
+      rejected: { text: 'Отклонено', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
     };
 
-    return <Badge className={colors[status as keyof typeof colors]}>{status}</Badge>;
+    const statusInfo = statusMap[status as keyof typeof statusMap] || { text: status, color: 'bg-steel-500/10 text-steel-400 border-steel-500/20' };
+    return <Badge className={statusInfo.color}>{statusInfo.text}</Badge>;
   };
 
   if (loading) {
@@ -1360,60 +1368,101 @@ export default function AdminPanel() {
               <Card className="card-steel p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-steel-100">Модерация объявлений</h2>
-                  <Select value={adStatusFilter} onValueChange={setAdStatusFilter}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Все статусы</SelectItem>
-                      <SelectItem value="active">Активные</SelectItem>
-                      <SelectItem value="inactive">Неактивные</SelectItem>
-                      <SelectItem value="pending">На модерации</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center space-x-4">
+                    <Badge variant="outline" className="text-yellow-400 border-yellow-400/20">
+                      {ads.filter(ad => ad.status === 'pending').length} на модерации
+                    </Badge>
+                    <Select value={adStatusFilter} onValueChange={setAdStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все статусы</SelectItem>
+                        <SelectItem value="pending">На модерации</SelectItem>
+                        <SelectItem value="active">Активные</SelectItem>
+                        <SelectItem value="inactive">Неактивные</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {isLoadingAds ? (
                   <div className="text-center py-8">
                     <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
                   </div>
+                ) : ads.filter(ad => adStatusFilter === 'all' || ad.status === adStatusFilter).length === 0 ? (
+                  <div className="text-center py-16">
+                    <Megaphone className="w-16 h-16 text-steel-500 mx-auto mb-4" />
+                    <p className="text-steel-400 text-lg">
+                      {adStatusFilter === 'all' ? 'Объявлений нет' : `Нет объявлений со статусом "${adStatusFilter}"`}
+                    </p>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {ads
                       .filter(ad => adStatusFilter === 'all' || ad.status === adStatusFilter)
                       .map((ad) => (
-                      <div key={ad.id} className="bg-steel-800/50 rounded-lg p-4">
+                      <div key={ad.id} className="bg-steel-800/50 rounded-lg p-4 border border-steel-600/30">
                         <div className="flex items-start justify-between">
-                          <div className="flex-1 space-y-2">
+                          <div className="flex-1 space-y-3">
                             <div className="flex items-center space-x-3">
-                              <h3 className="font-medium text-steel-100">{ad.title}</h3>
+                              <h3 className="font-medium text-steel-100 text-lg">{ad.title}</h3>
                               {getStatusBadge(ad.status, 'ad')}
                             </div>
-                            <p className="text-steel-300 text-sm">{ad.description.slice(0, 150)}...</p>
-                            <div className="text-xs text-steel-400 space-y-1">
-                              <p>Категория: {ad.category}</p>
-                              <p>Цена: {ad.price.toLocaleString()} GT</p>
-                              <p>Автор: {ad.user_id.slice(0, 8)}...</p>
-                              <p>Создано: {format(new Date(ad.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
+                            <p className="text-steel-300 text-sm leading-relaxed">
+                              {ad.description.length > 200 ? ad.description.slice(0, 200) + '...' : ad.description}
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-steel-400">
+                              <div>
+                                <span className="text-steel-500">Категория:</span>
+                                <p className="text-steel-300 font-medium">{ad.category}</p>
+                              </div>
+                              <div>
+                                <span className="text-steel-500">Цена:</span>
+                                <p className="text-primary font-medium">{ad.price.toLocaleString()} ₽</p>
+                              </div>
+                              <div>
+                                <span className="text-steel-500">Автор:</span>
+                                <p className="text-steel-300 font-mono">{ad.user_id.slice(0, 8)}...</p>
+                              </div>
+                              <div>
+                                <span className="text-steel-500">Создано:</span>
+                                <p className="text-steel-300">{format(new Date(ad.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
+                              </div>
                             </div>
                           </div>
                           
-                          <div className="flex items-center space-x-2 ml-4">
+                          <div className="flex items-center space-x-2 ml-6">
+                            {ad.status !== 'active' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => moderateAd(ad.id, 'active')}
+                                className="text-green-400 border-green-400/20 hover:bg-green-400/10"
+                                title="Одобрить объявление"
+                              >
+                                <Check className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {ad.status !== 'inactive' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => moderateAd(ad.id, 'inactive')}
+                                className="text-red-400 border-red-400/20 hover:bg-red-400/10"
+                                title="Отклонить объявление"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => moderateAd(ad.id, 'active')}
-                              className="text-green-400 border-green-400/20 hover:bg-green-400/10"
+                              onClick={() => window.open(`/profile/${ad.user_id}`, '_blank')}
+                              className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
+                              title="Профиль автора"
                             >
-                              <Check className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => moderateAd(ad.id, 'inactive')}
-                              className="text-red-400 border-red-400/20 hover:bg-red-400/10"
-                            >
-                              <X className="w-4 h-4" />
+                              <Eye className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
