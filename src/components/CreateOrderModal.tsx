@@ -60,6 +60,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
   
   const [isCreating, setIsCreating] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [userBalance, setUserBalance] = useState<number>(0);
   
   const [orderData, setOrderData] = useState({
     title: '',
@@ -80,6 +81,29 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     }
   });
 
+  // Загружаем баланс пользователя при открытии модала
+  const loadUserBalance = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      setUserBalance(profileData?.balance || 0);
+    } catch (error) {
+      console.error('Error loading user balance:', error);
+    }
+  };
+
+  // Загружаем баланс при открытии модала
+  if (isOpen && user?.id && userBalance === 0) {
+    loadUserBalance();
+  }
+
   const handleCreateOrder = async () => {
     if (!user?.id) {
       toast({
@@ -90,10 +114,10 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       return;
     }
 
-    if (!orderData.title.trim() || !orderData.description.trim() || !orderData.price.trim()) {
+    if (!orderData.title.trim() || !orderData.description.trim() || !orderData.price.trim() || !orderData.client_requirements.location.trim()) {
       toast({
         title: "Заполните обязательные поля",
-        description: "Название, описание и цена обязательны",
+        description: "Название, описание, цена и адрес объекта обязательны",
         variant: "destructive"
       });
       return;
@@ -111,6 +135,11 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       return;
     }
 
+    // Calculate total cost with platform fee
+    const commissionRate = 10;
+    const platformFee = (price * commissionRate) / 100;
+    const totalCost = price + platformFee;
+
     setIsCreating(true);
 
     try {
@@ -123,18 +152,16 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
       if (profileError) throw profileError;
 
-      if (!profileData || profileData.balance < price) {
+      if (!profileData || profileData.balance < totalCost) {
         toast({
           title: "Недостаточно средств",
-          description: "Пополните баланс для создания заказа",
+          description: `Необходимо ${formatBalance(totalCost).gtCoins} для создания заказа. Пополните баланс.`,
           variant: "destructive"
         });
         return;
       }
 
-      // Calculate platform fee (10% commission)
-      const commissionRate = 10;
-      const platformFee = (price * commissionRate) / 100;
+      // Platform fee already calculated above
 
       // Создаем заказ
       const { data: newOrder, error: orderError } = await supabase
@@ -204,12 +231,17 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         .insert({
           user_id: user.id,
           type: 'purchase',
-          amount: price,
+          amount: totalCost,
           status: 'pending',
           payment_details: {
             order_id: newOrder.id,
             order_number: newOrder.order_number,
-            description: `Оплата заказа: ${sanitizeInput(orderData.title)}`
+            description: `Оплата заказа: ${sanitizeInput(orderData.title)}`,
+            breakdown: {
+              executor_payment: price,
+              platform_fee: platformFee,
+              total: totalCost
+            }
           }
         })
         .select()
@@ -236,7 +268,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
       toast({
         title: "Заказ создан",
-        description: "Ваш заказ успешно создан и оплачен с баланса"
+        description: `Заказ успешно создан. Списано ${formatBalance(totalCost).gtCoins} с баланса`
       });
 
       // Reset form
@@ -548,43 +580,62 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             </div>
           </div>
 
-          {/* Price breakdown */}
-          {orderData.price && !isNaN(parseFloat(orderData.price)) && (
-            <div className="bg-steel-800/30 rounded-lg p-4 space-y-2">
-              <h4 className="font-semibold text-steel-100">Расчет стоимости:</h4>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-steel-300">Вознаграждение исполнителя:</span>
-                  <div className="text-right">
-                    <div className="text-steel-100">{formatBalance(parseFloat(orderData.price)).gtCoins}</div>
-                    <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price)).rubles}</div>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-steel-300">Комиссия платформы (10%):</span>
-                  <div className="text-right">
-                    <div className="text-steel-100">{formatBalance((parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
-                    <div className="text-xs text-steel-400">{formatBalance((parseFloat(orderData.price) * 10) / 100).rubles}</div>
-                  </div>
-                </div>
-                <div className="border-t border-steel-600 pt-1 mt-2">
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-steel-100">Итого к оплате:</span>
-                    <div className="text-right">
-                      <div className="text-primary">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
-                      <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).rubles}</div>
-                    </div>
-                  </div>
-                </div>
+          {/* Balance and Price breakdown */}
+          <div className="bg-steel-800/30 rounded-lg p-4 space-y-3">
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold text-steel-100">Ваш баланс:</h4>
+              <div className="text-right">
+                <div className="text-primary font-semibold">{formatBalance(userBalance).gtCoins}</div>
+                <div className="text-xs text-steel-400">{formatBalance(userBalance).rubles}</div>
               </div>
             </div>
-          )}
+            
+            {orderData.price && !isNaN(parseFloat(orderData.price)) && (
+              <>
+                <div className="border-t border-steel-600 pt-3">
+                  <h4 className="font-semibold text-steel-100 mb-2">Расчет стоимости:</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-steel-300">Вознаграждение исполнителя:</span>
+                      <div className="text-right">
+                        <div className="text-steel-100">{formatBalance(parseFloat(orderData.price)).gtCoins}</div>
+                        <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price)).rubles}</div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-steel-300">Комиссия платформы (10%):</span>
+                      <div className="text-right">
+                        <div className="text-steel-100">{formatBalance((parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
+                        <div className="text-xs text-steel-400">{formatBalance((parseFloat(orderData.price) * 10) / 100).rubles}</div>
+                      </div>
+                    </div>
+                    <div className="border-t border-steel-600 pt-1 mt-2">
+                      <div className="flex justify-between font-semibold">
+                        <span className="text-steel-100">Итого к оплате:</span>
+                        <div className="text-right">
+                          <div className="text-primary">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
+                          <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).rubles}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Warning if insufficient balance */}
+                    {parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100 > userBalance && (
+                      <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                        ⚠️ Недостаточно средств на балансе. Пополните баланс для создания заказа.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex space-x-3 pt-4">
             <Button
               onClick={handleCreateOrder}
-              disabled={isCreating || !orderData.title.trim() || !orderData.description.trim() || !orderData.price.trim()}
+              disabled={isCreating || !orderData.title.trim() || !orderData.description.trim() || !orderData.price.trim() || !orderData.client_requirements.location.trim()}
               className="flex-1"
             >
               {isCreating ? (
