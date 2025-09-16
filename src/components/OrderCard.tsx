@@ -441,7 +441,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
         {order.revision_count > 0 && (
           <div className="flex items-center space-x-2 text-sm text-steel-400">
             <AlertCircle className="w-4 h-4" />
-            <span>Люди: {order.revision_count} из {order.max_revisions}</span>
+            <span>Требуется: {order.revision_count} из {order.max_revisions}</span>
           </div>
         )}
 

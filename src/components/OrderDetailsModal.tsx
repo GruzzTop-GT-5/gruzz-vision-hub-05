@@ -291,7 +291,7 @@ export const OrderDetailsModal = ({
                   )}
 
                   <div>
-                    <Label className="text-steel-300">Люди</Label>
+                    <Label className="text-steel-300">Требуется</Label>
                     <p className="text-steel-200">{order.revision_count} из {order.max_revisions}</p>
                   </div>
                 </div>
