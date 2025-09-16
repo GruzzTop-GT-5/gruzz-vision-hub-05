@@ -803,30 +803,13 @@ export default function AdminPanel() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Additional Tabs Row */}
-            <div className="grid w-full grid-cols-1 p-1 bg-muted rounded-lg">
-              <button 
-                onClick={() => {
-                  const tabs = document.querySelector('[data-state="active"]')?.closest('[role="tablist"]');
-                  const triggers = tabs?.querySelectorAll('[role="tab"]');
-                  triggers?.forEach(t => t.setAttribute('data-state', 'inactive'));
-                  const settingsTab = document.querySelector('[value="settings"]');
-                  settingsTab?.setAttribute('data-state', 'active');
-                  // Переключаем содержимое
-                  const contents = document.querySelectorAll('[role="tabpanel"]');
-                  contents.forEach(c => {
-                    const element = c as HTMLElement;
-                    element.style.display = 'none';
-                  });
-                  const settingsContent = document.querySelector('[data-value="settings"]') as HTMLElement;
-                  if (settingsContent) settingsContent.style.display = 'block';
-                }}
-                className="flex items-center justify-center space-x-2 h-9 px-3 py-1.5 text-sm font-medium rounded-sm transition-all hover:bg-background hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-              >
+            {/* Second Row for Settings */}
+            <TabsList className="grid w-full grid-cols-1">
+              <TabsTrigger value="settings" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span>Настройки</span>
-              </button>
-            </div>
+              </TabsTrigger>
+            </TabsList>
 
             {/* Dashboard */}
             <TabsContent value="dashboard" className="space-y-6">
