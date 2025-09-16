@@ -379,7 +379,7 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
           {/* Max Revisions */}
           <div className="space-y-2">
             <Label htmlFor="maxRevisions" className="text-steel-200">
-              Максимальное количество правок
+              Количество людей
             </Label>
             <Select 
               value={formData.maxRevisions} 
