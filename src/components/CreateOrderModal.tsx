@@ -147,7 +147,8 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
       if (orderError) throw orderError;
 
-      // Создаем транзакцию для списания средств (используем тип 'payment')
+      // Создаем транзакцию для списания средств
+      console.log('Creating transaction for user:', user.id, 'amount:', price);
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -162,7 +163,11 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
           }
         });
 
-      if (transactionError) throw transactionError;
+      console.log('Transaction creation result:', { error: transactionError });
+      if (transactionError) {
+        console.error('Transaction error:', transactionError);
+        throw transactionError;
+      }
 
       toast({
         title: "Заказ создан",
