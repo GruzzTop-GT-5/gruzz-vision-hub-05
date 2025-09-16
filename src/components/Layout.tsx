@@ -87,7 +87,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
       {/* Header */}
       <header className="relative z-50 flex items-center justify-between p-4 border-b border-steel-600">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary to-electric-600">
+          <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary to-electric-600">
             <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
           </div>
           <div>
