@@ -115,7 +115,7 @@ export const UserSearchModal = ({ isOpen, onClose, onStartChat }: UserSearchModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="card-steel max-w-md">
+      <DialogContent className="card-steel-dialog max-w-md">
         <DialogHeader>
           <DialogTitle className="text-steel-100">Поиск пользователей</DialogTitle>
         </DialogHeader>
