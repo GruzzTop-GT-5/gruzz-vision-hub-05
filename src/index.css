@@ -376,6 +376,27 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
+
+  /* Card steel for dialogs (no hover effect) */
+  .card-steel-dialog {
+    @apply relative overflow-hidden;
+    background: var(--gradient-steel);
+    box-shadow: var(--shadow-steel);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+  
+  /* Top highlight for dialog */
+  .card-steel-dialog::before {
+    @apply absolute top-0 left-0 w-full h-0.5 opacity-50;
+    content: '';
+    background: linear-gradient(90deg, 
+      transparent, 
+      hsl(var(--primary)) 20%, 
+      hsl(var(--primary)) 80%, 
+      transparent);
+  }
 }
 
 /* Enhanced Animations */
