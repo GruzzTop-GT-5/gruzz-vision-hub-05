@@ -34,6 +34,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [proofImage, setProofImage] = useState<File | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
   const { toast } = useToast();
 
   const paymentMethods = [
@@ -54,6 +55,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
 
     try {
       setLoading(true);
+      setSelectedPaymentMethod(method);
       const { data, error } = await supabase.rpc('generate_payment_details', {
         p_user_id: userId,
         p_amount: parseFloat(amount),
@@ -185,6 +187,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
     setPaymentDetails(null);
     setProofImage(null);
     setCopiedField(null);
+    setSelectedPaymentMethod('');
   };
 
   const CopyButton = ({ text, field }: { text: string; field: string }) => (
@@ -320,7 +323,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
                 </div>
 
                 <Button
-                  onClick={() => submitTransaction('deposit')}
+                  onClick={() => submitTransaction(selectedPaymentMethod)}
                   disabled={loading || !proofImage}
                   className="w-full btn-3d"
                 >
