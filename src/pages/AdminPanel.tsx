@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
@@ -1890,104 +1891,106 @@ export default function AdminPanel() {
                     <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {transactions
-                      .filter(transaction => transactionStatusFilter === 'all' || transaction.status === transactionStatusFilter)
-                      .map((transaction) => (
-                      <div key={transaction.id} className="bg-steel-800/50 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-3">
-                              <span className="font-medium text-steel-100">
-                                {transaction.amount} GT Coins
-                              </span>
-                              {getStatusBadge(transaction.status, 'transaction')}
-                              <Badge variant="outline">{transaction.type}</Badge>
+                  <ScrollArea className="h-[600px] w-full">
+                    <div className="space-y-4 pr-4">
+                      {transactions
+                        .filter(transaction => transactionStatusFilter === 'all' || transaction.status === transactionStatusFilter)
+                        .map((transaction) => (
+                        <div key={transaction.id} className="bg-steel-800/50 rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-2">
+                              <div className="flex items-center space-x-3">
+                                <span className="font-medium text-steel-100">
+                                  {transaction.amount} GT Coins
+                                </span>
+                                {getStatusBadge(transaction.status, 'transaction')}
+                                <Badge variant="outline">{transaction.type}</Badge>
+                              </div>
+                              <div className="text-sm text-steel-300 space-y-1">
+                                <p>Пользователь: {transaction.user_id.slice(0, 8)}...</p>
+                                <p>Способ оплаты: {transaction.payment_method || 'Не указан'}</p>
+                                <p>Дата: {format(new Date(transaction.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
+                                {transaction.proof_image && (
+                                  <p className="text-primary">📎 Подтверждение прикреплено</p>
+                                )}
+                              </div>
                             </div>
-                            <div className="text-sm text-steel-300 space-y-1">
-                              <p>Пользователь: {transaction.user_id.slice(0, 8)}...</p>
-                              <p>Способ оплаты: {transaction.payment_method || 'Не указан'}</p>
-                              <p>Дата: {format(new Date(transaction.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
-                              {transaction.proof_image && (
-                                <p className="text-primary">📎 Подтверждение прикреплено</p>
-                              )}
-                            </div>
+                            
+                            {transaction.status === 'pending' && (
+                              <div className="flex items-center space-x-2">
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="text-green-400 border-green-400/20 hover:bg-green-400/10"
+                                    >
+                                      <Check className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent className="card-steel">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Подтвердить транзакцию</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Вы уверены, что хотите подтвердить эту транзакцию?
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => verifyTransaction(transaction.id, 'completed')}
+                                        className="bg-green-600 hover:bg-green-700"
+                                      >
+                                        Подтвердить
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                                
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="text-red-400 border-red-400/20 hover:bg-red-400/10"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent className="card-steel-dialog">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Отклонить транзакцию</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Укажите причину отклонения транзакции:
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <div className="py-4">
+                                      <Textarea
+                                        placeholder="Причина отклонения..."
+                                        id={`rejection-reason-${transaction.id}`}
+                                      />
+                                    </div>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => {
+                                          const textarea = document.getElementById(`rejection-reason-${transaction.id}`) as HTMLTextAreaElement;
+                                          verifyTransaction(transaction.id, 'rejected', textarea?.value);
+                                        }}
+                                        className="bg-red-600 hover:bg-red-700"
+                                      >
+                                        Отклонить
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            )}
                           </div>
-                          
-                          {transaction.status === 'pending' && (
-                            <div className="flex items-center space-x-2">
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-green-400 border-green-400/20 hover:bg-green-400/10"
-                                  >
-                                    <Check className="w-4 h-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="card-steel">
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Подтвердить транзакцию</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Вы уверены, что хотите подтвердить эту транзакцию?
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Отмена</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => verifyTransaction(transaction.id, 'completed')}
-                                      className="bg-green-600 hover:bg-green-700"
-                                    >
-                                      Подтвердить
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                              
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-red-400 border-red-400/20 hover:bg-red-400/10"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="card-steel-dialog">
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Отклонить транзакцию</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Укажите причину отклонения транзакции:
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <div className="py-4">
-                                    <Textarea
-                                      placeholder="Причина отклонения..."
-                                      id={`rejection-reason-${transaction.id}`}
-                                    />
-                                  </div>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Отмена</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => {
-                                        const textarea = document.getElementById(`rejection-reason-${transaction.id}`) as HTMLTextAreaElement;
-                                        verifyTransaction(transaction.id, 'rejected', textarea?.value);
-                                      }}
-                                      className="bg-red-600 hover:bg-red-700"
-                                    >
-                                      Отклонить
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
               </Card>
             </TabsContent>
