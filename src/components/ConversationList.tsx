@@ -14,8 +14,28 @@ import {
   Clock,
   Pin,
   Archive,
-  MoreVertical
+  MoreVertical,
+  Trash2,
+  X
 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -53,12 +73,14 @@ interface ConversationListProps {
   onSelectConversation: (conversationId: string) => void;
   selectedConversationId?: string | null;
   refreshTrigger?: number;
+  onConversationDeleted?: () => void;
 }
 
 export const ConversationList = ({ 
   onSelectConversation, 
   selectedConversationId,
-  refreshTrigger 
+  refreshTrigger,
+  onConversationDeleted 
 }: ConversationListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -284,6 +306,75 @@ export const ConversationList = ({
     return true;
   });
 
+  const deleteConversation = async (conversationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({ status: 'deleted' })
+        .eq('id', conversationId);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setConversations(prev => prev.filter(c => c.id !== conversationId));
+      
+      // Clear selection if this conversation was selected
+      if (selectedConversationId === conversationId) {
+        onSelectConversation('');
+      }
+
+      toast({
+        title: "Успешно",
+        description: "Чат удален"
+      });
+
+      onConversationDeleted?.();
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить чат",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const clearAllConversations = async () => {
+    if (!user?.id) return;
+
+    try {
+      const conversationIds = conversations.map(c => c.id);
+      
+      const { error } = await supabase
+        .from('conversations')
+        .update({ status: 'deleted' })
+        .in('id', conversationIds);
+
+      if (error) throw error;
+
+      // Clear local state
+      setConversations([]);
+      setLastMessages({});
+      
+      // Clear selection
+      onSelectConversation('');
+
+      toast({
+        title: "Успешно",
+        description: "Все чаты очищены"
+      });
+
+      onConversationDeleted?.();
+    } catch (error) {
+      console.error('Error clearing conversations:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось очистить чаты",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="card-steel p-6">
@@ -338,9 +429,42 @@ export const ConversationList = ({
             Поддержка
           </Button>
         </div>
+
+        {/* Clear All Button */}
+        {conversations.length > 0 && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-red-400 border-red-400/20 hover:bg-red-400/10"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Очистить все чаты
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Очистить все чаты?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Все чаты будут удалены. Это действие нельзя отменить.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Отмена</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={clearAllConversations}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Удалить все
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <ScrollArea className="flex-1">
         {filteredConversations.length === 0 ? (
           <div className="p-8 text-center">
             <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
@@ -364,11 +488,13 @@ export const ConversationList = ({
                     ? 'bg-primary/10 border-primary/20'
                     : 'hover:bg-steel-700/30 border-transparent'
                 }`}
-                onClick={() => onSelectConversation(conversation.id)}
               >
                 <div className="flex items-center space-x-3">
                   {/* Avatar */}
-                  <div className="relative shrink-0">
+                  <div 
+                    className="relative shrink-0"
+                    onClick={() => onSelectConversation(conversation.id)}
+                  >
                     {conversation.type === 'support' ? (
                       <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
                         <MessageSquare className="w-6 h-6 text-primary" />
@@ -384,7 +510,10 @@ export const ConversationList = ({
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1 min-w-0 space-y-1">
+                  <div 
+                    className="flex-1 min-w-0 space-y-1"
+                    onClick={() => onSelectConversation(conversation.id)}
+                  >
                     <div className="flex items-center justify-between">
                       <h3 className="font-medium text-steel-100 truncate">
                         {getConversationTitle(conversation)}
@@ -418,12 +547,48 @@ export const ConversationList = ({
                       </div>
                     </div>
                   </div>
+
+                  {/* Actions Menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Удалить чат
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Удалить чат?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Чат "{getConversationTitle(conversation)}" будет удален. Это действие нельзя отменить.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Отмена</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => deleteConversation(conversation.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Удалить
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </Card>
             ))}
           </div>
         )}
-      </div>
+      </ScrollArea>
     </Card>
   );
 };

@@ -252,6 +252,7 @@ export default function ChatSystem() {
               onSelectConversation={setSelectedConversation}
               selectedConversationId={selectedConversation}
               refreshTrigger={refreshTrigger}
+              onConversationDeleted={fetchConversations}
             />
           </div>
           <div className="flex-1 p-4">
@@ -366,6 +367,7 @@ export default function ChatSystem() {
                   onSelectConversation={setSelectedConversation}
                   selectedConversationId={selectedConversation}
                   refreshTrigger={refreshTrigger}
+                  onConversationDeleted={fetchConversations}
                 />
                 
                 {selectedConversation ? (
