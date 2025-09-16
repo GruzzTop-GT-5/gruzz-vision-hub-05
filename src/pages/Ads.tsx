@@ -28,20 +28,20 @@ interface Ad {
 
 const categories = [
   'Все категории',
-  'Услуги',
-  'Работа',
-  'Образование',
-  'Репетиторство',
-  'IT и программирование',
-  'Дизайн',
-  'Маркетинг',
-  'Строительство',
-  'Ремонт',
-  'Транспорт',
-  'Доставка',
-  'Домашние услуги',
-  'Красота и здоровье',
-  'Переводы',
+  'Грузчики',
+  'Разнорабочие',
+  'Квартирный переезд',
+  'Офисный переезд',
+  'Погрузка/разгрузка',
+  'Сборка мебели',
+  'Уборка помещений',
+  'Строительные работы',
+  'Ремонтные работы',
+  'Демонтаж',
+  'Подсобные работы',
+  'Складские работы',
+  'Курьерские услуги',
+  'Садовые работы',
   'Другое'
 ];
 
@@ -193,7 +193,7 @@ export default function Ads() {
                       </p>
                       <p className="flex items-center space-x-2">
                         <User className="w-4 h-4 text-blue-400" />
-                        <span>Исполнители размещают: "Грузчик, работаю по выходным"</span>
+                        <span>Рабочие размещают: "Грузчик, работаю по выходным"</span>
                       </p>
                     </div>
                     <div className="space-y-2">
@@ -222,7 +222,7 @@ export default function Ads() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-steel-100">Заказы</h3>
-                    <p className="text-sm text-steel-400">Конкретные задания с дедлайном</p>
+                    <p className="text-sm text-steel-400">Разовые задания на работу</p>
                   </div>
                   <div className="text-primary">→</div>
                 </div>
@@ -236,7 +236,7 @@ export default function Ads() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-steel-100">Объявления</h3>
-                  <p className="text-sm text-steel-400">Долгосрочные предложения услуг</p>
+                  <p className="text-sm text-steel-400">Резюме рабочих</p>
                 </div>
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
               </div>
@@ -327,8 +327,8 @@ export default function Ads() {
                     Подсказка
                   </h4>
                   <p className="text-sm text-steel-300">
-                    <strong>Объявления</strong> подходят для постоянных услуг: "Грузчик на выходные", "Репетитор английского". 
-                    <strong> Заказы</strong> - для разовых задач: "Переезд 20 января", "Сделать сайт за неделю".
+                    <strong>Объявления</strong> подходят для постоянных услуг: "Грузчик на выходные", "Бригада разнорабочих". 
+                    <strong> Заказы</strong> - для разовых задач: "Переезд 20 января", "Разгрузка фуры завтра".
                   </p>
                 </div>
               </div>

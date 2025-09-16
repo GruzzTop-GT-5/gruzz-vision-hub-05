@@ -250,7 +250,7 @@ export default function CreateAd() {
                       <FormLabel>Заголовок объявления</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Например: Требуется веб-разработчик для создания сайта"
+                          placeholder="Например: Грузчик со своим транспортом"
                           {...field}
                         />
                       </FormControl>
@@ -289,11 +289,11 @@ export default function CreateAd() {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Бюджет (GT)</FormLabel>
+                      <FormLabel>Цена за час работы (₽)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Например: 15000"
+                          placeholder="Например: 800 (за час)"
                           min="0"
                           {...field}
                         />
@@ -311,7 +311,7 @@ export default function CreateAd() {
                       <FormLabel>Описание</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Подробно опишите задачу, требования к исполнителю, сроки выполнения..."
+                          placeholder="Опишите услуги: квартирные переезды, почасовая работа, опыт, наличие транспорта..."
                           className="min-h-[120px]"
                           {...field}
                         />

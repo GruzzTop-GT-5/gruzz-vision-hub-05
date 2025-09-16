@@ -200,7 +200,7 @@ const Orders = () => {
           <Card className="card-steel max-w-md w-full p-8 text-center space-y-6">
             <Package className="w-16 h-16 text-primary mx-auto" />
             <h2 className="text-2xl font-bold text-steel-100">Требуется авторизация</h2>
-            <p className="text-steel-300">Для просмотра заказов необходимо войти в систему</p>
+            <p className="text-steel-300">Для работы с заказами необходимо войти в систему</p>
           </Card>
         </div>
       </Layout>
@@ -217,7 +217,7 @@ const Orders = () => {
               <BackButton onClick={() => window.history.back()} />
               <div className="flex items-center space-x-3">
                 <Package className="w-8 h-8 text-primary" />
-                <h1 className="text-3xl font-bold text-glow">Мои заказы</h1>
+                <h1 className="text-3xl font-bold text-glow">Заказы на работу</h1>
               </div>
             </div>
             

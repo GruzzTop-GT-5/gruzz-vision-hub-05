@@ -23,17 +23,22 @@ const ORDER_CATEGORIES = [
   'Офисный переезд',
   'Погрузка/разгрузка',
   'Сборка мебели',
-  'Уборка',
-  'Ремонтные работы',
+  'Уборка помещений',
   'Строительные работы',
+  'Ремонтные работы',
+  'Демонтаж',
+  'Подсобные работы',
+  'Складские работы',
+  'Курьерские услуги',
+  'Садовые работы',
   'Другое'
 ];
 
 const DELIVERY_FORMATS = [
-  'Выполнение работ на объекте',
-  'Услуга с фотоотчетом',
-  'Консультация по телефону',
-  'Почасовая работа',
+  'Работа на объекте',
+  'Почасовая оплата',
+  'Сдельная работа',
+  'Фотоотчет о выполнении',
   'Другое'
 ];
 
@@ -244,7 +249,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                 id="title"
                 value={orderData.title}
                 onChange={(e) => setOrderData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="Краткое описание того, что нужно сделать"
+                placeholder="Например: Нужны грузчики для переезда"
                 className="mt-1"
               />
             </div>
@@ -255,7 +260,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                 id="description"
                 value={orderData.description}
                 onChange={(e) => setOrderData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Детальное описание задачи, требований и ожиданий"
+                placeholder="Детали: адрес, этажность, объем груза, время работы"
                 className="mt-1 min-h-[100px]"
               />
             </div>
@@ -281,7 +286,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               </div>
 
               <div>
-                <Label htmlFor="price">Бюджет (GT Coins) *</Label>
+                <Label htmlFor="price">Оплата (₽) *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -289,7 +294,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   step="0.01"
                   value={orderData.price}
                   onChange={(e) => setOrderData(prev => ({ ...prev, price: e.target.value }))}
-                  placeholder="Сумма вознаграждения в GT"
+                  placeholder="Сумма оплаты за работу"
                   className="mt-1"
                 />
                 {orderData.price && !isNaN(parseFloat(orderData.price)) && parseFloat(orderData.price) > 0 && (
@@ -376,7 +381,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             </div>
 
             <div>
-              <Label htmlFor="specifications">Технические требования</Label>
+              <Label htmlFor="specifications">Особые требования</Label>
               <Textarea
                 id="specifications"
                 value={orderData.client_requirements.specifications}
@@ -387,7 +392,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                     specifications: e.target.value
                   }
                 }))}
-                placeholder="Технические спецификации, используемые технологии, стандарты и т.д."
+                placeholder="Требования к рабочим: опыт, физическая подготовка, наличие инструментов"
                 className="mt-1"
               />
             </div>
@@ -423,7 +428,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                     additional_notes: e.target.value
                   }
                 }))}
-                placeholder="Любая дополнительная информация, которая может быть полезна исполнителю"
+                placeholder="Дополнительная информация об условиях работы, времени, оплате"
                 className="mt-1"
               />
             </div>

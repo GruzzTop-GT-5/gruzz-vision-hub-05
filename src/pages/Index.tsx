@@ -62,7 +62,7 @@ const Index = () => {
         {/* Header Section */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-glow">GruzzTop</h1>
-          <p className="text-steel-300">Найдите работу или исполнителей</p>
+          <p className="text-steel-300">Платформа для поиска грузчиков и разнорабочих</p>
         </div>
 
         {/* Quick Actions */}
@@ -71,8 +71,8 @@ const Index = () => {
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
               <Plus className="w-8 h-8" />
               <div>
-                <div className="font-bold">Разместить задание</div>
-                <div className="text-sm opacity-70">Найти исполнителя</div>
+                <div className="font-bold">Создать заказ</div>
+                <div className="text-sm opacity-70">Найти рабочих</div>
               </div>
             </Button>
           </Link>
@@ -80,8 +80,8 @@ const Index = () => {
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
               <Search className="w-8 h-8" />
               <div>
-                <div className="font-bold">Выставить резюме</div>
-                <div className="text-sm opacity-70">Просмотреть объявления</div>
+                <div className="font-bold">Найти работу</div>
+                <div className="text-sm opacity-70">Просмотреть заказы</div>
               </div>
             </Button>
           </Link>
@@ -97,8 +97,8 @@ const Index = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-steel-100 mb-1">Заказы</h3>
-                  <p className="text-sm text-steel-400 mb-2">Конкретные задания с дедлайном</p>
-                  <p className="text-xs text-steel-500">Создайте заказ → Получите отклики → Выберите исполнителя</p>
+                  <p className="text-sm text-steel-400 mb-2">Разовые задания с оплатой</p>
+                  <p className="text-xs text-steel-500">Создайте заказ на грузчиков → Получите отклики → Выберите исполнителей</p>
                 </div>
               </div>
             </Card>
@@ -110,8 +110,8 @@ const Index = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-steel-100 mb-1">Объявления</h3>
-                  <p className="text-sm text-steel-400 mb-2">Долгосрочные предложения услуг</p>
-                  <p className="text-xs text-steel-500">Найдите постоянных исполнителей → Договоритесь о сотрудничестве</p>
+                  <p className="text-sm text-steel-400 mb-2">Резюме рабочих и бригад</p>
+                  <p className="text-xs text-steel-500">Найдите постоянных грузчиков → Договоритесь о сотрудничестве</p>
                 </div>
               </div>
             </Card>
