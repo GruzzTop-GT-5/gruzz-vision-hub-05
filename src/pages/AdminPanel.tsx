@@ -1272,8 +1272,8 @@ export default function AdminPanel() {
                     {/* Commission Settings */}
                     <div className="space-y-4">
                       <div className="flex items-center space-x-3">
-                        <Percent className="w-5 h-5 text-green-400" />
-                        <h3 className="text-lg font-semibold text-steel-100">Комиссии</h3>
+                        <Percent className="w-5 h-5 text-primary" />
+                        <h3 className="text-lg font-semibold text-foreground">Комиссии</h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {systemSettings
