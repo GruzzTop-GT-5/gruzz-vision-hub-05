@@ -202,9 +202,6 @@ export const PlatformRules: React.FC = () => {
             <strong>Email поддержки:</strong> support@gruzztop.ru
           </p>
           <p className="text-sm">
-            <strong>Юридический адрес:</strong> 123456, г. Москва, ул. Примерная, д. 1
-          </p>
-          <p className="text-sm">
             <strong>Часы работы поддержки:</strong> Пн-Пт 9:00-18:00 (МСК)
           </p>
         </CardContent>
