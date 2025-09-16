@@ -1535,25 +1535,7 @@ export default function AdminPanel() {
                             </div>
                           </div>
                           
-                           <div className="flex items-center space-x-2">
-                             <Button
-                               size="sm"
-                               variant="outline"
-                               onClick={() => openBalanceModal(userData.id, 'add')}
-                               className="text-green-400 border-green-400/20 hover:bg-green-400/10"
-                               title="Начислить баланс"
-                             >
-                               <Plus className="w-4 h-4" />
-                             </Button>
-                             <Button
-                               size="sm"
-                               variant="outline"
-                               onClick={() => openBalanceModal(userData.id, 'subtract')}
-                               className="text-red-400 border-red-400/20 hover:bg-red-400/10"
-                               title="Списать баланс"
-                             >
-                               <Minus className="w-4 h-4" />
-                             </Button>
+                            <div className="flex items-center space-x-2">
                              <Select
                               value={userData.role}
                               onValueChange={(newRole) => updateUserRole(userData.id, newRole)}

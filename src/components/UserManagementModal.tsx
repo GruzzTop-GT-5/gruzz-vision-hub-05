@@ -67,6 +67,10 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
   const [balanceOperation, setBalanceOperation] = useState<'add' | 'subtract'>('add');
   const [balanceReason, setBalanceReason] = useState('');
   
+  // Rating management
+  const [newRating, setNewRating] = useState('');
+  const [ratingReason, setRatingReason] = useState('');
+  
   // Ban management
   const [banType, setBanType] = useState<'order_mute' | 'payment_mute' | 'account_block'>('order_mute');
   const [banDuration, setBanDuration] = useState('60');
@@ -286,6 +290,76 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     }
   };
 
+  const handleRatingChange = async () => {
+    if (!user || !newRating.trim() || !ratingReason.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все поля",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const rating = parseFloat(newRating);
+    if (isNaN(rating) || rating < 0 || rating > 5) {
+      toast({
+        title: "Ошибка",
+        description: "Рейтинг должен быть от 0 до 5",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Update user rating
+      const { error: ratingError } = await supabase
+        .from('profiles')
+        .update({ rating: rating })
+        .eq('id', user.id);
+
+      if (ratingError) throw ratingError;
+
+      // Log admin action
+      await supabase
+        .from('admin_logs')
+        .insert({
+          action: 'update_rating',
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          target_id: user.id,
+          target_type: 'user'
+        });
+
+      // Create notification
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: user.id,
+          type: 'rating_update',
+          title: 'Рейтинг изменен',
+          content: `Ваш рейтинг был изменен на ${rating}. Причина: ${ratingReason}`
+        });
+
+      toast({
+        title: "Успешно",
+        description: "Рейтинг пользователя обновлен"
+      });
+
+      setNewRating('');
+      setRatingReason('');
+      onUserUpdate();
+    } catch (error) {
+      console.error('Error updating rating:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить рейтинг",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getBanTypeLabel = (type: string) => {
     switch (type) {
       case 'order_mute': return 'Запрет на заказы';
@@ -429,17 +503,52 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
           {/* Actions */}
           <div className="space-y-4">
-            {/* Quick Actions Note */}
+            {/* Balance Management */}
             <Card className="card-steel-lighter p-4">
-              <h3 className="text-lg font-semibold text-steel-100 mb-4">Баланс пользователя</h3>
-              <div className="text-center">
-                <p className="text-steel-100 font-medium flex items-center justify-center">
-                  <Wallet className="w-5 h-5 mr-2" />
-                  {user.balance.toFixed(2)} GT Coins
-                </p>
-                <p className="text-sm text-steel-300 mt-2">
-                  Для изменения баланса используйте кнопку "⚙️" в списке пользователей
-                </p>
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Управление балансом</h3>
+              
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={balanceOperation === 'add' ? 'default' : 'outline'}
+                    onClick={() => setBalanceOperation('add')}
+                    className="flex items-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Начислить</span>
+                  </Button>
+                  
+                  <Button
+                    variant={balanceOperation === 'subtract' ? 'default' : 'outline'}
+                    onClick={() => setBalanceOperation('subtract')}
+                    className="flex items-center space-x-2"
+                  >
+                    <Minus className="w-4 h-4" />
+                    <span>Списать</span>
+                  </Button>
+                </div>
+                
+                <Input
+                  type="number"
+                  placeholder="Сумма"
+                  value={balanceAmount}
+                  onChange={(e) => setBalanceAmount(e.target.value)}
+                />
+                
+                <Textarea
+                  placeholder="Причина операции (обязательно)"
+                  value={balanceReason}
+                  onChange={(e) => setBalanceReason(e.target.value)}
+                  rows={2}
+                />
+                
+                <Button
+                  onClick={handleBalanceOperation}
+                  disabled={loading || !balanceAmount.trim() || !balanceReason.trim()}
+                  className="w-full"
+                >
+                  {balanceOperation === 'add' ? 'Начислить' : 'Списать'} средства
+                </Button>
               </div>
             </Card>
 
@@ -513,6 +622,45 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   </div>
                 </div>
               )}
+            </Card>
+
+            {/* Rating Management */}
+            <Card className="card-steel-lighter p-4">
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Изменение рейтинга</h3>
+              
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">
+                    Текущий рейтинг: {user.rating?.toFixed(2) || '0.00'}
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Новый рейтинг (0-5)"
+                    value={newRating}
+                    onChange={(e) => setNewRating(e.target.value)}
+                    min="0"
+                    max="5"
+                    step="0.1"
+                  />
+                </div>
+                
+                <Textarea
+                  placeholder="Причина изменения рейтинга (обязательно)"
+                  value={ratingReason}
+                  onChange={(e) => setRatingReason(e.target.value)}
+                  rows={2}
+                />
+                
+                <Button
+                  onClick={handleRatingChange}
+                  disabled={loading || !newRating.trim() || !ratingReason.trim()}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  <Award className="w-4 h-4 mr-2" />
+                  Изменить рейтинг
+                </Button>
+              </div>
             </Card>
           </div>
         </div>
