@@ -6,7 +6,7 @@ import Index from "./pages/Index";
 import Balance from "./pages/Balance";
 import { Rules } from "./pages/Rules";
 import Ads from "./pages/Ads";
-import CreateAd from "./pages/CreateAd";
+import CreateOrder from "./pages/CreateOrder";
 import UserProfile from "./pages/UserProfile";
 import Profile from "./pages/Profile";
 import Orders from "./pages/Orders";
@@ -30,7 +30,8 @@ const App = () => (
         <Route path="/balance" element={<Balance />} />
         <Route path="/rules" element={<Rules />} />
         <Route path="/ads" element={<Ads />} />
-        <Route path="/create-ad" element={<CreateAd />} />
+          <Route path="/create-ad" element={<CreateAd />} />
+          <Route path="/create-order" element={<CreateOrder />} />
         <Route path="/ad/:id" element={<AdDetails />} />
         <Route path="/my-ads" element={<MyAds />} />
         <Route path="/profile" element={<Profile />} />

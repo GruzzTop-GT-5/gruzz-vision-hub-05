@@ -237,7 +237,7 @@ export default function Ads() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-glow">Заказы на работу</h1>
-            <Link to="/create-ad">
+            <Link to="/create-order">
               <Button className="bg-primary hover:bg-primary/80">
                 <Plus className="w-4 h-4 mr-2" />
                 Разместить заказ
