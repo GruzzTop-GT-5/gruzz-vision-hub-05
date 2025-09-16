@@ -2846,53 +2846,46 @@ export default function AdminPanel() {
       
       {/* Ad Moderation Modal */}
       {/* Delete Ad Modal */}
-      {(() => {
-        console.log('Rendering delete ad modal, deleteAdModalOpen:', deleteAdModalOpen, 'deleteAdId:', deleteAdId);
-        return deleteAdModalOpen && (
-        <AlertDialog open={deleteAdModalOpen} onOpenChange={setDeleteAdModalOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Удалить объявление</AlertDialogTitle>
-              <AlertDialogDescription>
-                Укажите причину удаления объявления. Эта информация будет отправлена пользователю.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="deleteReason">Причина удаления</Label>
-                <Textarea
-                  id="deleteReason"
-                  placeholder="Укажите причину удаления..."
-                  value={deleteAdReason}
-                  onChange={(e) => setDeleteAdReason(e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
+      <AlertDialog open={deleteAdModalOpen} onOpenChange={setDeleteAdModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить объявление</AlertDialogTitle>
+            <AlertDialogDescription>
+              Укажите причину удаления объявления. Эта информация будет отправлена пользователю.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="deleteReason">Причина удаления</Label>
+              <Textarea
+                id="deleteReason"
+                placeholder="Укажите причину удаления..."
+                value={deleteAdReason}
+                onChange={(e) => setDeleteAdReason(e.target.value)}
+                className="min-h-[100px]"
+              />
             </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => {
-                setDeleteAdModalOpen(false);
-                setDeleteAdReason('');
-                setDeleteAdId('');
-              }}>
-                Отмена
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteAd}
-                className="bg-red-600 hover:bg-red-700"
-                disabled={!deleteAdReason.trim()}
-              >
-                Удалить
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        );
-      })()}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setDeleteAdModalOpen(false);
+              setDeleteAdReason('');
+              setDeleteAdId('');
+            }}>
+              Отмена
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAd}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={!deleteAdReason.trim()}
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {(() => {
-        console.log('Rendering AdModerationModal, adModerationOpen:', adModerationOpen, 'selectedAd:', selectedAd);
-        return (
+      {/* AdModerationModal */}
       <AdModerationModal
         ad={selectedAd}
         isOpen={adModerationOpen}
@@ -2902,8 +2895,6 @@ export default function AdminPanel() {
         }}
         onAdUpdate={fetchAds}
       />
-        );
-      })()}
       
       {/* User Management Modal */}
       <UserManagementModal
