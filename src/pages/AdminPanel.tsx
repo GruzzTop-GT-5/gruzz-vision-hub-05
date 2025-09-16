@@ -453,7 +453,7 @@ export default function AdminPanel() {
       const { data, error } = await supabase
         .from('orders')
         .select(`*,
-          profiles!orders_client_id_fkey (
+          profiles!client_id (
             display_name,
             full_name,
             phone
@@ -824,7 +824,7 @@ export default function AdminPanel() {
         .from('user_bans')
         .select(`
           *,
-          profiles!user_bans_user_id_fkey (
+          profiles!user_id (
             display_name,
             full_name,
             phone
