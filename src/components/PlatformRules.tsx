@@ -26,27 +26,19 @@ interface RulesSectionProps {
   variant?: 'default' | 'warning' | 'success' | 'info';
 }
 
-const RulesSection: React.FC<RulesSectionProps> = ({ 
-  title, 
-  content, 
-  icon, 
-  variant = 'default' 
-}) => {
-  const getVariantClasses = (variant: string) => {
-    switch (variant) {
-      case 'warning':
-        return 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950';
-      case 'success':
-        return 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950';
-      case 'info':
-        return 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950';
-      default:
-        return 'border-border bg-card';
-    }
-  };
+const RulesSection = ({ title, content, icon, variant = 'default' }: RulesSectionProps) => {
+  let cardClasses = 'bg-card border-border';
+  
+  if (variant === 'warning') {
+    cardClasses = 'bg-orange-500/5 border-orange-500/20';
+  } else if (variant === 'success') {
+    cardClasses = 'bg-green-500/5 border-green-500/20';
+  } else if (variant === 'info') {
+    cardClasses = 'bg-blue-500/5 border-blue-500/20';
+  }
 
   return (
-    <Card className={getVariantClasses(variant)}>
+    <Card className={cardClasses}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {icon}
@@ -57,7 +49,7 @@ const RulesSection: React.FC<RulesSectionProps> = ({
         {content.map((section, index) => (
           <div key={index}>
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-green-500" />
               {section.section}
             </h4>
             <ul className="space-y-2">
@@ -76,7 +68,7 @@ const RulesSection: React.FC<RulesSectionProps> = ({
   );
 };
 
-export const PlatformRules: React.FC = () => {
+export const PlatformRules = () => {
   const [activeTab, setActiveTab] = useState("commission");
 
   return (
@@ -98,19 +90,19 @@ export const PlatformRules: React.FC = () => {
       </div>
 
       {/* Important Notice */}
-      <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
+      <Card className="bg-orange-500/5 border-orange-500/20">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
             <div className="space-y-1">
-              <p className="font-medium text-yellow-800 dark:text-yellow-200">
+              <p className="font-medium text-orange-300">
                 Важная информация
               </p>
-            <p className="text-sm text-yellow-700 dark:text-yellow-300">
+            <p className="text-sm text-orange-200">
                 Использование платформы означает полное согласие с данными правилами. 
                 При изменении правил все пользователи получают уведомление.
             </p>
-            <p className="text-sm text-orange-700 dark:text-orange-300 mt-2 font-medium">
+            <p className="text-sm text-orange-100 mt-2 font-medium">
                 ⚠️ Приложение находится в стадии разработки. Возможно, не все правила работают корректно.
             </p>
             </div>
@@ -148,7 +140,7 @@ export const PlatformRules: React.FC = () => {
             <RulesSection
               title={PLATFORM_RULES.commission.title}
               content={PLATFORM_RULES.commission.content}
-              icon={<CreditCard className="h-5 w-5 text-green-600" />}
+              icon={<CreditCard className="h-5 w-5 text-green-500" />}
               variant="success"
             />
           </TabsContent>
@@ -157,7 +149,7 @@ export const PlatformRules: React.FC = () => {
             <RulesSection
               title={PLATFORM_RULES.responsibilities.title}
               content={PLATFORM_RULES.responsibilities.content}
-              icon={<Users className="h-5 w-5 text-blue-600" />}
+              icon={<Users className="h-5 w-5 text-blue-500" />}
               variant="info"
             />
           </TabsContent>
@@ -166,7 +158,7 @@ export const PlatformRules: React.FC = () => {
             <RulesSection
               title={PLATFORM_RULES.disputes.title}
               content={PLATFORM_RULES.disputes.content}
-              icon={<Scale className="h-5 w-5 text-orange-600" />}
+              icon={<Scale className="h-5 w-5 text-orange-500" />}
               variant="warning"
             />
           </TabsContent>
@@ -175,7 +167,7 @@ export const PlatformRules: React.FC = () => {
             <RulesSection
               title={PLATFORM_RULES.payments.title}
               content={PLATFORM_RULES.payments.content}
-              icon={<Shield className="h-5 w-5 text-purple-600" />}
+              icon={<Shield className="h-5 w-5 text-purple-500" />}
             />
           </TabsContent>
 
@@ -183,7 +175,7 @@ export const PlatformRules: React.FC = () => {
             <RulesSection
               title={PLATFORM_RULES.privacy.title}
               content={PLATFORM_RULES.privacy.content}
-              icon={<FileText className="h-5 w-5 text-indigo-600" />}
+              icon={<FileText className="h-5 w-5 text-indigo-500" />}
             />
           </TabsContent>
         </ScrollArea>
@@ -193,7 +185,7 @@ export const PlatformRules: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Info className="h-5 w-5 text-blue-600" />
+            <Info className="h-5 w-5 text-blue-500" />
             Контактная информация
           </CardTitle>
           <CardDescription>
