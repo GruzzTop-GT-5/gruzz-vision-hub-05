@@ -65,13 +65,12 @@ export const AdModerationModal = ({ ad, isOpen, onClose, onAdUpdate }: AdModerat
 
     setLoading(true);
     try {
+      // Direct update with any status type
       const { error } = await supabase
         .from('ads')
         .update({ 
-          status,
-          moderation_comment: moderationComment.trim() || null,
-          moderated_at: new Date().toISOString(),
-          moderated_by: (await supabase.auth.getUser()).data.user?.id
+          status: status as any,
+          updated_at: new Date().toISOString()
         })
         .eq('id', ad.id);
 

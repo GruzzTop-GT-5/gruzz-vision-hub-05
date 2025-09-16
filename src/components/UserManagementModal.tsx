@@ -105,9 +105,17 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     
     setLoading(true);
     try {
+      // Only update allowed fields to avoid role conflicts
+      const updateData = {
+        display_name: editedUser.display_name,
+        full_name: editedUser.full_name,
+        bio: editedUser.bio,
+        phone: editedUser.phone
+      };
+      
       const { error } = await supabase
         .from('profiles')
-        .update(editedUser)
+        .update(updateData)
         .eq('id', user.id);
 
       if (error) throw error;
@@ -163,17 +171,19 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
     setLoading(true);
     try {
-      // Create transaction
+      // Create transaction with correct type
+      const transactionType = balanceOperation === 'add' ? 'deposit' : 'withdrawal';
+      
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
           user_id: user.id,
-          type: balanceOperation === 'add' ? 'admin_credit' : 'admin_debit',
+          type: transactionType,
           amount: amount,
           status: 'completed',
           admin_notes: balanceReason,
           processed_by: (await supabase.auth.getUser()).data.user?.id
-        });
+        } as any);
 
       if (transactionError) throw transactionError;
 

@@ -47,6 +47,8 @@ import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminReviewModeration } from '@/components/AdminReviewModeration';
 import { AdminTicketManagement } from '@/components/AdminTicketManagement';
+import { AdModerationModal } from '@/components/AdModerationModal';
+import { UserManagementModal } from '@/components/UserManagementModal';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -71,6 +73,9 @@ interface User {
   rating: number | null;
   balance: number;
   created_at: string;
+  age: number | null;
+  citizenship: string | null;
+  qualification: string | null;
 }
 
 interface Ad {
@@ -276,6 +281,10 @@ export default function AdminPanel() {
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [selectedUserData, setSelectedUserData] = useState<User | null>(null);
   const [loadingUserData, setLoadingUserData] = useState(false);
+  
+  // Ad moderation modal state
+  const [adModerationOpen, setAdModerationOpen] = useState(false);
+  const [selectedAd, setSelectedAd] = useState<any>(null);
 
   // Clear filter functions
   const clearUserFilter = () => setUserFilter('');
@@ -1558,9 +1567,22 @@ export default function AdminPanel() {
                                 <SelectItem value="admin">Админ</SelectItem>
                                 {userRole === 'system_admin' && (
                                   <SelectItem value="system_admin">Системный админ</SelectItem>
-                                )}
-                              </SelectContent>
-                            </Select>
+                                 )}
+                               </SelectContent>
+                             </Select>
+                             
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               onClick={async () => {
+                                 setSelectedUserData(userData);
+                                 setUserModalOpen(true);
+                               }}
+                               className="text-purple-400 border-purple-400/20 hover:bg-purple-400/10"
+                               title="Расширенное управление"
+                             >
+                               <Settings className="w-4 h-4" />
+                             </Button>
                           </div>
                         </div>
                       </div>
@@ -1671,24 +1693,37 @@ export default function AdminPanel() {
                               >
                                 <X className="w-4 h-4" />
                               </Button>
-                            )}
+                             )}
+                            
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedAd(ad);
+                                setAdModerationOpen(true);
+                              }}
+                              className="text-orange-400 border-orange-400/20 hover:bg-orange-400/10"
+                              title="Расширенная модерация"
+                            >
+                              <Settings className="w-4 h-4" />
+                             </Button>
+                            
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={async () => {
                                 setLoadingUserData(true);
-                                setUserModalOpen(true);
                                 
-                                // Fetch user data
                                 try {
                                   const { data: userData, error } = await supabase
                                     .from('profiles')
-                                    .select('*')
+                                    .select('id, phone, display_name, full_name, bio, role, rating, balance, created_at, age, citizenship, qualification')
                                     .eq('id', ad.user_id)
                                     .single();
                                   
                                   if (error) throw error;
                                   setSelectedUserData(userData);
+                                  setUserModalOpen(true);
                                 } catch (error) {
                                   console.error('Error fetching user data:', error);
                                   toast({
@@ -2950,7 +2985,29 @@ export default function AdminPanel() {
                 <div className="text-center py-8">
                   <p className="text-steel-400">Не удалось загрузить данные пользователя</p>
                 </div>
-              )}
+      )}
+      
+      {/* Ad Moderation Modal */}
+      <AdModerationModal
+        ad={selectedAd}
+        isOpen={adModerationOpen}
+        onClose={() => {
+          setAdModerationOpen(false);
+          setSelectedAd(null);
+        }}
+        onAdUpdate={fetchAds}
+      />
+      
+      {/* User Management Modal */}
+      <UserManagementModal
+        user={selectedUserData}
+        isOpen={userModalOpen}
+        onClose={() => {
+          setUserModalOpen(false);
+          setSelectedUserData(null);
+        }}
+        onUserUpdate={fetchUsers}
+      />
             </div>
           </Card>
         </div>
