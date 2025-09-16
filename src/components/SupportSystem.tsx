@@ -291,8 +291,16 @@ export const SupportSystem = () => {
               Создать тикет
             </Button>
           </DialogTrigger>
-          
-          <DialogContent className="bg-steel-800 border border-steel-600 max-w-md p-6 rounded-lg shadow-lg backdrop-blur-sm">
+            
+            <div className="absolute top-0 left-0 w-full h-0.5 opacity-50" style={{
+              background: 'linear-gradient(90deg, transparent, hsl(195, 100%, 50%) 20%, hsl(195, 100%, 50%) 80%, transparent)'
+            }}></div>
+          <DialogContent className="max-w-md relative overflow-hidden" style={{
+            background: 'linear-gradient(135deg, hsl(210, 35%, 22%) 0%, hsl(210, 40%, 15%) 30%, hsl(210, 45%, 10%) 70%, hsl(210, 50%, 6%) 100%)',
+            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.9), 0 6px 12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.5)',
+            border: '2px solid transparent',
+            backgroundClip: 'padding-box'
+          }}>
             <DialogHeader>
               <DialogTitle className="text-steel-100">Новый тикет поддержки</DialogTitle>
             </DialogHeader>
