@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BackButton } from '@/components/BackButton';
+import { AdDetailsModal } from '@/components/AdDetailsModal';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -59,6 +60,8 @@ export default function Ads() {
   const [selectedCategory, setSelectedCategory] = useState('Все категории');
   const [sortBy, setSortBy] = useState('newest');
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAds();
@@ -380,7 +383,10 @@ export default function Ads() {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => window.open(`/ad/${ad.id}`, '_blank')}
+                        onClick={() => {
+                          setSelectedAd(ad);
+                          setIsModalOpen(true);
+                        }}
                       >
                         Подробнее
                       </Button>
@@ -390,6 +396,16 @@ export default function Ads() {
               ))}
             </div>
           )}
+
+          {/* Ad Details Modal */}
+          <AdDetailsModal
+            ad={selectedAd}
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedAd(null);
+            }}
+          />
         </div>
       </div>
     </Layout>
