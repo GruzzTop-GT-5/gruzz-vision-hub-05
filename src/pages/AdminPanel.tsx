@@ -1032,6 +1032,80 @@ export default function AdminPanel() {
     }
   };
 
+  const deleteOrder = async (orderId: string) => {
+    try {
+      console.log('Deleting order:', orderId);
+      
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Order deletion successful');
+
+      // Log admin action
+      await logAdminAction(`Удаление заказа`, orderId, 'order');
+
+      toast({
+        title: "Заказ удален",
+        description: "Заказ успешно удален",
+      });
+
+      // Refresh data
+      fetchOrders();
+      fetchAdminLogs();
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      toast({
+        title: "Ошибка удаления",
+        description: error instanceof Error ? error.message : "Не удалось удалить заказ",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteAd = async (adId: string) => {
+    try {
+      console.log('Deleting ad:', adId);
+      
+      const { error } = await supabase
+        .from('ads')
+        .delete()
+        .eq('id', adId);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Ad deletion successful');
+
+      // Log admin action
+      await logAdminAction(`Удаление объявления`, adId, 'ad');
+
+      toast({
+        title: "Объявление удалено",
+        description: "Объявление успешно удалено",
+      });
+
+      // Refresh data
+      fetchAds();
+      fetchAdminLogs();
+    } catch (error) {
+      console.error('Error deleting ad:', error);
+      toast({
+        title: "Ошибка удаления",
+        description: error instanceof Error ? error.message : "Не удалось удалить объявление",
+        variant: "destructive"
+      });
+    }
+  };
+
   const moderateOrder = async (orderId: string, status: string, reason?: string) => {
     try {
       console.log('Moderating order:', orderId, 'to status:', status, 'reason:', reason);
@@ -1553,7 +1627,6 @@ export default function AdminPanel() {
                               </div>
                             </div>
                           </div>
-                          
                           <div className="flex items-center space-x-2 ml-6">
                             {ad.status !== 'active' && (
                               <Button
@@ -1596,6 +1669,20 @@ export default function AdminPanel() {
                               title="Профиль автора"
                             >
                               <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                console.log('Deleting ad:', ad.id);
+                                if (confirm('Вы уверены, что хотите удалить это объявление?')) {
+                                  deleteAd(ad.id);
+                                }
+                              }}
+                              className="text-red-500 border-red-500/20 hover:bg-red-500/10"
+                              title="Удалить объявление"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
@@ -1749,6 +1836,20 @@ export default function AdminPanel() {
                               title="Профиль клиента"
                             >
                               <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                console.log('Deleting order:', order.id);
+                                if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
+                                  deleteOrder(order.id);
+                                }
+                              }}
+                              className="text-red-500 border-red-500/20 hover:bg-red-500/10"
+                              title="Удалить заказ"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
