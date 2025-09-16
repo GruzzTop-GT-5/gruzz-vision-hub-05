@@ -1739,17 +1739,15 @@ export default function AdminPanel() {
                               </Button>
                              )}
                             
-                            <Button
+                             <Button
                               size="sm"
                               variant="outline"
-              onClick={() => {
-                console.log('Opening moderation modal for ad:', ad.id);
-                console.log('Selected ad data:', ad);
-                console.log('Current adModerationOpen state:', adModerationOpen);
-                setSelectedAd(ad);
-                setAdModerationOpen(true);
-                console.log('After setting state - adModerationOpen should be true');
-              }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setSelectedAd(ad);
+                                setAdModerationOpen(true);
+                              }}
                               className="text-orange-400 border-orange-400/20 hover:bg-orange-400/10"
                               title="Расширенная модерация"
                             >
@@ -1759,8 +1757,9 @@ export default function AdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                console.log('Opening delete modal for ad:', ad.id);
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
                                 setDeleteAdId(ad.id);
                                 setDeleteAdModalOpen(true);
                               }}
@@ -2886,19 +2885,10 @@ export default function AdminPanel() {
       </AlertDialog>
 
       {/* AdModerationModal */}
-      {(() => {
-        console.log('About to render AdModerationModal:', {
-          selectedAd: selectedAd,
-          isOpen: adModerationOpen,
-          adId: selectedAd?.id
-        });
-        return null;
-      })()}
       <AdModerationModal
         ad={selectedAd}
         isOpen={adModerationOpen}
         onClose={() => {
-          console.log('AdModerationModal onClose called');
           setAdModerationOpen(false);
           setSelectedAd(null);
         }}
