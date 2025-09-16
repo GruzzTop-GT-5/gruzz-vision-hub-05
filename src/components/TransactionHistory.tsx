@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpCircle, ArrowDownCircle, Clock, CheckCircle, XCircle, FileImage } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { formatBalance } from '@/utils/currency';
 
 interface TransactionHistoryProps {
   isOpen: boolean;
@@ -191,12 +192,16 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
                   </div>
                   
                   <div className="text-right space-y-2">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-col items-end space-y-1">
                       <span className={`text-lg font-bold ${
-                        transaction.type === 'purchase' ? 'text-red-400' : 'text-green-400'
+                        transaction.type === 'purchase' || transaction.type === 'payment' || transaction.type === 'withdrawal' 
+                          ? 'text-red-400' : 'text-green-400'
                       }`}>
-                        {transaction.type === 'purchase' ? '-' : '+'}
-                        {transaction.amount.toFixed(2)} GT
+                        {transaction.type === 'purchase' || transaction.type === 'payment' || transaction.type === 'withdrawal' ? '-' : '+'}
+                        {formatBalance(transaction.amount).gtCoins}
+                      </span>
+                      <span className="text-xs text-steel-500">
+                        ≈ {formatBalance(transaction.amount).rubles}
                       </span>
                     </div>
                     {getStatusBadge(transaction.status)}

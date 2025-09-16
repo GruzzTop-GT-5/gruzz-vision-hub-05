@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Coins, Plus, History, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { formatBalance } from '@/utils/currency';
 
 interface BalanceCardProps {
   userId: string;
@@ -57,6 +58,8 @@ export const BalanceCard = ({ userId, onTopUpClick, onHistoryClick }: BalanceCar
     );
   }
 
+  const formattedBalance = formatBalance(balance);
+
   return (
     <Card className="card-steel p-6 space-y-4">
       {/* Balance Display */}
@@ -66,12 +69,12 @@ export const BalanceCard = ({ userId, onTopUpClick, onHistoryClick }: BalanceCar
             <Coins className="w-6 h-6 text-steel-900" />
           </div>
           <div>
-            <h3 className="text-sm text-steel-400">Баланс GT Coins</h3>
-            <p className="text-2xl font-bold text-glow">{balance.toFixed(2)}</p>
+            <h3 className="text-sm text-steel-400">Ваш баланс</h3>
+            <p className="text-2xl font-bold text-glow">{formattedBalance.gtCoins}</p>
           </div>
         </div>
         <div className="text-xs text-steel-500">
-          ≈ {balance.toFixed(2)} GT
+          ≈ {formattedBalance.rubles}
         </div>
       </div>
 
@@ -97,7 +100,7 @@ export const BalanceCard = ({ userId, onTopUpClick, onHistoryClick }: BalanceCar
       {/* Info */}
       <div className="pt-3 border-t border-steel-600">
         <div className="flex items-center justify-between text-xs text-steel-400">
-          <span>1 GT Coin = 1 GT</span>
+          <span>1 GT Coin = 1 ₽</span>
           <div className="flex items-center space-x-1">
             <TrendingUp className="w-3 h-3" />
             <span>Стабильный курс</span>

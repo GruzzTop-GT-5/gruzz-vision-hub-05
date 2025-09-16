@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { sanitizeInput } from '@/utils/security';
+import { validateAmount, formatBalance, formatRubles } from '@/utils/currency';
 import { Plus, Calendar as CalendarIcon, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -86,10 +87,12 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     }
 
     const price = parseFloat(orderData.price);
-    if (isNaN(price) || price <= 0) {
+    const validation = validateAmount(price);
+    
+    if (!validation.isValid) {
       toast({
         title: "Неверная цена",
-        description: "Укажите корректную сумму",
+        description: validation.error,
         variant: "destructive"
       });
       return;
@@ -278,16 +281,22 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               </div>
 
               <div>
-                <Label htmlFor="price">Бюджет (GT) *</Label>
+                <Label htmlFor="price">Бюджет (GT Coins) *</Label>
                 <Input
                   id="price"
                   type="number"
                   min="1"
+                  step="0.01"
                   value={orderData.price}
                   onChange={(e) => setOrderData(prev => ({ ...prev, price: e.target.value }))}
-                  placeholder="Сумма вознаграждения"
+                  placeholder="Сумма вознаграждения в GT"
                   className="mt-1"
                 />
+                {orderData.price && !isNaN(parseFloat(orderData.price)) && parseFloat(orderData.price) > 0 && (
+                  <div className="text-xs text-steel-400 mt-1">
+                    ≈ {formatRubles(parseFloat(orderData.price))} (курс: 1 GT = 1 ₽)
+                  </div>
+                )}
               </div>
             </div>
 
@@ -451,16 +460,25 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-steel-300">Вознаграждение исполнителя:</span>
-                  <span className="text-steel-100">{parseFloat(orderData.price).toLocaleString('ru-RU')} GT</span>
+                  <div className="text-right">
+                    <div className="text-steel-100">{formatBalance(parseFloat(orderData.price)).gtCoins}</div>
+                    <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price)).rubles}</div>
+                  </div>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-steel-300">Комиссия платформы (10%):</span>
-                  <span className="text-steel-100">{((parseFloat(orderData.price) * 10) / 100).toLocaleString('ru-RU')} GT</span>
+                  <div className="text-right">
+                    <div className="text-steel-100">{formatBalance((parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
+                    <div className="text-xs text-steel-400">{formatBalance((parseFloat(orderData.price) * 10) / 100).rubles}</div>
+                  </div>
                 </div>
                 <div className="border-t border-steel-600 pt-1 mt-2">
                   <div className="flex justify-between font-semibold">
                     <span className="text-steel-100">Итого к оплате:</span>
-                    <span className="text-primary">{(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).toLocaleString('ru-RU')} GT</span>
+                    <div className="text-right">
+                      <div className="text-primary">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).gtCoins}</div>
+                      <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).rubles}</div>
+                    </div>
                   </div>
                 </div>
               </div>

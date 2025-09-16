@@ -9,6 +9,7 @@ import { CreditCard, Smartphone, Upload, Copy, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from '@/integrations/supabase/types';
+import { validateAmount, formatBalance, formatRubles } from '@/utils/currency';
 
 interface TopUpModalProps {
   isOpen: boolean;
@@ -44,10 +45,13 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
   ];
 
   const generatePaymentDetails = async (method: string) => {
-    if (!amount || parseFloat(amount) <= 0) {
+    const amountNum = parseFloat(amount);
+    const validation = validateAmount(amountNum);
+    
+    if (!validation.isValid) {
       toast({
         title: "Ошибка",
-        description: "Введите корректную сумму пополнения",
+        description: validation.error,
         variant: "destructive"
       });
       return;
@@ -229,16 +233,23 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
 
           {/* Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Сумма пополнения (GT)</Label>
+            <Label htmlFor="amount">Сумма пополнения (GT Coins)</Label>
             <Input
               id="amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Введите сумму"
+              placeholder="Введите сумму в GT Coins"
               min="1"
+              step="0.01"
               className="input-steel"
             />
+            {amount && parseFloat(amount) > 0 && (
+              <div className="text-xs text-steel-400 flex justify-between">
+                <span>К оплате: {formatRubles(parseFloat(amount))}</span>
+                <span>1 GT = 1 ₽</span>
+              </div>
+            )}
             <p className="text-xs text-steel-400">
               Минимальная сумма: 100 GT • Максимальная: 50,000 GT
             </p>
