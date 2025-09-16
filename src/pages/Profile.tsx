@@ -27,6 +27,7 @@ interface ProfileData {
   rating?: number;
   balance?: number;
   created_at?: string;
+  registration_number?: number;
 }
 
 const Profile = () => {
@@ -61,7 +62,18 @@ const Profile = () => {
       }
 
       if (data) {
-        setProfileData(data);
+        // Get registration number (how many users registered before this user)
+        const { count } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .lt('created_at', data.created_at);
+
+        const registrationNumber = (count || 0) + 1;
+
+        setProfileData({
+          ...data,
+          registration_number: registrationNumber
+        });
       }
     } catch (error) {
       console.error('Error:', error);
@@ -388,6 +400,26 @@ const Profile = () => {
                         <p className="text-steel-100">{profileData.citizenship || 'Не указано'}</p>
                       )}
                     </div>
+
+                   <div className="space-y-2">
+                     <Label className="text-steel-400 text-sm">№ пользователя</Label>
+                     <div className="flex items-center space-x-2">
+                       <User className="w-4 h-4 text-steel-400" />
+                       <p className="text-steel-100 font-mono bg-steel-800 px-2 py-1 rounded text-sm">
+                         #{profileData.registration_number || 'N/A'}
+                       </p>
+                     </div>
+                   </div>
+
+                   <div className="space-y-2">
+                     <Label className="text-steel-400 text-sm">ID аккаунта</Label>
+                     <div className="flex items-center space-x-2">
+                       <User className="w-4 h-4 text-steel-400" />
+                       <p className="text-steel-100 font-mono bg-steel-800 px-2 py-1 rounded text-xs">
+                         {profileData.id?.substring(0, 8) || 'N/A'}...
+                       </p>
+                     </div>
+                   </div>
 
                    <div className="space-y-2">
                      <Label className="text-steel-400 text-sm">Логин аккаунта</Label>
