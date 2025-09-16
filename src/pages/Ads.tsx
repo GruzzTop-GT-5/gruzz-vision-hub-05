@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BackButton } from '@/components/BackButton';
 import { AdDetailsModal } from '@/components/AdDetailsModal';
@@ -129,6 +129,14 @@ export default function Ads() {
     return new Intl.NumberFormat('ru-RU').format(price);
   };
 
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('Все категории');
+    setSortBy('newest');
+  };
+
+  const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== 'Все категории' || sortBy !== 'newest';
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -196,31 +204,49 @@ export default function Ads() {
 
           {/* Simple Filters */}
           <Card className="card-steel p-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              {/* Search */}
-              <div className="relative md:col-span-2">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
-                <Input
-                  placeholder="Найти исполнителя по навыкам или опыту..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="grid md:grid-cols-3 gap-4 flex-1">
+                  {/* Search */}
+                  <div className="relative md:col-span-2">
+                    <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
+                    <Input
+                      placeholder="Найти исполнителя по навыкам или опыту..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
 
-              {/* Category Filter */}
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Все специальности" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category === 'Все категории' ? 'Все специальности' : category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  {/* Category Filter */}
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Все специальности" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category === 'Все категории' ? 'Все специальности' : category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {hasActiveFilters && (
+                  <Button
+                    variant="outline"
+                    onClick={clearFilters}
+                    className="shrink-0"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Сбросить
+                    <Badge className="ml-2 bg-primary/20 text-primary border-primary/20">
+                      {[searchQuery.trim() !== '', selectedCategory !== 'Все категории', sortBy !== 'newest'].filter(Boolean).length}
+                    </Badge>
+                  </Button>
+                )}
+              </div>
             </div>
             
             {/* Results Count */}

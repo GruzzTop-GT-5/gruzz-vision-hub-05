@@ -241,6 +241,13 @@ export default function AdminPanel() {
   const [banReason, setBanReason] = useState('');
   const [banFilter, setBanFilter] = useState('');
 
+  // Clear filter functions
+  const clearUserFilter = () => setUserFilter('');
+  const clearAdFilter = () => setAdStatusFilter('all');
+  const clearTransactionFilter = () => setTransactionStatusFilter('all');
+  const clearLogFilter = () => setLogFilter('');
+  const clearBanFilter = () => setBanFilter('');
+
   const isAdmin = userRole && ['system_admin', 'admin', 'moderator'].includes(userRole);
 
   // Realtime presence for online users
@@ -1275,6 +1282,11 @@ export default function AdminPanel() {
                       onChange={(e) => setUserFilter(e.target.value)}
                       className="w-64"
                     />
+                    {userFilter && (
+                      <Button variant="outline" onClick={clearUserFilter} size="sm">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -1383,6 +1395,11 @@ export default function AdminPanel() {
                         <SelectItem value="inactive">Неактивные</SelectItem>
                       </SelectContent>
                     </Select>
+                    {adStatusFilter !== 'all' && (
+                      <Button variant="outline" onClick={clearAdFilter} size="sm">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -1478,17 +1495,24 @@ export default function AdminPanel() {
               <Card className="card-steel p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-steel-100">Верификация транзакций</h2>
-                  <Select value={transactionStatusFilter} onValueChange={setTransactionStatusFilter}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Все статусы</SelectItem>
-                      <SelectItem value="pending">На проверке</SelectItem>
-                      <SelectItem value="completed">Завершенные</SelectItem>
-                      <SelectItem value="rejected">Отклоненные</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center space-x-2">
+                    <Select value={transactionStatusFilter} onValueChange={setTransactionStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все статусы</SelectItem>
+                        <SelectItem value="pending">На проверке</SelectItem>
+                        <SelectItem value="completed">Завершенные</SelectItem>
+                        <SelectItem value="rejected">Отклоненные</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {transactionStatusFilter !== 'all' && (
+                      <Button variant="outline" onClick={clearTransactionFilter} size="sm">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 {isLoadingTransactions ? (
@@ -1920,14 +1944,21 @@ export default function AdminPanel() {
                     <h2 className="text-xl font-bold text-steel-100">Бан Зона</h2>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400" />
-                      <Input
-                        placeholder="Поиск по ID пользователя..."
-                        value={banFilter}
-                        onChange={(e) => setBanFilter(e.target.value)}
-                        className="w-64 pl-10"
-                      />
+                    <div className="flex items-center space-x-2">
+                      <div className="relative">
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400" />
+                        <Input
+                          placeholder="Поиск по ID пользователя..."
+                          value={banFilter}
+                          onChange={(e) => setBanFilter(e.target.value)}
+                          className="w-64 pl-10"
+                        />
+                      </div>
+                      {banFilter && (
+                        <Button variant="outline" onClick={clearBanFilter} size="sm">
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2117,6 +2148,11 @@ export default function AdminPanel() {
                         className="pl-10 bg-background border-border"
                       />
                     </div>
+                    {logFilter && (
+                      <Button variant="outline" onClick={clearLogFilter} size="sm">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button 
                       onClick={fetchAdminLogs}
                       variant="outline"
