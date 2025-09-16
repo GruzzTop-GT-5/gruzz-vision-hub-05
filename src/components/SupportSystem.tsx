@@ -416,7 +416,7 @@ export const SupportSystem = () => {
           </Card>
         ) : (
           filteredTickets.map((ticket) => (
-            <Card key={ticket.id} className="card-steel p-6 hover:bg-steel-800/50 transition-colors cursor-pointer">
+            <Card key={ticket.id} className="card-steel p-6 hover:bg-steel-800/30 transition-all duration-200 cursor-pointer">
               <div 
                 className="space-y-4"
                 onClick={() => setSelectedConversation(ticket.conversation_id)}
