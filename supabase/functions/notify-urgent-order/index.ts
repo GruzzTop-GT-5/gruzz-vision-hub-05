@@ -9,7 +9,7 @@ const corsHeaders = {
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const telegramBotToken = Deno.env.get('TELEGRAM_BOT_TOKEN')!;
-const telegramAdminChatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')!;
+const telegramGroupChatId = Deno.env.get('TELEGRAM_GROUP_CHAT_ID')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -29,7 +29,7 @@ const sendTelegramMessage = async (message: string) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        chat_id: telegramAdminChatId,
+        chat_id: telegramGroupChatId,
         text: message,
         parse_mode: 'HTML',
         disable_web_page_preview: true,
