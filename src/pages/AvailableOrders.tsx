@@ -230,7 +230,7 @@ const AvailableOrders = () => {
               <BackButton onClick={() => window.history.back()} />
               <div className="flex items-center space-x-3">
                 <Package className="w-8 h-8 text-primary" />
-                <h1 className="text-3xl font-bold text-glow">Доступные заказы</h1>
+                <h1 className="text-3xl font-bold text-glow">Вакансии</h1>
               </div>
             </div>
             

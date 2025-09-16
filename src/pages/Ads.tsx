@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BackButton } from '@/components/BackButton';
 import { AdDetailsModal } from '@/components/AdDetailsModal';
@@ -170,11 +170,11 @@ export default function Ads() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <BackButton onClick={() => window.history.back()} />
-            <h1 className="text-3xl font-bold text-glow">Поиск исполнителей</h1>
+            <h1 className="text-3xl font-bold text-glow">Заказы на работу</h1>
             <Link to="/create-ad">
               <Button className="bg-primary hover:bg-primary/80">
                 <Plus className="w-4 h-4 mr-2" />
-                Создать резюме
+                Разместить заказ
               </Button>
             </Link>
           </div>
@@ -183,20 +183,20 @@ export default function Ads() {
           <Card className="card-steel border-primary/20">
             <div className="p-4 text-center">
               <div className="flex items-center justify-center space-x-2 mb-3">
-                <User className="w-6 h-6 text-primary" />
-                <h3 className="text-xl font-semibold text-steel-100">Резюме исполнителей</h3>
+                <Package className="w-6 h-6 text-primary" />
+                <h3 className="text-xl font-semibold text-steel-100">Заказы на работу</h3>
               </div>
               <p className="text-steel-300 text-base mb-4">
-                Здесь исполнители размещают свои резюме и предлагают услуги
+                Здесь размещаются заказы на различные виды работ от заказчиков
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
                 <div className="flex items-center space-x-2 text-steel-400">
                   <Lightbulb className="w-4 h-4 text-yellow-400" />
-                  <span>Пример: "Опытный грузчик, работаю по выходным"</span>
+                  <span>Пример: "Нужен грузчик для переезда в субботу"</span>
                 </div>
                 <div className="hidden sm:block w-1 h-1 bg-steel-500 rounded-full"></div>
                 <Link to="/available-orders" className="text-primary hover:text-primary/80 font-medium">
-                  Ищете конкретную работу? Найти работу →
+                  Ищете вакансии? Смотреть вакансии →
                 </Link>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function Ads() {
                   <div className="relative md:col-span-2">
                     <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
                     <Input
-                      placeholder="Найти исполнителя по навыкам или опыту..."
+                      placeholder="Найти заказ по описанию работы..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10"
@@ -221,12 +221,12 @@ export default function Ads() {
                   {/* Category Filter */}
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Все специальности" />
+                      <SelectValue placeholder="Все категории работ" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category === 'Все категории' ? 'Все специальности' : category}
+                          {category === 'Все категории' ? 'Все категории работ' : category}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -253,7 +253,7 @@ export default function Ads() {
             {filteredAds.length > 0 && (
               <div className="mt-3 text-center">
                 <span className="text-steel-400 text-sm">
-                  Найдено {filteredAds.length} исполнителей
+                  Найдено {filteredAds.length} заказов
                 </span>
               </div>
             )}
@@ -266,23 +266,23 @@ export default function Ads() {
                 <div className="w-16 h-16 bg-steel-600/20 rounded-full flex items-center justify-center mx-auto">
                   <HelpCircle className="w-8 h-8 text-steel-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-steel-100">Исполнители не найдены</h3>
+                <h3 className="text-xl font-semibold text-steel-100">Заказы не найдены</h3>
                 <p className="text-steel-300 max-w-md mx-auto">
                   {searchQuery || selectedCategory !== 'Все категории'
                     ? 'Попробуйте изменить параметры поиска'
-                    : 'Пока что исполнители не разместили свои резюме'}
+                    : 'Пока что заказчики не разместили заказы на работу'}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
                   <Link to="/create-ad">
                     <Button className="bg-primary hover:bg-primary/80">
                       <Plus className="w-4 h-4 mr-2" />
-                      Создать резюме
+                      Разместить заказ
                     </Button>
                   </Link>
                   <Link to="/orders">
                     <Button variant="outline">
                       <Calendar className="w-4 h-4 mr-2" />
-                      Найти работу
+                      Смотреть вакансии
                     </Button>
                   </Link>
                 </div>
