@@ -7,6 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SupportSystem } from '@/components/SupportSystem';
 import { ChatInterface } from '@/components/ChatInterface';
+import { ConversationList } from '@/components/ConversationList';
+import { UserSearchModal } from '@/components/UserSearchModal';
+import { OnlineUsersWidget } from '@/components/OnlineUsersWidget';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
@@ -15,7 +18,9 @@ import {
   Plus, 
   Users, 
   Bell,
-  Search
+  Search,
+  Headphones,
+  Settings
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -49,6 +54,8 @@ export default function ChatSystem() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (user?.id) {
@@ -188,7 +195,7 @@ export default function ChatSystem() {
       if (createError) throw createError;
 
       setSelectedConversation(newConversation.id);
-      fetchConversations();
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error starting new chat:', error);
       toast({
@@ -226,6 +233,38 @@ export default function ChatSystem() {
     );
   }
 
+  // Desktop layout with sidebar
+  if (selectedConversation && window.innerWidth >= 768) {
+    return (
+      <Layout user={user} userRole={userRole} onSignOut={signOut}>
+        <div className="min-h-screen flex">
+          <div className="w-80 border-r border-steel-600">
+            <ConversationList
+              onSelectConversation={setSelectedConversation}
+              selectedConversationId={selectedConversation}
+              refreshTrigger={refreshTrigger}
+            />
+          </div>
+          <div className="flex-1 p-4">
+            <div className="h-full">
+              <ChatInterface
+                conversationId={selectedConversation}
+                onClose={() => setSelectedConversation(null)}
+              />
+            </div>
+          </div>
+        </div>
+        
+        <UserSearchModal
+          isOpen={isUserSearchOpen}
+          onClose={() => setIsUserSearchOpen(false)}
+          onStartChat={startNewChat}
+        />
+      </Layout>
+    );
+  }
+
+  // Mobile layout - full screen chat
   if (selectedConversation) {
     return (
       <Layout user={user} userRole={userRole} onSignOut={signOut}>
@@ -270,15 +309,15 @@ export default function ChatSystem() {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="support" className="space-y-6">
+          <Tabs defaultValue="chats" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="support" className="flex items-center space-x-2">
-                <MessageSquare className="w-4 h-4" />
-                <span>Поддержка</span>
-              </TabsTrigger>
               <TabsTrigger value="chats" className="flex items-center space-x-2">
                 <Users className="w-4 h-4" />
                 <span>Чаты</span>
+              </TabsTrigger>
+              <TabsTrigger value="support" className="flex items-center space-x-2">
+                <Headphones className="w-4 h-4" />
+                <span>Поддержка</span>
               </TabsTrigger>
               <TabsTrigger value="notifications" className="flex items-center space-x-2">
                 <Bell className="w-4 h-4" />
@@ -291,68 +330,48 @@ export default function ChatSystem() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Support Tab */}
-            <TabsContent value="support">
-              <SupportSystem />
-            </TabsContent>
-
             {/* Chats Tab */}
             <TabsContent value="chats" className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-steel-100">Мои чаты</h2>
-                <Button variant="outline">
+                <h2 className="text-xl font-bold text-steel-100">Чаты</h2>
+                <Button 
+                  variant="outline"
+                  onClick={() => setIsUserSearchOpen(true)}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Новый чат
                 </Button>
               </div>
 
-              {isLoading ? (
-                <Card className="card-steel p-8 text-center">
-                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-steel-300">Загрузка чатов...</p>
-                </Card>
-              ) : conversations.length === 0 ? (
-                <Card className="card-steel p-8 text-center">
-                  <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-steel-300 mb-2">Нет активных чатов</h3>
-                  <p className="text-steel-400">Начните общение с другими пользователями</p>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {conversations.map((conversation) => (
-                    <Card 
-                      key={conversation.id} 
-                      className="card-steel p-4 hover:bg-steel-800/50 transition-colors cursor-pointer"
-                      onClick={() => setSelectedConversation(conversation.id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <h3 className="font-medium text-steel-100">
-                            {conversation.title || 
-                             (conversation.type === 'support' ? 'Техподдержка' : 'Чат')}
-                          </h3>
-                          <div className="flex items-center space-x-2 text-sm text-steel-400">
-                            <span>Участников: {conversation.participants.length}</span>
-                            <span>•</span>
-                            <span>{format(new Date(conversation.last_message_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          {conversation.type === 'support' && (
-                            <Badge variant="outline" className="text-primary border-primary/20">
-                              Поддержка
-                            </Badge>
-                          )}
-                          <Button variant="outline" size="sm">
-                            Открыть
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 grid lg:grid-cols-2 gap-6">
+                <ConversationList
+                  onSelectConversation={setSelectedConversation}
+                  selectedConversationId={selectedConversation}
+                  refreshTrigger={refreshTrigger}
+                />
+                
+                {selectedConversation ? (
+                  <ChatInterface
+                    conversationId={selectedConversation}
+                    onClose={() => setSelectedConversation(null)}
+                  />
+                ) : (
+                  <Card className="card-steel p-8 text-center">
+                    <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-steel-300 mb-2">Выберите чат</h3>
+                    <p className="text-steel-400">Выберите чат из списка или создайте новый</p>
+                  </Card>
+                )}
                 </div>
-              )}
+                
+                <OnlineUsersWidget onStartChat={startNewChat} />
+              </div>
+            </TabsContent>
+
+            {/* Support Tab */}
+            <TabsContent value="support">
+              <SupportSystem />
             </TabsContent>
 
             {/* Notifications Tab */}

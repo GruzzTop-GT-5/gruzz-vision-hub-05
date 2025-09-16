@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { VoiceCallModal } from '@/components/VoiceCallModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -60,6 +61,8 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isVoiceCallOpen, setIsVoiceCallOpen] = useState(false);
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -313,117 +316,135 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   }
 
   return (
-    <Card className="card-steel flex flex-col h-96">
-      {/* Chat Header */}
-      <div className="flex items-center justify-between p-4 border-b border-steel-600">
-        <div className="flex items-center space-x-3">
-          <h3 className="font-bold text-steel-100">
-            {conversation?.title || 
-             (conversation?.type === 'support' ? 'Техподдержка' : 'Чат')}
-          </h3>
-          {conversation?.type === 'support' && (
-            <Badge variant="outline" className="text-primary border-primary/20">
-              Поддержка
-            </Badge>
-          )}
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Button size="sm" variant="ghost">
-            <Phone className="w-4 h-4" />
-          </Button>
-          <Button size="sm" variant="ghost">
-            <Video className="w-4 h-4" />
-          </Button>
-          <Button size="sm" variant="ghost">
-            <MoreVertical className="w-4 h-4" />
-          </Button>
-          {onClose && (
-            <Button size="sm" variant="ghost" onClick={onClose}>
-              ✕
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {messages.length === 0 ? (
-          <div className="text-center text-steel-400 py-8">
-            <p>Пока нет сообщений</p>
-            <p className="text-sm">Начните разговор!</p>
-          </div>
-        ) : (
-          messages.map(renderMessage)
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* File Preview */}
-      {selectedFile && (
-        <div className="px-4 py-2 border-t border-steel-600">
-          <div className="flex items-center space-x-2 p-2 bg-steel-700 rounded">
-            {selectedFile.type.startsWith('image/') ? (
-              <ImageIcon className="w-4 h-4" />
-            ) : (
-              <File className="w-4 h-4" />
+    <>
+      <Card className="card-steel flex flex-col h-96">
+        {/* Chat Header */}
+        <div className="flex items-center justify-between p-4 border-b border-steel-600">
+          <div className="flex items-center space-x-3">
+            <h3 className="font-bold text-steel-100">
+              {conversation?.title || 
+               (conversation?.type === 'support' ? 'Техподдержка' : 'Чат')}
+            </h3>
+            {conversation?.type === 'support' && (
+              <Badge variant="outline" className="text-primary border-primary/20">
+                Поддержка
+              </Badge>
             )}
-            <span className="flex-1 text-sm">{selectedFile.name}</span>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Button 
+              size="sm" 
+              variant="ghost"
+              onClick={() => setIsVoiceCallOpen(true)}
+            >
+              <Phone className="w-4 h-4" />
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost"
+              onClick={() => setIsVideoCallOpen(true)}
+            >
+              <Video className="w-4 h-4" />
+            </Button>
+            <Button size="sm" variant="ghost">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+            {onClose && (
+              <Button size="sm" variant="ghost" onClick={onClose}>
+                ✕
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {messages.length === 0 ? (
+            <div className="text-center text-steel-400 py-8">
+              <p>Пока нет сообщений</p>
+              <p className="text-sm">Начните разговор!</p>
+            </div>
+          ) : (
+            messages.map(renderMessage)
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* File Preview */}
+        {selectedFile && (
+          <div className="px-4 py-2 border-t border-steel-600">
+            <div className="flex items-center space-x-2 p-2 bg-steel-700 rounded">
+              {selectedFile.type.startsWith('image/') ? (
+                <ImageIcon className="w-4 h-4" />
+              ) : (
+                <File className="w-4 h-4" />
+              )}
+              <span className="flex-1 text-sm">{selectedFile.name}</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setSelectedFile(null)}
+              >
+                ✕
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Input Area */}
+        <div className="p-4 border-t border-steel-600">
+          <div className="flex items-end space-x-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,.pdf,.doc,.docx"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            
             <Button
+              type="button"
               size="sm"
               variant="ghost"
-              onClick={() => setSelectedFile(null)}
+              onClick={() => fileInputRef.current?.click()}
+              className="mb-1"
             >
-              ✕
+              <Paperclip className="w-4 h-4" />
+            </Button>
+            
+            <Textarea
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Введите сообщение..."
+              className="flex-1 min-h-[40px] max-h-[120px] resize-none"
+              disabled={isSending}
+            />
+            
+            <Button
+              onClick={handleSendMessage}
+              disabled={(!newMessage.trim() && !selectedFile) || isSending}
+              size="sm"
+              className="mb-1"
+            >
+              {isSending ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
             </Button>
           </div>
         </div>
-      )}
-
-      {/* Input Area */}
-      <div className="p-4 border-t border-steel-600">
-        <div className="flex items-end space-x-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,.pdf,.doc,.docx"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-          
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            onClick={() => fileInputRef.current?.click()}
-            className="mb-1"
-          >
-            <Paperclip className="w-4 h-4" />
-          </Button>
-          
-          <Textarea
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Введите сообщение..."
-            className="flex-1 min-h-[40px] max-h-[120px] resize-none"
-            disabled={isSending}
-          />
-          
-          <Button
-            onClick={handleSendMessage}
-            disabled={(!newMessage.trim() && !selectedFile) || isSending}
-            size="sm"
-            className="mb-1"
-          >
-            {isSending ? (
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
-      </div>
-    </Card>
+      </Card>
+      
+      <VoiceCallModal
+        isOpen={isVoiceCallOpen}
+        onClose={() => setIsVoiceCallOpen(false)}
+        recipientName="Пользователь"
+        onAccept={() => console.log('Call accepted')}
+        onDecline={() => console.log('Call declined')}
+      />
+    </>
   );
 };
