@@ -32,10 +32,12 @@ import {
   UserCheck,
   Settings,
   Percent,
-  Sliders
+  Sliders,
+  Tag
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { StarRating } from '@/components/StarRating';
+import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -691,7 +693,7 @@ export default function AdminPanel() {
 
           {/* Admin Tabs */}
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Дашборд</span>
@@ -711,6 +713,10 @@ export default function AdminPanel() {
               <TabsTrigger value="withdrawals" className="flex items-center space-x-2">
                 <Banknote className="w-4 h-4" />
                 <span>Вывод</span>
+              </TabsTrigger>
+              <TabsTrigger value="categories" className="flex items-center space-x-2">
+                <Tag className="w-4 h-4" />
+                <span>Категории</span>
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
@@ -1528,6 +1534,11 @@ export default function AdminPanel() {
                   </div>
                 )}
               </Card>
+            </TabsContent>
+
+            {/* Categories Management */}
+            <TabsContent value="categories" className="space-y-6">
+              <CategoriesManagement />
             </TabsContent>
           </Tabs>
         </div>

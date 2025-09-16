@@ -52,6 +52,7 @@ export type Database = {
       ads: {
         Row: {
           category: string
+          category_id: string
           created_at: string | null
           description: string | null
           id: string
@@ -62,6 +63,7 @@ export type Database = {
         }
         Insert: {
           category: string
+          category_id: string
           created_at?: string | null
           description?: string | null
           id?: string
@@ -72,6 +74,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          category_id?: string
           created_at?: string | null
           description?: string | null
           id?: string
@@ -82,6 +85,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "ads_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "ads_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -89,6 +99,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       conversations: {
         Row: {

@@ -29,23 +29,14 @@ const adFormSchema = z.object({
 
 type AdFormData = z.infer<typeof adFormSchema>;
 
-const categories = [
-  'Услуги',
-  'Работа',
-  'Образование',
-  'Репетиторство',
-  'IT и программирование',
-  'Дизайн',
-  'Маркетинг',
-  'Строительство',
-  'Ремонт',
-  'Транспорт',
-  'Доставка',
-  'Домашние услуги',
-  'Красота и здоровье',
-  'Переводы',
-  'Другое'
-];
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  color: string;
+  is_active: boolean;
+}
 
 export default function CreateAd() {
   const { user, userRole, loading, signOut } = useAuth();
@@ -53,6 +44,7 @@ export default function CreateAd() {
   const { toast } = useToast();
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const form = useForm<AdFormData>({
     resolver: zodResolver(adFormSchema),
@@ -65,11 +57,12 @@ export default function CreateAd() {
     }
   });
 
-  // Fetch user balance
+  // Fetch user balance and categories
   useEffect(() => {
     if (user?.id) {
       fetchUserBalance();
     }
+    fetchCategories();
   }, [user?.id]);
 
   const fetchUserBalance = async () => {
@@ -90,6 +83,21 @@ export default function CreateAd() {
       setUserBalance(data?.balance || 0);
     } catch (error) {
       console.error('Error fetching balance:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -121,7 +129,8 @@ export default function CreateAd() {
         .insert({
           title: data.title,
           description: data.description,
-          category: data.category,
+          category: 'temp', // placeholder for old field
+          category_id: data.category,
           price: Number(data.price),
           user_id: user.id,
           status: 'active'
@@ -264,8 +273,8 @@ export default function CreateAd() {
                         </FormControl>
                         <SelectContent>
                           {categories.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
