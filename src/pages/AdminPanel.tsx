@@ -1585,7 +1585,7 @@ export default function AdminPanel() {
                                     <X className="w-4 h-4" />
                                   </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="card-steel">
+                                <AlertDialogContent className="card-steel-dialog">
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Отклонить транзакцию</AlertDialogTitle>
                                     <AlertDialogDescription>
