@@ -80,7 +80,7 @@ const Index = () => {
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
               <Search className="w-8 h-8" />
               <div>
-                <div className="font-bold">Найти работу</div>
+                <div className="font-bold">Выставить резюме</div>
                 <div className="text-sm opacity-70">Просмотреть объявления</div>
               </div>
             </Button>
