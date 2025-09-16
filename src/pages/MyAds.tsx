@@ -666,7 +666,7 @@ const MyAds = () => {
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Link to={item.type === 'ad' ? `/ad/${item.id}` : `/order/${item.id}`}>
+                        <Link to={`/ad/${item.id}`}>
                           <Button variant="outline" size="sm">
                             <Eye className="w-4 h-4" />
                           </Button>
