@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { OrderFilters, type OrderFilters as OrderFiltersType } from '@/components/OrderFilters';
+import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/components/SimpleOrderFilters';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -237,7 +237,7 @@ const AvailableOrders = () => {
           </div>
 
           {/* Filters */}
-          <OrderFilters 
+          <SimpleOrderFilters 
             filters={filters}
             onFiltersChange={setFilters}
             onClearFilters={clearFilters}

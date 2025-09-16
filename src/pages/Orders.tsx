@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { OrderCard } from '@/components/OrderCard';
 import { CreateOrderModal } from '@/components/CreateOrderModal';
-import { OrderFilters, type OrderFilters as OrderFiltersType } from '@/components/OrderFilters';
+import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/components/SimpleOrderFilters';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -284,7 +284,7 @@ const Orders = () => {
           </div>
 
           {/* Filters */}
-          <OrderFilters 
+          <SimpleOrderFilters 
             filters={filters}
             onFiltersChange={setFilters}
             onClearFilters={clearFilters}
