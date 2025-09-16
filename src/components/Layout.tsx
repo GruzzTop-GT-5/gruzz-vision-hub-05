@@ -56,10 +56,10 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   const isAdmin = userRole && ['system_admin', 'admin'].includes(userRole);
 
   const menuItems = [
+    { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: Megaphone, label: 'Доска объявлений', href: '/ads' },
     { icon: Search, label: 'Найти работу', href: '/available-orders' },
     { icon: MessageCircle, label: 'Чаты и поддержка', href: '/chat-system' },
-    { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: ShoppingBag, label: 'Мои заказы', href: '/orders' },
     { icon: CreditCard, label: 'Баланс + Пополнение', href: '/balance' },
     { icon: History, label: 'История работ', href: '/history' },
