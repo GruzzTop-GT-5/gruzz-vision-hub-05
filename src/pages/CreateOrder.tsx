@@ -190,9 +190,22 @@ export default function CreateOrder() {
         throw transactionError;
       }
 
+      // Send Telegram notification for urgent orders
+      if (data.priority === 'urgent') {
+        try {
+          await supabase.functions.invoke('notify-urgent-order', {
+            body: { orderId: orderData.id }
+          });
+          console.log('Urgent order notification sent to Telegram');
+        } catch (notificationError) {
+          console.error('Error sending Telegram notification:', notificationError);
+          // Don't block order creation if notification fails
+        }
+      }
+
       toast({
         title: "Заказ создан!",
-        description: `Заказ на работу размещен. Списано ${orderCost} GT Coins.`
+        description: `Заказ на работу размещен. Списано ${orderCost} GT Coins.${data.priority === 'urgent' ? ' Администраторы уведомлены о срочном заказе.' : ''}`
       });
 
       navigate('/ads');

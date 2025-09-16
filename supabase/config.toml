@@ -2,3 +2,6 @@ project_id = "huwjvdqdnktddnmfmflw"
 
 [functions.expire-orders]
 verify_jwt = false
+
+[functions.notify-urgent-order]
+verify_jwt = true
