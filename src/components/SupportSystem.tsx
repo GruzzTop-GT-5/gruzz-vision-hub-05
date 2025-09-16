@@ -292,13 +292,7 @@ export const SupportSystem = () => {
             </Button>
           </DialogTrigger>
           
-          <DialogContent className="sm:max-w-md bg-steel-900/95 border-steel-700 backdrop-blur-sm shadow-steel relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, hsl(210, 35%, 22%) 0%, hsl(210, 40%, 15%) 30%, hsl(210, 45%, 10%) 70%, hsl(210, 50%, 6%) 100%)',
-              border: '2px solid transparent',
-              backgroundClip: 'padding-box'
-            }}
-          >
+          <DialogContent className="card-steel max-w-md">
             <DialogHeader>
               <DialogTitle className="text-steel-100">Новый тикет поддержки</DialogTitle>
               <DialogDescription className="text-steel-400">
