@@ -93,7 +93,11 @@ export const PlatformRules = () => {
       <Card className="bg-orange-500/5 border-orange-500/20">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
+            <div className="flex gap-1">
+              <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
+            </div>
             <div className="space-y-1">
               <p className="font-medium text-orange-300 text-center">
                 Важная информация
