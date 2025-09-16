@@ -41,7 +41,7 @@ const ORDER_STATUSES = [
   { value: 'accepted', label: 'Принят' },
   { value: 'in_progress', label: 'В работе' },
   { value: 'review', label: 'На проверке' },
-  { value: 'revision', label: 'Доработка' },
+  { value: 'revision', label: 'Правки' },
   { value: 'completed', label: 'Завершен' },
   { value: 'cancelled', label: 'Отменен' }
 ];

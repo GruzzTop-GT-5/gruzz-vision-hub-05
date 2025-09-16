@@ -113,7 +113,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
       revision: { 
         icon: AlertCircle, 
         color: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
-        label: 'Доработка'
+        label: 'Правки'
       },
       completed: { 
         icon: CheckCircle, 
@@ -203,7 +203,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
       accepted: 'Принят',
       in_progress: 'В работе',
       review: 'На проверке',
-      revision: 'Доработка',
+      revision: 'Правки',
       completed: 'Завершен',
       cancelled: 'Отменен'
     };
@@ -441,7 +441,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
         {order.revision_count > 0 && (
           <div className="flex items-center space-x-2 text-sm text-steel-400">
             <AlertCircle className="w-4 h-4" />
-            <span>Доработок: {order.revision_count} из {order.max_revisions}</span>
+            <span>Правок: {order.revision_count} из {order.max_revisions}</span>
           </div>
         )}
 

@@ -379,7 +379,7 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
           {/* Max Revisions */}
           <div className="space-y-2">
             <Label htmlFor="maxRevisions" className="text-steel-200">
-              Максимальное количество доработок
+              Максимальное количество правок
             </Label>
             <Select 
               value={formData.maxRevisions} 
@@ -392,7 +392,7 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
               <SelectContent className="bg-steel-800 border-steel-600">
                 {[1, 2, 3, 4, 5].map((num) => (
                   <SelectItem key={num} value={num.toString()} className="text-steel-100">
-                    {num} {num === 1 ? 'доработка' : num <= 4 ? 'доработки' : 'доработок'}
+                    {num} {num === 1 ? 'правка' : num <= 4 ? 'правки' : 'правок'}
                   </SelectItem>
                 ))}
               </SelectContent>

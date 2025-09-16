@@ -230,7 +230,7 @@ export const OrderDetailsModal = ({
       accepted: 'Принят',
       in_progress: 'В работе',
       review: 'На проверке',
-      revision: 'Доработка',
+      revision: 'Правки',
       completed: 'Завершен',
       cancelled: 'Отменен'
     };
@@ -291,7 +291,7 @@ export const OrderDetailsModal = ({
                   )}
 
                   <div>
-                    <Label className="text-steel-300">Доработки</Label>
+                    <Label className="text-steel-300">Правки</Label>
                     <p className="text-steel-200">{order.revision_count} из {order.max_revisions}</p>
                   </div>
                 </div>
