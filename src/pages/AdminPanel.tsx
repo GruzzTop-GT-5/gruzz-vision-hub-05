@@ -1537,7 +1537,7 @@ export default function AdminPanel() {
             </TabsContent>
 
             {/* Categories Management */}
-            <TabsContent value="categories" className="space-y-6">
+            <TabsContent value="categories" className="space-y-6 transform-none !rotate-0 !scale-100 !skew-x-0 !skew-y-0 !translate-x-0 !translate-y-0">
               <CategoriesManagement />
             </TabsContent>
           </Tabs>
