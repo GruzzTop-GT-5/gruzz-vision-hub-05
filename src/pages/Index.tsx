@@ -66,7 +66,7 @@ const Index = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link to="/orders">
             <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
               <User className="w-8 h-8" />
