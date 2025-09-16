@@ -62,7 +62,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     work_format: '',
     people_needed: '1',
     start_time: '',
-    end_time: '',
     work_duration: '',
     client_requirements: {
       specifications: '',
@@ -214,7 +213,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
           people_needed: parseInt(orderData.people_needed),
           people_accepted: 0,
           start_time: orderData.start_time || null,
-          end_time: orderData.end_time || null,
           commission_rate: 0,
           platform_fee: 0,
           payment_method: orderData.payment_type,
@@ -321,7 +319,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         work_format: '',
         people_needed: '1',
         start_time: '',
-        end_time: '',
         work_duration: '',
         client_requirements: {
           specifications: '',
@@ -477,28 +474,16 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="start_time">Время начала работы</Label>
-                <Input
-                  id="start_time"
-                  type="time"
-                  value={orderData.start_time}
-                  onChange={(e) => setOrderData(prev => ({ ...prev, start_time: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="end_time">Время окончания работы</Label>
-                <Input
-                  id="end_time"
-                  type="time"
-                  value={orderData.end_time}
-                  onChange={(e) => setOrderData(prev => ({ ...prev, end_time: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
+            <div>
+              <Label htmlFor="start_time">Время начала работы</Label>
+              <Input
+                id="start_time"
+                type="time"
+                value={orderData.start_time}
+                onChange={(e) => setOrderData(prev => ({ ...prev, start_time: e.target.value }))}
+                className="mt-1"
+                placeholder="Когда нужно быть готовым к работе"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">

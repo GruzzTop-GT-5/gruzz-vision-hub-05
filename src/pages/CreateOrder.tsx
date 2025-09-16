@@ -32,7 +32,6 @@ const orderFormSchema = z.object({
   delivery_format: z.string().optional(),
   max_revisions: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, 'Введите корректное количество').optional(),
   start_time: z.string().optional(),
-  end_time: z.string().optional(),
   people_needed: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, 'Минимум 1 человек')
 });
 
@@ -158,7 +157,6 @@ export default function CreateOrder() {
           delivery_format: data.delivery_format || null,
           max_revisions: Number(data.max_revisions) || 3,
           start_time: data.start_time || null,
-          end_time: data.end_time || null,
           people_needed: Number(data.people_needed) || 1,
           people_accepted: 0,
           client_id: user.id,
@@ -355,7 +353,7 @@ export default function CreateOrder() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="start_time"
@@ -365,23 +363,7 @@ export default function CreateOrder() {
                         <FormControl>
                           <Input
                             type="time"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="end_time"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Время окончания работы</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="time"
+                            placeholder="Когда нужно быть готовым к работе"
                             {...field}
                           />
                         </FormControl>

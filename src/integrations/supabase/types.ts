@@ -491,6 +491,9 @@ export type Database = {
       orders: {
         Row: {
           ad_id: string | null
+          admin_modified_at: string | null
+          admin_modified_by: string | null
+          admin_priority_override: string | null
           cancelled_at: string | null
           category: string | null
           client_id: string
@@ -505,8 +508,10 @@ export type Database = {
           escrow_amount: number | null
           executor_id: string | null
           executor_proposal: Json | null
+          expires_at: string | null
           id: string
           is_auto_closed: boolean | null
+          is_expired: boolean | null
           max_revisions: number | null
           order_number: string
           payment_method: string | null
@@ -524,6 +529,9 @@ export type Database = {
         }
         Insert: {
           ad_id?: string | null
+          admin_modified_at?: string | null
+          admin_modified_by?: string | null
+          admin_priority_override?: string | null
           cancelled_at?: string | null
           category?: string | null
           client_id: string
@@ -538,8 +546,10 @@ export type Database = {
           escrow_amount?: number | null
           executor_id?: string | null
           executor_proposal?: Json | null
+          expires_at?: string | null
           id?: string
           is_auto_closed?: boolean | null
+          is_expired?: boolean | null
           max_revisions?: number | null
           order_number: string
           payment_method?: string | null
@@ -557,6 +567,9 @@ export type Database = {
         }
         Update: {
           ad_id?: string | null
+          admin_modified_at?: string | null
+          admin_modified_by?: string | null
+          admin_priority_override?: string | null
           cancelled_at?: string | null
           category?: string | null
           client_id?: string
@@ -571,8 +584,10 @@ export type Database = {
           escrow_amount?: number | null
           executor_id?: string | null
           executor_proposal?: Json | null
+          expires_at?: string | null
           id?: string
           is_auto_closed?: boolean | null
+          is_expired?: boolean | null
           max_revisions?: number | null
           order_number?: string
           payment_method?: string | null
@@ -1135,6 +1150,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      extend_order_expiration: {
+        Args: { order_id: string }
+        Returns: undefined
+      }
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1176,6 +1195,10 @@ export type Database = {
           p_user_id?: string
         }
         Returns: string
+      }
+      mark_expired_orders: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       register_user: {
         Args: { password_input: string; phone_input: string; user_data?: Json }
