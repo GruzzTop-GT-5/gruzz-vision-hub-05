@@ -220,7 +220,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               </div>
 
               <div>
-                <Label htmlFor="price">Бюджет (₽) *</Label>
+                <Label htmlFor="price">Бюджет (GT) *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -393,16 +393,16 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-steel-300">Вознаграждение исполнителя:</span>
-                  <span className="text-steel-100">{parseFloat(orderData.price).toLocaleString('ru-RU')} ₽</span>
+                  <span className="text-steel-100">{parseFloat(orderData.price).toLocaleString('ru-RU')} GT</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-steel-300">Комиссия платформы (10%):</span>
-                  <span className="text-steel-100">{((parseFloat(orderData.price) * 10) / 100).toLocaleString('ru-RU')} ₽</span>
+                  <span className="text-steel-100">{((parseFloat(orderData.price) * 10) / 100).toLocaleString('ru-RU')} GT</span>
                 </div>
                 <div className="border-t border-steel-600 pt-1 mt-2">
                   <div className="flex justify-between font-semibold">
                     <span className="text-steel-100">Итого к оплате:</span>
-                    <span className="text-primary">{(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).toLocaleString('ru-RU')} ₽</span>
+                    <span className="text-primary">{(parseFloat(orderData.price) + (parseFloat(orderData.price) * 10) / 100).toLocaleString('ru-RU')} GT</span>
                   </div>
                 </div>
               </div>
