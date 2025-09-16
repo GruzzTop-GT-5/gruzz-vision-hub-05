@@ -996,6 +996,7 @@ export default function AdminPanel() {
   const moderateAd = async (adId: string, status: string) => {
     try {
       console.log('Moderating ad:', adId, 'to status:', status);
+      console.log('User role:', userRole, 'User ID:', user?.id);
       
       const { error } = await supabase
         .from('ads')
@@ -1006,6 +1007,8 @@ export default function AdminPanel() {
         console.error('Supabase error:', error);
         throw error;
       }
+
+      console.log('Ad moderation successful');
 
       // Log admin action
       await logAdminAction(`Модерация объявления - статус: ${status}`, adId, 'ad');
@@ -1031,7 +1034,8 @@ export default function AdminPanel() {
 
   const moderateOrder = async (orderId: string, status: string, reason?: string) => {
     try {
-      console.log('Moderating order:', orderId, 'to status:', status);
+      console.log('Moderating order:', orderId, 'to status:', status, 'reason:', reason);
+      console.log('User role:', userRole, 'User ID:', user?.id);
       
       const updateData: any = { status };
       if (reason) {
@@ -1047,6 +1051,8 @@ export default function AdminPanel() {
         console.error('Supabase error:', error);
         throw error;
       }
+
+      console.log('Order moderation successful');
 
       // Log admin action
       await logAdminAction(`Модерация заказа - статус: ${status}`, orderId, 'order');
@@ -1553,7 +1559,10 @@ export default function AdminPanel() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => moderateAd(ad.id, 'active')}
+                                onClick={() => {
+                                  console.log('Approving ad:', ad.id);
+                                  moderateAd(ad.id, 'active');
+                                }}
                                 className="text-green-400 border-green-400/20 hover:bg-green-400/10"
                                 title="Одобрить объявление"
                               >
@@ -1564,7 +1573,10 @@ export default function AdminPanel() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => moderateAd(ad.id, 'inactive')}
+                                onClick={() => {
+                                  console.log('Rejecting ad:', ad.id);
+                                  moderateAd(ad.id, 'inactive');
+                                }}
                                 className="text-red-400 border-red-400/20 hover:bg-red-400/10"
                                 title="Отклонить объявление"
                               >
@@ -1574,7 +1586,12 @@ export default function AdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => window.open(`/profile/${ad.user_id}`, '_blank')}
+                              onClick={() => {
+                                console.log('Profile button clicked for user:', ad.user_id);
+                                const profileUrl = `/profile/${ad.user_id}`;
+                                console.log('Opening profile URL:', profileUrl);
+                                window.open(profileUrl, '_blank');
+                              }}
                               className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
                               title="Профиль автора"
                             >
@@ -1670,7 +1687,10 @@ export default function AdminPanel() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => moderateOrder(order.id, 'pending')}
+                                  onClick={() => {
+                                    console.log('Approving order:', order.id);
+                                    moderateOrder(order.id, 'pending');
+                                  }}
                                   className="text-green-400 border-green-400/20 hover:bg-green-400/10"
                                   title="Одобрить заказ"
                                 >
@@ -1719,7 +1739,12 @@ export default function AdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => window.open(`/profile/${order.client_id}`, '_blank')}
+                              onClick={() => {
+                                console.log('Profile button clicked for user:', order.client_id);
+                                const profileUrl = `/profile/${order.client_id}`;
+                                console.log('Opening profile URL:', profileUrl);
+                                window.open(profileUrl, '_blank');
+                              }}
                               className="text-blue-400 border-blue-400/20 hover:bg-blue-400/10"
                               title="Профиль клиента"
                             >
