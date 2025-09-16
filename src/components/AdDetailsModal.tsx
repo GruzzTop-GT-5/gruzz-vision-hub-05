@@ -59,19 +59,9 @@ export function AdDetailsModal({ ad, isOpen, onClose }: AdDetailsModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="card-steel max-w-2xl max-h-[80vh] overflow-y-auto data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <DialogHeader>
-          <div className="flex items-start justify-between">
-            <DialogTitle className="text-xl font-bold text-steel-100 pr-4">
-              {adDetails.title}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-steel-400 hover:text-steel-100"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-xl font-bold text-steel-100">
+            {adDetails.title}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
