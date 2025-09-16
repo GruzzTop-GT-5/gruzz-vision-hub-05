@@ -255,6 +255,18 @@ class ApiService {
         .maybeSingle();
 
       if (error) throw error;
+      
+      // Отправляем уведомление в Telegram о новом платеже
+      if (data?.id) {
+        try {
+          await supabase.functions.invoke('notify-payment', {
+            body: { transactionId: data.id }
+          });
+        } catch (notificationError) {
+          console.warn('Failed to send payment notification:', notificationError);
+        }
+      }
+      
       return { data: { ...data, payment_details: data?.payment_details as any } as Transaction };
     } catch (error) {
       return { error: (error as Error).message };

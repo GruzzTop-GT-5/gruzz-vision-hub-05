@@ -101,7 +101,8 @@ export const SupportSystem = () => {
     description: '',
     category: '',
     priority: 'normal',
-    urgency: 'normal'
+    urgency: 'normal',
+    response_time: 30
   });
 
   useEffect(() => {
@@ -184,6 +185,7 @@ export const SupportSystem = () => {
           category: newTicket.category,
           priority: newTicket.priority,
           urgency: newTicket.urgency,
+          response_time_minutes: newTicket.response_time,
           created_by: user.id,
           status: 'open',
           ticket_number: '' // Will be overridden by trigger
@@ -192,6 +194,15 @@ export const SupportSystem = () => {
         .single();
 
       if (ticketError) throw ticketError;
+
+      // Отправляем уведомление в Telegram о новом тикете
+      try {
+        await supabase.functions.invoke('notify-support-ticket', {
+          body: { ticketId: ticketData.id }
+        });
+      } catch (notificationError) {
+        console.warn('Failed to send support ticket notification:', notificationError);
+      }
 
       // Create initial system message
       await supabase
@@ -213,7 +224,8 @@ export const SupportSystem = () => {
         description: '',
         category: '',
         priority: 'normal',
-        urgency: 'normal'
+        urgency: 'normal',
+        response_time: 30
       });
       setShowCreateDialog(false);
       fetchSupportData();
@@ -384,6 +396,24 @@ export const SupportSystem = () => {
                     <SelectItem value="normal">Обычная</SelectItem>
                     <SelectItem value="high">Высокая</SelectItem>
                     <SelectItem value="critical">Критическая</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="response_time">Время ответа (минуты)</Label>
+                <Select
+                  value={newTicket.response_time?.toString() || '30'}
+                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, response_time: parseInt(value) }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5 минут</SelectItem>
+                    <SelectItem value="15">15 минут</SelectItem>
+                    <SelectItem value="30">30 минут</SelectItem>
+                    <SelectItem value="60">1 час</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
