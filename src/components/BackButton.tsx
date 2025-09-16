@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface BackButtonProps {
   onClick?: () => void;
@@ -16,18 +16,37 @@ export const BackButton = ({
   fallbackPath = "/" 
 }: BackButtonProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClick = () => {
     if (onClick) {
       onClick();
-    } else {
-      // Проверяем, есть ли история для возврата
-      if (window.history.length > 1) {
-        navigate(-1);
+      return;
+    }
+
+    // Определяем откуда пришли и куда вернуться
+    const from = location.state?.from;
+    
+    try {
+      if (from) {
+        // Если есть информация о предыдущей странице, переходим туда
+        navigate(from);
       } else {
-        // Если истории нет, переходим на fallback путь
-        navigate(fallbackPath);
+        // Пытаемся вернуться назад
+        navigate(-1);
+        
+        // Проверяем через небольшую задержку, изменился ли URL
+        setTimeout(() => {
+          if (window.location.pathname === location.pathname) {
+            // Если URL не изменился, значит истории назад нет, переходим на fallback
+            navigate(fallbackPath);
+          }
+        }, 100);
       }
+    } catch (error) {
+      // Если произошла ошибка, переходим на fallback
+      console.warn('Navigation error, falling back to:', fallbackPath);
+      navigate(fallbackPath);
     }
   };
 
