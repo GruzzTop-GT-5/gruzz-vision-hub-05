@@ -8,22 +8,37 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BackButton } from '@/components/BackButton';
-import { AdDetailsModal } from '@/components/AdDetailsModal';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-interface Ad {
+interface Order {
   id: string;
+  order_number: string;
   title: string;
-  description: string;
-  category: string;
+  description: string | null;
+  category: string | null;
   price: number;
-  created_at: string;
-  user_id: string;
   status: string;
+  priority: string;
+  deadline: string | null;
+  client_id: string;
+  executor_id: string | null;
+  created_at: string;
+  payment_method: string | null;
+  client_requirements: any;
+  max_revisions: number;
+}
+
+interface Profile {
+  id: string;
+  display_name: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  telegram_photo_url: string | null;
+  role: string;
 }
 
 const categories = [
@@ -54,79 +69,91 @@ const sortOptions = [
 
 export default function Ads() {
   const { user, userRole, loading, signOut } = useAuth();
-  const [ads, setAds] = useState<Ad[]>([]);
-  const [filteredAds, setFilteredAds] = useState<Ad[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Все категории');
   const [sortBy, setSortBy] = useState('newest');
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchAds();
+    fetchOrders();
   }, []);
 
   useEffect(() => {
-    filterAndSortAds();
-  }, [ads, searchQuery, selectedCategory, sortBy]);
+    filterAndSortOrders();
+  }, [orders, searchQuery, selectedCategory, sortBy]);
 
-  const fetchAds = async () => {
+  const fetchOrders = async () => {
     try {
       const { data, error } = await supabase
-        .from('ads')
+        .from('orders')
         .select('*')
-        .eq('status', 'active')
+        .eq('status', 'pending')
+        .is('executor_id', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setAds(data || []);
+      setOrders(data || []);
+
+      // Fetch profiles for client info
+      if (data && data.length > 0) {
+        const clientIds = [...new Set(data.map(order => order.client_id))];
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', clientIds);
+
+        if (profileData) {
+          const profileMap = profileData.reduce((acc, profile) => {
+            acc[profile.id] = profile;
+            return acc;
+          }, {} as Record<string, Profile>);
+          setProfiles(profileMap);
+        }
+      }
     } catch (error) {
-      console.error('Error fetching ads:', error);
+      console.error('Error fetching orders:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filterAndSortAds = () => {
-    let filtered = [...ads];
+  const filterAndSortOrders = () => {
+    let filtered = [...orders];
 
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(ad =>
-        ad.title.toLowerCase().includes(query) ||
-        ad.description.toLowerCase().includes(query) ||
-        ad.category.toLowerCase().includes(query)
+      filtered = filtered.filter(order =>
+        order.title.toLowerCase().includes(query) ||
+        (order.description && order.description.toLowerCase().includes(query)) ||
+        order.order_number.toLowerCase().includes(query)
       );
     }
 
     // Category filter
     if (selectedCategory !== 'Все категории') {
-      filtered = filtered.filter(ad => ad.category === selectedCategory);
+      filtered = filtered.filter(order => order.category === selectedCategory);
     }
 
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'oldest':
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case 'price_asc':
           return a.price - b.price;
         case 'price_desc':
           return b.price - a.price;
-        case 'newest':
-        default:
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        default: // newest
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
     });
 
-    setFilteredAds(filtered);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU').format(price);
+    setFilteredOrders(filtered);
   };
 
   const clearFilters = () => {
@@ -139,12 +166,27 @@ export default function Ads() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-500/10 text-green-400 border-green-500/20';
       case 'pending':
         return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
-      case 'rejected':
+      case 'in_progress':
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'completed':
+        return 'bg-green-500/10 text-green-400 border-green-500/20';
+      default:
+        return 'bg-steel-600/10 text-steel-400 border-steel-600/20';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'urgent':
         return 'bg-red-500/10 text-red-400 border-red-500/20';
+      case 'high':
+        return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+      case 'normal':
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'low':
+        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
       default:
         return 'bg-steel-600/10 text-steel-400 border-steel-600/20';
     }
@@ -156,7 +198,7 @@ export default function Ads() {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center space-y-4">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-steel-300">Загрузка объявлений...</p>
+            <p className="text-steel-300">Загрузка заказов...</p>
           </div>
         </div>
       </Layout>
@@ -250,17 +292,17 @@ export default function Ads() {
             </div>
             
             {/* Results Count */}
-            {filteredAds.length > 0 && (
+            {filteredOrders.length > 0 && (
               <div className="mt-3 text-center">
                 <span className="text-steel-400 text-sm">
-                  Найдено {filteredAds.length} заказов
+                  Найдено {filteredOrders.length} заказов
                 </span>
               </div>
             )}
           </Card>
 
-          {/* Ads Grid */}
-          {filteredAds.length === 0 ? (
+          {/* Orders Grid */}
+          {filteredOrders.length === 0 ? (
             <Card className="card-steel p-8 text-center">
               <div className="space-y-4">
                 <div className="w-16 h-16 bg-steel-600/20 rounded-full flex items-center justify-center mx-auto">
@@ -290,78 +332,74 @@ export default function Ads() {
             </Card>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAds.map((ad) => (
-                <Card key={ad.id} className="card-steel border border-steel-600 h-full">
-                  <div className="p-6 space-y-4">
-                    {/* Header */}
-                    <div className="flex items-start justify-between">
-                      <Badge className={getStatusColor(ad.status)}>
-                        {ad.status === 'active' ? 'Активно' : ad.status}
-                      </Badge>
-                      <span className="text-xs text-steel-400">
-                        {format(new Date(ad.created_at), 'dd MMM yyyy', { locale: ru })}
-                      </span>
+              {filteredOrders.map((order) => {
+                const client = profiles[order.client_id];
+                return (
+                  <Card key={order.id} className="card-steel border border-steel-600 h-full">
+                    <div className="p-6 space-y-4">
+                      {/* Header */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex gap-2">
+                          <Badge className={getStatusColor(order.status)}>
+                            Доступен
+                          </Badge>
+                          <Badge className={getPriorityColor(order.priority)}>
+                            {order.priority === 'urgent' ? 'Срочно' :
+                             order.priority === 'high' ? 'Высокий' :
+                             order.priority === 'low' ? 'Низкий' : 'Обычный'}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-steel-400">
+                          {format(new Date(order.created_at), 'dd MMM yyyy', { locale: ru })}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg font-bold text-steel-100 line-clamp-2">
+                        {order.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-steel-300 text-sm line-clamp-3">
+                        {order.description || 'Описание не указано'}
+                      </p>
+
+                      {/* Category */}
+                      <div className="flex items-center space-x-2 text-sm text-steel-400">
+                        <Package className="w-4 h-4" />
+                        <span>{order.category || 'Не указано'}</span>
+                      </div>
+
+                      {/* Client Info */}
+                      <div className="flex items-center space-x-2 text-sm text-steel-400">
+                        <User className="w-4 h-4" />
+                        <span>Заказчик: {client?.display_name || client?.full_name || 'Аноним'}</span>
+                      </div>
+
+                      {/* Deadline */}
+                      {order.deadline && (
+                        <div className="flex items-center space-x-2 text-sm text-steel-400">
+                          <Clock className="w-4 h-4" />
+                          <span>До: {format(new Date(order.deadline), 'dd MMM yyyy', { locale: ru })}</span>
+                        </div>
+                      )}
+
+                      {/* Price */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <DollarSign className="w-4 h-4 text-green-400" />
+                          <span className="text-lg font-bold text-steel-100">{order.price} ₽</span>
+                        </div>
+                        <Button size="sm" className="bg-primary hover:bg-primary/80">
+                          Подробнее
+                        </Button>
+                      </div>
                     </div>
-
-                    {/* Title */}
-                    <h3 className="text-lg font-bold text-steel-100 line-clamp-2">
-                      {ad.title}
-                    </h3>
-
-                    {/* Category */}
-                    <Badge variant="outline" className="w-fit">
-                      {ad.category}
-                    </Badge>
-
-                    {/* Description */}
-                    <p className="text-steel-300 text-sm line-clamp-3 leading-relaxed">
-                      {ad.description}
-                    </p>
-
-                    {/* Price */}
-                    <div className="flex items-center space-x-2">
-                      <DollarSign className="w-4 h-4 text-primary" />
-                      <span className="text-lg font-bold text-primary">
-                        {formatPrice(ad.price)} GT
-                      </span>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t border-steel-600">
-                      <Link 
-                        to={`/profile/${ad.user_id}`}
-                        className="flex items-center space-x-1 text-xs text-steel-400 hover:text-primary transition-colors"
-                      >
-                        <User className="w-3 h-3" />
-                        <span>ID: {ad.user_id.slice(0, 8)}...</span>
-                      </Link>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="min-w-[100px]"
-                        onClick={() => {
-                          setSelectedAd(ad);
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        Подробнее
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           )}
-
-          {/* Ad Details Modal */}
-          <AdDetailsModal
-            ad={selectedAd}
-            isOpen={isModalOpen}
-            onClose={() => {
-              setIsModalOpen(false);
-              setSelectedAd(null);
-            }}
-          />
         </div>
       </div>
     </Layout>
