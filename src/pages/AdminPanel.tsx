@@ -807,6 +807,34 @@ export default function AdminPanel() {
               </TabsTrigger>
             </TabsList>
 
+            {/* Static Clone (No Buttons) */}
+            <div className="grid w-full grid-cols-6 p-1 bg-muted rounded-lg text-muted-foreground">
+              <div className="flex items-center justify-center space-x-2 h-9 px-3 py-1.5 text-sm font-medium">
+                <BarChart3 className="w-4 h-4" />
+                <span>Дашборд</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 h-9 px-3 py-1.5 text-sm font-medium">
+                <Users className="w-4 h-4" />
+                <span>Пользователи</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 h-9 px-3 py-1.5 text-sm font-medium">
+                <Megaphone className="w-4 h-4" />
+                <span>Объявления</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 h-9 px-3 py-1.5 text-sm font-medium">
+                <CreditCard className="w-4 h-4" />
+                <span>Транзакции</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 h-9 px-3 py-1.5 text-sm font-medium">
+                <Banknote className="w-4 h-4" />
+                <span>Вывод</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 h-9 px-3 py-1.5 text-sm font-medium">
+                <Tag className="w-4 h-4" />
+                <span>Категории</span>
+              </div>
+            </div>
+
             {/* Dashboard */}
             <TabsContent value="dashboard" className="space-y-6">
               {/* Stats Cards */}
