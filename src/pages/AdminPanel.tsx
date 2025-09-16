@@ -24,7 +24,12 @@ import {
   Calendar,
   Search,
   Filter,
-  Banknote
+  Banknote,
+  BarChart3,
+  Activity,
+  DollarSign,
+  TrendingUp,
+  UserCheck
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { StarRating } from '@/components/StarRating';
@@ -115,6 +120,21 @@ interface ReportedReview extends Review {
   }>;
 }
 
+interface DashboardStats {
+  totalUsers: number;
+  onlineUsers: number;
+  totalTransactions: number;
+  pendingTransactions: number;
+  totalAds: number;
+  activeAds: number;
+  recentActivity: Array<{
+    id: string;
+    type: string;
+    description: string;
+    timestamp: string;
+  }>;
+}
+
 export default function AdminPanel() {
   const { user, userRole, loading, signOut } = useAuth();
   const { toast } = useToast();
@@ -125,6 +145,16 @@ export default function AdminPanel() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [reportedReviews, setReportedReviews] = useState<ReportedReview[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    totalUsers: 0,
+    onlineUsers: 0,
+    totalTransactions: 0,
+    pendingTransactions: 0,
+    totalAds: 0,
+    activeAds: 0,
+    recentActivity: []
+  });
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
   
   // Loading states
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
@@ -140,6 +170,116 @@ export default function AdminPanel() {
 
   const isAdmin = userRole && ['system_admin', 'admin', 'moderator'].includes(userRole);
 
+  // Realtime presence for online users
+  useEffect(() => {
+    if (!isAdmin || !user?.id) return;
+
+    const channel = supabase.channel('admin_presence', {
+      config: {
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const onlineIds = new Set(Object.keys(state));
+        setOnlineUserIds(onlineIds);
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        console.log('User joined:', key, newPresences);
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        console.log('User left:', key, leftPresences);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            user_id: user.id,
+            role: userRole,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [isAdmin, user?.id, userRole]);
+
+  // Setup realtime subscriptions for data changes
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const transactionsChannel = supabase
+      .channel('admin_transactions')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'transactions',
+      }, (payload) => {
+        console.log('Transaction change:', payload);
+        fetchTransactions();
+        fetchDashboardStats();
+        
+        if (payload.eventType === 'INSERT') {
+          toast({
+            title: "Новая транзакция",
+            description: `Поступила новая транзакция на ${payload.new.amount} GT Coins`,
+          });
+        }
+      })
+      .subscribe();
+
+    const adsChannel = supabase
+      .channel('admin_ads')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'ads',
+      }, (payload) => {
+        console.log('Ad change:', payload);
+        fetchAds();
+        fetchDashboardStats();
+        
+        if (payload.eventType === 'INSERT') {
+          toast({
+            title: "Новое объявление",
+            description: "Опубликовано новое объявление",
+          });
+        }
+      })
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel('admin_profiles')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'profiles',
+      }, (payload) => {
+        console.log('Profile change:', payload);
+        fetchUsers();
+        fetchDashboardStats();
+        
+        if (payload.eventType === 'INSERT') {
+          toast({
+            title: "Новый пользователь",
+            description: "Зарегистрировался новый пользователь",
+          });
+        }
+      })
+      .subscribe();
+
+    return () => {
+      transactionsChannel.unsubscribe();
+      adsChannel.unsubscribe();
+      profilesChannel.unsubscribe();
+    };
+  }, [isAdmin]);
+
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
@@ -147,6 +287,7 @@ export default function AdminPanel() {
       fetchTransactions();
       fetchWithdrawals();
       fetchReportedReviews();
+      fetchDashboardStats();
     }
   }, [isAdmin]);
 
@@ -266,6 +407,48 @@ export default function AdminPanel() {
       });
     } finally {
       setIsLoadingReviews(false);
+    }
+  };
+
+  const fetchDashboardStats = async () => {
+    try {
+      // Get all stats in parallel
+      const [
+        { count: totalUsers },
+        { data: recentTransactions },
+        { count: totalTransactions },
+        { count: pendingTransactions },
+        { count: totalAds },
+        { count: activeAds }
+      ] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('transactions').select('*').order('created_at', { ascending: false }).limit(10),
+        supabase.from('transactions').select('*', { count: 'exact', head: true }),
+        supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('ads').select('*', { count: 'exact', head: true }),
+        supabase.from('ads').select('*', { count: 'exact', head: true }).eq('status', 'active')
+      ]);
+
+      // Create recent activity from transactions
+      const recentActivity = (recentTransactions || []).map(transaction => ({
+        id: transaction.id,
+        type: transaction.type,
+        description: `${transaction.type === 'deposit' ? 'Пополнение' : 
+                     transaction.type === 'withdrawal' ? 'Вывод' : 'Платеж'} на ${transaction.amount} GT Coins`,
+        timestamp: transaction.created_at
+      }));
+
+      setDashboardStats({
+        totalUsers: totalUsers || 0,
+        onlineUsers: onlineUserIds.size,
+        totalTransactions: totalTransactions || 0,
+        pendingTransactions: pendingTransactions || 0,
+        totalAds: totalAds || 0,
+        activeAds: activeAds || 0,
+        recentActivity
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
     }
   };
 
@@ -434,8 +617,12 @@ export default function AdminPanel() {
           </div>
 
           {/* Admin Tabs */}
-          <Tabs defaultValue="users" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+          <Tabs defaultValue="dashboard" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="dashboard" className="flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4" />
+                <span>Дашборд</span>
+              </TabsTrigger>
               <TabsTrigger value="users" className="flex items-center space-x-2">
                 <Users className="w-4 h-4" />
                 <span>Пользователи</span>
@@ -457,6 +644,136 @@ export default function AdminPanel() {
                 <span>Модерация отзывов</span>
               </TabsTrigger>
             </TabsList>
+
+            {/* Dashboard */}
+            <TabsContent value="dashboard" className="space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="card-steel p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-primary/20 rounded-lg">
+                      <Users className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-steel-400 text-sm">Всего пользователей</p>
+                      <p className="text-2xl font-bold text-steel-100">{dashboardStats.totalUsers}</p>
+                      <div className="flex items-center space-x-1 mt-1">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <p className="text-green-400 text-xs">{dashboardStats.onlineUsers} онлайн</p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="card-steel p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-green-500/20 rounded-lg">
+                      <DollarSign className="w-6 h-6 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-steel-400 text-sm">Транзакции</p>
+                      <p className="text-2xl font-bold text-steel-100">{dashboardStats.totalTransactions}</p>
+                      <p className="text-yellow-400 text-xs">{dashboardStats.pendingTransactions} ожидают</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="card-steel p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-blue-500/20 rounded-lg">
+                      <Megaphone className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-steel-400 text-sm">Объявления</p>
+                      <p className="text-2xl font-bold text-steel-100">{dashboardStats.totalAds}</p>
+                      <p className="text-green-400 text-xs">{dashboardStats.activeAds} активных</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="card-steel p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-purple-500/20 rounded-lg">
+                      <Activity className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-steel-400 text-sm">Активность</p>
+                      <p className="text-2xl font-bold text-steel-100">{dashboardStats.recentActivity.length}</p>
+                      <p className="text-steel-400 text-xs">последних событий</p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Online Users */}
+                <Card className="card-steel p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-steel-100">Пользователи онлайн</h3>
+                    <Badge variant="outline" className="text-green-400 border-green-400/20">
+                      {onlineUserIds.size} онлайн
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {users.filter(user => onlineUserIds.has(user.id)).length === 0 ? (
+                      <div className="text-center py-8">
+                        <UserCheck className="w-12 h-12 text-steel-500 mx-auto mb-2" />
+                        <p className="text-steel-400">Нет пользователей онлайн</p>
+                      </div>
+                    ) : (
+                      users
+                        .filter(user => onlineUserIds.has(user.id))
+                        .map(user => (
+                          <div key={user.id} className="flex items-center space-x-3 p-3 bg-steel-800/30 rounded-lg">
+                            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                            <div className="flex-1">
+                              <p className="text-steel-100 font-medium">{user.id.slice(0, 8)}...</p>
+                              <p className="text-steel-400 text-sm">{user.phone || 'Без телефона'}</p>
+                            </div>
+                            <Badge className={
+                              user.role === 'system_admin' ? 'text-red-400 bg-red-400/10 border-red-400/20' :
+                              user.role === 'admin' ? 'text-primary bg-primary/10 border-primary/20' :
+                              'text-steel-400 bg-steel-400/10 border-steel-400/20'
+                            }>
+                              {user.role}
+                            </Badge>
+                          </div>
+                        ))
+                    )}
+                  </div>
+                </Card>
+
+                {/* Recent Activity */}
+                <Card className="card-steel p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-steel-100">Последняя активность</h3>
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                  </div>
+                  
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {dashboardStats.recentActivity.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Activity className="w-12 h-12 text-steel-500 mx-auto mb-2" />
+                        <p className="text-steel-400">Нет активности</p>
+                      </div>
+                    ) : (
+                      dashboardStats.recentActivity.map(activity => (
+                        <div key={activity.id} className="flex items-start space-x-3 p-3 bg-steel-800/30 rounded-lg">
+                          <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                          <div className="flex-1">
+                            <p className="text-steel-100 text-sm">{activity.description}</p>
+                            <p className="text-steel-400 text-xs">
+                              {format(new Date(activity.timestamp), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </Card>
+              </div>
+            </TabsContent>
 
             {/* Users Management */}
             <TabsContent value="users" className="space-y-6">
