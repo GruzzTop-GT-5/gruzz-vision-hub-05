@@ -23,7 +23,8 @@ import {
   AlertTriangle,
   Calendar,
   Search,
-  Filter
+  Filter,
+  Banknote
 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { StarRating } from '@/components/StarRating';
@@ -72,6 +73,28 @@ interface Transaction {
   proof_image: string | null;
 }
 
+interface Transaction {
+  id: string;
+  user_id: string;
+  amount: number;
+  type: string;
+  status: string;
+  payment_method: string | null;
+  created_at: string;
+  proof_image: string | null;
+}
+
+interface Withdrawal {
+  id: string;
+  user_id: string;
+  amount: number;
+  status: string;
+  payment_details: any;
+  created_at: string;
+  processed_by: string | null;
+  admin_notes: string | null;
+}
+
 interface Review {
   id: string;
   author_id: string;
@@ -100,12 +123,14 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [reportedReviews, setReportedReviews] = useState<ReportedReview[]>([]);
   
   // Loading states
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isLoadingAds, setIsLoadingAds] = useState(false);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   
   // Filter states
@@ -120,6 +145,7 @@ export default function AdminPanel() {
       fetchUsers();
       fetchAds();
       fetchTransactions();
+      fetchWithdrawals();
       fetchReportedReviews();
     }
   }, [isAdmin]);
@@ -188,6 +214,31 @@ export default function AdminPanel() {
       });
     } finally {
       setIsLoadingTransactions(false);
+    }
+  };
+
+  const fetchWithdrawals = async () => {
+    setIsLoadingWithdrawals(true);
+    try {
+      // For now, filter withdrawals from transactions table
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('type', 'withdrawal')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+      setWithdrawals(data || []);
+    } catch (error) {
+      console.error('Error fetching withdrawals:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить выводы",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingWithdrawals(false);
     }
   };
 
@@ -384,7 +435,7 @@ export default function AdminPanel() {
 
           {/* Admin Tabs */}
           <Tabs defaultValue="users" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="users" className="flex items-center space-x-2">
                 <Users className="w-4 h-4" />
                 <span>Пользователи</span>
@@ -397,9 +448,13 @@ export default function AdminPanel() {
                 <CreditCard className="w-4 h-4" />
                 <span>Транзакции</span>
               </TabsTrigger>
+              <TabsTrigger value="withdrawals" className="flex items-center space-x-2">
+                <Banknote className="w-4 h-4" />
+                <span>Вывод</span>
+              </TabsTrigger>
               <TabsTrigger value="reviews" className="flex items-center space-x-2">
                 <MessageSquare className="w-4 h-4" />
-                <span>Жалобы</span>
+                <span>Модерация отзывов</span>
               </TabsTrigger>
             </TabsList>
 
@@ -680,6 +735,127 @@ export default function AdminPanel() {
               </Card>
             </TabsContent>
 
+            {/* Withdrawals Management */}
+            <TabsContent value="withdrawals" className="space-y-6">
+              <Card className="card-steel p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-steel-100">Заявки на вывод</h2>
+                  <Badge variant="outline" className="text-yellow-400 border-yellow-400/20">
+                    {withdrawals.filter(w => w.status === 'pending').length} на рассмотрении
+                  </Badge>
+                </div>
+
+                {isLoadingWithdrawals ? (
+                  <div className="text-center py-8">
+                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  </div>
+                ) : withdrawals.length === 0 ? (
+                  <div className="text-center py-16">
+                    <Banknote className="w-16 h-16 text-steel-500 mx-auto mb-4" />
+                    <p className="text-steel-400 text-lg">Нет заявок на вывод</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {withdrawals.map((withdrawal) => (
+                      <div key={withdrawal.id} className="bg-steel-800/50 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-3">
+                              <span className="font-medium text-steel-100">
+                                {withdrawal.amount} GT Coins
+                              </span>
+                              {getStatusBadge(withdrawal.status, 'transaction')}
+                            </div>
+                            <div className="text-sm text-steel-300 space-y-1">
+                              <p>Пользователь: {withdrawal.user_id.slice(0, 8)}...</p>
+                              <p>Дата заявки: {format(new Date(withdrawal.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
+                              {withdrawal.payment_details && (
+                                <p>Реквизиты: {JSON.stringify(withdrawal.payment_details)}</p>
+                              )}
+                              {withdrawal.admin_notes && (
+                                <p className="text-yellow-400">Примечание: {withdrawal.admin_notes}</p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {withdrawal.status === 'pending' && (
+                            <div className="flex items-center space-x-2">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-green-400 border-green-400/20 hover:bg-green-400/10"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="card-steel">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Подтвердить вывод</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Вы уверены, что хотите подтвердить вывод {withdrawal.amount} GT Coins?
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => verifyTransaction(withdrawal.id, 'completed')}
+                                      className="bg-green-600 hover:bg-green-700"
+                                    >
+                                      Подтвердить
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                              
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-red-400 border-red-400/20 hover:bg-red-400/10"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="card-steel">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Отклонить вывод</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Укажите причину отклонения вывода:
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <div className="py-4">
+                                    <Textarea
+                                      placeholder="Причина отклонения..."
+                                      id={`withdrawal-rejection-${withdrawal.id}`}
+                                    />
+                                  </div>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => {
+                                        const textarea = document.getElementById(`withdrawal-rejection-${withdrawal.id}`) as HTMLTextAreaElement;
+                                        verifyTransaction(withdrawal.id, 'rejected', textarea?.value);
+                                      }}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Отклонить
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+
             {/* Reviews Management */}
             <TabsContent value="reviews" className="space-y-6">
               <Card className="card-steel p-6">
@@ -695,9 +871,9 @@ export default function AdminPanel() {
                     <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
                   </div>
                 ) : reportedReviews.length === 0 ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-16">
                     <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
-                    <p className="text-steel-300">Нет жалоб на отзывы</p>
+                    <p className="text-steel-400 text-lg">Нет задач на отзывы</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
