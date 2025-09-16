@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Eye, EyeOff, Phone, Lock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
@@ -303,10 +302,12 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
           {/* Remember Me Checkbox (only for login) */}
           {isLogin && (
             <div className="flex items-center space-x-2">
-              <Checkbox
+              <input
+                type="checkbox"
                 id="remember-me"
                 checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border border-steel-600 bg-steel-800 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-steel-900"
               />
               <label
                 htmlFor="remember-me"
