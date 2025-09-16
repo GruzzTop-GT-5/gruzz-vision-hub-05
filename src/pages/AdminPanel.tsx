@@ -2846,7 +2846,9 @@ export default function AdminPanel() {
       
       {/* Ad Moderation Modal */}
       {/* Delete Ad Modal */}
-      {deleteAdModalOpen && (
+      {(() => {
+        console.log('Rendering delete ad modal, deleteAdModalOpen:', deleteAdModalOpen, 'deleteAdId:', deleteAdId);
+        return deleteAdModalOpen && (
         <AlertDialog open={deleteAdModalOpen} onOpenChange={setDeleteAdModalOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -2885,8 +2887,12 @@ export default function AdminPanel() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      )}
+        );
+      })()}
 
+      {(() => {
+        console.log('Rendering AdModerationModal, adModerationOpen:', adModerationOpen, 'selectedAd:', selectedAd);
+        return (
       <AdModerationModal
         ad={selectedAd}
         isOpen={adModerationOpen}
@@ -2896,6 +2902,8 @@ export default function AdminPanel() {
         }}
         onAdUpdate={fetchAds}
       />
+        );
+      })()}
       
       {/* User Management Modal */}
       <UserManagementModal
