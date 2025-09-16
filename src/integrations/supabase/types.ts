@@ -501,18 +501,23 @@ export type Database = {
           deadline: string | null
           delivery_format: string | null
           description: string | null
+          end_time: string | null
           escrow_amount: number | null
           executor_id: string | null
           executor_proposal: Json | null
           id: string
+          is_auto_closed: boolean | null
           max_revisions: number | null
           order_number: string
           payment_method: string | null
           payment_status: string | null
+          people_accepted: number | null
+          people_needed: number | null
           platform_fee: number | null
           price: number
           priority: string | null
           revision_count: number | null
+          start_time: string | null
           status: string
           title: string
           updated_at: string
@@ -529,18 +534,23 @@ export type Database = {
           deadline?: string | null
           delivery_format?: string | null
           description?: string | null
+          end_time?: string | null
           escrow_amount?: number | null
           executor_id?: string | null
           executor_proposal?: Json | null
           id?: string
+          is_auto_closed?: boolean | null
           max_revisions?: number | null
           order_number: string
           payment_method?: string | null
           payment_status?: string | null
+          people_accepted?: number | null
+          people_needed?: number | null
           platform_fee?: number | null
           price: number
           priority?: string | null
           revision_count?: number | null
+          start_time?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -557,18 +567,23 @@ export type Database = {
           deadline?: string | null
           delivery_format?: string | null
           description?: string | null
+          end_time?: string | null
           escrow_amount?: number | null
           executor_id?: string | null
           executor_proposal?: Json | null
           id?: string
+          is_auto_closed?: boolean | null
           max_revisions?: number | null
           order_number?: string
           payment_method?: string | null
           payment_status?: string | null
+          people_accepted?: number | null
+          people_needed?: number | null
           platform_fee?: number | null
           price?: number
           priority?: string | null
           revision_count?: number | null
+          start_time?: string | null
           status?: string
           title?: string
           updated_at?: string

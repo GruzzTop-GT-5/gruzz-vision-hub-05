@@ -16,22 +16,10 @@ import { Plus, Calendar as CalendarIcon, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-const ORDER_CATEGORIES = [
-  'Грузчики',
-  'Разнорабочие', 
-  'Квартирный переезд',
-  'Офисный переезд',
-  'Погрузка/разгрузка',
-  'Сборка мебели',
-  'Уборка помещений',
-  'Строительные работы',
-  'Ремонтные работы',
-  'Демонтаж',
-  'Подсобные работы',
-  'Складские работы',
-  'Курьерские услуги',
-  'Садовые работы',
-  'Другое'
+const PRIORITY_OPTIONS = [
+  { value: 'normal', label: 'Обычный (15 GT)', cost: 15 },
+  { value: 'high', label: 'Высокий (35 GT)', cost: 35 },
+  { value: 'urgent', label: 'Срочно (55 GT)', cost: 55 }
 ];
 
 const PAYMENT_TYPES = [
@@ -61,7 +49,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
   const [isCreating, setIsCreating] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [userBalance, setUserBalance] = useState<number>(0);
-  const [publicationFee, setPublicationFee] = useState<number>(50);
+  const [priorityCosts, setPriorityCosts] = useState({ normal: 15, high: 35, urgent: 55 });
   
   const [orderData, setOrderData] = useState({
     title: '',
@@ -72,7 +60,9 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     priority: 'normal',
     deadline: null as Date | null,
     work_format: '',
-    people_count: '2',
+    people_needed: '1',
+    start_time: '',
+    end_time: '',
     work_duration: '',
     client_requirements: {
       specifications: '',
@@ -100,26 +90,27 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     }
   };
 
-  const loadPublicationFee = async () => {
+  const loadPriorityCosts = async () => {
     try {
       const { data: setting, error } = await supabase
         .from('system_settings')
         .select('setting_value')
-        .eq('setting_key', 'order_publication_fee')
+        .eq('setting_key', 'priority_costs')
         .single();
 
       if (error) throw error;
-      setPublicationFee(parseFloat(setting?.setting_value?.toString() || '50'));
+      if (setting?.setting_value) {
+        setPriorityCosts(setting.setting_value as any);
+      }
     } catch (error) {
-      console.error('Error loading publication fee:', error);
-      setPublicationFee(50); // Fallback значение
+      console.error('Error loading priority costs:', error);
     }
   };
 
   // Загружаем баланс и стоимость публикации при открытии модала
   if (isOpen && user?.id && userBalance === 0) {
     loadUserBalance();
-    loadPublicationFee();
+    loadPriorityCosts();
   }
 
   const handleCreateOrder = async () => {
@@ -182,8 +173,8 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       return;
     }
 
-    // Общая стоимость = только фиксированная плата за публикацию
-    const totalCost = publicationFee;
+    // Общая стоимость = стоимость по приоритету
+    const totalCost = priorityCosts[orderData.priority as keyof typeof priorityCosts] || 15;
 
     setIsCreating(true);
 
@@ -206,8 +197,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         return;
       }
 
-      // Заказ без комиссии, оплачивается только фиксированная плата за публикацию
-
       // Создаем заказ
       const { data: newOrder, error: orderError } = await supabase
         .from('orders')
@@ -221,7 +210,11 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
           client_id: user.id,
           ad_id: adId || null,
           delivery_format: orderData.work_format,
-          max_revisions: parseInt(orderData.people_count),
+          max_revisions: 3,
+          people_needed: parseInt(orderData.people_needed),
+          people_accepted: 0,
+          start_time: orderData.start_time || null,
+          end_time: orderData.end_time || null,
           commission_rate: 0,
           platform_fee: 0,
           payment_method: orderData.payment_type,
@@ -229,7 +222,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             ...orderData.client_requirements,
             payment_type: orderData.payment_type,
             work_duration: orderData.work_duration,
-            people_count: orderData.people_count,
+            people_needed: orderData.people_needed,
             specifications: sanitizeInput(orderData.client_requirements.specifications),
             location: sanitizeInput(orderData.client_requirements.location),
             additional_notes: sanitizeInput(orderData.client_requirements.additional_notes)
@@ -270,7 +263,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       }
 
       // Создаем транзакцию для списания фиксированной платы за публикацию
-      console.log('Creating transaction for user:', user.id, 'publication fee:', totalCost);
+      console.log('Creating transaction for user:', user.id, 'priority cost:', totalCost);
       const { data: transaction, error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -282,8 +275,9 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             order_id: newOrder.id,
             order_number: newOrder.order_number,
             description: `Плата за публикацию заказа: ${sanitizeInput(orderData.title)}`,
+            priority: orderData.priority,
             breakdown: {
-              publication_fee: totalCost,
+              priority_fee: totalCost,
               total: totalCost
             }
           }
@@ -325,7 +319,9 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         priority: 'normal',
         deadline: null,
         work_format: '',
-        people_count: '2',
+        people_needed: '1',
+        start_time: '',
+        end_time: '',
         work_duration: '',
         client_requirements: {
           specifications: '',
@@ -349,6 +345,10 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     }
   };
 
+  const getCurrentPriorityCost = () => {
+    return priorityCosts[orderData.priority as keyof typeof priorityCosts] || 15;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="card-steel-dialog max-w-2xl max-h-[90vh] overflow-y-auto data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
@@ -360,6 +360,27 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Balance Display */}
+          <div className="p-4 bg-steel-900/50 rounded-lg border border-steel-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-steel-300">Ваш баланс:</span>
+                <span className="font-bold text-primary">{userBalance} GT Coins</span>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-steel-400">Стоимость размещения:</p>
+                <p className="font-bold text-primary">{getCurrentPriorityCost()} GT Coins</p>
+              </div>
+            </div>
+            {userBalance < getCurrentPriorityCost() && (
+              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-400 text-sm">
+                  Недостаточно средств. Пополните баланс.
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-steel-100">Основная информация</h3>
@@ -388,37 +409,31 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="category">Тип работы</Label>
-                <Select
+                <Label htmlFor="category">Категория работы</Label>
+                <Input
+                  id="category"
                   value={orderData.category}
-                  onValueChange={(value) => setOrderData(prev => ({ ...prev, category: value }))}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Выберите тип работы" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ORDER_CATEGORIES.map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => setOrderData(prev => ({ ...prev, category: e.target.value }))}
+                  placeholder="Например: Разнорабочие, Грузчики, Переезд"
+                  className="mt-1"
+                />
               </div>
 
               <div>
-                <Label htmlFor="payment_type">Тип оплаты</Label>
+                <Label htmlFor="priority">Приоритет</Label>
                 <Select
-                  value={orderData.payment_type}
-                  onValueChange={(value) => setOrderData(prev => ({ ...prev, payment_type: value }))}
+                  value={orderData.priority}
+                  onValueChange={(value) => setOrderData(prev => ({ ...prev, priority: value }))}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue />
+                    <SelectValue placeholder="Выберите приоритет" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="hourly">Почасовая оплата</SelectItem>
-                    <SelectItem value="daily">Дневная оплата</SelectItem>
-                    <SelectItem value="project">За весь объем</SelectItem>
+                    {PRIORITY_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -449,24 +464,40 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               </div>
 
               <div>
-                <Label htmlFor="people_count">Количество рабочих</Label>
-                <Select
-                  value={orderData.people_count}
-                  onValueChange={(value) => setOrderData(prev => ({ ...prev, people_count: value }))}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 человек</SelectItem>
-                    <SelectItem value="2">2 человека</SelectItem>
-                    <SelectItem value="3">3 человека</SelectItem>
-                    <SelectItem value="4">4 человека</SelectItem>
-                    <SelectItem value="5">5 человек</SelectItem>
-                    <SelectItem value="6">6 человек</SelectItem>
-                    <SelectItem value="10">10+ человек</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="people_needed">Нужно людей</Label>
+                <Input
+                  id="people_needed"
+                  type="number"
+                  min="1"
+                  value={orderData.people_needed}
+                  onChange={(e) => setOrderData(prev => ({ ...prev, people_needed: e.target.value }))}
+                  placeholder="1"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="start_time">Время начала работы</Label>
+                <Input
+                  id="start_time"
+                  type="time"
+                  value={orderData.start_time}
+                  onChange={(e) => setOrderData(prev => ({ ...prev, start_time: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="end_time">Время окончания работы</Label>
+                <Input
+                  id="end_time"
+                  type="time"
+                  value={orderData.end_time}
+                  onChange={(e) => setOrderData(prev => ({ ...prev, end_time: e.target.value }))}
+                  className="mt-1"
+                />
               </div>
             </div>
 
@@ -509,41 +540,19 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   onValueChange={(value) => setOrderData(prev => ({ ...prev, work_duration: value }))}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Сколько дней/часов" />
+                    <SelectValue placeholder="Выберите продолжительность" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1-day">1 день</SelectItem>
-                    <SelectItem value="2-days">2 дня</SelectItem>
-                    <SelectItem value="3-days">3 дня</SelectItem>
-                    <SelectItem value="1-week">1 неделя</SelectItem>
-                    <SelectItem value="2-weeks">2 недели</SelectItem>
-                    <SelectItem value="1-month">1 месяц</SelectItem>
-                    <SelectItem value="ongoing">На постоянной основе</SelectItem>
+                    <SelectItem value="1-2 часа">1-2 часа</SelectItem>
+                    <SelectItem value="3-4 часа">3-4 часа</SelectItem>
+                    <SelectItem value="Полдня">Полдня</SelectItem>
+                    <SelectItem value="Полный день">Полный день</SelectItem>
+                    <SelectItem value="Несколько дней">Несколько дней</SelectItem>
+                    <SelectItem value="Неделя">Неделя</SelectItem>
+                    <SelectItem value="Больше недели">Больше недели</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          </div>
-
-          {/* Requirements */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-steel-100">Условия работы</h3>
-            
-            <div>
-              <Label htmlFor="location">Адрес объекта *</Label>
-              <Textarea
-                id="location"
-                value={orderData.client_requirements.location}
-                onChange={(e) => setOrderData(prev => ({
-                  ...prev,
-                  client_requirements: {
-                    ...prev.client_requirements,
-                    location: e.target.value
-                  }
-                }))}
-                placeholder="Точный адрес, этажность, наличие лифта, особенности объекта"
-                className="mt-1"
-              />
             </div>
 
             <div>
@@ -564,144 +573,100 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Location and Requirements */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-steel-100">Место работы и требования</h3>
+            
+            <div>
+              <Label htmlFor="location">Адрес объекта *</Label>
+              <Textarea
+                id="location"
+                value={orderData.client_requirements.location}
+                onChange={(e) => setOrderData(prev => ({
+                  ...prev,
+                  client_requirements: { ...prev.client_requirements, location: e.target.value }
+                }))}
+                placeholder="Укажите полный адрес или ближайшую станцию метро"
+                className="mt-1"
+              />
+            </div>
 
             <div>
-              <Label htmlFor="specifications">Требования к рабочим</Label>
+              <Label htmlFor="specifications">Технические требования и детали</Label>
               <Textarea
                 id="specifications"
                 value={orderData.client_requirements.specifications}
                 onChange={(e) => setOrderData(prev => ({
                   ...prev,
-                  client_requirements: {
-                    ...prev.client_requirements,
-                    specifications: e.target.value
-                  }
+                  client_requirements: { ...prev.client_requirements, specifications: e.target.value }
                 }))}
-                placeholder="Опыт работы, физическая подготовка, наличие инструментов, спецодежды"
-                className="mt-1"
+                placeholder="Опишите специфические требования к работе, инструменты, опыт работы"
+                className="mt-1 min-h-[120px]"
               />
             </div>
 
             <div>
-              <Label htmlFor="additional_notes">График и условия оплаты</Label>
+              <Label htmlFor="additional_notes">Дополнительные пожелания</Label>
               <Textarea
                 id="additional_notes"
                 value={orderData.client_requirements.additional_notes}
                 onChange={(e) => setOrderData(prev => ({
                   ...prev,
-                  client_requirements: {
-                    ...prev.client_requirements,
-                    additional_notes: e.target.value
-                  }
+                  client_requirements: { ...prev.client_requirements, additional_notes: e.target.value }
                 }))}
-                placeholder="Рабочее время, перерывы, питание, когда и как будет производиться оплата"
+                placeholder="Любые дополнительные комментарии или пожелания"
                 className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="communication">Способ связи</Label>
+              <Label htmlFor="preferred_communication">Предпочитаемый способ связи</Label>
               <Select
                 value={orderData.client_requirements.preferred_communication}
                 onValueChange={(value) => setOrderData(prev => ({
                   ...prev,
-                  client_requirements: {
-                    ...prev.client_requirements,
-                    preferred_communication: value
-                  }
+                  client_requirements: { ...prev.client_requirements, preferred_communication: value }
                 }))}
               >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="chat">Чат в приложении</SelectItem>
+                  <SelectItem value="phone">Телефонный звонок</SelectItem>
                   <SelectItem value="telegram">Telegram</SelectItem>
-                  <SelectItem value="phone">Телефон</SelectItem>
-                  <SelectItem value="chat">Чат на платформе</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                  <SelectItem value="any">Любой удобный</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Balance and Price breakdown */}
-          <div className="bg-steel-800/30 rounded-lg p-4 space-y-3">
-            <div className="flex justify-between items-center">
-              <h4 className="font-semibold text-steel-100">Ваш баланс:</h4>
-              <div className="text-right">
-                <div className="text-primary font-semibold">{formatBalance(userBalance).gtCoins}</div>
-                <div className="text-xs text-steel-400">{formatBalance(userBalance).rubles}</div>
-              </div>
-            </div>
-            
-            <div className="border-t border-steel-600 pt-3">
-              <h4 className="font-semibold text-steel-100 mb-2">Стоимость публикации:</h4>
-              <div className="space-y-1 text-sm">
-                {orderData.price && !isNaN(parseFloat(orderData.price)) && (
-                  <div className="flex justify-between">
-                    <span className="text-steel-300">Вознаграждение исполнителя:</span>
-                    <div className="text-right">
-                      <div className="text-steel-100">{formatBalance(parseFloat(orderData.price)).gtCoins}</div>
-                      <div className="text-xs text-steel-400">{formatBalance(parseFloat(orderData.price)).rubles}</div>
-                    </div>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-steel-300">Плата за публикацию:</span>
-                  <div className="text-right">
-                    <div className="text-steel-100">{formatBalance(publicationFee).gtCoins}</div>
-                    <div className="text-xs text-steel-400">{formatBalance(publicationFee).rubles}</div>
-                  </div>
-                </div>
-                <div className="border-t border-steel-600 pt-1 mt-2">
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-steel-100">К списанию с баланса:</span>
-                    <div className="text-right">
-                      <div className="text-primary">{formatBalance(publicationFee).gtCoins}</div>
-                      <div className="text-xs text-steel-400">{formatBalance(publicationFee).rubles}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Warning if insufficient balance */}
-                {publicationFee > userBalance && (
-                  <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
-                    ⚠️ Недостаточно средств на балансе. Пополните баланс для создания заказа.
-                  </div>
-                )}
-                
-                {/* Info about executor payment */}
-                {orderData.price && !isNaN(parseFloat(orderData.price)) && (
-                  <div className="mt-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded text-blue-400 text-sm">
-                    ℹ️ Исполнитель получит полную сумму без комиссий: {formatBalance(parseFloat(orderData.price)).gtCoins}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-3 pt-4">
-            <Button
-              onClick={handleCreateOrder}
-              disabled={isCreating || !orderData.title.trim() || !orderData.description.trim() || !orderData.price.trim() || !orderData.client_requirements.location.trim()}
-              className="flex-1"
-            >
-              {isCreating ? (
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-              ) : (
-                <Plus className="w-4 h-4 mr-2" />
-              )}
-              Создать заказ
-            </Button>
-            
-            <Button
-              variant="outline"
+          {/* Actions */}
+          <div className="flex gap-4 pt-4">
+            <Button 
               onClick={onClose}
-              disabled={isCreating}
+              variant="outline" 
               className="flex-1"
+              disabled={isCreating}
             >
               Отмена
+            </Button>
+            <Button 
+              onClick={handleCreateOrder}
+              className="flex-1"
+              disabled={isCreating || !orderData.title.trim() || !orderData.description.trim() || !orderData.price.trim() || userBalance < getCurrentPriorityCost()}
+            >
+              {isCreating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Создание...
+                </>
+              ) : (
+                `Создать заказ за ${getCurrentPriorityCost()} GT`
+              )}
             </Button>
           </div>
         </div>

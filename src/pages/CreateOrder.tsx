@@ -20,17 +20,20 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-const ORDER_COST = 15; // Cost in GT Coins to post an order
+
 
 const orderFormSchema = z.object({
   title: z.string().min(5, 'Название заказа должно содержать минимум 5 символов').max(100, 'Название слишком длинное'),
   description: z.string().min(20, 'Описание должно содержать минимум 20 символов').max(1000, 'Описание слишком длинное'),
-  category: z.string().min(1, 'Выберите категорию'),
+  category: z.string().min(1, 'Введите категорию работы'),
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, 'Введите корректную сумму'),
   priority: z.enum(['normal', 'high', 'urgent'], { required_error: 'Выберите приоритет' }),
   deadline: z.date().optional(),
   delivery_format: z.string().optional(),
-  max_revisions: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, 'Введите корректное количество').optional()
+  max_revisions: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, 'Введите корректное количество').optional(),
+  start_time: z.string().optional(),
+  end_time: z.string().optional(),
+  people_needed: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, 'Минимум 1 человек')
 });
 
 type OrderFormData = z.infer<typeof orderFormSchema>;
@@ -45,9 +48,9 @@ interface Category {
 }
 
 const PRIORITY_OPTIONS = [
-  { value: 'normal', label: 'Обычный' },
-  { value: 'high', label: 'Высокий' },
-  { value: 'urgent', label: 'Срочный' }
+  { value: 'normal', label: 'Обычный (15 GT)', cost: 15 },
+  { value: 'high', label: 'Высокий (35 GT)', cost: 35 },
+  { value: 'urgent', label: 'Срочно (55 GT)', cost: 55 }
 ];
 
 export default function CreateOrder() {
@@ -56,7 +59,7 @@ export default function CreateOrder() {
   const { toast } = useToast();
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [priorityCosts, setPriorityCosts] = useState({ normal: 15, high: 35, urgent: 55 });
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderFormSchema),
@@ -71,12 +74,12 @@ export default function CreateOrder() {
     }
   });
 
-  // Fetch user balance and categories
+  // Fetch user balance and priority costs
   useEffect(() => {
     if (user?.id) {
       fetchUserBalance();
     }
-    fetchCategories();
+    fetchPriorityCosts();
   }, [user?.id]);
 
   const fetchUserBalance = async () => {
@@ -100,18 +103,20 @@ export default function CreateOrder() {
     }
   };
 
-  const fetchCategories = async () => {
+  const fetchPriorityCosts = async () => {
     try {
       const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+        .from('system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'priority_costs')
+        .single();
 
       if (error) throw error;
-      setCategories(data || []);
+      if (data?.setting_value) {
+        setPriorityCosts(data.setting_value as any);
+      }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching priority costs:', error);
     }
   };
 
@@ -125,10 +130,12 @@ export default function CreateOrder() {
       return;
     }
 
-    if (userBalance === null || userBalance < ORDER_COST) {
+    const orderCost = priorityCosts[data.priority as keyof typeof priorityCosts] || 15;
+    
+    if (userBalance === null || userBalance < orderCost) {
       toast({
         title: "Недостаточно GT Coins",
-        description: `Для размещения заказа нужно ${ORDER_COST} GT Coins. Пополните баланс.`,
+        description: `Для размещения заказа нужно ${orderCost} GT Coins. Пополните баланс.`,
         variant: "destructive"
       });
       return;
@@ -144,12 +151,16 @@ export default function CreateOrder() {
           order_number: 'temp', // Will be overridden by trigger
           title: data.title,
           description: data.description,
-          category: categories.find(c => c.id === data.category)?.name || 'Не указано',
+          category: data.category,
           price: Number(data.price),
           priority: data.priority,
           deadline: data.deadline ? data.deadline.toISOString() : null,
           delivery_format: data.delivery_format || null,
           max_revisions: Number(data.max_revisions) || 3,
+          start_time: data.start_time || null,
+          end_time: data.end_time || null,
+          people_needed: Number(data.people_needed) || 1,
+          people_accepted: 0,
           client_id: user.id,
           status: 'pending',
           payment_status: 'pending'
@@ -166,13 +177,14 @@ export default function CreateOrder() {
         .from('transactions')
         .insert({
           user_id: user.id,
-          amount: ORDER_COST,
+          amount: orderCost,
           type: 'payment' as const,
           status: 'completed' as const,
           payment_method: 'bank_card' as const,
           payment_details: {
             description: `Размещение заказа: ${data.title}`,
-            order_id: orderData.id
+            order_id: orderData.id,
+            priority: data.priority
           }
         });
 
@@ -182,7 +194,7 @@ export default function CreateOrder() {
 
       toast({
         title: "Заказ создан!",
-        description: `Заказ на работу размещен. Списано ${ORDER_COST} GT Coins.`
+        description: `Заказ на работу размещен. Списано ${orderCost} GT Coins.`
       });
 
       navigate('/ads');
@@ -245,10 +257,12 @@ export default function CreateOrder() {
               </div>
               <div className="text-right">
                 <p className="text-sm text-steel-400">Стоимость размещения:</p>
-                <p className="font-bold text-primary">{ORDER_COST} GT Coins</p>
+                <p className="font-bold text-primary">
+                  {form.watch('priority') ? priorityCosts[form.watch('priority') as keyof typeof priorityCosts] : 15} GT Coins
+                </p>
               </div>
             </div>
-            {userBalance !== null && userBalance < ORDER_COST && (
+            {userBalance !== null && userBalance < (priorityCosts[form.watch('priority') as keyof typeof priorityCosts] || 15) && (
               <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                 <p className="text-red-400 text-sm">
                   Недостаточно средств. <a href="/balance" className="text-primary hover:underline">Пополнить баланс</a>
@@ -283,21 +297,13 @@ export default function CreateOrder() {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Категория</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите категорию" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Категория работы</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Например: Разнорабочие, Грузчики, Переезд"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -343,6 +349,61 @@ export default function CreateOrder() {
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="start_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Время начала работы</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="end_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Время окончания работы</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="people_needed"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Нужно людей</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="1"
+                            min="1"
+                            {...field}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -449,7 +510,7 @@ export default function CreateOrder() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isSubmitting || (userBalance !== null && userBalance < ORDER_COST)}
+                  disabled={isSubmitting || (userBalance !== null && userBalance < (priorityCosts[form.watch('priority') as keyof typeof priorityCosts] || 15))}
                 >
                   {isSubmitting ? (
                     <>
@@ -457,7 +518,7 @@ export default function CreateOrder() {
                       Размещение...
                     </>
                   ) : (
-                    `Разместить заказ (${ORDER_COST} GT Coins)`
+                    `Разместить заказ (${priorityCosts[form.watch('priority') as keyof typeof priorityCosts] || 15} GT Coins)`
                   )}
                 </Button>
               </form>
