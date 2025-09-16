@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Phone, Lock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
@@ -24,6 +25,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
     password: '',
     confirmPassword: ''
   });
+  const [rememberMe, setRememberMe] = useState(false);
   
   const { toast } = useToast();
   const { isInTelegram } = useTelegram();
@@ -295,6 +297,23 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                   minLength={6}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Remember Me Checkbox (only for login) */}
+          {isLogin && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="remember-me"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+              />
+              <label
+                htmlFor="remember-me"
+                className="text-sm text-steel-200 cursor-pointer"
+              >
+                Запомнить меня
+              </label>
             </div>
           )}
 
