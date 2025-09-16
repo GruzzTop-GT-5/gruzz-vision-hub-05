@@ -310,7 +310,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="text-2xl font-bold text-primary">
-              {order.price.toLocaleString('ru-RU')} ₽
+              {order.price.toLocaleString('ru-RU')} GT
             </div>
             {order.payment_status && (
               <div className="flex items-center space-x-2">

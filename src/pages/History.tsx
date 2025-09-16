@@ -122,7 +122,7 @@ const History = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-2xl font-bold text-primary mb-1">
-                      {loading ? "..." : `${stats.totalEarnings.toLocaleString('ru-RU')} ₽`}
+                      {loading ? "..." : `${stats.totalEarnings.toLocaleString('ru-RU')} GT`}
                     </div>
                     <div className="text-sm text-steel-400">Общий доход</div>
                   </div>
@@ -172,7 +172,7 @@ const History = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-primary mb-1">
-                          {Number(order.price).toLocaleString('ru-RU')} ₽
+                          {Number(order.price).toLocaleString('ru-RU')} GT
                         </div>
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-4 h-4 text-steel-400" />

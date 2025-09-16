@@ -215,7 +215,7 @@ export const OrderFilters = ({ filters, onFiltersChange, onClearFilters }: Order
             type="number"
             value={filters.priceMin}
             onChange={(e) => updateFilter('priceMin', e.target.value)}
-            placeholder="Цена от (₽)"
+            placeholder="Цена от (GT)"
             min="0"
           />
         </div>
@@ -224,7 +224,7 @@ export const OrderFilters = ({ filters, onFiltersChange, onClearFilters }: Order
             type="number"
             value={filters.priceMax}
             onChange={(e) => updateFilter('priceMax', e.target.value)}
-            placeholder="Цена до (₽)"
+            placeholder="Цена до (GT)"
             min="0"
           />
         </div>

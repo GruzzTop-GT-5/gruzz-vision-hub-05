@@ -289,7 +289,7 @@ export default function CreateAd() {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Бюджет (руб.)</FormLabel>
+                      <FormLabel>Бюджет (GT)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"

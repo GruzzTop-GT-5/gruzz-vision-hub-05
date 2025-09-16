@@ -31,8 +31,8 @@ const config: AppConfig = {
   },
   limits: {
     maxAdsPerUser: 50,
-    maxTransactionAmount: 100000, // 100,000 руб
-    minTransactionAmount: 100, // 100 руб
+    maxTransactionAmount: 100000, // 100,000 GT
+    minTransactionAmount: 100, // 100 GT
     rateLimitRequests: 100,
     rateLimitWindow: 60 * 1000 // 1 minute
   }

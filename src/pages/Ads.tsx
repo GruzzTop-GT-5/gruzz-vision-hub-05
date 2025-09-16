@@ -273,7 +273,7 @@ export default function Ads() {
                     <div className="flex items-center space-x-2">
                       <DollarSign className="w-4 h-4 text-primary" />
                       <span className="text-lg font-bold text-primary">
-                        {formatPrice(ad.price)} ₽
+                        {formatPrice(ad.price)} GT
                       </span>
                     </div>
 

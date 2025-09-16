@@ -71,7 +71,7 @@ export const BalanceCard = ({ userId, onTopUpClick, onHistoryClick }: BalanceCar
           </div>
         </div>
         <div className="text-xs text-steel-500">
-          ≈ {balance.toFixed(2)} ₽
+          ≈ {balance.toFixed(2)} GT
         </div>
       </div>
 
@@ -97,7 +97,7 @@ export const BalanceCard = ({ userId, onTopUpClick, onHistoryClick }: BalanceCar
       {/* Info */}
       <div className="pt-3 border-t border-steel-600">
         <div className="flex items-center justify-between text-xs text-steel-400">
-          <span>1 GT Coin = 1 ₽</span>
+          <span>1 GT Coin = 1 GT</span>
           <div className="flex items-center space-x-1">
             <TrendingUp className="w-3 h-3" />
             <span>Стабильный курс</span>

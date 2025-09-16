@@ -229,7 +229,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
 
           {/* Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Сумма пополнения (₽)</Label>
+            <Label htmlFor="amount">Сумма пополнения (GT)</Label>
             <Input
               id="amount"
               type="number"
@@ -240,7 +240,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
               className="input-steel"
             />
             <p className="text-xs text-steel-400">
-              Минимальная сумма: 100 ₽ • Максимальная: 50,000 ₽
+              Минимальная сумма: 100 GT • Максимальная: 50,000 GT
             </p>
           </div>
 

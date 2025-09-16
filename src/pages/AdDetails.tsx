@@ -137,7 +137,7 @@ export default function AdDetails() {
             <div>
               <h3 className="font-semibold mb-2">Цена</h3>
               <p className="text-2xl font-bold text-primary">
-                {ad.price.toLocaleString('ru-RU')} ₽
+                {ad.price.toLocaleString('ru-RU')} GT
               </p>
             </div>
 

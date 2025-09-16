@@ -43,12 +43,10 @@ export const formatTimeAgo = (date: string | Date): string => {
 
 // Number utilities
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
+  return `${new Intl.NumberFormat('ru-RU', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
-  }).format(amount);
+  }).format(amount)} GT`;
 };
 
 export const formatNumber = (num: number): string => {

@@ -273,7 +273,7 @@ export const OrderDetailsModal = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-steel-300">Цена</Label>
-                    <p className="text-2xl font-bold text-primary">{order.price.toLocaleString('ru-RU')} ₽</p>
+                    <p className="text-2xl font-bold text-primary">{order.price.toLocaleString('ru-RU')} GT</p>
                   </div>
                   
                   <div>

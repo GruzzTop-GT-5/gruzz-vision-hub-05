@@ -1392,7 +1392,7 @@ export default function AdminPanel() {
                             <p className="text-steel-300 text-sm">{ad.description.slice(0, 150)}...</p>
                             <div className="text-xs text-steel-400 space-y-1">
                               <p>Категория: {ad.category}</p>
-                              <p>Цена: {ad.price.toLocaleString()} ₽</p>
+                              <p>Цена: {ad.price.toLocaleString()} GT</p>
                               <p>Автор: {ad.user_id.slice(0, 8)}...</p>
                               <p>Создано: {format(new Date(ad.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
                             </div>
