@@ -103,10 +103,16 @@ export const AnalyticsDashboard = () => {
       
       const avgOrderValue = completedOrders > 0 ? revenue / completedOrders : 0;
 
-      // Получаем статистику транзакций
+      // Получаем статистику транзакций (реальный доход от пополнений)
       const { data: transactionsData } = await supabase
         .from('transactions')
-        .select('id, status, amount');
+        .select('id, status, amount, type, created_at')
+        .eq('type', 'deposit'); // Только пополнения
+
+      // Реальный доход от пополнений (1 GT коин = 1 рубль)
+      const realRevenue = transactionsData
+        ?.filter(t => t.status === 'completed')
+        .reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
 
       const totalVolume = transactionsData?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
       const successfulTransactions = transactionsData?.filter(t => t.status === 'completed').length || 0;
@@ -125,12 +131,18 @@ export const AnalyticsDashboard = () => {
         .select('*', { count: 'exact', head: true })
         .eq('is_moderated', true);
 
+      // Получаем активных пользователей за последние 24 часа (по сообщениям)
+      const { count: activeUsersCount } = await supabase
+        .from('messages')
+        .select('sender_id', { count: 'exact', head: true })
+        .gte('created_at', startOfToday.toISOString());
+
       setAnalytics({
         users: {
           total: totalUsers,
           new_today: newToday,
           new_week: newWeek,
-          active_today: Math.floor(totalUsers * 0.1), // Примерное значение
+          active_today: activeUsersCount || 0,
           growth_rate: growthRate
         },
         orders: {
@@ -138,7 +150,7 @@ export const AnalyticsDashboard = () => {
           completed: completedOrders,
           pending: pendingOrders,
           cancelled: cancelledOrders,
-          revenue,
+          revenue: realRevenue, // Реальный доход от пополнений
           avg_order_value: avgOrderValue
         },
         transactions: {
@@ -155,19 +167,47 @@ export const AnalyticsDashboard = () => {
         }
       });
 
-      // Генерируем данные для графиков за последние 30 дней
-      const days = Array.from({ length: 30 }, (_, i) => {
+      // Генерируем реальные данные для графиков за последние 30 дней
+      const chartPromises = Array.from({ length: 30 }, async (_, i) => {
         const date = subDays(now, 29 - i);
-        const dayData = {
+        const dayStart = startOfDay(date);
+        const dayEnd = endOfDay(date);
+
+        // Новые пользователи за день
+        const { count: dayUsers } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', dayStart.toISOString())
+          .lte('created_at', dayEnd.toISOString());
+
+        // Заказы за день
+        const { count: dayOrders } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', dayStart.toISOString())
+          .lte('created_at', dayEnd.toISOString());
+
+        // Доходы за день (пополнения)
+        const { data: dayRevenue } = await supabase
+          .from('transactions')
+          .select('amount')
+          .eq('type', 'deposit')
+          .eq('status', 'completed')
+          .gte('created_at', dayStart.toISOString())
+          .lte('created_at', dayEnd.toISOString());
+
+        const revenue = dayRevenue?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+
+        return {
           date: format(date, 'dd.MM'),
-          users: Math.floor(Math.random() * 20) + 5,
-          orders: Math.floor(Math.random() * 15) + 2,
-          revenue: Math.floor(Math.random() * 10000) + 1000
+          users: dayUsers || 0,
+          orders: dayOrders || 0,
+          revenue
         };
-        return dayData;
       });
 
-      setChartData(days);
+      const chartData = await Promise.all(chartPromises);
+      setChartData(chartData);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       toast({
@@ -318,10 +358,10 @@ export const AnalyticsDashboard = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Доход</p>
+                <p className="text-sm text-muted-foreground">Реальный доход (GT коины)</p>
                 <p className="text-2xl font-bold">₽{analytics?.orders.revenue.toLocaleString()}</p>
                 <p className="text-sm text-muted-foreground">
-                  Средний чек: ₽{analytics?.orders.avg_order_value.toFixed(0)}
+                  От пополнений пользователей (1 GT = 1₽)
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-green-500" />

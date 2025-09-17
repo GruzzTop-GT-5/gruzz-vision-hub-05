@@ -42,7 +42,10 @@ import {
   CheckCircle,
   TrendingUp,
   UserCheck,
-  Clock
+  Clock,
+  HelpCircle,
+  ArrowLeft,
+  DollarSign
 } from 'lucide-react';
 
 interface AdminModule {
@@ -339,16 +342,6 @@ export const AdminPanelNew = () => {
       bgColor: 'from-cyan-500/10 to-cyan-600/20 border-cyan-500/30 hover:border-cyan-400/50',
       component: <AdminTicketManagement />,
       roles: ['admin', 'system_admin', 'support']
-    },
-    {
-      id: 'performance',
-      title: '⚡ Производительность',
-      description: 'Мониторинг системы и производительности',
-      icon: <Zap className="w-8 h-8" />,
-      color: 'text-orange-400',
-      bgColor: 'from-orange-500/10 to-orange-600/20 border-orange-500/30 hover:border-orange-400/50',
-      component: <PerformanceMonitor />,
-      roles: ['admin', 'system_admin']
     },
     {
       id: 'notifications',

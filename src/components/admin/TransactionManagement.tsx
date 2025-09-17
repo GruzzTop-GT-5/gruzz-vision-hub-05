@@ -47,6 +47,7 @@ export const TransactionManagement: React.FC = () => {
             display_name
           )
         `)
+        .eq('type', 'deposit') // Показываем только пополнения
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -124,7 +125,10 @@ export const TransactionManagement: React.FC = () => {
     <Card className="card-steel p-6">
       <div className="flex items-center gap-3 mb-6">
         <CreditCard className="w-6 h-6 text-cyan-400" />
-        <h3 className="text-xl font-bold text-steel-100">Управление транзакциями</h3>
+        <h3 className="text-xl font-bold text-steel-100">Пополнения GT коинов</h3>
+        <Badge className="bg-green-500/10 text-green-400 border-green-500/20">
+          1 GT коин = 1₽
+        </Badge>
       </div>
 
       <div className="flex gap-4 mb-4">

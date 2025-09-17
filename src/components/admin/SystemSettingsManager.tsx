@@ -95,7 +95,7 @@ export const SystemSettingsManager: React.FC = () => {
         setting_type: 'string',
         category: 'general',
         display_name: 'Название платформы',
-        description: 'Отображаемое название платформы',
+        description: 'Отображаемое название платформы в интерфейсе',
         is_editable: true
       },
       {
@@ -104,7 +104,7 @@ export const SystemSettingsManager: React.FC = () => {
         setting_type: 'boolean',
         category: 'general',
         display_name: 'Режим обслуживания',
-        description: 'Включить режим технического обслуживания',
+        description: 'Включить режим технического обслуживания (пользователи не смогут пользоваться платформой)',
         is_editable: true
       },
       {
@@ -113,18 +113,49 @@ export const SystemSettingsManager: React.FC = () => {
         setting_type: 'boolean',
         category: 'general',
         display_name: 'Регистрация пользователей',
-        description: 'Разрешить регистрацию новых пользователей',
+        description: 'Разрешить регистрацию новых пользователей на платформе',
+        is_editable: true
+      },
+      {
+        setting_key: 'welcome_message',
+        setting_value: 'Добро пожаловать на GruzzTop! Найдите исполнителей для любых задач.',
+        setting_type: 'string',
+        category: 'general',
+        display_name: 'Приветственное сообщение',
+        description: 'Сообщение для новых пользователей при регистрации',
         is_editable: true
       },
 
-      // Финансовые настройки
+      // Финансовые настройки (GT коины)
+      {
+        setting_key: 'min_deposit_amount',
+        setting_value: 100,
+        setting_type: 'number',
+        category: 'financial',
+        display_name: 'Минимальное пополнение GT коинов (₽)',
+        description: 'Минимальная сумма для пополнения баланса (1 GT коин = 1 рубль)',
+        min_value: 50,
+        max_value: 1000,
+        is_editable: true
+      },
+      {
+        setting_key: 'max_deposit_amount',
+        setting_value: 100000,
+        setting_type: 'number',
+        category: 'financial',
+        display_name: 'Максимальное пополнение GT коинов (₽)',
+        description: 'Максимальная сумма для единовременного пополнения баланса',
+        min_value: 1000,
+        max_value: 500000,
+        is_editable: true
+      },
       {
         setting_key: 'min_order_amount',
         setting_value: 100,
         setting_type: 'number',
         category: 'financial',
-        display_name: 'Минимальная сумма заказа',
-        description: 'Минимальная сумма для размещения заказа (₽)',
+        display_name: 'Минимальная сумма заказа (GT коинов)',
+        description: 'Минимальная стоимость для размещения заказа',
         min_value: 50,
         max_value: 1000,
         is_editable: true
@@ -134,19 +165,19 @@ export const SystemSettingsManager: React.FC = () => {
         setting_value: 50000,
         setting_type: 'number',
         category: 'financial',
-        display_name: 'Максимальная сумма заказа',
-        description: 'Максимальная сумма для размещения заказа (₽)',
+        display_name: 'Максимальная сумма заказа (GT коинов)',
+        description: 'Максимальная стоимость для размещения заказа',
         min_value: 1000,
         max_value: 100000,
         is_editable: true
       },
       {
-        setting_key: 'commission_rate',
+        setting_key: 'platform_commission_rate',
         setting_value: 10,
         setting_type: 'number',
         category: 'financial',
         display_name: 'Комиссия платформы (%)',
-        description: 'Процент комиссии с каждого заказа',
+        description: 'Процент комиссии с каждого завершенного заказа',
         min_value: 0,
         max_value: 50,
         is_editable: true
@@ -156,21 +187,21 @@ export const SystemSettingsManager: React.FC = () => {
         setting_value: 500,
         setting_type: 'number',
         category: 'financial',
-        display_name: 'Минимальная сумма вывода',
-        description: 'Минимальная сумма для вывода средств (₽)',
+        display_name: 'Минимальная сумма вывода (GT коинов)',
+        description: 'Минимальная сумма для вывода GT коинов в рубли',
         min_value: 100,
         max_value: 5000,
         is_editable: true
       },
 
-      // Настройки времени
+      // Настройки времени и сроков
       {
         setting_key: 'order_expiration_hours',
         setting_value: 24,
         setting_type: 'number',
         category: 'timing',
         display_name: 'Срок действия заказа (часы)',
-        description: 'Через сколько часов заказ становится неактивным',
+        description: 'Через сколько часов неактивный заказ автоматически закрывается',
         min_value: 1,
         max_value: 168,
         is_editable: true
@@ -180,21 +211,32 @@ export const SystemSettingsManager: React.FC = () => {
         setting_value: 60,
         setting_type: 'number',
         category: 'timing',
-        display_name: 'Время редактирования отзыва (мин)',
-        description: 'Сколько минут можно редактировать отзыв после создания',
+        display_name: 'Время редактирования отзыва (минуты)',
+        description: 'Сколько минут пользователь может редактировать отзыв после публикации',
         min_value: 5,
         max_value: 1440,
         is_editable: true
       },
+      {
+        setting_key: 'transaction_processing_time_hours',
+        setting_value: 2,
+        setting_type: 'number',
+        category: 'timing',
+        display_name: 'Время обработки пополнений (часы)',
+        description: 'Стандартное время обработки пополнений GT коинов администратором',
+        min_value: 1,
+        max_value: 72,
+        is_editable: true
+      },
 
-      // Модерация
+      // Модерация и безопасность
       {
         setting_key: 'auto_moderation_enabled',
         setting_value: true,
         setting_type: 'boolean',
         category: 'moderation',
-        display_name: 'Автомодерация',
-        description: 'Включить автоматическую модерацию контента',
+        display_name: 'Автоматическая модерация',
+        description: 'Включить автоматическую проверку контента на спам и нарушения',
         is_editable: true
       },
       {
@@ -202,7 +244,7 @@ export const SystemSettingsManager: React.FC = () => {
         setting_value: 3,
         setting_type: 'number',
         category: 'moderation',
-        display_name: 'Жалоб до скрытия',
+        display_name: 'Жалоб до автоскрытия',
         description: 'Количество жалоб для автоматического скрытия контента',
         min_value: 1,
         max_value: 10,
@@ -213,19 +255,30 @@ export const SystemSettingsManager: React.FC = () => {
         setting_value: true,
         setting_type: 'boolean',
         category: 'moderation',
-        display_name: 'Детекция спама',
-        description: 'Включить автоматическое обнаружение спама',
+        display_name: 'Антиспам система',
+        description: 'Включить автоматическое обнаружение и блокировку спама',
+        is_editable: true
+      },
+      {
+        setting_key: 'max_orders_per_day',
+        setting_value: 10,
+        setting_type: 'number',
+        category: 'moderation',
+        display_name: 'Лимит заказов в день',
+        description: 'Максимальное количество заказов от одного пользователя за 24 часа',
+        min_value: 1,
+        max_value: 50,
         is_editable: true
       },
 
       // Уведомления
       {
-        setting_key: 'email_notifications_enabled',
+        setting_key: 'admin_email_notifications',
         setting_value: true,
         setting_type: 'boolean',
         category: 'notifications',
-        display_name: 'Email уведомления',
-        description: 'Отправлять уведомления по email',
+        display_name: 'Email уведомления админам',
+        description: 'Отправлять уведомления о важных событиях на email администраторов',
         is_editable: true
       },
       {
@@ -234,7 +287,16 @@ export const SystemSettingsManager: React.FC = () => {
         setting_type: 'boolean',
         category: 'notifications',
         display_name: 'Telegram уведомления',
-        description: 'Отправлять уведомления в Telegram',
+        description: 'Отправлять системные уведомления в Telegram чат админов',
+        is_editable: true
+      },
+      {
+        setting_key: 'user_notification_frequency',
+        setting_value: 'immediate',
+        setting_type: 'string',
+        category: 'notifications',
+        display_name: 'Частота уведомлений пользователям',
+        description: 'Как часто отправлять уведомления пользователям (immediate/hourly/daily)',
         is_editable: true
       }
     ];
@@ -436,12 +498,12 @@ export const SystemSettingsManager: React.FC = () => {
 
   const getCategoryLabel = (category: string) => {
     const labels = {
-      'general': 'Общие',
-      'financial': 'Финансы',
-      'timing': 'Время',
-      'moderation': 'Модерация',
-      'notifications': 'Уведомления',
-      'security': 'Безопасность'
+      'general': 'Общие настройки',
+      'financial': 'GT коины и финансы',
+      'timing': 'Время и сроки',
+      'moderation': 'Модерация и безопасность',
+      'notifications': 'Уведомления и связь',
+      'security': 'Безопасность системы'
     };
     return labels[category as keyof typeof labels] || category;
   };
@@ -480,11 +542,16 @@ export const SystemSettingsManager: React.FC = () => {
         <div className="flex items-start space-x-3">
           <AlertTriangle className="w-5 h-5 text-yellow-400 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-yellow-400">Важно!</h3>
-            <p className="text-steel-300 text-sm">
-              Изменение системных настроек может повлиять на работу всей платформы. 
-              Будьте осторожны и тестируйте изменения перед применением в продакшене.
+            <h3 className="font-semibold text-yellow-400">⚠️ Осторожно!</h3>
+            <p className="text-steel-300 text-sm mb-2">
+              Изменение настроек влияет на всю платформу и всех пользователей мгновенно.
             </p>
+            <ul className="text-steel-400 text-xs space-y-1">
+              <li>• GT коины: 1 GT коин = 1 рубль реальных денег</li>
+              <li>• Финансовые лимиты влияют на пополнения и заказы</li>
+              <li>• Настройки модерации могут заблокировать пользователей</li>
+              <li>• При сомнениях консультируйтесь с главным администратором</li>
+            </ul>
           </div>
         </div>
       </Card>
