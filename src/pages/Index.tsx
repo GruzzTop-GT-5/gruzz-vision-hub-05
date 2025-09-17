@@ -12,32 +12,14 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 const Index = () => {
   const { user, userRole, loading, signOut } = useAuth();
-  const [showWelcome, setShowWelcome] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      setShowWelcome(false);
-      setShowAuth(false);
-    } else {
-      // When user logs out, show welcome screen
-      setShowWelcome(true);
-      setShowAuth(false);
-    }
-  }, [user]);
-
-  const handleGetStarted = () => {
-    setShowWelcome(false);
-    setShowAuth(true);
-  };
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
   };
 
-  const handleBackToWelcome = () => {
+  const handleBackToMain = () => {
     setShowAuth(false);
-    setShowWelcome(true);
   };
 
   if (loading) {
@@ -48,12 +30,8 @@ const Index = () => {
     );
   }
 
-  if (showWelcome) {
-    return <WelcomeScreen onGetStarted={handleGetStarted} />;
-  }
-
   if (showAuth) {
-    return <AuthForm onSuccess={handleAuthSuccess} onBack={handleBackToWelcome} />;
+    return <AuthForm onSuccess={handleAuthSuccess} onBack={handleBackToMain} />;
   }
 
   return (
@@ -67,33 +45,74 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link to="/orders">
-            <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+          {user ? (
+            <Link to="/orders">
+              <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+                <User className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">Мои заказы</div>
+                  <div className="text-sm opacity-70">Созданные мной</div>
+                </div>
+              </Button>
+            </Link>
+          ) : (
+            <Button 
+              className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+              onClick={() => setShowAuth(true)}
+            >
               <User className="w-8 h-8" />
               <div>
                 <div className="font-bold">Мои заказы</div>
                 <div className="text-sm opacity-70">Созданные мной</div>
               </div>
             </Button>
-          </Link>
-          <Link to="/available-orders">
-            <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+          )}
+          
+          {user ? (
+            <Link to="/available-orders">
+              <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+                <Search className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">Найти исполнителя</div>
+                  <div className="text-sm opacity-70">Резюме специалистов</div>
+                </div>
+              </Button>
+            </Link>
+          ) : (
+            <Button 
+              className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+              onClick={() => setShowAuth(true)}
+            >
               <Search className="w-8 h-8" />
               <div>
                 <div className="font-bold">Найти исполнителя</div>
                 <div className="text-sm opacity-70">Резюме специалистов</div>
               </div>
             </Button>
-          </Link>
-          <Link to="/ads">
-            <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+          )}
+          
+          {user ? (
+            <Link to="/ads">
+              <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
+                <Plus className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">Найти работу</div>
+                  <div className="text-sm opacity-70">Заказы от клиентов</div>
+                </div>
+              </Button>
+            </Link>
+          ) : (
+            <Button 
+              className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+              onClick={() => setShowAuth(true)}
+            >
               <Plus className="w-8 h-8" />
               <div>
                 <div className="font-bold">Найти работу</div>
                 <div className="text-sm opacity-70">Заказы от клиентов</div>
               </div>
             </Button>
-          </Link>
+          )}
         </div>
 
         {/* Information Cards */}
