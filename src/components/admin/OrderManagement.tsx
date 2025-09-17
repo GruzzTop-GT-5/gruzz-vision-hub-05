@@ -39,19 +39,39 @@ export const OrderManagement: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Получаем заказы без JOIN, затем отдельно профили
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          client_profile:profiles!client_id (
-            phone,
-            display_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setOrders((data as any) || []);
+      if (ordersError) throw ordersError;
+
+      // Получаем уникальные client_id для загрузки профилей
+      const clientIds = [...new Set(ordersData?.map(order => order.client_id).filter(Boolean))];
+      
+      let profilesMap = new Map();
+      if (clientIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, phone, display_name')
+          .in('id', clientIds);
+
+        if (!profilesError && profilesData) {
+          profilesData.forEach(profile => {
+            profilesMap.set(profile.id, profile);
+          });
+        }
+      }
+
+      // Объединяем данные
+      const ordersWithProfiles = ordersData?.map(order => ({
+        ...order,
+        client_profile: profilesMap.get(order.client_id) || null
+      })) || [];
+
+      setOrders(ordersWithProfiles);
     } catch (error) {
       handleError(error, { component: 'OrderManagement', action: 'fetchOrders' });
     } finally {

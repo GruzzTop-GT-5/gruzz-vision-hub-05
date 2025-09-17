@@ -7,6 +7,7 @@ import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { TransactionManagement } from '@/components/admin/TransactionManagement';
 import { OrderManagement } from '@/components/admin/OrderManagement';
+import { RoleManagement } from '@/components/admin/RoleManagement';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminReviewModeration } from '@/components/AdminReviewModeration';
 import { AdminTicketManagement } from '@/components/AdminTicketManagement';
@@ -40,9 +41,10 @@ export const AdminPanelNew = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8 bg-steel-800">
+            <TabsList className="grid w-full grid-cols-9 bg-steel-800">
               <TabsTrigger value="dashboard">Дашборд</TabsTrigger>
               <TabsTrigger value="users">Пользователи</TabsTrigger>
+              <TabsTrigger value="roles">Роли</TabsTrigger>
               <TabsTrigger value="orders">Заказы</TabsTrigger>
               <TabsTrigger value="transactions">Платежи</TabsTrigger>
               <TabsTrigger value="categories">Категории</TabsTrigger>
@@ -57,6 +59,10 @@ export const AdminPanelNew = () => {
 
             <TabsContent value="users">
               <UserManagement />
+            </TabsContent>
+
+            <TabsContent value="roles">
+              <RoleManagement />
             </TabsContent>
 
             <TabsContent value="orders">
