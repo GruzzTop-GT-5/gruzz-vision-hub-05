@@ -1330,7 +1330,7 @@ export default function AdminPanel() {
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <BackButton onClick={() => window.history.back()} />
+            <BackButton />
             <h1 className="text-3xl font-bold text-glow">Админ-панель</h1>
             <div></div>
           </div>

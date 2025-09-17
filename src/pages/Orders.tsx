@@ -219,7 +219,7 @@ export default function Orders() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <BackButton onClick={() => window.history.back()} />
+              <BackButton />
               <Package className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold text-glow">Мои заказы</h1>
             </div>

@@ -108,8 +108,8 @@ export default function UserProfile() {
           <Card className="card-steel max-w-md w-full p-8 text-center space-y-6">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
             <h2 className="text-2xl font-bold text-steel-100">{error}</h2>
-            <Button onClick={() => navigate(-1)}>
-              Вернуться назад
+            <Button onClick={() => navigate('/')}>
+              Вернуться на главную
             </Button>
           </Card>
         </div>
@@ -128,7 +128,7 @@ export default function UserProfile() {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <BackButton onClick={() => navigate(-1)} />
+            <BackButton />
             <h1 className="text-3xl font-bold text-glow">
               {isOwnProfile ? 'Мой профиль' : 'Профиль пользователя'}
             </h1>

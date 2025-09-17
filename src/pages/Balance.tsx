@@ -29,7 +29,7 @@ const Balance = () => {
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
       <AnimatedBackground className="min-h-screen p-4">
         <div className="max-w-2xl mx-auto space-y-6">
-          <BackButton onClick={() => window.history.back()} />
+          <BackButton />
           
           {/* Header */}
           <div className="text-center space-y-2">

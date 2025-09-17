@@ -255,7 +255,7 @@ export default function CreateOrder() {
       <div className="min-h-screen p-4">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
-            <BackButton onClick={() => window.history.back()} />
+            <BackButton />
             <h1 className="text-3xl font-bold text-glow">Разместить заказ на работу</h1>
             <div></div>
           </div>

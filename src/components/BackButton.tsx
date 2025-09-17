@@ -24,30 +24,8 @@ export const BackButton = ({
       return;
     }
 
-    // Определяем откуда пришли и куда вернуться
-    const from = location.state?.from;
-    
-    try {
-      if (from) {
-        // Если есть информация о предыдущей странице, переходим туда
-        navigate(from);
-      } else {
-        // Пытаемся вернуться назад
-        navigate(-1);
-        
-        // Проверяем через небольшую задержку, изменился ли URL
-        setTimeout(() => {
-          if (window.location.pathname === location.pathname) {
-            // Если URL не изменился, значит истории назад нет, переходим на fallback
-            navigate(fallbackPath);
-          }
-        }, 100);
-      }
-    } catch (error) {
-      // Если произошла ошибка, переходим на fallback
-      console.warn('Navigation error, falling back to:', fallbackPath);
-      navigate(fallbackPath);
-    }
+    // Всегда возвращаемся на главную страницу
+    navigate('/');
   };
 
   return (

@@ -306,7 +306,7 @@ export default function ChatSystem() {
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <BackButton onClick={() => window.history.back()} />
+            <BackButton />
             <h1 className="text-3xl font-bold text-glow">Чаты и поддержка</h1>
             <Button
               variant="ghost" 
