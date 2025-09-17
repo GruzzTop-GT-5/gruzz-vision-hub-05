@@ -12,8 +12,8 @@ interface DashboardStats {
   totalRevenue: number;
   totalOrders: number;
   activeOrders: number;
-  totalSupport: number;
-  openSupport: number;
+  totalTickets: number;
+  openTickets: number;
 }
 
 export const AdminDashboard: React.FC = () => {
@@ -25,8 +25,8 @@ export const AdminDashboard: React.FC = () => {
     totalRevenue: 0,
     totalOrders: 0,
     activeOrders: 0,
-    totalSupport: 0,
-    openSupport: 0,
+    totalTickets: 0,
+    openTickets: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -118,8 +118,8 @@ export const AdminDashboard: React.FC = () => {
 
         <StatCard
           title="Поддержка"
-          value={stats.totalSupport}
-          subtitle={`${stats.openSupport} открытых тикетов`}
+          value={stats.totalTickets}
+          subtitle={`${stats.openTickets} открытых тикетов`}
           icon={<MessageSquare className="w-6 h-6 text-white" />}
           color="bg-red-500"
         />

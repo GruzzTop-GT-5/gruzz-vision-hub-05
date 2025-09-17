@@ -12,7 +12,7 @@ export interface User {
   age: number | null;
   citizenship: string | null;
   qualification: string | null;
-  telegram_id?: bigint | null;
+  telegram_id?: number | null;
   telegram_username?: string | null;
   is_premium?: boolean;
   avatar_url?: string | null;

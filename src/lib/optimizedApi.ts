@@ -54,7 +54,7 @@ export const api = {
       }
     },
 
-    async update(id: string, updates: Partial<User>) {
+    async update(id: string, updates: any) {
       try {
         const { data, error } = await supabase
           .from('profiles')
@@ -124,7 +124,7 @@ export const api = {
       }
     },
 
-    async create(orderData: Partial<Order>) {
+    async create(orderData: any) {
       try {
         const { data, error } = await supabase
           .from('orders')
@@ -177,7 +177,7 @@ export const api = {
       }
     },
 
-    async create(transactionData: Partial<Transaction>) {
+    async create(transactionData: any) {
       try {
         const { data, error } = await supabase
           .from('transactions')
@@ -252,7 +252,7 @@ export const api = {
       }
     },
 
-    async create(reviewData: Partial<Review>) {
+    async create(reviewData: any) {
       try {
         const { data, error } = await supabase
           .from('reviews')
@@ -312,7 +312,7 @@ export const api = {
       }
     },
 
-    async create(categoryData: Partial<Category>) {
+    async create(categoryData: any) {
       try {
         const { data, error } = await supabase
           .from('categories')
@@ -328,7 +328,7 @@ export const api = {
       }
     },
 
-    async update(id: string, updates: Partial<Category>) {
+    async update(id: string, updates: any) {
       try {
         const { data, error } = await supabase
           .from('categories')
