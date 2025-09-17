@@ -121,11 +121,11 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
 
       {/* Slide-down Menu */}
       <div
-        className={`fixed top-0 right-0 z-40 w-80 max-w-full h-screen card-steel transition-transform duration-300 ${
+        className={`fixed top-0 right-0 z-40 w-80 max-w-full h-screen card-steel transition-transform duration-300 overflow-y-auto ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-6 pt-20">
+        <div className="p-6 pt-20 pb-24">
           {/* User Info */}
           {user && (
             <div className="mb-8 pb-6 border-b border-steel-600">
