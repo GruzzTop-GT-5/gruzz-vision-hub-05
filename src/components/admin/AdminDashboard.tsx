@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { BarChart3, Users, CreditCard, MessageSquare, TrendingUp, Activity } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BarChart3, Users, CreditCard, MessageSquare, TrendingUp, Activity, RefreshCw } from 'lucide-react';
 import { handleError } from '@/lib/errorHandler';
 import { statsAPI } from '@/lib/optimizedApi';
+import { QuickStats } from './QuickStats';
 
 interface DashboardStats {
   totalUsers: number;
@@ -44,6 +46,10 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleRefresh = () => {
+    fetchStats();
+  };
+
   useEffect(() => {
     fetchStats();
   }, []);
@@ -79,12 +85,25 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <BarChart3 className="w-6 h-6 text-cyan-400" />
-        <h3 className="text-xl font-bold text-steel-100">Дашборд администратора</h3>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <BarChart3 className="w-6 h-6 text-cyan-400" />
+          <h3 className="text-xl font-bold text-steel-100">Дашборд администратора</h3>
+        </div>
+        <Button
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={loading}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          Обновить
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <QuickStats stats={stats} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         <StatCard
           title="Общее количество пользователей"
           value={stats.totalUsers}

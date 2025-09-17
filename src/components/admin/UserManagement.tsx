@@ -76,6 +76,12 @@ export const UserManagement: React.FC = () => {
     setShowUserModal(true);
   };
 
+  const handleUserUpdate = () => {
+    fetchUsers();
+    setShowUserModal(false);
+    setSelectedUser(null);
+  };
+
   return (
     <Card className="card-steel p-6">
       <div className="flex items-center gap-3 mb-6">
@@ -143,7 +149,7 @@ export const UserManagement: React.FC = () => {
             setShowUserModal(false);
             setSelectedUser(null);
           }}
-          onUserUpdate={fetchUsers}
+          onUserUpdate={handleUserUpdate}
         />
       )}
     </Card>
