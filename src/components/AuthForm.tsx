@@ -180,12 +180,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         // Логин - генерируем email из телефона
         const email = `${cleanPhone}@gruzztop.local`;
         
-        // Обновляем настройки сессии перед входом
-        if (!rememberMe) {
-          // Для временной сессии используем sessionStorage
-          await supabase.auth.getSession();
-        }
-        
         const { error } = await supabase.auth.signInWithPassword({
           email: email,
           password: formData.password
@@ -207,6 +201,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         } else {
           localStorage.removeItem('rememberedPhone');
           localStorage.removeItem('rememberedPassword');
+          // Не удаляем сессию Supabase, оставляем её работать
         }
 
         toast({
@@ -329,7 +324,32 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                 type="checkbox"
                 id="remember-me"
                 checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setRememberMe(checked);
+                  
+                  if (!checked) {
+                    // Если отключили "Запомнить меня", очищаем сохраненные данные
+                    localStorage.removeItem('rememberedPhone');
+                    localStorage.removeItem('rememberedPassword');
+                    setFormData({
+                      phone: '',
+                      password: '',
+                      confirmPassword: ''
+                    });
+                  } else {
+                    // Если включили "Запомнить меня", загружаем сохраненные данные
+                    const savedPhone = localStorage.getItem('rememberedPhone');
+                    const savedPassword = localStorage.getItem('rememberedPassword');
+                    if (savedPhone || savedPassword) {
+                      setFormData({
+                        phone: savedPhone || '',
+                        password: savedPassword || '',
+                        confirmPassword: ''
+                      });
+                    }
+                  }
+                }}
                 className="h-4 w-4 rounded border border-steel-600 bg-steel-800 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-steel-900"
               />
               <label
@@ -362,7 +382,17 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
           </p>
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              // Очищаем пароль при переключении, если не нужно запоминать
+              if (!rememberMe) {
+                setFormData({ 
+                  ...formData, 
+                  password: '', 
+                  confirmPassword: '' 
+                });
+              }
+            }}
             className="text-primary hover:text-electric-400 font-medium transition-colors"
           >
             {isLogin ? 'Создать аккаунт' : 'Войти в систему'}
