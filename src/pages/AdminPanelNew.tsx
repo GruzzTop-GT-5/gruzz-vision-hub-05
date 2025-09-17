@@ -63,13 +63,20 @@ const AdminInstructionsModal = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Card className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br from-blue-500/10 to-blue-600/20 border-blue-500/30 hover:border-blue-400/50">
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-              <BookOpen className="w-8 h-8 text-blue-400" />
+        <Card className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br from-blue-500/10 to-blue-600/20 border-blue-500/30 hover:border-blue-400/50 min-h-[280px] flex flex-col">
+          <div className="p-8 text-center flex-1 flex flex-col justify-between">
+            <div>
+              <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors shadow-lg">
+                <BookOpen className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-xl font-bold text-steel-100 mb-3">📖 Справка</h3>
+              <p className="text-steel-300 text-sm leading-relaxed mb-4">Подробное руководство по использованию админ-панели</p>
             </div>
-            <h3 className="text-xl font-bold text-steel-100 mb-2">📖 Инструкция</h3>
-            <p className="text-steel-400 text-sm">Руководство по использованию админ-панели</p>
+            <div className="mt-auto pt-4">
+              <Badge variant="outline" className="text-xs px-3 py-1 border-blue-400/30 text-blue-300">
+                📚 Обучение
+              </Badge>
+            </div>
           </div>
         </Card>
       </DialogTrigger>
@@ -427,8 +434,8 @@ export const AdminPanelNew = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/20 p-4">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/20 p-6">
+        <div className="max-w-[1600px] mx-auto">
           {/* Главный заголовок */}
           <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-2xl p-8 mb-8 shadow-xl">
             <div className="flex items-center justify-between">
@@ -473,8 +480,8 @@ export const AdminPanelNew = () => {
             </div>
           </Card>
 
-          {/* Сетка модулей */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Сетка модулей - увеличенная для лучшего размещения */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 mb-8">
             {/* Инструкция - всегда первая */}
             <AdminInstructionsModal />
             
@@ -482,24 +489,27 @@ export const AdminPanelNew = () => {
             {filteredModules.map((module) => (
               <Card 
                 key={module.id}
-                className={`group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br ${module.bgColor}`}
+                className={`group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br ${module.bgColor} min-h-[280px] flex flex-col`}
                 onClick={() => setSelectedModule(module.id)}
               >
-                <div className="p-6 text-center">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors`}>
-                    <div className={module.color}>
-                      {module.icon}
+                <div className="p-8 text-center flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors shadow-lg`}>
+                      <div className={module.color}>
+                        {React.cloneElement(module.icon as React.ReactElement, { size: 32 })}
+                      </div>
                     </div>
+                    <h3 className="text-xl font-bold text-steel-100 mb-3 leading-tight">{module.title}</h3>
+                    <p className="text-steel-300 text-sm leading-relaxed mb-4">{module.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-steel-100 mb-2">{module.title}</h3>
-                  <p className="text-steel-400 text-sm leading-relaxed">{module.description}</p>
                   
                   {/* Индикатор роли */}
-                  <div className="mt-4 flex justify-center">
-                    <Badge variant="outline" className="text-xs">
-                      {module.roles.includes('system_admin') ? 'Системный доступ' : 
-                       module.roles.includes('admin') ? 'Админ доступ' :
-                       module.roles.includes('moderator') ? 'Модераторы' : 'Поддержка'}
+                  <div className="mt-auto pt-4">
+                    <Badge variant="outline" className="text-xs px-3 py-1 border-white/20 text-white/70">
+                      {module.roles.includes('system_admin') ? '🔧 Системный доступ' : 
+                       module.roles.includes('admin') ? '⚖️ Администратор' : 
+                       module.roles.includes('moderator') ? '🛡️ Модератор' : 
+                       '🎧 Поддержка'}
                     </Badge>
                   </div>
                 </div>
