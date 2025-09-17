@@ -24,9 +24,7 @@ export const AdminPanelNew = () => {
     );
   }
 
-  const hasAccess = user && userRole && ['admin', 'system_admin', 'moderator', 'support'].includes(userRole);
-
-  if (!hasAccess) {
+  if (!user || !userRole || !['admin', 'system_admin', 'moderator', 'support'].includes(userRole)) {
     return <Navigate to="/" replace />;
   }
 
