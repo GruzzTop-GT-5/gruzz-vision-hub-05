@@ -11,29 +11,21 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Bot, Plus, Edit, Trash2, Shield, AlertTriangle, CheckCircle, Settings } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ModerationRule {
   id: string;
   name: string;
-  description: string;
-  rule_type: 'keyword' | 'pattern' | 'length' | 'spam' | 'profanity';
+  description: string | null;
+  rule_type: string;
   content_types: string[];
-  conditions: {
-    keywords?: string[];
-    patterns?: string[];
-    min_length?: number;
-    max_length?: number;
-    threshold?: number;
-    case_sensitive?: boolean;
-  };
-  actions: {
-    action_type: 'flag' | 'reject' | 'require_review' | 'auto_approve';
-    priority?: 'low' | 'normal' | 'high' | 'urgent';
-    notification?: boolean;
-  };
+  criteria: any;
+  actions: any;
   is_active: boolean;
+  priority: number;
   created_at: string;
   updated_at: string;
+  created_by: string;
 }
 
 export const AutoModerationRules = () => {
@@ -44,9 +36,9 @@ export const AutoModerationRules = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    rule_type: 'keyword' as ModerationRule['rule_type'],
+    rule_type: 'keyword',
     content_types: [] as string[],
-    conditions: {
+    criteria: {
       keywords: [] as string[],
       patterns: [] as string[],
       min_length: 0,
@@ -55,15 +47,17 @@ export const AutoModerationRules = () => {
       case_sensitive: false
     },
     actions: {
-      action_type: 'flag' as ModerationRule['actions']['action_type'],
-      priority: 'normal' as ModerationRule['actions']['priority'],
+      action_type: 'flag',
+      priority: 'normal',
       notification: true
     },
-    is_active: true
+    is_active: true,
+    priority: 5
   });
   const [keywordInput, setKeywordInput] = useState('');
   const [patternInput, setPatternInput] = useState('');
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const ruleTypeLabels = {
     keyword: 'Ключевые слова',
@@ -119,7 +113,7 @@ export const AutoModerationRules = () => {
       description: '',
       rule_type: 'keyword',
       content_types: [],
-      conditions: {
+      criteria: {
         keywords: [],
         patterns: [],
         min_length: 0,
@@ -132,7 +126,8 @@ export const AutoModerationRules = () => {
         priority: 'normal',
         notification: true
       },
-      is_active: true
+      is_active: true,
+      priority: 5
     });
     setEditingRule(null);
     setKeywordInput('');
@@ -143,12 +138,24 @@ export const AutoModerationRules = () => {
     setEditingRule(rule);
     setFormData({
       name: rule.name,
-      description: rule.description,
+      description: rule.description || '',
       rule_type: rule.rule_type,
       content_types: rule.content_types,
-      conditions: rule.conditions,
-      actions: rule.actions,
-      is_active: rule.is_active
+      criteria: rule.criteria || {
+        keywords: [],
+        patterns: [],
+        min_length: 0,
+        max_length: 1000,
+        threshold: 5,
+        case_sensitive: false
+      },
+      actions: rule.actions || {
+        action_type: 'flag',
+        priority: 'normal',
+        notification: true
+      },
+      is_active: rule.is_active,
+      priority: rule.priority
     });
     setDialogOpen(true);
   };
@@ -178,9 +185,11 @@ export const AutoModerationRules = () => {
         description: formData.description,
         rule_type: formData.rule_type,
         content_types: formData.content_types,
-        conditions: formData.conditions,
+        criteria: formData.criteria,
         actions: formData.actions,
-        is_active: formData.is_active
+        is_active: formData.is_active,
+        priority: formData.priority,
+        created_by: user?.id
       };
 
       if (editingRule) {
@@ -192,11 +201,14 @@ export const AutoModerationRules = () => {
         if (error) throw error;
 
         // Логируем изменение
-        await supabase.from('admin_logs').insert({
-          action: 'updated_moderation_rule',
-          target_type: 'moderation_rule',
-          target_id: editingRule.id
-        });
+        if (user?.id) {
+          await supabase.from('admin_logs').insert({
+            user_id: user.id,
+            action: 'updated_moderation_rule',
+            target_type: 'moderation_rule',
+            target_id: editingRule.id
+          });
+        }
 
         toast({
           title: "Успешно",
@@ -210,10 +222,13 @@ export const AutoModerationRules = () => {
         if (error) throw error;
 
         // Логируем создание
-        await supabase.from('admin_logs').insert({
-          action: 'created_moderation_rule',
-          target_type: 'moderation_rule'
-        });
+        if (user?.id) {
+          await supabase.from('admin_logs').insert({
+            user_id: user.id,
+            action: 'created_moderation_rule',
+            target_type: 'moderation_rule'
+          });
+        }
 
         toast({
           title: "Успешно",
@@ -244,11 +259,14 @@ export const AutoModerationRules = () => {
       if (error) throw error;
 
       // Логируем удаление
-      await supabase.from('admin_logs').insert({
-        action: 'deleted_moderation_rule',
-        target_type: 'moderation_rule',
-        target_id: rule.id
-      });
+      if (user?.id) {
+        await supabase.from('admin_logs').insert({
+          user_id: user.id,
+          action: 'deleted_moderation_rule',
+          target_type: 'moderation_rule',
+          target_id: rule.id
+        });
+      }
 
       toast({
         title: "Успешно",
@@ -279,11 +297,14 @@ export const AutoModerationRules = () => {
       if (error) throw error;
 
       // Логируем изменение статуса
-      await supabase.from('admin_logs').insert({
-        action: `${!rule.is_active ? 'activated' : 'deactivated'}_moderation_rule`,
-        target_type: 'moderation_rule',
-        target_id: rule.id
-      });
+      if (user?.id) {
+        await supabase.from('admin_logs').insert({
+          user_id: user.id,
+          action: `${!rule.is_active ? 'activated' : 'deactivated'}_moderation_rule`,
+          target_type: 'moderation_rule',
+          target_id: rule.id
+        });
+      }
 
       toast({
         title: "Успешно",
@@ -302,12 +323,12 @@ export const AutoModerationRules = () => {
   };
 
   const addKeyword = () => {
-    if (keywordInput.trim() && !formData.conditions.keywords?.includes(keywordInput.trim())) {
+    if (keywordInput.trim() && !formData.criteria.keywords?.includes(keywordInput.trim())) {
       setFormData(prev => ({
         ...prev,
-        conditions: {
-          ...prev.conditions,
-          keywords: [...(prev.conditions.keywords || []), keywordInput.trim()]
+        criteria: {
+          ...prev.criteria,
+          keywords: [...(prev.criteria.keywords || []), keywordInput.trim()]
         }
       }));
       setKeywordInput('');
@@ -317,20 +338,20 @@ export const AutoModerationRules = () => {
   const removeKeyword = (keyword: string) => {
     setFormData(prev => ({
       ...prev,
-      conditions: {
-        ...prev.conditions,
-        keywords: prev.conditions.keywords?.filter(k => k !== keyword) || []
+      criteria: {
+        ...prev.criteria,
+        keywords: prev.criteria.keywords?.filter((k: string) => k !== keyword) || []
       }
     }));
   };
 
   const addPattern = () => {
-    if (patternInput.trim() && !formData.conditions.patterns?.includes(patternInput.trim())) {
+    if (patternInput.trim() && !formData.criteria.patterns?.includes(patternInput.trim())) {
       setFormData(prev => ({
         ...prev,
-        conditions: {
-          ...prev.conditions,
-          patterns: [...(prev.conditions.patterns || []), patternInput.trim()]
+        criteria: {
+          ...prev.criteria,
+          patterns: [...(prev.criteria.patterns || []), patternInput.trim()]
         }
       }));
       setPatternInput('');
@@ -340,9 +361,9 @@ export const AutoModerationRules = () => {
   const removePattern = (pattern: string) => {
     setFormData(prev => ({
       ...prev,
-      conditions: {
-        ...prev.conditions,
-        patterns: prev.conditions.patterns?.filter(p => p !== pattern) || []
+      criteria: {
+        ...prev.criteria,
+        patterns: prev.criteria.patterns?.filter((p: string) => p !== pattern) || []
       }
     }));
   };
@@ -483,7 +504,7 @@ export const AutoModerationRules = () => {
                     <label className="text-sm font-medium">Тип правила</label>
                     <Select
                       value={formData.rule_type}
-                      onValueChange={(value: ModerationRule['rule_type']) => 
+                      onValueChange={(value) => 
                         setFormData(prev => ({ ...prev, rule_type: value }))}
                     >
                       <SelectTrigger>
@@ -498,197 +519,141 @@ export const AutoModerationRules = () => {
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Типы контента</label>
+                    <label className="text-sm font-medium">Применять к типам контента</label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       {Object.entries(contentTypeLabels).map(([key, label]) => (
-                        <label key={key} className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            checked={formData.content_types.includes(key)}
-                            onChange={() => toggleContentType(key)}
-                            className="rounded border-gray-300"
-                          />
-                          <span className="text-sm">{label}</span>
-                        </label>
+                        <Button
+                          key={key}
+                          type="button"
+                          variant={formData.content_types.includes(key) ? "default" : "outline"}
+                          onClick={() => toggleContentType(key)}
+                          className="justify-start"
+                        >
+                          {label}
+                        </Button>
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Условия в зависимости от типа правила */}
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Условия</h4>
-                    
-                    {formData.rule_type === 'keyword' && (
+
+                  {/* Условия правила */}
+                  {(formData.rule_type === 'keyword' || formData.rule_type === 'profanity') && (
+                    <div>
+                      <label className="text-sm font-medium">Ключевые слова</label>
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          value={keywordInput}
+                          onChange={(e) => setKeywordInput(e.target.value)}
+                          placeholder="Добавить ключевое слово"
+                          onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
+                        />
+                        <Button type="button" onClick={addKeyword}>Добавить</Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {formData.criteria.keywords?.map((keyword: string) => (
+                          <Badge key={keyword} variant="secondary" className="cursor-pointer" onClick={() => removeKeyword(keyword)}>
+                            {keyword} ×
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {formData.rule_type === 'pattern' && (
+                    <div>
+                      <label className="text-sm font-medium">Регулярные выражения</label>
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          value={patternInput}
+                          onChange={(e) => setPatternInput(e.target.value)}
+                          placeholder="Добавить регулярное выражение"
+                          onKeyPress={(e) => e.key === 'Enter' && addPattern()}
+                        />
+                        <Button type="button" onClick={addPattern}>Добавить</Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {formData.criteria.patterns?.map((pattern: string) => (
+                          <Badge key={pattern} variant="secondary" className="cursor-pointer" onClick={() => removePattern(pattern)}>
+                            {pattern} ×
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {formData.rule_type === 'length' && (
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium">Ключевые слова</label>
-                        <div className="flex gap-2 mt-2">
-                          <Input
-                            value={keywordInput}
-                            onChange={(e) => setKeywordInput(e.target.value)}
-                            placeholder="Добавить ключевое слово..."
-                            onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
-                          />
-                          <Button type="button" onClick={addKeyword}>Добавить</Button>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.conditions.keywords?.map((keyword) => (
-                            <Badge key={keyword} variant="secondary">
-                              {keyword}
-                              <button
-                                onClick={() => removeKeyword(keyword)}
-                                className="ml-2 text-xs hover:text-red-500"
-                              >
-                                ×
-                              </button>
-                            </Badge>
-                          ))}
-                        </div>
-                        <label className="flex items-center space-x-2 mt-2">
-                          <input
-                            type="checkbox"
-                            checked={formData.conditions.case_sensitive}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              conditions: { ...prev.conditions, case_sensitive: e.target.checked }
-                            }))}
-                            className="rounded border-gray-300"
-                          />
-                          <span className="text-sm">Учитывать регистр</span>
-                        </label>
+                        <label className="text-sm font-medium">Мин. длина</label>
+                        <Input
+                          type="number"
+                          value={formData.criteria.min_length}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            criteria: { ...prev.criteria, min_length: parseInt(e.target.value) || 0 }
+                          }))}
+                        />
                       </div>
-                    )}
-                    
-                    {formData.rule_type === 'pattern' && (
                       <div>
-                        <label className="text-sm font-medium">Регулярные выражения</label>
-                        <div className="flex gap-2 mt-2">
-                          <Input
-                            value={patternInput}
-                            onChange={(e) => setPatternInput(e.target.value)}
-                            placeholder="Добавить регулярное выражение..."
-                            onKeyPress={(e) => e.key === 'Enter' && addPattern()}
-                          />
-                          <Button type="button" onClick={addPattern}>Добавить</Button>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.conditions.patterns?.map((pattern) => (
-                            <Badge key={pattern} variant="secondary">
-                              {pattern}
-                              <button
-                                onClick={() => removePattern(pattern)}
-                                className="ml-2 text-xs hover:text-red-500"
-                              >
-                                ×
-                              </button>
-                            </Badge>
-                          ))}
-                        </div>
+                        <label className="text-sm font-medium">Макс. длина</label>
+                        <Input
+                          type="number"
+                          value={formData.criteria.max_length}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            criteria: { ...prev.criteria, max_length: parseInt(e.target.value) || 1000 }
+                          }))}
+                        />
                       </div>
-                    )}
-                    
-                    {formData.rule_type === 'length' && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium">Минимальная длина</label>
-                          <Input
-                            type="number"
-                            value={formData.conditions.min_length}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              conditions: { ...prev.conditions, min_length: parseInt(e.target.value) || 0 }
-                            }))}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium">Максимальная длина</label>
-                          <Input
-                            type="number"
-                            value={formData.conditions.max_length}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              conditions: { ...prev.conditions, max_length: parseInt(e.target.value) || 1000 }
-                            }))}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
+                    </div>
+                  )}
+
                   {/* Действия */}
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Действия</h4>
-                    
-                    <div>
-                      <label className="text-sm font-medium">Действие при срабатывании</label>
-                      <Select
-                        value={formData.actions.action_type}
-                        onValueChange={(value: ModerationRule['actions']['action_type']) =>
-                          setFormData(prev => ({
-                            ...prev,
-                            actions: { ...prev.actions, action_type: value }
-                          }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(actionTypeLabels).map(([key, label]) => (
-                            <SelectItem key={key} value={key}>{label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium">Приоритет</label>
-                      <Select
-                        value={formData.actions.priority}
-                        onValueChange={(value: ModerationRule['actions']['priority']) =>
-                          setFormData(prev => ({
-                            ...prev,
-                            actions: { ...prev.actions, priority: value }
-                          }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Низкий</SelectItem>
-                          <SelectItem value="normal">Обычный</SelectItem>
-                          <SelectItem value="high">Высокий</SelectItem>
-                          <SelectItem value="urgent">Срочный</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={formData.actions.notification}
-                        onChange={(e) => setFormData(prev => ({
+                  <div>
+                    <label className="text-sm font-medium">Действие при срабатывании</label>
+                    <Select
+                      value={formData.actions.action_type}
+                      onValueChange={(value) => 
+                        setFormData(prev => ({
                           ...prev,
-                          actions: { ...prev.actions, notification: e.target.checked }
+                          actions: { ...prev.actions, action_type: value }
                         }))}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm">Отправлять уведомления</span>
-                    </label>
-                    
-                    <label className="flex items-center space-x-2">
-                      <Switch
-                        checked={formData.is_active}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
-                      />
-                      <span className="text-sm">Активное правило</span>
-                    </label>
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(actionTypeLabels).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  
+
+                  <div>
+                    <label className="text-sm font-medium">Приоритет (1-10)</label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={formData.priority}
+                      onChange={(e) => setFormData(prev => ({ ...prev, priority: parseInt(e.target.value) || 5 }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={formData.is_active}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                    />
+                    <label className="text-sm font-medium">Активировать правило</label>
+                  </div>
+
                   <div className="flex justify-end gap-2 pt-4">
                     <Button variant="outline" onClick={() => setDialogOpen(false)}>
                       Отмена
                     </Button>
                     <Button onClick={handleSubmit}>
-                      {editingRule ? 'Сохранить' : 'Создать'}
+                      {editingRule ? 'Обновить' : 'Создать'}
                     </Button>
                   </div>
                 </div>
@@ -699,96 +664,97 @@ export const AutoModerationRules = () => {
         
         <CardContent>
           {rules.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Нет правил автомодерации</p>
-              <p className="text-sm">Создайте первое правило для автоматической модерации контента</p>
+            <div className="text-center py-8">
+              <Bot className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Нет созданных правил модерации</p>
             </div>
           ) : (
             <div className="space-y-4">
               {rules.map((rule) => (
-                <div key={rule.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{rule.name}</h3>
-                        <Badge variant={rule.is_active ? 'default' : 'secondary'}>
-                          {rule.is_active ? 'Активно' : 'Неактивно'}
-                        </Badge>
-                        <Badge variant="outline">
-                          {ruleTypeLabels[rule.rule_type]}
-                        </Badge>
-                        <Badge variant={getActionColor(rule.actions.action_type)}>
-                          {actionTypeLabels[rule.actions.action_type]}
-                        </Badge>
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground">{rule.description}</p>
-                      
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>
-                          Контент: {rule.content_types.map(type => contentTypeLabels[type as keyof typeof contentTypeLabels]).join(', ')}
-                        </span>
-                        <span>Приоритет: {rule.actions.priority}</span>
-                      </div>
-                      
-                      {rule.rule_type === 'keyword' && rule.conditions.keywords && rule.conditions.keywords.length > 0 && (
+                <Card key={rule.id} className="border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-medium">{rule.name}</h3>
+                          <Badge variant={rule.is_active ? "default" : "secondary"}>
+                            {rule.is_active ? 'Активно' : 'Неактивно'}
+                          </Badge>
+                          <Badge variant="outline">
+                            {ruleTypeLabels[rule.rule_type as keyof typeof ruleTypeLabels] || rule.rule_type}
+                          </Badge>
+                          <Badge variant={getActionColor(rule.actions?.action_type)}>
+                            {actionTypeLabels[rule.actions?.action_type as keyof typeof actionTypeLabels] || rule.actions?.action_type}
+                          </Badge>
+                        </div>
+                        
+                        {rule.description && (
+                          <p className="text-sm text-muted-foreground mb-2">{rule.description}</p>
+                        )}
+                        
                         <div className="flex flex-wrap gap-1">
-                          {rule.conditions.keywords.slice(0, 3).map((keyword) => (
-                            <Badge key={keyword} variant="outline" className="text-xs">
-                              {keyword}
+                          {rule.content_types.map((type) => (
+                            <Badge key={type} variant="outline" className="text-xs">
+                              {contentTypeLabels[type as keyof typeof contentTypeLabels] || type}
                             </Badge>
                           ))}
-                          {rule.conditions.keywords.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{rule.conditions.keywords.length - 3}
-                            </Badge>
-                          )}
                         </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2 ml-4">
-                      <Switch
-                        checked={rule.is_active}
-                        onCheckedChange={() => toggleRuleStatus(rule)}
-                      />
+                        
+                        {rule.criteria?.keywords && rule.criteria.keywords.length > 0 && (
+                          <div className="mt-2">
+                            <span className="text-xs text-muted-foreground">Ключевые слова: </span>
+                            {rule.criteria.keywords.slice(0, 3).map((keyword: string) => (
+                              <Badge key={keyword} variant="secondary" className="text-xs mx-1">
+                                {keyword}
+                              </Badge>
+                            ))}
+                            {rule.criteria.keywords.length > 3 && (
+                              <span className="text-xs text-muted-foreground">+{rule.criteria.keywords.length - 3} еще</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(rule)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Удалить правило модерации</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Вы уверены, что хотите удалить правило "{rule.name}"? Это действие нельзя отменить.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Отмена</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => handleDelete(rule)}
-                              className="bg-destructive hover:bg-destructive/90"
-                            >
-                              Удалить
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleRuleStatus(rule)}
+                        >
+                          {rule.is_active ? <CheckCircle className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(rule)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Удалить правило?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Это действие нельзя отменить. Правило "{rule.name}" будет удалено навсегда.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Отмена</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(rule)}>
+                                Удалить
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}

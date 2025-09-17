@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Eye, CheckCircle, XCircle, Flag, Clock, RefreshCw, Search, Filter } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ModerationItem {
   id: string;
@@ -39,6 +40,7 @@ export const ContentModerationQueue = () => {
   const [moderationAction, setModerationAction] = useState<'approve' | 'reject' | null>(null);
   const [moderationNote, setModerationNote] = useState('');
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchModerationQueue = async () => {
     try {
@@ -47,30 +49,22 @@ export const ContentModerationQueue = () => {
       // Получаем объявления на модерации
       const { data: ads } = await supabase
         .from('ads')
-        .select(`
-          id, title, description, status, created_at, user_id,
-          profiles:user_id (display_name, full_name)
-        `)
-        .eq('status', 'pending')
+        .select('id, title, description, status, created_at, user_id')
+        .in('status', ['active', 'inactive'])
+        .eq('is_reported', true)
         .order('created_at', { ascending: false });
 
       // Получаем отзывы на модерации
       const { data: reviews } = await supabase
         .from('reviews')
-        .select(`
-          id, comment, rating, created_at, author_id, is_reported,
-          profiles:author_id (display_name, full_name)
-        `)
+        .select('id, comment, rating, created_at, author_id, is_reported')
         .eq('is_moderated', false)
         .order('created_at', { ascending: false });
 
       // Получаем сообщения с жалобами
       const { data: reportedMessages } = await supabase
         .from('messages')
-        .select(`
-          id, content, created_at, sender_id,
-          profiles:sender_id (display_name, full_name)
-        `)
+        .select('id, content, created_at, sender_id')
         .eq('is_reported', true)
         .order('created_at', { ascending: false });
 
@@ -84,7 +78,7 @@ export const ContentModerationQueue = () => {
           content: ad.description || '',
           title: ad.title,
           author_id: ad.user_id,
-          author_name: ad.profiles?.display_name || ad.profiles?.full_name || 'Неизвестно',
+          author_name: 'Пользователь',
           status: 'pending',
           created_at: ad.created_at,
           priority: 'normal',
@@ -100,7 +94,7 @@ export const ContentModerationQueue = () => {
           content: review.comment || '',
           title: `Отзыв (${review.rating}/5)`,
           author_id: review.author_id,
-          author_name: review.profiles?.display_name || review.profiles?.full_name || 'Неизвестно',
+          author_name: 'Пользователь',
           status: 'pending',
           created_at: review.created_at,
           priority: review.is_reported ? 'high' : 'normal',
@@ -117,7 +111,7 @@ export const ContentModerationQueue = () => {
           content: message.content || '',
           title: 'Сообщение с жалобой',
           author_id: message.sender_id,
-          author_name: message.profiles?.display_name || message.profiles?.full_name || 'Неизвестно',
+          author_name: 'Пользователь',
           status: 'pending',
           created_at: message.created_at,
           priority: 'high',
@@ -200,11 +194,14 @@ export const ContentModerationQueue = () => {
       }
 
       // Логируем действие
-      await supabase.from('admin_logs').insert({
-        action: logAction,
-        target_type: selectedItem.type,
-        target_id: selectedItem.id
-      });
+      if (user?.id) {
+        await supabase.from('admin_logs').insert({
+          user_id: user.id,
+          action: logAction,
+          target_type: selectedItem.type,
+          target_id: selectedItem.id
+        });
+      }
 
       // Логируем в security_logs
       await supabase.rpc('log_security_event', {

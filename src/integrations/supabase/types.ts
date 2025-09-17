@@ -56,6 +56,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_reported: boolean | null
           price: number
           status: Database["public"]["Enums"]["ad_status"] | null
           title: string
@@ -67,6 +68,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_reported?: boolean | null
           price: number
           status?: Database["public"]["Enums"]["ad_status"] | null
           title: string
@@ -78,6 +80,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_reported?: boolean | null
           price?: number
           status?: Database["public"]["Enums"]["ad_status"] | null
           title?: string
@@ -247,6 +250,7 @@ export type Database = {
           id: string
           is_deleted: boolean | null
           is_edited: boolean | null
+          is_reported: boolean | null
           message_type: string | null
           metadata: Json | null
           sender_id: string
@@ -263,6 +267,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean | null
           is_edited?: boolean | null
+          is_reported?: boolean | null
           message_type?: string | null
           metadata?: Json | null
           sender_id: string
@@ -279,6 +284,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean | null
           is_edited?: boolean | null
+          is_reported?: boolean | null
           message_type?: string | null
           metadata?: Json | null
           sender_id?: string
@@ -300,6 +306,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      moderation_rules: {
+        Row: {
+          actions: Json
+          content_types: string[]
+          created_at: string
+          created_by: string
+          criteria: Json
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          rule_type: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          content_types: string[]
+          created_at?: string
+          created_by: string
+          criteria?: Json
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          rule_type: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          content_types?: string[]
+          created_at?: string
+          created_by?: string
+          criteria?: Json
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          rule_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
