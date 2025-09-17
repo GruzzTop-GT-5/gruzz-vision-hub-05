@@ -24,9 +24,9 @@ export const AdminPanelNew = () => {
     );
   }
 
-  console.log('AdminPanel access check:', { user: user?.id, userRole, hasAccess: ['admin', 'system_admin', 'moderator', 'support'].includes(userRole || '') });
+  const hasAccess = user && userRole && ['admin', 'system_admin', 'moderator', 'support'].includes(userRole);
 
-  if (!user || !['admin', 'system_admin', 'moderator', 'support'].includes(userRole || '')) {
+  if (!hasAccess) {
     return <Navigate to="/" replace />;
   }
 

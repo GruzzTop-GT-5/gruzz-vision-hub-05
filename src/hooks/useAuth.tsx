@@ -17,61 +17,76 @@ export const useAuth = (): AuthContextType => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserRole(session.user.id);
-      }
-      setLoading(false);
-    });
+    let mounted = true;
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+    // Get initial session
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (mounted) {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Defer role fetching to avoid deadlock
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
-          }, 0);
-        } else {
-          setUserRole(null);
+          await fetchUserRole(session.user.id);
         }
         setLoading(false);
       }
+    };
+
+    initAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            // Defer role fetching to avoid deadlock
+            setTimeout(() => {
+              if (mounted) {
+                fetchUserRole(session.user.id);
+              }
+            }, 0);
+          } else {
+            setUserRole(null);
+          }
+          setLoading(false);
+        }
+      }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserRole = async (userId: string) => {
     try {
-      console.log('Fetching role for user:', userId);
-      
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', userId)
         .maybeSingle();
 
-      console.log('Role query result:', { data, error });
-
       if (error) {
         console.error('Error fetching user role:', error);
-        setUserRole('user'); // Устанавливаем роль по умолчанию при ошибке
+        setUserRole('user');
         return;
       }
 
       const role = data?.role || 'user';
-      console.log('User role fetched:', role, 'for user:', userId);
       setUserRole(role);
+      
+      // Принудительно обновляем состояние loading после получения роли
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching user role:', error);
-      setUserRole('user'); // Устанавливаем роль по умолчанию при ошибке
+      setUserRole('user');
+      setLoading(false);
     }
   };
 
