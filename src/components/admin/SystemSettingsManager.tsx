@@ -356,9 +356,16 @@ export const SystemSettingsManager: React.FC = () => {
       newValue = numValue;
     }
 
-    const currentValue = typeof setting.setting_value === 'string' 
-      ? JSON.parse(setting.setting_value) 
-      : setting.setting_value;
+    let currentValue;
+    try {
+      currentValue = typeof setting.setting_value === 'string' 
+        ? JSON.parse(setting.setting_value) 
+        : setting.setting_value;
+    } catch (error) {
+      // Если не удается парсить JSON, используем значение как есть
+      console.warn(`Failed to parse setting value for ${setting.setting_key}:`, error);
+      currentValue = setting.setting_value;
+    }
 
     const newPendingChanges = new Map(pendingChanges);
     if (JSON.stringify(newValue) === JSON.stringify(currentValue)) {
@@ -420,9 +427,16 @@ export const SystemSettingsManager: React.FC = () => {
   };
 
   const renderSettingInput = (setting: SystemSetting) => {
-    const currentValue = typeof setting.setting_value === 'string' 
-      ? JSON.parse(setting.setting_value) 
-      : setting.setting_value;
+    let currentValue;
+    try {
+      currentValue = typeof setting.setting_value === 'string' 
+        ? JSON.parse(setting.setting_value) 
+        : setting.setting_value;
+    } catch (error) {
+      // Если не удается парсить JSON, используем значение как есть
+      console.warn(`Failed to parse setting value for ${setting.setting_key}:`, error);
+      currentValue = setting.setting_value;
+    }
     
     const pendingChange = pendingChanges.get(setting.setting_key);
     const displayValue = pendingChange?.value ?? currentValue;
@@ -460,25 +474,35 @@ export const SystemSettingsManager: React.FC = () => {
           />
         ) : (
           <Input
-            value={displayValue}
+            value={displayValue || ''}
             onChange={(e) => handleSettingChange(setting, e.target.value)}
             disabled={!setting.is_editable}
+            className="w-full"
           />
         );
 
       default:
+        let jsonDisplayValue;
+        try {
+          jsonDisplayValue = typeof displayValue === 'string' ? displayValue : JSON.stringify(displayValue);
+        } catch (error) {
+          jsonDisplayValue = String(displayValue);
+        }
+        
         return (
           <Input
-            value={JSON.stringify(displayValue)}
+            value={jsonDisplayValue}
             onChange={(e) => {
               try {
                 const parsed = JSON.parse(e.target.value);
                 handleSettingChange(setting, parsed);
               } catch {
-                // Ignore invalid JSON
+                // Если не JSON, сохраняем как строку
+                handleSettingChange(setting, e.target.value);
               }
             }}
             disabled={!setting.is_editable}
+            className="w-full font-mono text-sm"
           />
         );
     }
@@ -556,15 +580,21 @@ export const SystemSettingsManager: React.FC = () => {
         </div>
       </Card>
 
-      <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-        <TabsList className="grid w-full auto-cols-fr grid-flow-col bg-steel-800">
-          {categories.map(category => (
-            <TabsTrigger key={category} value={category} className="flex items-center space-x-2 px-4">
-              {getCategoryIcon(category)}
-              <span className="hidden sm:inline">{getCategoryLabel(category)}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-steel-600 scrollbar-track-steel-800">
+          <TabsList className="flex w-max min-w-full bg-steel-800 p-1 gap-1 rounded-lg">
+            {categories.map(category => (
+              <TabsTrigger 
+                key={category} 
+                value={category} 
+                className="flex items-center space-x-2 px-6 py-3 whitespace-nowrap text-sm font-medium rounded-md data-[state=active]:bg-steel-700 data-[state=active]:text-steel-100 text-steel-400 hover:text-steel-200 hover:bg-steel-700/50 transition-colors"
+              >
+                {getCategoryIcon(category)}
+                <span>{getCategoryLabel(category)}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {categories.map(category => (
           <TabsContent key={category} value={category}>

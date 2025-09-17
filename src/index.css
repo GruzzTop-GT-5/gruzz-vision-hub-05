@@ -3,6 +3,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-steel-600::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--steel-600));
+  border-radius: 4px;
+}
+
+.scrollbar-track-steel-800::-webkit-scrollbar-track {
+  background-color: hsl(var(--steel-800));
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background-color: rgba(75, 85, 99, 0.3);
+}
+
 /* Telegram Mini App specific styles */
 .telegram-webapp {
   /* Remove default margins and paddings */
