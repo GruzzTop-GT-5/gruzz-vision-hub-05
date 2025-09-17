@@ -8,6 +8,8 @@ import { UserManagement } from '@/components/admin/UserManagement';
 import { TransactionManagement } from '@/components/admin/TransactionManagement';
 import { OrderManagement } from '@/components/admin/OrderManagement';
 import { RoleManagement } from '@/components/admin/RoleManagement';
+import { SecurityLogsViewer } from '@/components/admin/SecurityLogsViewer';
+import { SystemSettingsManager } from '@/components/admin/SystemSettingsManager';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminReviewModeration } from '@/components/AdminReviewModeration';
 import { AdminTicketManagement } from '@/components/AdminTicketManagement';
@@ -41,7 +43,7 @@ export const AdminPanelNew = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-9 bg-steel-800">
+            <TabsList className="grid w-full grid-cols-11 bg-steel-800">
               <TabsTrigger value="dashboard">Дашборд</TabsTrigger>
               <TabsTrigger value="users">Пользователи</TabsTrigger>
               <TabsTrigger value="roles">Роли</TabsTrigger>
@@ -51,6 +53,8 @@ export const AdminPanelNew = () => {
               <TabsTrigger value="reviews">Отзывы</TabsTrigger>
               <TabsTrigger value="support">Поддержка</TabsTrigger>
               <TabsTrigger value="bans">Блокировки</TabsTrigger>
+              <TabsTrigger value="security">Безопасность</TabsTrigger>
+              <TabsTrigger value="settings">Настройки</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -87,6 +91,14 @@ export const AdminPanelNew = () => {
 
             <TabsContent value="bans">
               <BanManagementSection />
+            </TabsContent>
+
+            <TabsContent value="security">
+              <SecurityLogsViewer />
+            </TabsContent>
+
+            <TabsContent value="settings">
+              <SystemSettingsManager />
             </TabsContent>
           </Tabs>
         </div>
