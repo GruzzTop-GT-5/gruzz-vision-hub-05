@@ -8,7 +8,7 @@ import { Users, Search, UserCheck, UserX, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { UserManagementModal } from '@/components/UserManagementModal';
 import { UserRatingDisplay } from '@/components/UserRatingDisplay';
-import { handleError } from '@/lib/errorHandler';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -33,6 +33,7 @@ export const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const fetchUsers = async () => {
     try {
@@ -45,7 +46,11 @@ export const UserManagement: React.FC = () => {
       if (error) throw error;
       setUsers(data || []);
     } catch (error) {
-      handleError(error, { component: 'UserManagement', action: 'fetchUsers' });
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить пользователей",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -53,6 +58,23 @@ export const UserManagement: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
+
+    // Настройка real-time обновлений для пользователей
+    const channel = supabase
+      .channel('user-management')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'profiles' 
+      }, (payload) => {
+        console.log('Profile changed:', payload);
+        fetchUsers(); // Перезагружаем список пользователей
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const filteredUsers = users.filter(user =>
