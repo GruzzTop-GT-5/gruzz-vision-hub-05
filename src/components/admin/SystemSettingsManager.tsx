@@ -581,16 +581,16 @@ export const SystemSettingsManager: React.FC = () => {
       </Card>
 
       <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-steel-600 scrollbar-track-steel-800">
-          <TabsList className="flex w-max min-w-full bg-steel-800 p-1 gap-1 rounded-lg">
+        <div className="overflow-y-auto max-h-[400px] mb-6">
+          <TabsList className="flex flex-col w-full bg-steel-800 p-2 gap-2 rounded-lg h-auto">
             {categories.map(category => (
               <TabsTrigger 
                 key={category} 
                 value={category} 
-                className="flex items-center space-x-2 px-6 py-3 whitespace-nowrap text-sm font-medium rounded-md data-[state=active]:bg-steel-700 data-[state=active]:text-steel-100 text-steel-400 hover:text-steel-200 hover:bg-steel-700/50 transition-colors"
+                className="flex items-center justify-start space-x-3 px-6 py-4 w-full text-left font-medium rounded-md data-[state=active]:bg-steel-700 data-[state=active]:text-steel-100 text-steel-400 hover:text-steel-200 hover:bg-steel-700/50 transition-colors"
               >
                 {getCategoryIcon(category)}
-                <span>{getCategoryLabel(category)}</span>
+                <span className="text-base">{getCategoryLabel(category)}</span>
               </TabsTrigger>
             ))}
           </TabsList>
