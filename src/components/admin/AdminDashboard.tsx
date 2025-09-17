@@ -163,12 +163,15 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     fetchRealTimeStats();
 
+    // Автоматическое обновление каждые 10 секунд
+    const interval = setInterval(fetchRealTimeStats, 10000);
+
     // Подписка на изменения в реальном времени
     const channels = [
       supabase
         .channel('dashboard-users')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-          console.log('Users updated');
+          console.log('Dashboard: Users updated in real-time');
           fetchRealTimeStats();
         })
         .subscribe(),
@@ -176,7 +179,7 @@ export const AdminDashboard: React.FC = () => {
       supabase
         .channel('dashboard-orders')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-          console.log('Orders updated');
+          console.log('Dashboard: Orders updated in real-time');
           fetchRealTimeStats();
         })
         .subscribe(),
@@ -184,7 +187,7 @@ export const AdminDashboard: React.FC = () => {
       supabase
         .channel('dashboard-transactions')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
-          console.log('Transactions updated');
+          console.log('Dashboard: Transactions updated in real-time');
           fetchRealTimeStats();
         })
         .subscribe(),
@@ -192,13 +195,30 @@ export const AdminDashboard: React.FC = () => {
       supabase
         .channel('dashboard-tickets')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => {
-          console.log('Support tickets updated');
+          console.log('Dashboard: Support tickets updated in real-time');
+          fetchRealTimeStats();
+        })
+        .subscribe(),
+
+      supabase
+        .channel('dashboard-reviews')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'reviews' }, () => {
+          console.log('Dashboard: Reviews updated in real-time');
+          fetchRealTimeStats();
+        })
+        .subscribe(),
+
+      supabase
+        .channel('dashboard-ads')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'ads' }, () => {
+          console.log('Dashboard: Ads updated in real-time');
           fetchRealTimeStats();
         })
         .subscribe()
     ];
 
     return () => {
+      clearInterval(interval);
       channels.forEach(channel => supabase.removeChannel(channel));
     };
   }, []);
@@ -228,12 +248,16 @@ export const AdminDashboard: React.FC = () => {
           <BarChart3 className="w-6 h-6 text-primary" />
           <div>
             <h2 className="text-2xl font-bold">Дашборд администратора</h2>
-            <p className="text-muted-foreground">Данные обновляются в реальном времени</p>
+            <p className="text-muted-foreground flex items-center gap-2">
+              Данные обновляются в реальном времени
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            </p>
           </div>
         </div>
-        <Button onClick={fetchRealTimeStats} disabled={loading}>
+        <Button onClick={fetchRealTimeStats} disabled={loading} className="relative">
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Обновить
+          {loading ? 'Обновление...' : 'Обновить данные'}
+          {!loading && <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>}
         </Button>
       </div>
 

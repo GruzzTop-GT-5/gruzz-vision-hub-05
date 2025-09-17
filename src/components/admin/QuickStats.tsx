@@ -25,16 +25,36 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ stats: propStats }) => {
     totalRevenue: 0,
     pendingTransactions: 0
   });
+  const [loading, setLoading] = useState(true);
 
   const fetchRealStats = async () => {
     try {
+      setLoading(true);
       const now = new Date();
       const startOfToday = startOfDay(now);
 
-      // Общее количество пользователей
-      const { count: totalUsers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      console.log('QuickStats: Fetching real-time data...');
+
+      // Получаем данные параллельно для быстрой загрузки
+      const [usersData, ordersData, revenueData, pendingData] = await Promise.all([
+        // Общее количество пользователей
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        
+        // Заказы
+        supabase.from('orders').select('status', { count: 'exact' }),
+        
+        // Выручка от пополнений GT коинов
+        supabase.from('transactions')
+          .select('amount')
+          .eq('type', 'deposit')
+          .eq('status', 'completed'),
+        
+        // Ожидающие пополнения
+        supabase.from('transactions')
+          .select('*', { count: 'exact', head: true })
+          .eq('type', 'deposit')
+          .eq('status', 'pending')
+      ]);
 
       // Активные пользователи (отправляли сообщения сегодня)
       const { data: activeUsersData } = await supabase
@@ -42,87 +62,139 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ stats: propStats }) => {
         .select('sender_id')
         .gte('created_at', startOfToday.toISOString());
       
-      const activeUsers = new Set(activeUsersData?.map(m => m.sender_id)).size;
+      const activeUsers = new Set(activeUsersData?.map(m => m.sender_id) || []).size;
 
-      // Общее количество заказов
-      const { count: totalOrders } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true });
+      // Подсчитываем статистику
+      const totalUsers = usersData.count || 0;
+      const totalOrders = ordersData.count || 0;
+      
+      const activeOrders = ordersData.data?.filter(o => 
+        o.status === 'pending' || o.status === 'in_progress'
+      ).length || 0;
 
-      // Активные заказы
-      const { count: activeOrders } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .in('status', ['pending', 'in_progress']);
+      const totalRevenue = revenueData.data?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+      const pendingTransactions = pendingData.count || 0;
 
-      // Реальная выручка от пополнений
-      const { data: revenueData } = await supabase
-        .from('transactions')
-        .select('amount')
-        .eq('type', 'deposit')
-        .eq('status', 'completed');
-
-      const totalRevenue = revenueData?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-
-      // Ожидающие транзакции (пополнения)
-      const { count: pendingTransactions } = await supabase
-        .from('transactions')
-        .select('*', { count: 'exact', head: true })
-        .eq('type', 'deposit')
-        .eq('status', 'pending');
-
-      setStats({
-        totalUsers: totalUsers || 0,
+      const newStats = {
+        totalUsers,
         activeUsers,
-        totalOrders: totalOrders || 0,
-        activeOrders: activeOrders || 0,
+        totalOrders,
+        activeOrders,
         totalRevenue,
-        pendingTransactions: pendingTransactions || 0
-      });
+        pendingTransactions
+      };
+
+      setStats(newStats);
+      console.log('QuickStats loaded:', newStats);
+
     } catch (error) {
       console.error('Error fetching real stats:', error);
+      // В случае ошибки устанавливаем базовые значения
+      setStats({
+        totalUsers: 0,
+        activeUsers: 0,
+        totalOrders: 0,
+        activeOrders: 0,
+        totalRevenue: 0,
+        pendingTransactions: 0
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (!propStats) {
       fetchRealStats();
-      // Обновляем каждые 30 секунд
-      const interval = setInterval(fetchRealStats, 30000);
-      return () => clearInterval(interval);
+      
+      // Обновляем каждые 10 секунд для реального времени
+      const interval = setInterval(fetchRealStats, 10000);
+      
+      // Подписка на изменения в реальном времени
+      const channels = [
+        supabase
+          .channel('quickstats-users')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+            console.log('QuickStats: Users updated');
+            fetchRealStats();
+          })
+          .subscribe(),
+          
+        supabase
+          .channel('quickstats-orders')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+            console.log('QuickStats: Orders updated');
+            fetchRealStats();
+          })
+          .subscribe(),
+          
+        supabase
+          .channel('quickstats-transactions')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+            console.log('QuickStats: Transactions updated');
+            fetchRealStats();
+          })
+          .subscribe()
+      ];
+      
+      return () => {
+        clearInterval(interval);
+        channels.forEach(channel => supabase.removeChannel(channel));
+      };
     } else {
       setStats(propStats);
+      setLoading(false);
     }
   }, [propStats]);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map(i => (
+          <Card key={i} className="card-steel p-4">
+            <div className="flex items-center justify-center h-16">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div className="text-center mt-2">
+              <p className="text-xs text-steel-400">Загрузка...</p>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card className="card-steel p-4">
+      <Card className="card-steel p-4 relative">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-steel-400">Пользователи</p>
-            <p className="text-lg font-bold text-steel-100">{stats.totalUsers}</p>
+            <p className="text-lg font-bold text-steel-100">{stats.totalUsers.toLocaleString()}</p>
           </div>
           <Users className="w-5 h-5 text-blue-400" />
         </div>
         <Badge variant="secondary" className="text-xs mt-2">
           {stats.activeUsers} активных
         </Badge>
+        <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
       </Card>
 
-      <Card className="card-steel p-4">
+      <Card className="card-steel p-4 relative">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-steel-400">Заказы</p>
-            <p className="text-lg font-bold text-steel-100">{stats.totalOrders}</p>
+            <p className="text-lg font-bold text-steel-100">{stats.totalOrders.toLocaleString()}</p>
           </div>
           <Activity className="w-5 h-5 text-purple-400" />
         </div>
         <Badge variant="secondary" className="text-xs mt-2">
           {stats.activeOrders} активных
         </Badge>
+        <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
       </Card>
 
-      <Card className="card-steel p-4">
+      <Card className="card-steel p-4 relative">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-steel-400">Реальная выручка</p>
@@ -133,9 +205,10 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ stats: propStats }) => {
         <Badge variant="secondary" className="text-xs mt-2">
           От GT коинов
         </Badge>
+        <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
       </Card>
 
-      <Card className="card-steel p-4">
+      <Card className="card-steel p-4 relative">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-steel-400">Ожидают</p>
@@ -144,8 +217,9 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ stats: propStats }) => {
           <Clock className="w-5 h-5 text-yellow-400" />
         </div>
         <Badge variant="outline" className="text-xs mt-2 border-yellow-400 text-yellow-400">
-          Транзакций
+          Пополнений
         </Badge>
+        <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
       </Card>
     </div>
   );

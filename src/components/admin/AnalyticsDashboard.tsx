@@ -168,46 +168,59 @@ export const AnalyticsDashboard = () => {
       });
 
       // Генерируем реальные данные для графиков за последние 30 дней
-      const chartPromises = Array.from({ length: 30 }, async (_, i) => {
-        const date = subDays(now, 29 - i);
+      const dailyStats = [];
+      const daysToShow = 30;
+      
+      for (let i = daysToShow - 1; i >= 0; i--) {
+        const date = subDays(now, i);
         const dayStart = startOfDay(date);
         const dayEnd = endOfDay(date);
 
-        // Новые пользователи за день
-        const { count: dayUsers } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .gte('created_at', dayStart.toISOString())
-          .lte('created_at', dayEnd.toISOString());
+        try {
+          // Новые пользователи за день
+          const { count: dayUsers } = await supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .gte('created_at', dayStart.toISOString())
+            .lte('created_at', dayEnd.toISOString());
 
-        // Заказы за день
-        const { count: dayOrders } = await supabase
-          .from('orders')
-          .select('*', { count: 'exact', head: true })
-          .gte('created_at', dayStart.toISOString())
-          .lte('created_at', dayEnd.toISOString());
+          // Заказы за день
+          const { count: dayOrders } = await supabase
+            .from('orders')
+            .select('*', { count: 'exact', head: true })
+            .gte('created_at', dayStart.toISOString())
+            .lte('created_at', dayEnd.toISOString());
 
-        // Доходы за день (пополнения)
-        const { data: dayRevenue } = await supabase
-          .from('transactions')
-          .select('amount')
-          .eq('type', 'deposit')
-          .eq('status', 'completed')
-          .gte('created_at', dayStart.toISOString())
-          .lte('created_at', dayEnd.toISOString());
+          // Доходы за день (пополнения)
+          const { data: dayRevenue } = await supabase
+            .from('transactions')
+            .select('amount')
+            .eq('type', 'deposit')
+            .eq('status', 'completed')
+            .gte('created_at', dayStart.toISOString())
+            .lte('created_at', dayEnd.toISOString());
 
-        const revenue = dayRevenue?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+          const revenue = dayRevenue?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
 
-        return {
-          date: format(date, 'dd.MM'),
-          users: dayUsers || 0,
-          orders: dayOrders || 0,
-          revenue
-        };
-      });
+          dailyStats.push({
+            date: format(date, 'dd.MM'),
+            users: dayUsers || 0,
+            orders: dayOrders || 0,
+            revenue
+          });
+        } catch (error) {
+          console.error(`Error loading data for ${date}:`, error);
+          // Fallback данные в случае ошибки
+          dailyStats.push({
+            date: format(date, 'dd.MM'),
+            users: 0,
+            orders: 0,
+            revenue: 0
+          });
+        }
+      }
 
-      const chartData = await Promise.all(chartPromises);
-      setChartData(chartData);
+      setChartData(dailyStats);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       toast({
@@ -222,6 +235,41 @@ export const AnalyticsDashboard = () => {
 
   useEffect(() => {
     fetchAnalytics();
+    
+    // Обновляем каждые 10 секунд для реального времени
+    const interval = setInterval(fetchAnalytics, 10000);
+    
+    // Подписка на изменения в реальном времени
+    const channels = [
+      supabase
+        .channel('analytics-users')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+          console.log('Analytics: Users updated');
+          fetchAnalytics();
+        })
+        .subscribe(),
+        
+      supabase
+        .channel('analytics-orders')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+          console.log('Analytics: Orders updated');
+          fetchAnalytics();
+        })
+        .subscribe(),
+        
+      supabase
+        .channel('analytics-transactions')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+          console.log('Analytics: Transactions updated');
+          fetchAnalytics();
+        })
+        .subscribe()
+    ];
+    
+    return () => {
+      clearInterval(interval);
+      channels.forEach(channel => supabase.removeChannel(channel));
+    };
   }, []);
 
   const exportData = async () => {
@@ -278,12 +326,14 @@ export const AnalyticsDashboard = () => {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <Activity className="w-6 h-6 animate-pulse mr-2" />
-          Загрузка аналитики...
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="flex items-center justify-center p-8">
+            <Activity className="w-6 h-6 animate-pulse mr-2 text-primary" />
+            <span className="text-lg">Загрузка аналитики в реальном времени...</span>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -291,9 +341,14 @@ export const AnalyticsDashboard = () => {
     <div className="space-y-6">
       {/* Заголовок с экспортом */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Аналитика и отчеты</h2>
-          <p className="text-muted-foreground">Детальная статистика платформы</p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h2 className="text-2xl font-bold">Аналитика и отчеты</h2>
+            <p className="text-muted-foreground flex items-center gap-2">
+              Данные обновляются в реальном времени
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Popover>
@@ -312,9 +367,9 @@ export const AnalyticsDashboard = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={exportData}>
-            <Download className="w-4 h-4 mr-2" />
-            Экспорт
+          <Button onClick={fetchAnalytics} disabled={loading}>
+            <Activity className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : 'animate-pulse'}`} />
+            {loading ? 'Обновление...' : 'Обновить данные'}
           </Button>
         </div>
       </div>
