@@ -66,185 +66,101 @@ export const AdminPanelNew = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            {/* Первый ряд основных функций */}
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-3">
-                <TabsList className="bg-card/80 backdrop-blur border border-border/50 shadow-lg p-1 rounded-xl">
-                  <TabsTrigger 
-                    value="dashboard" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    📊 Дашборд
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="users" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    👥 Пользователи
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="roles" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🔐 Роли
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="orders" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    📋 Заказы
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="transactions" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    💳 Платежи
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsList className="bg-card/80 backdrop-blur border border-border/50 shadow-lg p-1 rounded-xl">
-                  <TabsTrigger 
-                    value="categories" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🏷️ Категории
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="reviews" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    ⭐ Отзывы
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="support" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🎧 Поддержка
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="bans" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🚫 Блокировки
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              
-              {/* Второй ряд модерация и аналитика */}
-              <div className="flex flex-wrap gap-3">
-                <TabsList className="bg-card/80 backdrop-blur border border-border/50 shadow-lg p-1 rounded-xl">
-                  <TabsTrigger 
-                    value="moderation" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🛡️ Модерация
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="auto-rules" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🤖 Авто-правила
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="analytics" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    📈 Аналитика
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="performance" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    ⚡ Мониторинг
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsList className="bg-card/80 backdrop-blur border border-border/50 shadow-lg p-1 rounded-xl">
-                  <TabsTrigger 
-                    value="notifications" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🔔 Уведомления
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="security" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    🔒 Безопасность
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="settings" 
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80"
-                  >
-                    ⚙️ Настройки
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+            {/* Навигация по вкладкам */}
+            <div className="overflow-x-auto">
+              <TabsList className="bg-card/80 backdrop-blur border border-border/50 shadow-lg p-1 rounded-xl inline-flex">
+                <TabsTrigger value="dashboard" className="px-4 py-2 rounded-lg font-medium">
+                  📊 Дашборд
+                </TabsTrigger>
+                <TabsTrigger value="users" className="px-4 py-2 rounded-lg font-medium">
+                  👥 Пользователи
+                </TabsTrigger>
+                <TabsTrigger value="roles" className="px-4 py-2 rounded-lg font-medium">
+                  🔐 Роли
+                </TabsTrigger>
+                <TabsTrigger value="orders" className="px-4 py-2 rounded-lg font-medium">
+                  📋 Заказы
+                </TabsTrigger>
+                <TabsTrigger value="transactions" className="px-4 py-2 rounded-lg font-medium">
+                  💳 Транзакции
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="px-4 py-2 rounded-lg font-medium">
+                  📈 Аналитика
+                </TabsTrigger>
+                <TabsTrigger value="moderation" className="px-4 py-2 rounded-lg font-medium">
+                  🛡️ Модерация
+                </TabsTrigger>
+                <TabsTrigger value="support" className="px-4 py-2 rounded-lg font-medium">
+                  🎧 Поддержка
+                </TabsTrigger>
+                <TabsTrigger value="performance" className="px-4 py-2 rounded-lg font-medium">
+                  ⚡ Производительность
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="px-4 py-2 rounded-lg font-medium">
+                  🔔 Уведомления
+                </TabsTrigger>
+                <TabsTrigger value="security" className="px-4 py-2 rounded-lg font-medium">
+                  🔒 Безопасность
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="px-4 py-2 rounded-lg font-medium">
+                  ⚙️ Настройки
+                </TabsTrigger>
+              </TabsList>
             </div>
 
-            {/* Контент с красивым фоном */}
-            <div className="bg-card/40 backdrop-blur border border-border/50 rounded-2xl p-8 shadow-xl">
-              <TabsContent value="dashboard">
+            {/* Содержимое вкладок */}
+            <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-2xl p-6 shadow-xl">
+              <TabsContent value="dashboard" className="space-y-6 m-0">
                 <AdminDashboard />
               </TabsContent>
 
-              <TabsContent value="users">
+              <TabsContent value="users" className="space-y-6 m-0">
                 <UserManagement />
               </TabsContent>
 
-              <TabsContent value="roles">
+              <TabsContent value="roles" className="space-y-6 m-0">
                 <RoleManagement />
               </TabsContent>
 
-              <TabsContent value="orders">
+              <TabsContent value="orders" className="space-y-6 m-0">
                 <OrderManagement />
               </TabsContent>
 
-              <TabsContent value="transactions">
+              <TabsContent value="transactions" className="space-y-6 m-0">
                 <TransactionManagement />
               </TabsContent>
 
-              <TabsContent value="categories">
-                <CategoriesManagement />
-              </TabsContent>
-
-              <TabsContent value="reviews">
-                <AdminReviewModeration />
-              </TabsContent>
-
-              <TabsContent value="support">
-                <AdminTicketManagement />
-              </TabsContent>
-
-              <TabsContent value="bans">
-                <BanManagementSection />
-              </TabsContent>
-
-              <TabsContent value="moderation">
-                <ContentModerationQueue />
-              </TabsContent>
-
-              <TabsContent value="auto-rules">
-                <AutoModerationRules />
-              </TabsContent>
-
-              <TabsContent value="analytics">
+              <TabsContent value="analytics" className="space-y-6 m-0">
                 <AnalyticsDashboard />
               </TabsContent>
 
-              <TabsContent value="performance">
+              <TabsContent value="moderation" className="space-y-6 m-0">
+                <div className="space-y-6">
+                  <ContentModerationQueue />
+                  <AutoModerationRules />
+                  <AdminReviewModeration />
+                  <BanManagementSection />
+                  <CategoriesManagement />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="support" className="space-y-6 m-0">
+                <AdminTicketManagement />
+              </TabsContent>
+
+              <TabsContent value="performance" className="space-y-6 m-0">
                 <PerformanceMonitor />
               </TabsContent>
 
-              <TabsContent value="notifications">
+              <TabsContent value="notifications" className="space-y-6 m-0">
                 <NotificationCenter />
               </TabsContent>
 
-              <TabsContent value="security">
+              <TabsContent value="security" className="space-y-6 m-0">
                 <SecurityLogsViewer />
               </TabsContent>
 
-              <TabsContent value="settings">
+              <TabsContent value="settings" className="space-y-6 m-0">
                 <SystemSettingsManager />
               </TabsContent>
             </div>

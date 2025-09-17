@@ -490,11 +490,11 @@ export const SystemSettingsManager: React.FC = () => {
       </Card>
 
       <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-        <TabsList className="grid w-full grid-cols-5 bg-steel-800">
+        <TabsList className="grid w-full auto-cols-fr grid-flow-col bg-steel-800">
           {categories.map(category => (
-            <TabsTrigger key={category} value={category} className="flex items-center space-x-2">
+            <TabsTrigger key={category} value={category} className="flex items-center space-x-2 px-4">
               {getCategoryIcon(category)}
-              <span>{getCategoryLabel(category)}</span>
+              <span className="hidden sm:inline">{getCategoryLabel(category)}</span>
             </TabsTrigger>
           ))}
         </TabsList>

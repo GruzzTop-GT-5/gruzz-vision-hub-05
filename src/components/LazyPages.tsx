@@ -12,7 +12,7 @@ export const Balance = lazy(() => import('@/pages/Balance'));
 export const History = lazy(() => import('@/pages/History'));
 export const ChatSystem = lazy(() => import('@/pages/ChatSystem'));
 export const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
-export const AdminPanelNew = lazy(() => import('@/pages/AdminPanelNew').then(module => ({ default: module.default })));
+export const AdminPanelNew = lazy(() => import('@/pages/AdminPanelNew'));
 export const Rules = lazy(() => import('@/pages/Rules'));
 export const Ads = lazy(() => import('@/pages/Ads'));
 export const MyAds = lazy(() => import('@/pages/MyAds'));
