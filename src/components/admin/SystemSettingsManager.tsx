@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  Settings, Save, RefreshCw, AlertTriangle, Info, DollarSign, 
+  Shield, Users, Bell, HelpCircle, ShieldCheck, Clock, MessageSquare, Database, Zap
+} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,21 +15,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { handleError } from '@/lib/errorHandler';
-import {
-  Settings,
-  Save,
-  RefreshCw,
-  AlertTriangle,
-  Info,
-  DollarSign,
-  Clock,
-  Shield,
-  Users,
-  MessageSquare,
-  Database,
-  Bell,
-  Zap
-} from 'lucide-react';
 import {
   Tabs,
   TabsContent,
@@ -595,6 +584,162 @@ export const SystemSettingsManager: React.FC = () => {
             ))}
           </TabsList>
         </div>
+
+        {/* Добавляем раздел справки перед контентом */}
+        {activeCategory === 'help' && (
+          <div className="space-y-6">
+            <Card className="card-steel-lighter p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <Info className="w-6 h-6 text-blue-400" />
+                <h3 className="text-xl font-bold text-steel-100">Подробная справка по системным настройкам</h3>
+              </div>
+              
+              <div className="space-y-6">
+                {/* Общие настройки */}
+                <div>
+                  <h4 className="text-lg font-semibold text-green-400 mb-3 flex items-center">
+                    <Settings className="w-5 h-5 mr-2" />
+                    Общие настройки платформы
+                  </h4>
+                  <div className="bg-steel-900 p-4 rounded-lg space-y-3 text-sm">
+                    <div>
+                      <span className="font-medium text-steel-200">Название платформы:</span>
+                      <p className="text-steel-400 mt-1">Отображается в заголовке сайта, уведомлениях и документах. Изменение влияет на весь интерфейс пользователей.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Приветственное сообщение:</span>
+                      <p className="text-steel-400 mt-1">Первое что видят новые пользователи после регистрации. Должно быть коротким и информативным (до 200 символов).</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Режим обслуживания:</span>
+                      <p className="text-steel-400 mt-1">⚠️ КРИТИЧНО: Отключает доступ ко всему сайту кроме админпанели. Используйте только при технических работах!</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Финансовые настройки */}
+                <div>
+                  <h4 className="text-lg font-semibold text-yellow-400 mb-3 flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2" />
+                    Финансовые настройки (GT коины)
+                  </h4>
+                  <div className="bg-steel-900 p-4 rounded-lg space-y-3 text-sm">
+                    <div className="bg-red-900/20 border border-red-500/30 p-3 rounded">
+                      <p className="text-red-300 font-medium">⚠️ ВНИМАНИЕ: 1 GT коин = 1 рубль реальных денег!</p>
+                      <p className="text-red-400 text-xs mt-1">Любые изменения влияют на реальные финансы пользователей.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Минимальное пополнение (50-1000₽):</span>
+                      <p className="text-steel-400 mt-1">Слишком малые суммы создают много мелких транзакций. Слишком большие - отпугивают новых пользователей.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Максимальное пополнение (1000-500000₽):</span>
+                      <p className="text-steel-400 mt-1">Защита от мошенничества и отмывания денег. Большие суммы требуют дополнительных проверок.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Лимиты заказов (50-100000 GT):</span>
+                      <p className="text-steel-400 mt-1">Мин. сумма предотвращает спам-заказы. Макс. сумма защищает от крупного мошенничества.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Комиссия платформы (5-25%):</span>
+                      <p className="text-steel-400 mt-1">Основной доход платформы. Учитывайте конкурентов: 10-15% - стандарт рынка.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Лимиты */}
+                <div>
+                  <h4 className="text-lg font-semibold text-purple-400 mb-3 flex items-center">
+                    <Shield className="w-5 h-5 mr-2" />
+                    Лимиты и ограничения
+                  </h4>
+                  <div className="bg-steel-900 p-4 rounded-lg space-y-3 text-sm">
+                    <div>
+                      <span className="font-medium text-steel-200">Максимум заказов в день:</span>
+                      <p className="text-steel-400 mt-1">Защита от спама. Новые пользователи: 3-5, проверенные: 10-20 заказов.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Максимум сообщений в час:</span>
+                      <p className="text-steel-400 mt-1">Антиспам в чатах. 50-100 сообщений для обычных пользователей.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Время жизни заказа (часы):</span>
+                      <p className="text-steel-400 mt-1">Автоматическое закрытие неактивных заказов. 24-168 часов (1-7 дней).</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Модерация */}
+                <div>
+                  <h4 className="text-lg font-semibold text-orange-400 mb-3 flex items-center">
+                    <ShieldCheck className="w-5 h-5 mr-2" />
+                    Модерация и безопасность
+                  </h4>
+                  <div className="bg-steel-900 p-4 rounded-lg space-y-3 text-sm">
+                    <div>
+                      <span className="font-medium text-steel-200">Автомодерация:</span>
+                      <p className="text-steel-400 mt-1">ИИ проверяет контент на нарушения. Включайте осторожно - может блокировать нормальный контент.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Предварительная модерация:</span>
+                      <p className="text-steel-400 mt-1">Все заказы проходят проверку до публикации. Замедляет работу, но повышает качество.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Стоп-слова:</span>
+                      <p className="text-steel-400 mt-1">Автоматическая блокировка контента с запрещенными словами. Обновляйте регулярно.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Уведомления */}
+                <div>
+                  <h4 className="text-lg font-semibold text-blue-400 mb-3 flex items-center">
+                    <Bell className="w-5 h-5 mr-2" />
+                    Настройки уведомлений
+                  </h4>
+                  <div className="bg-steel-900 p-4 rounded-lg space-y-3 text-sm">
+                    <div>
+                      <span className="font-medium text-steel-200">Email уведомления:</span>
+                      <p className="text-steel-400 mt-1">Отправка важных уведомлений на почту. Проверьте настройки SMTP-сервера.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Push уведомления:</span>
+                      <p className="text-steel-400 mt-1">Мгновенные уведомления в браузере. Требуют разрешения пользователя.</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-steel-200">Telegram боты:</span>
+                      <p className="text-steel-400 mt-1">Интеграция с Telegram для уведомлений. Нужен токен бота и настройка вебхуков.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Рекомендации */}
+                <div className="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-blue-300 mb-3">💡 Рекомендации по настройке</h4>
+                  <ul className="space-y-2 text-sm text-blue-200">
+                    <li>• <strong>Тестируйте изменения</strong> на небольшой группе пользователей</li>
+                    <li>• <strong>Ведите логи изменений</strong> - все действия записываются в системе</li>
+                    <li>• <strong>Консультируйтесь с командой</strong> перед изменением финансовых настроек</li>
+                    <li>• <strong>Мониторьте метрики</strong> после изменений настроек</li>
+                    <li>• <strong>Делайте резервные копии</strong> перед критическими изменениями</li>
+                  </ul>
+                </div>
+
+                {/* Критические предупреждения */}
+                <div className="bg-red-900/20 border border-red-500/30 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-red-300 mb-3">🚨 Критические предупреждения</h4>
+                  <ul className="space-y-2 text-sm text-red-200">
+                    <li>• <strong>НЕ ВКЛЮЧАЙТЕ режим обслуживания</strong> без предупреждения пользователей</li>
+                    <li>• <strong>НЕ ИЗМЕНЯЙТЕ комиссию</strong> для активных заказов</li>
+                    <li>• <strong>НЕ СНИЖАЙТЕ лимиты</strong> ниже текущих активных операций</li>
+                    <li>• <strong>НЕ ОТКЛЮЧАЙТЕ автомодерацию</strong> в пиковые часы</li>
+                    <li>• <strong>ВСЕГДА проверяйте</strong> воздействие изменений на пользователей</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {categories.map(category => (
           <TabsContent key={category} value={category}>
