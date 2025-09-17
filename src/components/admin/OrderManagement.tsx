@@ -24,7 +24,7 @@ interface Order {
   client_id: string;
   executor_id?: string;
   priority: string;
-  profiles?: {
+  client_profile?: {
     phone: string;
     display_name: string;
   };
@@ -43,7 +43,7 @@ export const OrderManagement: React.FC = () => {
         .from('orders')
         .select(`
           *,
-          profiles:client_id (
+          client_profile:profiles!client_id (
             phone,
             display_name
           )
@@ -66,8 +66,8 @@ export const OrderManagement: React.FC = () => {
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.profiles?.phone?.includes(searchTerm) ||
-      order.profiles?.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      order.client_profile?.phone?.includes(searchTerm) ||
+      order.client_profile?.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     
@@ -174,7 +174,7 @@ export const OrderManagement: React.FC = () => {
                     <div className="flex items-center gap-1">
                       <User className="w-4 h-4" />
                       <span>
-                        {order.profiles?.display_name || order.profiles?.phone || 'Неизвестен'}
+                        {order.client_profile?.display_name || order.client_profile?.phone || 'Неизвестен'}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
