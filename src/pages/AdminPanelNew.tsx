@@ -16,6 +16,9 @@ import { AdminTicketManagement } from '@/components/AdminTicketManagement';
 import { BanManagementSection } from '@/components/BanManagementSection';
 import { ContentModerationQueue } from '@/components/admin/ContentModerationQueue';
 import { AutoModerationRules } from '@/components/admin/AutoModerationRules';
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { PerformanceMonitor } from '@/components/admin/PerformanceMonitor';
+import { NotificationCenter } from '@/components/admin/NotificationCenter';
 import { Navigate } from 'react-router-dom';
 
 export const AdminPanelNew = () => {
@@ -45,7 +48,7 @@ export const AdminPanelNew = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-13 bg-steel-800 text-xs">
+            <TabsList className="grid w-full grid-cols-16 bg-steel-800 text-xs">
               <TabsTrigger value="dashboard">Дашборд</TabsTrigger>
               <TabsTrigger value="users">Пользователи</TabsTrigger>
               <TabsTrigger value="roles">Роли</TabsTrigger>
@@ -57,6 +60,9 @@ export const AdminPanelNew = () => {
               <TabsTrigger value="bans">Блокировки</TabsTrigger>
               <TabsTrigger value="moderation">Модерация</TabsTrigger>
               <TabsTrigger value="auto-rules">Авто-правила</TabsTrigger>
+              <TabsTrigger value="analytics">Аналитика</TabsTrigger>
+              <TabsTrigger value="performance">Мониторинг</TabsTrigger>
+              <TabsTrigger value="notifications">Уведомления</TabsTrigger>
               <TabsTrigger value="security">Безопасность</TabsTrigger>
               <TabsTrigger value="settings">Настройки</TabsTrigger>
             </TabsList>
@@ -103,6 +109,18 @@ export const AdminPanelNew = () => {
 
             <TabsContent value="auto-rules">
               <AutoModerationRules />
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <AnalyticsDashboard />
+            </TabsContent>
+
+            <TabsContent value="performance">
+              <PerformanceMonitor />
+            </TabsContent>
+
+            <TabsContent value="notifications">
+              <NotificationCenter />
             </TabsContent>
 
             <TabsContent value="security">
