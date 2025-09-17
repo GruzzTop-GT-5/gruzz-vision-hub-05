@@ -60,13 +60,13 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
 
   const menuItems = [
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
-    { icon: Megaphone, label: 'Заказы на работу', href: '/ads' },
-    { icon: Search, label: 'Вакансии', href: '/available-orders' },
-    { icon: Package, label: 'Мои публикации', href: '/my-ads' },
-    { icon: ShoppingBag, label: 'Мои заказы', href: '/orders' },
-    { icon: MessageCircle, label: 'Чаты и поддержка', href: '/chat-system' },
-    { icon: CreditCard, label: 'Баланс + Пополнение', href: '/balance' },
-    { icon: History, label: 'История работ', href: '/history' },
+    { icon: Package, label: 'Мои задания', href: '/orders' },
+    { icon: Search, label: 'Найти исполнителей', href: '/available-orders' },
+    { icon: Megaphone, label: 'Найти работу', href: '/ads' },
+    { icon: Plus, label: 'Мои услуги', href: '/my-ads' },
+    { icon: MessageCircle, label: 'Сообщения', href: '/chat-system' },
+    { icon: CreditCard, label: 'Баланс', href: '/balance' },
+    { icon: History, label: 'История операций', href: '/history' },
     { icon: FileText, label: 'Правила платформы', href: '/rules' },
   ];
 
@@ -229,7 +229,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
               }`}
             >
               <Search className="h-5 w-5 mb-1" />
-              Объявления
+              Работа
             </Link>
             <Link 
               to="/create-ad" 
@@ -239,7 +239,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
               }`}
             >
               <Plus className="h-5 w-5 mb-1" />
-              Создать
+              Услуга
             </Link>
             <Link 
               to="/chat-system" 
@@ -249,7 +249,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
               }`}
             >
               <MessageCircle className="h-5 w-5 mb-1" />
-              Чаты
+              Сообщения
               {unreadCount > 0 && (
                 <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                   {unreadCount > 9 ? '9+' : unreadCount}

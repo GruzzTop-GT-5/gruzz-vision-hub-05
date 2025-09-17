@@ -74,7 +74,7 @@ const Index = () => {
         {/* Header Section */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-glow">GruzzTop</h1>
-          <p className="text-steel-300">Платформа для поиска грузчиков и разнорабочих</p>
+          <p className="text-steel-300">Платформа для поиска специалистов и разнорабочих</p>
         </div>
 
         {/* Quick Actions */}
@@ -84,8 +84,8 @@ const Index = () => {
               <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
                 <User className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">Мои заказы</div>
-                  <div className="text-sm opacity-70">Созданные мной</div>
+                  <div className="font-bold">Мои задания</div>
+                  <div className="text-sm opacity-70">Размещенные мной заказы</div>
                 </div>
               </Button>
             </Link>
@@ -96,8 +96,8 @@ const Index = () => {
             >
               <User className="w-8 h-8" />
               <div>
-                <div className="font-bold">Мои заказы</div>
-                <div className="text-sm opacity-70">Созданные мной</div>
+                <div className="font-bold">Мои задания</div>
+                <div className="text-sm opacity-70">Размещенные мной заказы</div>
               </div>
             </Button>
           )}
@@ -107,7 +107,7 @@ const Index = () => {
               <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
                 <Search className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">Найти исполнителя</div>
+                  <div className="font-bold">Найти исполнителей</div>
                   <div className="text-sm opacity-70">Резюме специалистов</div>
                 </div>
               </Button>
@@ -119,7 +119,7 @@ const Index = () => {
             >
               <Search className="w-8 h-8" />
               <div>
-                <div className="font-bold">Найти исполнителя</div>
+                <div className="font-bold">Найти исполнителей</div>
                 <div className="text-sm opacity-70">Резюме специалистов</div>
               </div>
             </Button>
@@ -131,7 +131,7 @@ const Index = () => {
                 <Plus className="w-8 h-8" />
                 <div>
                   <div className="font-bold">Найти работу</div>
-                  <div className="text-sm opacity-70">Заказы от клиентов</div>
+                  <div className="text-sm opacity-70">Активные заказы клиентов</div>
                 </div>
               </Button>
             </Link>
@@ -143,7 +143,7 @@ const Index = () => {
               <Plus className="w-8 h-8" />
               <div>
                 <div className="font-bold">Найти работу</div>
-                <div className="text-sm opacity-70">Заказы от клиентов</div>
+                <div className="text-sm opacity-70">Активные заказы клиентов</div>
               </div>
             </Button>
           )}
@@ -159,9 +159,9 @@ const Index = () => {
                     <User className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-steel-100 mb-1">Мои заказы</h3>
-                    <p className="text-sm text-steel-400 mb-2">Заказы которые я создал</p>
-                    <p className="text-xs text-steel-500">Создавайте заказы → Получайте отклики → Выбирайте исполнителей</p>
+                    <h3 className="font-semibold text-steel-100 mb-1">Мои задания</h3>
+                    <p className="text-sm text-steel-400 mb-2">Заказы которые я разместил</p>
+                    <p className="text-xs text-steel-500">Размещайте задания → Получайте отклики → Выбирайте исполнителей</p>
                   </div>
                 </div>
               </Card>
@@ -171,9 +171,9 @@ const Index = () => {
                     <Search className="w-5 h-5 text-green-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-steel-100 mb-1">Поиск исполнителя</h3>
+                    <h3 className="font-semibold text-steel-100 mb-1">Поиск исполнителей</h3>
                     <p className="text-sm text-steel-400 mb-2">Резюме специалистов</p>
-                    <p className="text-xs text-steel-500">Просматривайте резюме → Выбирайте исполнителя → Договаривайтесь</p>
+                    <p className="text-xs text-steel-500">Просматривайте резюме → Выбирайте исполнителя → Договаривайтесь напрямую</p>
                   </div>
                 </div>
               </Card>
@@ -186,9 +186,9 @@ const Index = () => {
                     <Plus className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-steel-100 mb-1">Заказы на работу</h3>
-                    <p className="text-sm text-steel-400 mb-2">Заказы от клиентов</p>
-                    <p className="text-xs text-steel-500">Просматривайте заказы → Откликайтесь → Работайте с клиентами</p>
+                    <h3 className="font-semibold text-steel-100 mb-1">Поиск работы</h3>
+                    <p className="text-sm text-steel-400 mb-2">Активные заказы от клиентов</p>
+                    <p className="text-xs text-steel-500">Просматривайте заказы → Откликайтесь → Выполняйте работу</p>
                   </div>
                 </div>
               </Card>

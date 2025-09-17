@@ -194,7 +194,7 @@ const AvailableOrders = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Briefcase className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-glow">Вакансии</h1>
+              <h1 className="text-3xl font-bold text-glow">Поиск исполнителей</h1>
             </div>
             
             <div className="flex items-center space-x-4">

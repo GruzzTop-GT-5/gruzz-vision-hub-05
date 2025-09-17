@@ -221,7 +221,7 @@ export default function Orders() {
             <div className="flex items-center space-x-3">
               <BackButton />
               <Package className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-glow">Мои заказы</h1>
+              <h1 className="text-3xl font-bold text-glow">Мои задания</h1>
             </div>
             
             <div className="flex items-center space-x-4">
