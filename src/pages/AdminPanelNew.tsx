@@ -88,3 +88,5 @@ export const AdminPanelNew = () => {
     </Layout>
   );
 };
+
+export default AdminPanelNew;
