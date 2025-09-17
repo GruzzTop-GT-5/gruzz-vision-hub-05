@@ -500,7 +500,7 @@ const Profile = () => {
 
                   <div className="text-center">
                     <div className="flex justify-center mb-1">
-                      <UserRatingDisplay userId={user.id} showDetails={false} />
+                      {user?.id && <UserRatingDisplay userId={user.id} showDetails={false} />}
                     </div>
                     <div className="text-steel-300 text-sm">Рейтинг</div>
                   </div>

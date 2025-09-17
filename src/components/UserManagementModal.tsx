@@ -97,10 +97,18 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
         .eq('user_id', user.id)
         .eq('is_active', true);
         
-      if (error) throw error;
+      if (error) {
+        // If the table doesn't exist, just set empty array
+        if (error.code === 'PGRST200') {
+          setUserBans([]);
+          return;
+        }
+        throw error;
+      }
       setUserBans(data || []);
     } catch (error) {
       console.error('Error fetching user bans:', error);
+      setUserBans([]);
     }
   };
 

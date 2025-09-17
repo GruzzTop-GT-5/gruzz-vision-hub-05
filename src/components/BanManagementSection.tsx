@@ -92,7 +92,15 @@ export const BanManagementSection = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        // If the table doesn't exist, just set empty array
+        if (error.code === 'PGRST200') {
+          setUserBans([]);
+          setIsLoading(false);
+          return;
+        }
+        throw error;
+      }
       setUserBans((data as any) || []);
     } catch (error) {
       console.error('Error fetching user bans:', error);
