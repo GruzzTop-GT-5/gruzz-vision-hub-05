@@ -50,20 +50,28 @@ export const useAuth = (): AuthContextType => {
 
   const fetchUserRole = async (userId: string) => {
     try {
+      console.log('Fetching role for user:', userId);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', userId)
         .maybeSingle();
 
+      console.log('Role query result:', { data, error });
+
       if (error) {
         console.error('Error fetching user role:', error);
+        setUserRole('user'); // Устанавливаем роль по умолчанию при ошибке
         return;
       }
 
-      setUserRole(data?.role || 'user');
+      const role = data?.role || 'user';
+      console.log('User role fetched:', role, 'for user:', userId);
+      setUserRole(role);
     } catch (error) {
       console.error('Error fetching user role:', error);
+      setUserRole('user'); // Устанавливаем роль по умолчанию при ошибке
     }
   };
 

@@ -6,7 +6,7 @@ import { LegalFooter } from '@/components/LegalFooter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, Search, Filter, Calendar, User } from 'lucide-react';
+import { Plus, Search, Filter, Calendar, User, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 
@@ -55,6 +55,18 @@ const Index = () => {
               <Button className="btn-3d px-8 py-3">
                 <User className="w-4 h-4 mr-2" />
                 Войти в аккаунт
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {/* Показать админ панель если пользователь администратор */}
+        {user && userRole && ['admin', 'system_admin', 'moderator', 'support'].includes(userRole) && (
+          <div className="text-center mb-6">
+            <Link to="/admin">
+              <Button className="btn-3d px-8 py-3 bg-gradient-to-r from-red-500 to-red-600">
+                <Settings className="w-4 h-4 mr-2" />
+                Административная панель
               </Button>
             </Link>
           </div>
