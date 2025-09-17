@@ -64,33 +64,33 @@
 
 @layer base {
   :root {
-    /* Enhanced Masculine Theme - Steel and Electric Blue Palette */
-    --background: 210 50% 4%;     /* Deep charcoal */
+    /* Enhanced Masculine Theme - Steel and Electric Blue Palette (Brighter) */
+    --background: 210 50% 8%;     /* Lighter charcoal */
     --foreground: 210 40% 98%;    /* Crisp white */
     
-    --card: 210 45% 8%;           /* Dark steel */
+    --card: 210 45% 14%;          /* Brighter steel */
     --card-foreground: 210 40% 96%; /* Light steel */
     
-    --popover: 210 40% 12%;       /* Steel surface */
+    --popover: 210 40% 16%;       /* Brighter steel surface */
     --popover-foreground: 210 40% 96%; /* Light text */
     
     --primary: 195 100% 50%;      /* Electric blue */
     --primary-foreground: 210 50% 4%; /* Dark contrast */
     
-    --secondary: 210 35% 18%;     /* Medium steel */
+    --secondary: 210 35% 22%;     /* Brighter medium steel */
     --secondary-foreground: 210 40% 98%; /* Light text */
     
-    --muted: 210 40% 12%;         /* Muted steel */
-    --muted-foreground: 210 30% 70%; /* Muted text */
+    --muted: 210 40% 16%;         /* Brighter muted steel */
+    --muted-foreground: 210 30% 75%; /* Brighter muted text */
     
-    --accent: 210 35% 18%;        /* Accent steel */
+    --accent: 210 35% 22%;        /* Brighter accent steel */
     --accent-foreground: 210 40% 98%; /* Accent text */
     
     --destructive: 0 84% 60%;     /* Red */
     --destructive-foreground: 210 40% 98%; /* Light text */
     
-    --border: 210 35% 18%;        /* Border steel */
-    --input: 210 40% 12%;         /* Input background */
+    --border: 210 35% 22%;        /* Brighter border steel */
+    --input: 210 40% 16%;         /* Brighter input background */
     --ring: 195 100% 50%;         /* Focus ring */
     
     --radius: 0.75rem;
