@@ -3,9 +3,10 @@ import { Layout } from '@/components/Layout';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Star, Calendar, TriangleAlert } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { TrendingUp, Star, Calendar, CheckCircle } from 'lucide-react';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
+import { api } from '@/lib/optimizedApi';
+import { handleError } from '@/lib/errorHandler';
 
 const History = () => {
   const { user, userRole, signOut } = useAuth();
@@ -27,55 +28,61 @@ const History = () => {
     try {
       setLoading(true);
       
-      // Fetch completed orders where user is executor
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('executor_id', user.id)
-        .eq('status', 'completed')
-        .order('completed_at', { ascending: false });
+      // Get completed orders for user as executor
+      const { data: orders, error } = await api.orders.getAll({
+        status: ['completed'],
+        limit: 50
+      });
 
       if (error) throw error;
 
-      // Fetch client profiles separately
-      const clientIds = orders?.map(order => order.client_id).filter(Boolean) || [];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, display_name, full_name')
-        .in('id', clientIds);
+      // Filter orders where current user is executor
+      const userOrders = orders?.filter(order => order.executor_id === user?.id) || [];
 
-      // Fetch reviews separately  
-      const orderIds = orders?.map(order => order.id) || [];
-      const { data: reviews } = await supabase
-        .from('order_reviews')
-        .select('order_id, rating, comment')
-        .in('order_id', orderIds);
+      // Get client profiles for these orders
+      const clientIds = userOrders.map(order => order.client_id).filter(Boolean);
+      const clientProfiles = await Promise.all(
+        clientIds.map(async (clientId) => {
+          const { data } = await api.users.getById(clientId);
+          return data;
+        })
+      );
 
-      // Map profiles and reviews to orders
-      const ordersWithData = orders?.map(order => ({
+      // Get reviews for these orders
+      const orderIds = userOrders.map(order => order.id);
+      const reviewsData = await Promise.all(
+        orderIds.map(async (orderId) => {
+          const { data } = await api.reviews.getByTargetUserId(user?.id || '');
+          return data?.filter(review => review.transaction_id === orderId) || [];
+        })
+      );
+
+      // Combine data
+      const ordersWithData = userOrders.map((order, index) => ({
         ...order,
-        client: profiles?.find(p => p.id === order.client_id) || null,
-        reviews: reviews?.filter(r => r.order_id === order.id) || []
-      })) || [];
+        client: clientProfiles[index],
+        reviews: reviewsData[index] || []
+      }));
 
       setCompletedOrders(ordersWithData);
       
       // Calculate stats
-      const totalEarnings = ordersWithData?.reduce((sum, order) => sum + Number(order.price), 0) || 0;
-      const ratingsArray = ordersWithData?.flatMap(order => 
-        order.reviews?.map(review => review.rating) || []
-      ) || [];
-      const averageRating = ratingsArray.length > 0 
-        ? ratingsArray.reduce((sum, rating) => sum + rating, 0) / ratingsArray.length 
+      const totalEarnings = ordersWithData.reduce((sum, order) => sum + Number(order.price || 0), 0);
+      const allRatings = ordersWithData.flatMap(order => 
+        order.reviews.map(review => review.rating || 0)
+      ).filter(rating => rating > 0);
+      
+      const averageRating = allRatings.length > 0 
+        ? allRatings.reduce((sum, rating) => sum + rating, 0) / allRatings.length 
         : 0;
 
       setStats({
-        completedCount: ordersWithData?.length || 0,
+        completedCount: ordersWithData.length,
         totalEarnings,
         averageRating
       });
     } catch (error) {
-      console.error('Error fetching completed orders:', error);
+      handleError(error, { component: 'History', action: 'fetchCompletedOrders' });
     } finally {
       setLoading(false);
     }
@@ -127,7 +134,7 @@ const History = () => {
                     <div className="text-sm text-steel-400">Завершенных работ</div>
                   </div>
                   <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                    <TriangleAlert className="w-5 h-5 text-primary" />
+                    <CheckCircle className="w-5 h-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -139,7 +146,7 @@ const History = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-2xl font-bold text-primary mb-1">
-                      {loading ? "..." : `${stats.totalEarnings.toLocaleString('ru-RU')} GT`}
+                      {loading ? "..." : `${stats.totalEarnings.toLocaleString('ru-RU')}₽`}
                     </div>
                     <div className="text-sm text-steel-400">Общий доход</div>
                   </div>
@@ -189,7 +196,7 @@ const History = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-primary mb-1">
-                          {Number(order.price).toLocaleString('ru-RU')} GT
+                          {Number(order.price || 0).toLocaleString('ru-RU')}₽
                         </div>
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-4 h-4 text-steel-400" />
