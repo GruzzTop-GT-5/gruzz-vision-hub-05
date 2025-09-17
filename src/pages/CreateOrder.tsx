@@ -250,7 +250,8 @@ export default function CreateOrder() {
   }
 
   return (
-    <Layout user={user} userRole={userRole} onSignOut={signOut} onShowAuth={() => setShowAuth(true)}>
+    <AuthRequired>
+      <Layout user={user} userRole={userRole} onSignOut={signOut}>
       <div className="min-h-screen p-4">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
@@ -522,6 +523,7 @@ export default function CreateOrder() {
           </Card>
         </div>
       </div>
-    </Layout>
+     </Layout>
+   </AuthRequired>
   );
-}
+};

@@ -224,7 +224,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <Layout user={user} userRole={userRole} onSignOut={handleSignOut} onShowAuth={handleShowAuth}>
+      <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
         <div className="min-h-screen bg-background p-4 flex items-center justify-center">
           <div className="text-steel-300">Загрузка профиля...</div>
         </div>
@@ -238,7 +238,7 @@ const Profile = () => {
   }
 
   return (
-    <Layout user={user} userRole={userRole} onSignOut={handleSignOut} onShowAuth={handleShowAuth}>
+    <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
+import { AuthRequired } from '@/components/AuthRequired';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -99,21 +100,11 @@ const History = () => {
     ));
   };
 
-  if (!user) {
-    return (
-      <AnimatedBackground className="min-h-screen flex items-center justify-center">
-        <Card className="card-steel p-8 text-center">
-          <h2 className="text-2xl font-bold text-glow mb-4">Вход требуется</h2>
-          <p className="text-steel-400">Войдите в систему для просмотра истории работ</p>
-        </Card>
-      </AnimatedBackground>
-    );
-  }
-
   return (
-    <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <AnimatedBackground className="min-h-screen p-4">
-        <div className="max-w-4xl mx-auto">
+    <AuthRequired>
+      <Layout user={user} userRole={userRole} onSignOut={signOut}>
+        <AnimatedBackground className="min-h-screen p-4">
+          <div className="max-w-4xl mx-auto">
           <div className="flex items-center space-x-3 mb-6">
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-primary" />
@@ -246,7 +237,8 @@ const History = () => {
         </div>
       </AnimatedBackground>
     </Layout>
-  );
+  </AuthRequired>
+);
 };
 
 export default History;

@@ -2,6 +2,7 @@ import { lazy } from 'react';
 
 // Lazy loading всех страниц для оптимизации bundle size
 export const Index = lazy(() => import('@/pages/Index'));
+export const Auth = lazy(() => import('@/pages/Auth'));
 export const AvailableOrders = lazy(() => import('@/pages/AvailableOrders'));
 export const CreateOrder = lazy(() => import('@/pages/CreateOrder'));
 export const Orders = lazy(() => import('@/pages/Orders'));

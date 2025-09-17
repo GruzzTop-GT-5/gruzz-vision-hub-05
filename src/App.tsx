@@ -28,6 +28,7 @@ const App = () => (
       }>
         <Routes>
           <Route path="/" element={<Pages.Index />} />
+          <Route path="/auth" element={<Pages.Auth />} />
           <Route path="/balance" element={<Pages.Balance />} />
           <Route path="/rules" element={<Pages.Rules />} />
           <Route path="/ads" element={<Pages.Ads />} />

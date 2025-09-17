@@ -46,8 +46,19 @@ const Index = () => {
   }
 
   return (
-    <Layout user={user} userRole={userRole} onSignOut={signOut} onShowAuth={() => setShowAuth(true)}>
+    <Layout user={user} userRole={userRole} onSignOut={signOut}>
       <div className="p-4 space-y-6">
+        {/* Показать кнопку "Войти" если пользователь не авторизован */}
+        {!user && (
+          <div className="text-center mb-6">
+            <Link to="/auth">
+              <Button className="btn-3d px-8 py-3">
+                <User className="w-4 h-4 mr-2" />
+                Войти в аккаунт
+              </Button>
+            </Link>
+          </div>
+        )}
         {/* Header Section */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-glow">GruzzTop</h1>

@@ -1,57 +1,60 @@
-import React from 'react';
-import { Layout } from '@/components/Layout';
-import { AuthForm } from '@/components/AuthForm';
+import React, { ReactNode } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, ShieldAlert } from 'lucide-react';
+import { User, LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface AuthRequiredProps {
-  user?: any;
-  userRole?: string;
-  onSignOut?: () => void;
-  title?: string;
-  description?: string;
-  showAuthForm?: boolean;
-  onShowAuth?: () => void;
-  onAuthSuccess?: () => void;
-  onAuthBack?: () => void;
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
-export const AuthRequired: React.FC<AuthRequiredProps> = ({
-  user,
-  userRole,
-  onSignOut,
-  title = "Требуется авторизация",
-  description = "Для размещения заказов необходимо войти в систему",
-  showAuthForm = false,
-  onShowAuth,
-  onAuthSuccess,
-  onAuthBack
+export const AuthRequired: React.FC<AuthRequiredProps> = ({ 
+  children, 
+  fallback 
 }) => {
-  if (showAuthForm) {
-    return <AuthForm onSuccess={onAuthSuccess} onBack={onAuthBack} />;
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
-  return (
-    <Layout user={user} userRole={userRole} onSignOut={onSignOut} onShowAuth={onShowAuth}>
-      <div className="min-h-screen bg-background p-4 flex items-center justify-center">
-        <Card className="card-steel p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ShieldAlert className="w-8 h-8 text-yellow-400" />
+  if (!user) {
+    if (fallback) {
+      return <>{fallback}</>;
+    }
+
+    return (
+      <AnimatedBackground className="min-h-screen flex items-center justify-center p-4">
+        <Card className="card-steel p-8 text-center max-w-md w-full">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-electric-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <User className="w-8 h-8 text-steel-900" />
           </div>
           
-          <h1 className="text-2xl font-bold text-steel-100 mb-3">{title}</h1>
-          <p className="text-steel-400 mb-6">{description}</p>
+          <h2 className="text-2xl font-bold text-glow mb-4">
+            Требуется авторизация
+          </h2>
           
-          <Button 
-            className="btn-3d w-full"
-            onClick={onShowAuth}
-          >
-            <User className="w-4 h-4 mr-2" />
-            Войти в аккаунт
-          </Button>
+          <p className="text-steel-400 mb-6">
+            Войдите в систему для просмотра этой страницы
+          </p>
+          
+          <Link to="/auth">
+            <Button className="w-full btn-3d py-3 text-lg font-bold bg-gradient-to-r from-primary to-electric-600 text-steel-900">
+              <LogIn className="w-5 h-5 mr-2" />
+              Войти в аккаунт
+            </Button>
+          </Link>
         </Card>
-      </div>
-    </Layout>
-  );
+      </AnimatedBackground>
+    );
+  }
+
+  return <>{children}</>;
 };

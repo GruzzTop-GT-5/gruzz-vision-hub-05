@@ -3,7 +3,7 @@ import { User } from '@supabase/supabase-js';
 import { Menu, X, User as UserIcon, ShoppingBag, CreditCard, History, MessageCircle, FileText, Settings, LogOut, Megaphone, Search, Plus, Wallet, Package, Bell } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TelegramLayout } from './TelegramLayout';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -15,13 +15,13 @@ interface LayoutProps {
   user?: User | null;
   userRole?: string | null;
   onSignOut?: () => void;
-  onShowAuth?: () => void;
 }
 
-export const Layout = ({ children, user, userRole, onSignOut, onShowAuth }: LayoutProps) => {
+export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profileData, setProfileData] = useState<{ avatar_url?: string; telegram_photo_url?: string } | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { isInTelegram, hapticFeedback } = useTelegram();
   const { unreadCount } = useNotifications();
 
@@ -199,16 +199,14 @@ export const Layout = ({ children, user, userRole, onSignOut, onShowAuth }: Layo
                 <span>Выйти из аккаунта</span>
               </button>
             ) : (
-              <button
+              <Link
+                to="/auth"
                 className="w-full flex items-center space-x-3 p-3 text-left text-steel-300 hover:text-primary hover:bg-steel-700 rounded-lg transition-colors duration-200"
-                onClick={() => {
-                  onShowAuth?.();
-                  toggleMenu();
-                }}
+                onClick={toggleMenu}
               >
                 <UserIcon className="w-5 h-5" />
                 <span>Войти в аккаунт</span>
-              </button>
+              </Link>
             )}
           </div>
         </div>
