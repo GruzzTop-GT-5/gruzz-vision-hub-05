@@ -14,6 +14,8 @@ import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminReviewModeration } from '@/components/AdminReviewModeration';
 import { AdminTicketManagement } from '@/components/AdminTicketManagement';
 import { BanManagementSection } from '@/components/BanManagementSection';
+import { ContentModerationQueue } from '@/components/admin/ContentModerationQueue';
+import { AutoModerationRules } from '@/components/admin/AutoModerationRules';
 import { Navigate } from 'react-router-dom';
 
 export const AdminPanelNew = () => {
@@ -43,7 +45,7 @@ export const AdminPanelNew = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-11 bg-steel-800">
+            <TabsList className="grid w-full grid-cols-13 bg-steel-800 text-xs">
               <TabsTrigger value="dashboard">Дашборд</TabsTrigger>
               <TabsTrigger value="users">Пользователи</TabsTrigger>
               <TabsTrigger value="roles">Роли</TabsTrigger>
@@ -53,6 +55,8 @@ export const AdminPanelNew = () => {
               <TabsTrigger value="reviews">Отзывы</TabsTrigger>
               <TabsTrigger value="support">Поддержка</TabsTrigger>
               <TabsTrigger value="bans">Блокировки</TabsTrigger>
+              <TabsTrigger value="moderation">Модерация</TabsTrigger>
+              <TabsTrigger value="auto-rules">Авто-правила</TabsTrigger>
               <TabsTrigger value="security">Безопасность</TabsTrigger>
               <TabsTrigger value="settings">Настройки</TabsTrigger>
             </TabsList>
@@ -91,6 +95,14 @@ export const AdminPanelNew = () => {
 
             <TabsContent value="bans">
               <BanManagementSection />
+            </TabsContent>
+
+            <TabsContent value="moderation">
+              <ContentModerationQueue />
+            </TabsContent>
+
+            <TabsContent value="auto-rules">
+              <AutoModerationRules />
             </TabsContent>
 
             <TabsContent value="security">
