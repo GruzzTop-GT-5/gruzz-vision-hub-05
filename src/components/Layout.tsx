@@ -15,9 +15,10 @@ interface LayoutProps {
   user?: User | null;
   userRole?: string | null;
   onSignOut?: () => void;
+  onShowAuth?: () => void;
 }
 
-export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => {
+export const Layout = ({ children, user, userRole, onSignOut, onShowAuth }: LayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profileData, setProfileData] = useState<{ avatar_url?: string; telegram_photo_url?: string } | null>(null);
   const location = useLocation();
@@ -184,9 +185,9 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
             ))}
           </nav>
 
-          {/* Logout Button */}
-          {user && (
-            <div className="mt-8 pt-6 border-t border-steel-600">
+          {/* Login/Logout Button */}
+          <div className="mt-8 pt-6 border-t border-steel-600">
+            {user ? (
               <button
                 className="w-full flex items-center space-x-3 p-3 text-left text-steel-300 hover:text-red-400 hover:bg-steel-700 rounded-lg transition-colors duration-200"
                 onClick={() => {
@@ -197,8 +198,19 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
                 <LogOut className="w-5 h-5" />
                 <span>Выйти из аккаунта</span>
               </button>
-            </div>
-          )}
+            ) : (
+              <button
+                className="w-full flex items-center space-x-3 p-3 text-left text-steel-300 hover:text-primary hover:bg-steel-700 rounded-lg transition-colors duration-200"
+                onClick={() => {
+                  onShowAuth?.();
+                  toggleMenu();
+                }}
+              >
+                <UserIcon className="w-5 h-5" />
+                <span>Войти в аккаунт</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

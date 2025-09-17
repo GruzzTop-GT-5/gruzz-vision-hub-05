@@ -3,6 +3,7 @@ import { Layout } from '@/components/Layout';
 import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { AuthForm } from '@/components/AuthForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,10 +41,15 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handleShowAuth = () => {
+    setShowAuth(true);
   };
 
   // Load profile data
@@ -212,9 +218,13 @@ const Profile = () => {
     }
   };
 
+  if (showAuth) {
+    return <AuthForm onSuccess={() => setShowAuth(false)} onBack={() => setShowAuth(false)} />;
+  }
+
   if (loading) {
     return (
-      <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
+      <Layout user={user} userRole={userRole} onSignOut={handleSignOut} onShowAuth={handleShowAuth}>
         <div className="min-h-screen bg-background p-4 flex items-center justify-center">
           <div className="text-steel-300">Загрузка профиля...</div>
         </div>
@@ -228,7 +238,7 @@ const Profile = () => {
   }
 
   return (
-    <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
+    <Layout user={user} userRole={userRole} onSignOut={handleSignOut} onShowAuth={handleShowAuth}>
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthRequired } from '@/components/AuthRequired';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +57,7 @@ export default function CreateOrder() {
   const { user, userRole, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [showAuth, setShowAuth] = useState(false);
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [priorityCosts, setPriorityCosts] = useState({ normal: 15, high: 35, urgent: 55 });
@@ -249,7 +251,7 @@ export default function CreateOrder() {
   }
 
   return (
-    <Layout user={user} userRole={userRole} onSignOut={signOut}>
+    <Layout user={user} userRole={userRole} onSignOut={signOut} onShowAuth={() => setShowAuth(true)}>
       <div className="min-h-screen p-4">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="flex items-center justify-between">

@@ -35,7 +35,7 @@ const Index = () => {
   }
 
   return (
-    <Layout user={user} userRole={userRole} onSignOut={signOut}>
+    <Layout user={user} userRole={userRole} onSignOut={signOut} onShowAuth={() => setShowAuth(true)}>
       <div className="p-4 space-y-6">
         {/* Header Section */}
         <div className="text-center space-y-4">
