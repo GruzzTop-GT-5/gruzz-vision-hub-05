@@ -44,64 +44,64 @@ interface NavigationItem {
 }
 
 const navigationSections = {
-  main: [
+  work: [
     {
       id: 'home',
       title: 'Главная',
       icon: <Home className="w-5 h-5" />,
       path: '/',
-      description: 'Домашняя страница'
-    },
-    {
-      id: 'orders',
-      title: 'Заказы',
-      icon: <Package className="w-5 h-5" />,
-      path: '/orders',
-      description: 'Мои заказы и задания'
+      description: 'Главная страница платформы'
     },
     {
       id: 'available-orders',
-      title: 'Доступные заказы',
+      title: 'Найти работу',
       icon: <Search className="w-5 h-5" />,
       path: '/available-orders',
-      description: 'Найти работу'
+      description: 'Доступные задания и заказы'
     },
     {
       id: 'create-order',
-      title: 'Создать заказ',
+      title: 'Найти исполнителя',
       icon: <Plus className="w-5 h-5" />,
       path: '/create-order',
-      description: 'Разместить задание'
+      description: 'Разместить задание для специалистов'
+    },
+    {
+      id: 'orders',
+      title: 'Мои задания',
+      icon: <Package className="w-5 h-5" />,
+      path: '/orders',
+      description: 'Активные и завершенные задания'
     }
   ],
   services: [
     {
       id: 'ads',
-      title: 'Объявления',
+      title: 'Услуги специалистов',
       icon: <FileText className="w-5 h-5" />,
       path: '/ads',
-      description: 'Просмотр объявлений'
+      description: 'Каталог услуг и мастеров'
     },
     {
       id: 'my-ads',
-      title: 'Мои объявления',
+      title: 'Мои услуги',
       icon: <Eye className="w-5 h-5" />,
       path: '/my-ads',
-      description: 'Управление объявлениями'
+      description: 'Мои объявления о услугах'
     },
     {
       id: 'create-ad',
-      title: 'Создать объявление',
+      title: 'Разместить услугу',
       icon: <Plus className="w-5 h-5" />,
       path: '/create-ad',
-      description: 'Разместить объявление'
+      description: 'Добавить свою услугу'
     },
     {
       id: 'chat',
-      title: 'Чат',
+      title: 'Сообщения',
       icon: <MessageSquare className="w-5 h-5" />,
       path: '/chat',
-      description: 'Сообщения и поддержка',
+      description: 'Переписка с заказчиками',
       badge: 3
     }
   ],
@@ -333,8 +333,8 @@ export const NavigationMenu = () => {
               )}
 
               {/* Основные разделы */}
-              <NavigationSection title="Основное" items={navigationSections.main} />
-              <NavigationSection title="Сервисы" items={navigationSections.services} />
+              <NavigationSection title="Работа" items={navigationSections.work} />
+              <NavigationSection title="Услуги" items={navigationSections.services} />
               <NavigationSection title="Профиль" items={navigationSections.profile} />
               
               {/* Админ-панель (только для администраторов) */}
