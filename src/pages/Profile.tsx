@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,18 +34,27 @@ interface ProfileData {
 
 const Profile = () => {
   const { user, userRole, signOut } = useAuth();
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState<ProfileData>({});
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   // Load profile data
   useEffect(() => {
     if (user?.id) {
       loadProfile();
+    } else if (!loading) {
+      // Если пользователь не авторизован, перенаправляем на главную
+      navigate('/');
     }
-  }, [user?.id]);
+  }, [user?.id, loading, navigate]);
 
   const loadProfile = async () => {
     if (!user?.id) return;
@@ -204,7 +214,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <Layout user={user} userRole={userRole} onSignOut={signOut}>
+      <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
         <div className="min-h-screen bg-background p-4 flex items-center justify-center">
           <div className="text-steel-300">Загрузка профиля...</div>
         </div>
@@ -212,8 +222,13 @@ const Profile = () => {
     );
   }
 
+  // Если пользователь не авторизован, не показываем ничего (произойдет редирект)
+  if (!user) {
+    return null;
+  }
+
   return (
-    <Layout user={user} userRole={userRole} onSignOut={signOut}>
+    <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
