@@ -13,6 +13,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 const Index = () => {
   const { user, userRole, loading, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
@@ -27,6 +28,16 @@ const Index = () => {
       <AnimatedBackground className="min-h-screen flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </AnimatedBackground>
+    );
+  }
+
+  
+  // Показываем приветственный экран при первом посещении
+  if (showWelcome && !user) {
+    return (
+      <WelcomeScreen 
+        onGetStarted={() => setShowWelcome(false)} 
+      />
     );
   }
 
