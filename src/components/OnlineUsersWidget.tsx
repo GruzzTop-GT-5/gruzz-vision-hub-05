@@ -55,10 +55,10 @@ export const OnlineUsersWidget = ({ onStartChat }: OnlineUsersWidgetProps) => {
         updateOnlineUsers(state);
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('User joined:', key, newPresences);
+        // User joined
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('User left:', key, leftPresences);
+        // User left
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {

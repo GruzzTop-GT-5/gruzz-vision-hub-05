@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { VoiceCallModal } from '@/components/VoiceCallModal';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -61,7 +61,7 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isVoiceCallOpen, setIsVoiceCallOpen] = useState(false);
+  
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -336,13 +336,6 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
             <Button 
               size="sm" 
               variant="ghost"
-              onClick={() => setIsVoiceCallOpen(true)}
-            >
-              <Phone className="w-4 h-4" />
-            </Button>
-            <Button 
-              size="sm" 
-              variant="ghost"
               onClick={() => setIsVideoCallOpen(true)}
             >
               <Video className="w-4 h-4" />
@@ -438,13 +431,6 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
         </div>
       </Card>
       
-      <VoiceCallModal
-        isOpen={isVoiceCallOpen}
-        onClose={() => setIsVoiceCallOpen(false)}
-        recipientName="Пользователь"
-        onAccept={() => console.log('Call accepted')}
-        onDecline={() => console.log('Call declined')}
-      />
     </>
   );
 };

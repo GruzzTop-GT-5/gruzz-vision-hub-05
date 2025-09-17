@@ -198,7 +198,6 @@ export default function CreateOrder() {
           await supabase.functions.invoke('notify-urgent-order', {
             body: { orderId: orderData.id }
           });
-          console.log('Urgent order notification sent to Telegram');
         } catch (notificationError) {
           console.error('Error sending Telegram notification:', notificationError);
           // Don't block order creation if notification fails

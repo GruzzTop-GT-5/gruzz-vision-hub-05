@@ -322,10 +322,10 @@ export default function AdminPanel() {
         setOnlineUserIds(onlineIds);
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('User joined:', key, newPresences);
+        // User joined
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('User left:', key, leftPresences);
+        // User left
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -353,7 +353,6 @@ export default function AdminPanel() {
         schema: 'public',
         table: 'transactions',
       }, (payload) => {
-        console.log('Transaction change:', payload);
         fetchTransactions();
         fetchDashboardStats();
         
@@ -373,7 +372,6 @@ export default function AdminPanel() {
         schema: 'public',
         table: 'ads',
       }, (payload) => {
-        console.log('Ad change:', payload);
         fetchAds();
         fetchDashboardStats();
         
@@ -393,7 +391,6 @@ export default function AdminPanel() {
         schema: 'public',
         table: 'profiles',
       }, (payload) => {
-        console.log('Profile change:', payload);
         fetchUsers();
         fetchDashboardStats();
         
@@ -1017,9 +1014,6 @@ export default function AdminPanel() {
 
   const moderateAd = async (adId: string, status: string) => {
     try {
-      console.log('Moderating ad:', adId, 'to status:', status);
-      console.log('User role:', userRole, 'User ID:', user?.id);
-      
       const { error } = await supabase
         .from('ads')
         .update({ status: status as any })
@@ -1029,8 +1023,6 @@ export default function AdminPanel() {
         console.error('Supabase error:', error);
         throw error;
       }
-
-      console.log('Ad moderation successful');
 
       // Log admin action
       await logAdminAction(`Модерация объявления - статус: ${status}`, adId, 'ad');
@@ -1056,8 +1048,6 @@ export default function AdminPanel() {
 
   const deleteOrder = async (orderId: string) => {
     try {
-      console.log('Deleting order:', orderId);
-      
       const { error } = await supabase
         .from('orders')
         .delete()
@@ -1067,8 +1057,6 @@ export default function AdminPanel() {
         console.error('Supabase error:', error);
         throw error;
       }
-
-      console.log('Order deletion successful');
 
       // Log admin action
       await logAdminAction(`Удаление заказа`, orderId, 'order');
@@ -1093,8 +1081,6 @@ export default function AdminPanel() {
 
   const deleteAd = async (adId: string, reason: string) => {
     try {
-      console.log('Deleting ad:', adId, 'reason:', reason);
-      
       // First update the ad status to inactive and add the reason
       const { error: updateError } = await supabase
         .from('ads')
@@ -1110,8 +1096,6 @@ export default function AdminPanel() {
         console.error('Supabase update error:', updateError);
         throw updateError;
       }
-
-      console.log('Ad deletion successful');
 
       // Log admin action with reason
       await logAdminAction(`Удаление объявления. Причина: ${reason}`, adId, 'ad');
@@ -1170,9 +1154,6 @@ export default function AdminPanel() {
 
   const moderateOrder = async (orderId: string, status: string, reason?: string) => {
     try {
-      console.log('Moderating order:', orderId, 'to status:', status, 'reason:', reason);
-      console.log('User role:', userRole, 'User ID:', user?.id);
-      
       const updateData: any = { status };
       if (reason) {
         updateData.admin_notes = reason;
@@ -1187,8 +1168,6 @@ export default function AdminPanel() {
         console.error('Supabase error:', error);
         throw error;
       }
-
-      console.log('Order moderation successful');
 
       // Log admin action
       await logAdminAction(`Модерация заказа - статус: ${status}`, orderId, 'order');
@@ -1714,10 +1693,9 @@ export default function AdminPanel() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => {
-                                  console.log('Approving ad:', ad.id);
-                                  moderateAd(ad.id, 'active');
-                                }}
+                onClick={() => {
+                  moderateAd(ad.id, 'active');
+                }}
                                 className="text-green-400 border-green-400/20 hover:bg-green-400/10"
                                 title="Одобрить объявление"
                               >
@@ -1728,10 +1706,9 @@ export default function AdminPanel() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => {
-                                  console.log('Rejecting ad:', ad.id);
-                                  moderateAd(ad.id, 'inactive');
-                                }}
+                onClick={() => {
+                  moderateAd(ad.id, 'inactive');
+                }}
                                 className="text-red-400 border-red-400/20 hover:bg-red-400/10"
                                 title="Отклонить объявление"
                               >
