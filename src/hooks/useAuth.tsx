@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -15,6 +16,7 @@ export const useAuth = (): AuthContextType => {
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -72,6 +74,8 @@ export const useAuth = (): AuthContextType => {
     setUser(null);
     setSession(null);
     setUserRole(null);
+    // Перенаправляем на главную страницу после выхода
+    navigate('/');
   };
 
   return {
