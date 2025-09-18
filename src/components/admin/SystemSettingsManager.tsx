@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Settings, Save, RefreshCw, AlertTriangle, Info, DollarSign, 
   Shield, Users, Bell, HelpCircle, ShieldCheck, Clock, MessageSquare, Database, Zap
-} from 'lucide-react';
+ } from 'lucide-react';
+import { PromoCodeManagement } from './PromoCodeManagement';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

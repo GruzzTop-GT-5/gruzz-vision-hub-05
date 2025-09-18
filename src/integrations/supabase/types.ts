@@ -716,6 +716,81 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_code_usage: {
+        Row: {
+          bonus_received: number
+          id: string
+          promo_code_id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          bonus_received: number
+          id?: string
+          promo_code_id: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          bonus_received?: number
+          id?: string
+          promo_code_id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          bonus_amount: number
+          code: string
+          created_at: string
+          created_by: string
+          description: string | null
+          distribution_method: string | null
+          expires_at: string
+          id: string
+          is_active: boolean
+          name: string
+          target_audience: Json | null
+          updated_at: string
+          usage_count: number
+          usage_limit: number | null
+        }
+        Insert: {
+          bonus_amount?: number
+          code: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          distribution_method?: string | null
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          name: string
+          target_audience?: Json | null
+          updated_at?: string
+          usage_count?: number
+          usage_limit?: number | null
+        }
+        Update: {
+          bonus_amount?: number
+          code?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          distribution_method?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          target_audience?: Json | null
+          updated_at?: string
+          usage_count?: number
+          usage_limit?: number | null
+        }
+        Relationships: []
+      }
       resumes: {
         Row: {
           availability: string | null
@@ -1275,6 +1350,10 @@ export type Database = {
       register_user: {
         Args: { password_input: string; phone_input: string; user_data?: Json }
         Returns: string
+      }
+      use_promo_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: Json
       }
       verify_password: {
         Args: { password_input: string; phone_input: string }

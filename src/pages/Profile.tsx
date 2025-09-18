@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { UserRatingDisplay } from '@/components/UserRatingDisplay';
+import { PromoCodeSection } from '@/components/PromoCodeSection';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/AuthForm';
@@ -511,6 +512,9 @@ const Profile = () => {
 
             {/* Статистика */}
             <div className="space-y-6">
+              {/* Промокод */}
+              <PromoCodeSection />
+
               <Card className="card-steel">
                 <CardHeader>
                   <CardTitle className="text-steel-100">Статистика</CardTitle>
