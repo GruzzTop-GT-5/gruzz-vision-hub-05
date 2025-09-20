@@ -24,6 +24,7 @@ import { AutoModerationRules } from '@/components/admin/AutoModerationRules';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { PerformanceMonitor } from '@/components/admin/PerformanceMonitor';
 import { NotificationCenter } from '@/components/admin/NotificationCenter';
+import { PromoCodeManagement } from '@/components/admin/PromoCodeManagement';
 import { Navigate } from 'react-router-dom';
 import {
   Activity,
@@ -45,7 +46,8 @@ import {
   Clock,
   HelpCircle,
   ArrowLeft,
-  DollarSign
+  DollarSign,
+  Percent
 } from 'lucide-react';
 
 interface AdminModule {
@@ -358,6 +360,16 @@ export const AdminPanelNew = () => {
       color: 'text-pink-400',
       bgColor: 'from-pink-500/10 to-pink-600/20 border-pink-500/30 hover:border-pink-400/50',
       component: <NotificationCenter />,
+      roles: ['admin', 'system_admin']
+    },
+    {
+      id: 'promo-codes',
+      title: '🎁 Промокоды',
+      description: 'Создание и управление промокодами для пользователей',
+      icon: <Percent className="w-8 h-8" />,
+      color: 'text-violet-400',
+      bgColor: 'from-violet-500/10 to-violet-600/20 border-violet-500/30 hover:border-violet-400/50',
+      component: <PromoCodeManagement />,
       roles: ['admin', 'system_admin']
     },
     {
