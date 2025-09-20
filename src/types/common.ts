@@ -41,6 +41,15 @@ export interface Order {
   admin_priority_override?: string | null;
   admin_modified_by?: string | null;
   admin_modified_at?: string | null;
+  service_type?: string;
+  work_type?: string;
+  waste_type?: string;
+  waste_volume?: string;
+  needs_loading?: boolean;
+  rental_duration_hours?: number;
+  additional_equipment?: string[];
+  equipment_details?: any;
+  waste_details?: any;
 }
 
 export interface Transaction {

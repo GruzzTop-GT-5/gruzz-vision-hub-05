@@ -542,6 +542,7 @@ export type Database = {
       orders: {
         Row: {
           ad_id: string | null
+          additional_equipment: string[] | null
           admin_modified_at: string | null
           admin_modified_by: string | null
           admin_priority_override: string | null
@@ -556,6 +557,7 @@ export type Database = {
           delivery_format: string | null
           description: string | null
           end_time: string | null
+          equipment_details: Json | null
           escrow_amount: number | null
           executor_id: string | null
           executor_proposal: Json | null
@@ -564,6 +566,7 @@ export type Database = {
           is_auto_closed: boolean | null
           is_expired: boolean | null
           max_revisions: number | null
+          needs_loading: boolean | null
           order_number: string
           payment_method: string | null
           payment_status: string | null
@@ -572,14 +575,21 @@ export type Database = {
           platform_fee: number | null
           price: number
           priority: string | null
+          rental_duration_hours: number | null
           revision_count: number | null
+          service_type: string | null
           start_time: string | null
           status: string
           title: string
           updated_at: string
+          waste_details: Json | null
+          waste_type: string | null
+          waste_volume: string | null
+          work_type: string | null
         }
         Insert: {
           ad_id?: string | null
+          additional_equipment?: string[] | null
           admin_modified_at?: string | null
           admin_modified_by?: string | null
           admin_priority_override?: string | null
@@ -594,6 +604,7 @@ export type Database = {
           delivery_format?: string | null
           description?: string | null
           end_time?: string | null
+          equipment_details?: Json | null
           escrow_amount?: number | null
           executor_id?: string | null
           executor_proposal?: Json | null
@@ -602,6 +613,7 @@ export type Database = {
           is_auto_closed?: boolean | null
           is_expired?: boolean | null
           max_revisions?: number | null
+          needs_loading?: boolean | null
           order_number: string
           payment_method?: string | null
           payment_status?: string | null
@@ -610,14 +622,21 @@ export type Database = {
           platform_fee?: number | null
           price: number
           priority?: string | null
+          rental_duration_hours?: number | null
           revision_count?: number | null
+          service_type?: string | null
           start_time?: string | null
           status?: string
           title: string
           updated_at?: string
+          waste_details?: Json | null
+          waste_type?: string | null
+          waste_volume?: string | null
+          work_type?: string | null
         }
         Update: {
           ad_id?: string | null
+          additional_equipment?: string[] | null
           admin_modified_at?: string | null
           admin_modified_by?: string | null
           admin_priority_override?: string | null
@@ -632,6 +651,7 @@ export type Database = {
           delivery_format?: string | null
           description?: string | null
           end_time?: string | null
+          equipment_details?: Json | null
           escrow_amount?: number | null
           executor_id?: string | null
           executor_proposal?: Json | null
@@ -640,6 +660,7 @@ export type Database = {
           is_auto_closed?: boolean | null
           is_expired?: boolean | null
           max_revisions?: number | null
+          needs_loading?: boolean | null
           order_number?: string
           payment_method?: string | null
           payment_status?: string | null
@@ -648,11 +669,17 @@ export type Database = {
           platform_fee?: number | null
           price?: number
           priority?: string | null
+          rental_duration_hours?: number | null
           revision_count?: number | null
+          service_type?: string | null
           start_time?: string | null
           status?: string
           title?: string
           updated_at?: string
+          waste_details?: Json | null
+          waste_type?: string | null
+          waste_volume?: string | null
+          work_type?: string | null
         }
         Relationships: []
       }
@@ -1303,6 +1330,10 @@ export type Database = {
       }
       generate_order_number: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_order_number_with_type: {
+        Args: { p_service_type?: string }
         Returns: string
       }
       generate_payment_details: {

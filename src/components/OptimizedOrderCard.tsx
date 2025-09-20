@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Wrench, Truck, Package, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Clock, User, DollarSign, MapPin, Calendar } from 'lucide-react';
 import { formatRubles } from '@/utils/currency';
@@ -75,6 +76,19 @@ export const OptimizedOrderCard = memo<OptimizedOrderCardProps>(({
   const isOwner = useMemo(() => currentUserId === order.client_id, [currentUserId, order.client_id]);
   const isExecutor = useMemo(() => currentUserId === order.executor_id, [currentUserId, order.executor_id]);
 
+  const getServiceIcon = useMemo(() => {
+    switch (order.service_type) {
+      case 'compressor_rent':
+        return <Wrench className="w-4 h-4 text-orange-400" />;
+      case 'garbage_removal':
+        return <Truck className="w-4 h-4 text-green-400" />;
+      case 'complex_service':
+        return <Package className="w-4 h-4 text-purple-400" />;
+      default:
+        return <Users className="w-4 h-4 text-blue-400" />;
+    }
+  }, [order.service_type]);
+
   const handleClick = useMemo(() => {
     return onOrderClick ? () => onOrderClick(order) : undefined;
   }, [onOrderClick, order]);
@@ -87,6 +101,7 @@ export const OptimizedOrderCard = memo<OptimizedOrderCardProps>(({
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
+            {getServiceIcon}
             <h3 className="font-semibold text-steel-100 line-clamp-1">{order.title}</h3>
             {statusBadge}
             {priorityBadge}

@@ -6,14 +6,22 @@ import { LegalFooter } from '@/components/LegalFooter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, Search, Filter, Calendar, User, Settings } from 'lucide-react';
+import { Plus, Search, Filter, Calendar, User, Settings, Wrench, Truck, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
+import { CreateOrderModal } from '@/components/CreateOrderModal';
+import { CreateCompressorRentModal } from '@/components/CreateCompressorRentModal';
+import { CreateGarbageRemovalModal } from '@/components/CreateGarbageRemovalModal';
+import { CreateComplexServiceModal } from '@/components/CreateComplexServiceModal';
 
 const Index = () => {
   const { user, userRole, loading, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showCreateOrder, setShowCreateOrder] = useState(false);
+  const [showCompressorRent, setShowCompressorRent] = useState(false);
+  const [showGarbageRemoval, setShowGarbageRemoval] = useState(false);
+  const [showComplexService, setShowComplexService] = useState(false);
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
@@ -75,6 +83,108 @@ const Index = () => {
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-glow">GruzzTop</h1>
           <p className="text-steel-300">Платформа для поиска специалистов и разнорабочих</p>
+        </div>
+
+        {/* Main Services */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-center">Наши услуги</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {user ? (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowCreateOrder(true)}
+              >
+                <User className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">👷 Заказать Грузчиков</div>
+                  <div className="text-sm opacity-70">Профессиональные грузчики</div>
+                </div>
+              </Button>
+            ) : (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowAuth(true)}
+              >
+                <User className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">👷 Заказать Грузчиков</div>
+                  <div className="text-sm opacity-70">Профессиональные грузчики</div>
+                </div>
+              </Button>
+            )}
+
+            {user ? (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowCompressorRent(true)}
+              >
+                <Wrench className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">🔨 Аренда Компрессора</div>
+                  <div className="text-sm opacity-70">Компрессорное оборудование</div>
+                </div>
+              </Button>
+            ) : (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowAuth(true)}
+              >
+                <Wrench className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">🔨 Аренда Компрессора</div>
+                  <div className="text-sm opacity-70">Компрессорное оборудование</div>
+                </div>
+              </Button>
+            )}
+
+            {user ? (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowGarbageRemoval(true)}
+              >
+                <Truck className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">🚛 Вывоз Мусора</div>
+                  <div className="text-sm opacity-70">Строительный и бытовой мусор</div>
+                </div>
+              </Button>
+            ) : (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowAuth(true)}
+              >
+                <Truck className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">🚛 Вывоз Мусора</div>
+                  <div className="text-sm opacity-70">Строительный и бытовой мусор</div>
+                </div>
+              </Button>
+            )}
+
+            {user ? (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowComplexService(true)}
+              >
+                <Package className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">🧩 Заказать Всё Вместе</div>
+                  <div className="text-sm opacity-70">Комплексные услуги</div>
+                </div>
+              </Button>
+            ) : (
+              <Button 
+                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowAuth(true)}
+              >
+                <Package className="w-8 h-8" />
+                <div>
+                  <div className="font-bold">🧩 Заказать Всё Вместе</div>
+                  <div className="text-sm opacity-70">Комплексные услуги</div>
+                </div>
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Quick Actions */}
@@ -213,6 +323,32 @@ const Index = () => {
         {/* Legal Footer */}
         <LegalFooter />
       </div>
+
+      {/* Service Modals */}
+      <CreateOrderModal
+        isOpen={showCreateOrder}
+        onClose={() => setShowCreateOrder(false)}
+        onOrderCreated={() => setShowCreateOrder(false)}
+      />
+
+      <CreateCompressorRentModal
+        isOpen={showCompressorRent}
+        onClose={() => setShowCompressorRent(false)}
+      />
+
+      <CreateGarbageRemovalModal
+        isOpen={showGarbageRemoval}
+        onClose={() => setShowGarbageRemoval(false)}
+        onNeedsWorkers={() => {
+          setShowGarbageRemoval(false);
+          setShowCreateOrder(true);
+        }}
+      />
+
+      <CreateComplexServiceModal
+        isOpen={showComplexService}
+        onClose={() => setShowComplexService(false)}
+      />
     </Layout>
   );
 };
