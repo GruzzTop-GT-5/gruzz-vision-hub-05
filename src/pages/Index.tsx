@@ -87,8 +87,8 @@ const Index = () => {
 
         {/* Main Services */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-center">Наши услуги</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <h2 className="text-xl font-bold text-center">Заказать услуги</h2>
+          <div className="grid md:grid-cols-2 gap-4">
             {user ? (
               <Button 
                 className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
@@ -116,60 +116,12 @@ const Index = () => {
             {user ? (
               <Button 
                 className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowCompressorRent(true)}
-              >
-                <Wrench className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">🔨 Аренда Компрессора</div>
-                  <div className="text-sm opacity-70">Компрессорное оборудование</div>
-                </div>
-              </Button>
-            ) : (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowAuth(true)}
-              >
-                <Wrench className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">🔨 Аренда Компрессора</div>
-                  <div className="text-sm opacity-70">Компрессорное оборудование</div>
-                </div>
-              </Button>
-            )}
-
-            {user ? (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowGarbageRemoval(true)}
-              >
-                <Truck className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">🚛 Вывоз Мусора</div>
-                  <div className="text-sm opacity-70">Строительный и бытовой мусор</div>
-                </div>
-              </Button>
-            ) : (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowAuth(true)}
-              >
-                <Truck className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">🚛 Вывоз Мусора</div>
-                  <div className="text-sm opacity-70">Строительный и бытовой мусор</div>
-                </div>
-              </Button>
-            )}
-
-            {user ? (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
                 onClick={() => setShowComplexService(true)}
               >
                 <Package className="w-8 h-8" />
                 <div>
                   <div className="font-bold">🧩 Заказать Всё Вместе</div>
-                  <div className="text-sm opacity-70">Комплексные услуги</div>
+                  <div className="text-sm opacity-70">Грузчики + Компрессор + Вывоз</div>
                 </div>
               </Button>
             ) : (
@@ -180,15 +132,66 @@ const Index = () => {
                 <Package className="w-8 h-8" />
                 <div>
                   <div className="font-bold">🧩 Заказать Всё Вместе</div>
-                  <div className="text-sm opacity-70">Комплексные услуги</div>
+                  <div className="text-sm opacity-70">Грузчики + Компрессор + Вывоз</div>
+                </div>
+              </Button>
+            )}
+          </div>
+          
+          {/* Additional Services */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {user ? (
+              <Button 
+                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowCompressorRent(true)}
+              >
+                <Wrench className="w-6 h-6" />
+                <div>
+                  <div className="font-semibold text-sm">🔨 Аренда Компрессора</div>
+                  <div className="text-xs opacity-70">Компрессорное оборудование</div>
+                </div>
+              </Button>
+            ) : (
+              <Button 
+                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowAuth(true)}
+              >
+                <Wrench className="w-6 h-6" />
+                <div>
+                  <div className="font-semibold text-sm">🔨 Аренда Компрессора</div>
+                  <div className="text-xs opacity-70">Компрессорное оборудование</div>
+                </div>
+              </Button>
+            )}
+
+            {user ? (
+              <Button 
+                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowGarbageRemoval(true)}
+              >
+                <Truck className="w-6 h-6" />
+                <div>
+                  <div className="font-semibold text-sm">🚛 Вывоз Мусора</div>
+                  <div className="text-xs opacity-70">Строительный и бытовой</div>
+                </div>
+              </Button>
+            ) : (
+              <Button 
+                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
+                onClick={() => setShowAuth(true)}
+              >
+                <Truck className="w-6 h-6" />
+                <div>
+                  <div className="font-semibold text-sm">🚛 Вывоз Мусора</div>
+                  <div className="text-xs opacity-70">Строительный и бытовой</div>
                 </div>
               </Button>
             )}
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Navigation Actions */}
+        <div className="grid md:grid-cols-3 gap-4">
           {user ? (
             <Link to="/orders">
               <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">

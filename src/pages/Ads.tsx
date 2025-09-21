@@ -43,6 +43,7 @@ interface Order {
   escrow_amount: number | null;
   commission_rate: number;
   platform_fee: number | null;
+  service_type?: string;
 }
 
 interface Profile {
@@ -73,6 +74,14 @@ const categories = [
   'Другое'
 ];
 
+const serviceTypes = [
+  'Все типы',
+  'Грузчики',
+  'Аренда компрессора',
+  'Вывоз мусора',
+  'Комплексные услуги'
+];
+
 const sortOptions = [
   { value: 'newest', label: 'Сначала новые' },
   { value: 'oldest', label: 'Сначала старые' },
@@ -87,6 +96,7 @@ export default function Ads() {
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Все категории');
+  const [selectedServiceType, setSelectedServiceType] = useState('Все типы');
   const [sortBy, setSortBy] = useState('newest');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -98,7 +108,7 @@ export default function Ads() {
 
   useEffect(() => {
     filterAndSortOrders();
-  }, [orders, searchQuery, selectedCategory, sortBy]);
+  }, [orders, searchQuery, selectedCategory, selectedServiceType, sortBy]);
 
   const fetchOrders = async () => {
     try {
@@ -155,6 +165,25 @@ export default function Ads() {
       filtered = filtered.filter(order => order.category === selectedCategory);
     }
 
+    // Service type filter
+    if (selectedServiceType !== 'Все типы') {
+      filtered = filtered.filter(order => {
+        const serviceType = order.service_type || 'workers';
+        switch (selectedServiceType) {
+          case 'Грузчики':
+            return serviceType === 'workers';
+          case 'Аренда компрессора':
+            return serviceType === 'compressor_rent';
+          case 'Вывоз мусора':
+            return serviceType === 'garbage_removal';
+          case 'Комплексные услуги':
+            return serviceType === 'complex_service';
+          default:
+            return true;
+        }
+      });
+    }
+
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -175,10 +204,11 @@ export default function Ads() {
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedCategory('Все категории');
+    setSelectedServiceType('Все типы');
     setSortBy('newest');
   };
 
-  const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== 'Все категории' || sortBy !== 'newest';
+  const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== 'Все категории' || selectedServiceType !== 'Все типы' || sortBy !== 'newest';
 
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
@@ -276,7 +306,7 @@ export default function Ads() {
           <Card className="card-steel p-4">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="grid md:grid-cols-3 gap-4 flex-1">
+                <div className="grid md:grid-cols-4 gap-4 flex-1">
                   {/* Search */}
                   <div className="relative md:col-span-2">
                     <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
@@ -288,15 +318,29 @@ export default function Ads() {
                     />
                   </div>
 
+                  {/* Service Type Filter */}
+                  <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Тип услуги" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {serviceTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                   {/* Category Filter */}
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Все категории работ" />
+                      <SelectValue placeholder="Категория" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category === 'Все категории' ? 'Все категории работ' : category}
+                          {category === 'Все категории' ? 'Все категории' : category}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -312,7 +356,7 @@ export default function Ads() {
                     <X className="w-4 h-4 mr-2" />
                     Сбросить
                     <Badge className="ml-2 bg-primary/20 text-primary border-primary/20">
-                      {[searchQuery.trim() !== '', selectedCategory !== 'Все категории', sortBy !== 'newest'].filter(Boolean).length}
+                      {[searchQuery.trim() !== '', selectedCategory !== 'Все категории', selectedServiceType !== 'Все типы', sortBy !== 'newest'].filter(Boolean).length}
                     </Badge>
                   </Button>
                 )}
@@ -392,10 +436,18 @@ export default function Ads() {
                         {order.description || 'Описание не указано'}
                       </p>
 
-                      {/* Category */}
-                      <div className="flex items-center space-x-2 text-sm text-steel-400">
-                        <Package className="w-4 h-4" />
-                        <span>{order.category || 'Не указано'}</span>
+                      {/* Service Type & Category */}
+                      <div className="flex items-center justify-between text-sm text-steel-400">
+                        <div className="flex items-center space-x-2">
+                          <Package className="w-4 h-4" />
+                          <span>{order.category || 'Не указано'}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          {order.service_type === 'compressor_rent' && <span>🔨</span>}
+                          {order.service_type === 'garbage_removal' && <span>🚛</span>}
+                          {order.service_type === 'complex_service' && <span>🧩</span>}
+                          {(!order.service_type || order.service_type === 'workers') && <span>👷</span>}
+                        </div>
                       </div>
 
                       {/* Client Info */}
