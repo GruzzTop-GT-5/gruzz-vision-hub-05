@@ -379,6 +379,25 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
           <p className="text-steel-200 line-clamp-3">{order.description}</p>
         )}
 
+        {/* Additional Services */}
+        {order.client_requirements?.additional_services && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-steel-300">Дополнительные услуги:</h4>
+            <div className="flex flex-wrap gap-2">
+              {order.client_requirements.additional_services.compressor_rent?.enabled && (
+                <Badge variant="outline" className="text-xs">
+                  🔨 Аренда компрессора ({order.client_requirements.additional_services.compressor_rent.hours + order.client_requirements.additional_services.compressor_rent.delivery_hours}ч)
+                </Badge>
+              )}
+              {order.client_requirements.additional_services.garbage_removal?.enabled && (
+                <Badge variant="outline" className="text-xs">
+                  🚛 Вывоз мусора ({order.client_requirements.additional_services.garbage_removal.volume})
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Participants */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">

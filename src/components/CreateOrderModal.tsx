@@ -68,6 +68,22 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       location: '',
       additional_notes: '',
       preferred_communication: 'chat'
+    },
+    // Дополнительные услуги
+    additional_services: {
+      compressor_rent: {
+        enabled: false,
+        hours: 8,
+        delivery_hours: 1,
+        work_type: '',
+        equipment: [] as string[]
+      },
+      garbage_removal: {
+        enabled: false,
+        waste_type: '',
+        volume: '',
+        needs_loading: false
+      }
     }
   });
 
@@ -223,7 +239,8 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             people_needed: orderData.people_needed,
             specifications: sanitizeInput(orderData.client_requirements.specifications),
             location: sanitizeInput(orderData.client_requirements.location),
-            additional_notes: sanitizeInput(orderData.client_requirements.additional_notes)
+            additional_notes: sanitizeInput(orderData.client_requirements.additional_notes),
+            additional_services: orderData.additional_services
           }
         } as any)
         .select()
@@ -315,6 +332,21 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
           location: '',
           additional_notes: '',
           preferred_communication: 'chat'
+        },
+        additional_services: {
+          compressor_rent: {
+            enabled: false,
+            hours: 8,
+            delivery_hours: 1,
+            work_type: '',
+            equipment: []
+          },
+          garbage_removal: {
+            enabled: false,
+            waste_type: '',
+            volume: '',
+            needs_loading: false
+          }
         }
       });
 
@@ -334,6 +366,37 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
   const getCurrentPriorityCost = () => {
     return priorityCosts[orderData.priority as keyof typeof priorityCosts] || 15;
+  };
+
+  const calculateAdditionalServicesCost = () => {
+    let totalCost = 0;
+    
+    // Аренда компрессора
+    if (orderData.additional_services.compressor_rent.enabled) {
+      const compressorHours = orderData.additional_services.compressor_rent.hours + orderData.additional_services.compressor_rent.delivery_hours;
+      totalCost += compressorHours * 1500; // 1500₽ за час
+    }
+    
+    // Вывоз мусора
+    if (orderData.additional_services.garbage_removal.enabled) {
+      const volume = orderData.additional_services.garbage_removal.volume;
+      switch (volume) {
+        case '1-2_containers':
+          totalCost += 4000;
+          break;
+        case '1_gazelle':
+          totalCost += 6500;
+          break;
+        case '1_kamaz':
+          totalCost += 11500;
+          break;
+        case 'multiple':
+          totalCost += 20000;
+          break;
+      }
+    }
+    
+    return totalCost;
   };
 
   return (
@@ -357,6 +420,12 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
               <div className="text-right">
                 <p className="text-sm text-steel-400">Стоимость размещения:</p>
                 <p className="font-bold text-primary">{getCurrentPriorityCost()} GT Coins</p>
+                {calculateAdditionalServicesCost() > 0 && (
+                  <>
+                    <p className="text-sm text-steel-400 mt-1">Доп. услуги (примерно):</p>
+                    <p className="font-bold text-primary">{calculateAdditionalServicesCost().toLocaleString()} ₽</p>
+                  </>
+                )}
               </div>
             </div>
             {userBalance < getCurrentPriorityCost() && (
@@ -547,6 +616,204 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          {/* Additional Services */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-steel-100">Дополнительные услуги</h3>
+            
+            {/* Compressor Rent */}
+            <div className="p-4 bg-steel-900/30 rounded-lg border border-steel-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <input
+                  type="checkbox"
+                  id="compressor_enabled"
+                  checked={orderData.additional_services.compressor_rent.enabled}
+                  onChange={(e) => setOrderData(prev => ({
+                    ...prev,
+                    additional_services: {
+                      ...prev.additional_services,
+                      compressor_rent: { ...prev.additional_services.compressor_rent, enabled: e.target.checked }
+                    }
+                  }))}
+                  className="w-4 h-4 text-primary"
+                />
+                <Label htmlFor="compressor_enabled" className="text-steel-200 font-medium">
+                  🔨 Аренда компрессора (7+1: 7 часов работы + 1 час подачи)
+                </Label>
+              </div>
+              
+              {orderData.additional_services.compressor_rent.enabled && (
+                <div className="space-y-4 pl-7">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Часов работы</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="24"
+                        value={orderData.additional_services.compressor_rent.hours}
+                        onChange={(e) => setOrderData(prev => ({
+                          ...prev,
+                          additional_services: {
+                            ...prev.additional_services,
+                            compressor_rent: { ...prev.additional_services.compressor_rent, hours: parseInt(e.target.value) || 8 }
+                          }
+                        }))}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Часов подачи</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="8"
+                        value={orderData.additional_services.compressor_rent.delivery_hours}
+                        onChange={(e) => setOrderData(prev => ({
+                          ...prev,
+                          additional_services: {
+                            ...prev.additional_services,
+                            compressor_rent: { ...prev.additional_services.compressor_rent, delivery_hours: parseInt(e.target.value) || 1 }
+                          }
+                        }))}
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Тип работ</Label>
+                    <Select
+                      value={orderData.additional_services.compressor_rent.work_type}
+                      onValueChange={(value) => setOrderData(prev => ({
+                        ...prev,
+                        additional_services: {
+                          ...prev.additional_services,
+                          compressor_rent: { ...prev.additional_services.compressor_rent, work_type: value }
+                        }
+                      }))}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Выберите тип работ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="demolition">Демонтаж</SelectItem>
+                        <SelectItem value="blowing">Продувка</SelectItem>
+                        <SelectItem value="painting">Покраска</SelectItem>
+                        <SelectItem value="other">Другое</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="text-sm text-steel-400">
+                    Примерная стоимость: <span className="text-primary font-medium">
+                      {(orderData.additional_services.compressor_rent.hours + orderData.additional_services.compressor_rent.delivery_hours) * 1500} ₽
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Garbage Removal */}
+            <div className="p-4 bg-steel-900/30 rounded-lg border border-steel-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <input
+                  type="checkbox"
+                  id="garbage_enabled"
+                  checked={orderData.additional_services.garbage_removal.enabled}
+                  onChange={(e) => setOrderData(prev => ({
+                    ...prev,
+                    additional_services: {
+                      ...prev.additional_services,
+                      garbage_removal: { ...prev.additional_services.garbage_removal, enabled: e.target.checked }
+                    }
+                  }))}
+                  className="w-4 h-4 text-primary"
+                />
+                <Label htmlFor="garbage_enabled" className="text-steel-200 font-medium">
+                  🚛 Вывоз мусора (стоимость от объёма)
+                </Label>
+              </div>
+              
+              {orderData.additional_services.garbage_removal.enabled && (
+                <div className="space-y-4 pl-7">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Тип мусора</Label>
+                      <Select
+                        value={orderData.additional_services.garbage_removal.waste_type}
+                        onValueChange={(value) => setOrderData(prev => ({
+                          ...prev,
+                          additional_services: {
+                            ...prev.additional_services,
+                            garbage_removal: { ...prev.additional_services.garbage_removal, waste_type: value }
+                          }
+                        }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Выберите тип мусора" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="construction">Строительный мусор</SelectItem>
+                          <SelectItem value="household">Бытовой мусор</SelectItem>
+                          <SelectItem value="bulky">Крупногабаритный мусор</SelectItem>
+                          <SelectItem value="mixed">Смешанный</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Объём</Label>
+                      <Select
+                        value={orderData.additional_services.garbage_removal.volume}
+                        onValueChange={(value) => setOrderData(prev => ({
+                          ...prev,
+                          additional_services: {
+                            ...prev.additional_services,
+                            garbage_removal: { ...prev.additional_services.garbage_removal, volume: value }
+                          }
+                        }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Выберите объём" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1-2_containers">1-2 контейнера</SelectItem>
+                          <SelectItem value="1_gazelle">1 Газель</SelectItem>
+                          <SelectItem value="1_kamaz">1 КамАЗ</SelectItem>
+                          <SelectItem value="multiple">Больше 1 КамАЗа</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="needs_loading"
+                      checked={orderData.additional_services.garbage_removal.needs_loading}
+                      onChange={(e) => setOrderData(prev => ({
+                        ...prev,
+                        additional_services: {
+                          ...prev.additional_services,
+                          garbage_removal: { ...prev.additional_services.garbage_removal, needs_loading: e.target.checked }
+                        }
+                      }))}
+                      className="w-4 h-4 text-primary"
+                    />
+                    <Label htmlFor="needs_loading" className="text-steel-300">
+                      Нужна погрузка грузчиками
+                    </Label>
+                  </div>
+                  <div className="text-sm text-steel-400">
+                    Примерная стоимость: <span className="text-primary font-medium">
+                      {orderData.additional_services.garbage_removal.volume === '1-2_containers' ? '3000-5000' :
+                       orderData.additional_services.garbage_removal.volume === '1_gazelle' ? '5000-8000' :
+                       orderData.additional_services.garbage_removal.volume === '1_kamaz' ? '8000-15000' :
+                       '15000+'} ₽
+                    </span>
+                    {orderData.additional_services.garbage_removal.needs_loading && ' + стоимость погрузки'}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

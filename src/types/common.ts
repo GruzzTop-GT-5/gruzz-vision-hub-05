@@ -50,6 +50,28 @@ export interface Order {
   additional_equipment?: string[];
   equipment_details?: any;
   waste_details?: any;
+  // Дополнительные услуги в основном заказе
+  client_requirements?: {
+    specifications?: string;
+    location?: string;
+    additional_notes?: string;
+    preferred_communication?: string;
+    additional_services?: {
+      compressor_rent?: {
+        enabled: boolean;
+        hours: number;
+        delivery_hours: number;
+        work_type: string;
+        equipment: string[];
+      };
+      garbage_removal?: {
+        enabled: boolean;
+        waste_type: string;
+        volume: string;
+        needs_loading: boolean;
+      };
+    };
+  };
 }
 
 export interface Transaction {
