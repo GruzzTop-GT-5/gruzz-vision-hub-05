@@ -76,12 +76,19 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         hours: 8,
         delivery_hours: 1,
         work_type: '',
-        equipment: [] as string[]
+        equipment: [] as string[],
+        hammer_type: 'light', // light, medium, heavy
+        hammer_count: 1,
+        has_blowing_hoses: false,
+        hose_length: 50,
+        gas_pipe_testing: false,
+        payment_method: 'cash' // cash, with_vat
       },
       garbage_removal: {
         enabled: false,
         waste_type: '',
         volume: '',
+        vehicle_type: 'gazelle_12', // gazelle_12, gazelle_16, kamaz_20, kamaz_30
         needs_loading: false
       }
     }
@@ -339,12 +346,19 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             hours: 8,
             delivery_hours: 1,
             work_type: '',
-            equipment: []
+            equipment: [],
+            hammer_type: 'light',
+            hammer_count: 1,
+            has_blowing_hoses: false,
+            hose_length: 50,
+            gas_pipe_testing: false,
+            payment_method: 'cash'
           },
           garbage_removal: {
             enabled: false,
             waste_type: '',
             volume: '',
+            vehicle_type: 'gazelle_12',
             needs_loading: false
           }
         }
@@ -373,27 +387,56 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     
     // Аренда компрессора
     if (orderData.additional_services.compressor_rent.enabled) {
-      const compressorHours = orderData.additional_services.compressor_rent.hours + orderData.additional_services.compressor_rent.delivery_hours;
-      totalCost += compressorHours * 1500; // 1500₽ за час
+      const service = orderData.additional_services.compressor_rent;
+      const compressorHours = service.hours + service.delivery_hours;
+      
+      // Базовая стоимость компрессора
+      let baseCost = compressorHours * 1500;
+      
+      // Стоимость молотков (зависит от типа и количества)
+      const hammerCosts = {
+        light: 500,    // Легкий молоток
+        medium: 800,   // Средний молоток
+        heavy: 1200    // Тяжелый молоток
+      };
+      baseCost += hammerCosts[service.hammer_type as keyof typeof hammerCosts] * service.hammer_count;
+      
+      // Продувочные шланги
+      if (service.has_blowing_hoses) {
+        baseCost += (service.hose_length / 50) * 300; // 300₽ за каждые 50м шланга
+      }
+      
+      // Опрессовка газовых труб
+      if (service.gas_pipe_testing) {
+        baseCost += 2000;
+      }
+      
+      // НДС (если выбрано)
+      if (service.payment_method === 'with_vat') {
+        baseCost += 300;
+      }
+      
+      totalCost += baseCost;
     }
     
     // Вывоз мусора
     if (orderData.additional_services.garbage_removal.enabled) {
-      const volume = orderData.additional_services.garbage_removal.volume;
-      switch (volume) {
-        case '1-2_containers':
-          totalCost += 4000;
-          break;
-        case '1_gazelle':
-          totalCost += 6500;
-          break;
-        case '1_kamaz':
-          totalCost += 11500;
-          break;
-        case 'multiple':
-          totalCost += 20000;
-          break;
+      const service = orderData.additional_services.garbage_removal;
+      const vehicleCosts = {
+        gazelle_12: 4500,   // Газель 12 кубов
+        gazelle_16: 5500,   // Газель 16 кубов  
+        kamaz_20: 8500,     // КамАЗ 20 кубов
+        kamaz_30: 12000     // КамАЗ 30 кубов
+      };
+      
+      let garbageCost = vehicleCosts[service.vehicle_type as keyof typeof vehicleCosts] || 4500;
+      
+      // Доплата за погрузку
+      if (service.needs_loading) {
+        garbageCost += 2000;
       }
+      
+      totalCost += garbageCost;
     }
     
     return totalCost;
@@ -640,7 +683,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   className="w-4 h-4 text-primary"
                 />
                 <Label htmlFor="compressor_enabled" className="text-steel-200 font-medium">
-                  🔨 Аренда компрессора (7+1: 7 часов работы + 1 час подачи)
+                  🔨 Аренда компрессора с оборудованием
                 </Label>
               </div>
               
@@ -682,33 +725,185 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                       />
                     </div>
                   </div>
-                  <div>
-                    <Label>Тип работ</Label>
-                    <Select
-                      value={orderData.additional_services.compressor_rent.work_type}
-                      onValueChange={(value) => setOrderData(prev => ({
-                        ...prev,
-                        additional_services: {
-                          ...prev.additional_services,
-                          compressor_rent: { ...prev.additional_services.compressor_rent, work_type: value }
-                        }
-                      }))}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Выберите тип работ" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="demolition">Демонтаж</SelectItem>
-                        <SelectItem value="blowing">Продувка</SelectItem>
-                        <SelectItem value="painting">Покраска</SelectItem>
-                        <SelectItem value="other">Другое</SelectItem>
-                      </SelectContent>
-                    </Select>
+
+                  {/* Equipment Section */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-steel-200">Оборудование</h4>
+                    
+                    {/* Hammer Type and Count */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Тип отбойного молотка</Label>
+                        <Select
+                          value={orderData.additional_services.compressor_rent.hammer_type}
+                          onValueChange={(value) => setOrderData(prev => ({
+                            ...prev,
+                            additional_services: {
+                              ...prev.additional_services,
+                              compressor_rent: { ...prev.additional_services.compressor_rent, hammer_type: value }
+                            }
+                          }))}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="light">Легкий (+500₽/шт)</SelectItem>
+                            <SelectItem value="medium">Средний (+800₽/шт)</SelectItem>
+                            <SelectItem value="heavy">Тяжелый (+1200₽/шт)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Количество молотков (1-3)</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="3"
+                          value={orderData.additional_services.compressor_rent.hammer_count}
+                          onChange={(e) => setOrderData(prev => ({
+                            ...prev,
+                            additional_services: {
+                              ...prev.additional_services,
+                              compressor_rent: { ...prev.additional_services.compressor_rent, hammer_count: parseInt(e.target.value) || 1 }
+                            }
+                          }))}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Additional Equipment */}
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          id="blowing_hoses"
+                          checked={orderData.additional_services.compressor_rent.has_blowing_hoses}
+                          onChange={(e) => setOrderData(prev => ({
+                            ...prev,
+                            additional_services: {
+                              ...prev.additional_services,
+                              compressor_rent: { ...prev.additional_services.compressor_rent, has_blowing_hoses: e.target.checked }
+                            }
+                          }))}
+                          className="w-4 h-4 text-primary"
+                        />
+                        <Label htmlFor="blowing_hoses" className="text-steel-300">
+                          Продувочные шланги (300₽/50м)
+                        </Label>
+                      </div>
+                      
+                      {orderData.additional_services.compressor_rent.has_blowing_hoses && (
+                        <div className="ml-7">
+                          <Label>Длина шлангов (м)</Label>
+                          <Select
+                            value={orderData.additional_services.compressor_rent.hose_length.toString()}
+                            onValueChange={(value) => setOrderData(prev => ({
+                              ...prev,
+                              additional_services: {
+                                ...prev.additional_services,
+                                compressor_rent: { ...prev.additional_services.compressor_rent, hose_length: parseInt(value) }
+                              }
+                            }))}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="50">50 метров</SelectItem>
+                              <SelectItem value="100">100 метров</SelectItem>
+                              <SelectItem value="150">150 метров</SelectItem>
+                              <SelectItem value="200">200 метров</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          id="gas_pipe_testing"
+                          checked={orderData.additional_services.compressor_rent.gas_pipe_testing}
+                          onChange={(e) => setOrderData(prev => ({
+                            ...prev,
+                            additional_services: {
+                              ...prev.additional_services,
+                              compressor_rent: { ...prev.additional_services.compressor_rent, gas_pipe_testing: e.target.checked }
+                            }
+                          }))}
+                          className="w-4 h-4 text-primary"
+                        />
+                        <Label htmlFor="gas_pipe_testing" className="text-steel-300">
+                          Опрессовка газовых труб (+2000₽)
+                        </Label>
+                      </div>
+                    </div>
+
+                    {/* Payment Method */}
+                    <div>
+                      <Label>Способ оплаты</Label>
+                      <Select
+                        value={orderData.additional_services.compressor_rent.payment_method}
+                        onValueChange={(value) => setOrderData(prev => ({
+                          ...prev,
+                          additional_services: {
+                            ...prev.additional_services,
+                            compressor_rent: { ...prev.additional_services.compressor_rent, payment_method: value }
+                          }
+                        }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cash">Наличными</SelectItem>
+                          <SelectItem value="with_vat">С НДС (+300₽)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Work Type */}
+                    <div>
+                      <Label>Тип работ</Label>
+                      <Select
+                        value={orderData.additional_services.compressor_rent.work_type}
+                        onValueChange={(value) => setOrderData(prev => ({
+                          ...prev,
+                          additional_services: {
+                            ...prev.additional_services,
+                            compressor_rent: { ...prev.additional_services.compressor_rent, work_type: value }
+                          }
+                        }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Выберите тип работ" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="demolition">Демонтаж</SelectItem>
+                          <SelectItem value="blowing">Продувка</SelectItem>
+                          <SelectItem value="painting">Покраска</SelectItem>
+                          <SelectItem value="road_work">Дорожные работы</SelectItem>
+                          <SelectItem value="other">Другое</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="text-sm text-steel-400">
-                    Примерная стоимость: <span className="text-primary font-medium">
-                      {(orderData.additional_services.compressor_rent.hours + orderData.additional_services.compressor_rent.delivery_hours) * 1500} ₽
-                    </span>
+
+                  <div className="p-3 bg-steel-800/50 rounded-lg">
+                    <div className="text-sm text-steel-400">
+                      <div className="flex justify-between items-center">
+                        <span>Примерная стоимость:</span>
+                        <span className="text-primary font-medium text-lg">
+                          {calculateAdditionalServicesCost() - (orderData.additional_services.garbage_removal.enabled ? 
+                            (()=>{
+                              const service = orderData.additional_services.garbage_removal;
+                              const vehicleCosts = { gazelle_12: 4500, gazelle_16: 5500, kamaz_20: 8500, kamaz_30: 12000 };
+                              return (vehicleCosts[service.vehicle_type as keyof typeof vehicleCosts] || 4500) + (service.needs_loading ? 2000 : 0);
+                            })() : 0)} ₽
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -731,7 +926,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   className="w-4 h-4 text-primary"
                 />
                 <Label htmlFor="garbage_enabled" className="text-steel-200 font-medium">
-                  🚛 Вывоз мусора (стоимость от объёма)
+                  🚛 Вывоз мусора (от 12 кубов до пухто)
                 </Label>
               </div>
               
@@ -758,33 +953,35 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                           <SelectItem value="household">Бытовой мусор</SelectItem>
                           <SelectItem value="bulky">Крупногабаритный мусор</SelectItem>
                           <SelectItem value="mixed">Смешанный</SelectItem>
+                          <SelectItem value="renovation">Ремонтный мусор</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Объём</Label>
+                      <Label>Тип транспорта</Label>
                       <Select
-                        value={orderData.additional_services.garbage_removal.volume}
+                        value={orderData.additional_services.garbage_removal.vehicle_type}
                         onValueChange={(value) => setOrderData(prev => ({
                           ...prev,
                           additional_services: {
                             ...prev.additional_services,
-                            garbage_removal: { ...prev.additional_services.garbage_removal, volume: value }
+                            garbage_removal: { ...prev.additional_services.garbage_removal, vehicle_type: value }
                           }
                         }))}
                       >
                         <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Выберите объём" />
+                          <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1-2_containers">1-2 контейнера</SelectItem>
-                          <SelectItem value="1_gazelle">1 Газель</SelectItem>
-                          <SelectItem value="1_kamaz">1 КамАЗ</SelectItem>
-                          <SelectItem value="multiple">Больше 1 КамАЗа</SelectItem>
+                          <SelectItem value="gazelle_12">Газель 12 куб. (4500₽)</SelectItem>
+                          <SelectItem value="gazelle_16">Газель 16 куб. (5500₽)</SelectItem>
+                          <SelectItem value="kamaz_20">КамАЗ 20 куб. (8500₽)</SelectItem>
+                          <SelectItem value="kamaz_30">КамАЗ 30 куб. (12000₽)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
+                  
                   <div className="flex items-center space-x-3">
                     <input
                       type="checkbox"
@@ -800,17 +997,23 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                       className="w-4 h-4 text-primary"
                     />
                     <Label htmlFor="needs_loading" className="text-steel-300">
-                      Нужна погрузка грузчиками
+                      Нужна погрузка грузчиками (+2000₽)
                     </Label>
                   </div>
-                  <div className="text-sm text-steel-400">
-                    Примерная стоимость: <span className="text-primary font-medium">
-                      {orderData.additional_services.garbage_removal.volume === '1-2_containers' ? '3000-5000' :
-                       orderData.additional_services.garbage_removal.volume === '1_gazelle' ? '5000-8000' :
-                       orderData.additional_services.garbage_removal.volume === '1_kamaz' ? '8000-15000' :
-                       '15000+'} ₽
-                    </span>
-                    {orderData.additional_services.garbage_removal.needs_loading && ' + стоимость погрузки'}
+                  
+                  <div className="p-3 bg-steel-800/50 rounded-lg">
+                    <div className="text-sm text-steel-400">
+                      <div className="flex justify-between items-center">
+                        <span>Примерная стоимость:</span>
+                        <span className="text-primary font-medium text-lg">
+                          {(()=>{
+                            const service = orderData.additional_services.garbage_removal;
+                            const vehicleCosts = { gazelle_12: 4500, gazelle_16: 5500, kamaz_20: 8500, kamaz_30: 12000 };
+                            return (vehicleCosts[service.vehicle_type as keyof typeof vehicleCosts] || 4500) + (service.needs_loading ? 2000 : 0);
+                          })()} ₽
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

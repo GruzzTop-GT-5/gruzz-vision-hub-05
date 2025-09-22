@@ -63,11 +63,18 @@ export interface Order {
         delivery_hours: number;
         work_type: string;
         equipment: string[];
+        hammer_type: 'light' | 'medium' | 'heavy';
+        hammer_count: number;
+        has_blowing_hoses: boolean;
+        hose_length: number;
+        gas_pipe_testing: boolean;
+        payment_method: 'cash' | 'with_vat';
       };
       garbage_removal?: {
         enabled: boolean;
         waste_type: string;
         volume: string;
+        vehicle_type: 'gazelle_12' | 'gazelle_16' | 'kamaz_20' | 'kamaz_30';
         needs_loading: boolean;
       };
     };
