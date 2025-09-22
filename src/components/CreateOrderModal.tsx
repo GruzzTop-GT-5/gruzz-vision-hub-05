@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { sanitizeInput } from '@/utils/security';
-import { validateAmount, formatBalance, formatRubles } from '@/utils/currency';
+import { validateAmount, formatBalance } from '@/utils/currency';
 import { Plus, Calendar as CalendarIcon, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -20,12 +20,6 @@ const PRIORITY_OPTIONS = [
   { value: 'normal', label: 'Обычный (15 GT)', cost: 15 },
   { value: 'high', label: 'Высокий (35 GT)', cost: 35 },
   { value: 'urgent', label: 'Срочно (55 GT)', cost: 55 }
-];
-
-const PAYMENT_TYPES = [
-  'hourly', // Почасовая оплата
-  'daily',  // Дневная оплата  
-  'project' // За весь объем работ
 ];
 
 const WORK_FORMATS = [
@@ -56,7 +50,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     description: '',
     category: '',
     price: '',
-    payment_type: 'daily', // hourly, daily, project
+    payment_type: 'daily',
     priority: 'normal',
     deadline: null as Date | null,
     work_format: '',
@@ -69,7 +63,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       additional_notes: '',
       preferred_communication: 'chat'
     },
-    // Дополнительные услуги
     additional_services: {
       compressor_rent: {
         enabled: false,
@@ -77,24 +70,23 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         delivery_hours: 1,
         work_type: '',
         equipment: [] as string[],
-        hammer_type: 'light', // light, medium, heavy
+        hammer_type: 'light',
         hammer_count: 1,
         has_blowing_hoses: false,
         hose_length: 50,
         gas_pipe_testing: false,
-        payment_method: 'cash' // cash, with_vat
+        payment_method: 'cash'
       },
       garbage_removal: {
         enabled: false,
         waste_type: '',
         volume: '',
-        vehicle_type: 'gazelle_12', // gazelle_12, gazelle_16, kamaz_20, kamaz_30
+        vehicle_type: 'gazelle_12',
         needs_loading: false
       }
     }
   });
 
-  // Загружаем баланс пользователя и стоимость публикации при открытии модала
   const loadUserBalance = async () => {
     if (!user?.id) return;
     
@@ -129,7 +121,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
     }
   };
 
-  // Загружаем баланс и стоимость публикации при открытии модала
   if (isOpen && user?.id && userBalance === 0) {
     loadUserBalance();
     loadPriorityCosts();
@@ -154,35 +145,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       return;
     }
 
-    // Проверка на дублирование - ищем похожие активные заказы пользователя
-    try {
-      const { data: existingOrders, error: checkError } = await supabase
-        .from('orders')
-        .select('id, title, order_number')
-        .eq('client_id', user.id)
-        .in('status', ['pending', 'accepted', 'in_progress']) // Активные заказы
-        .ilike('title', `%${orderData.title.substring(0, 20)}%`); // Проверяем по первым 20 символам заголовка
-
-      if (checkError) throw checkError;
-
-      if (existingOrders && existingOrders.length > 0) {
-        const existingTitle = existingOrders[0].title;
-        const similarity = orderData.title.toLowerCase().includes(existingTitle.toLowerCase().substring(0, 15)) ||
-                          existingTitle.toLowerCase().includes(orderData.title.toLowerCase().substring(0, 15));
-        
-        if (similarity) {
-          toast({
-            title: "Похожий заказ уже существует",
-            description: `У вас уже есть активный заказ: "${existingTitle}" (${existingOrders[0].order_number}). Нельзя создавать дубликаты заказов.`,
-            variant: "destructive"
-          });
-          return;
-        }
-      }
-    } catch (error) {
-      console.error('Error checking for duplicate orders:', error);
-    }
-
     const price = parseFloat(orderData.price);
     const validation = validateAmount(price);
     
@@ -195,13 +157,10 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       return;
     }
 
-    // Общая стоимость = стоимость по приоритету
     const totalCost = priorityCosts[orderData.priority as keyof typeof priorityCosts] || 15;
-
     setIsCreating(true);
 
     try {
-      // Проверяем баланс пользователя
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('balance')
@@ -219,7 +178,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         return;
       }
 
-      // Создаем заказ
       const { data: newOrder, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -255,30 +213,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
       if (orderError) throw orderError;
 
-      // Создаем чат для заказа автоматически
-      const { data: conversation, error: conversationError } = await supabase
-        .from('conversations')
-        .insert({
-          type: 'chat',
-          title: `Чат по заказу: ${sanitizeInput(orderData.title)}`,
-          participants: [user.id], // Сначала добавляем только клиента
-          created_by: user.id,
-          status: 'active'
-        })
-        .select()
-        .single();
-
-      if (conversationError) {
-        console.error('Conversation creation error:', conversationError);
-        // Не бросаем ошибку, так как заказ уже создан
-        toast({
-          title: "Заказ создан",
-          description: "Заказ создан, но возникла проблема с созданием чата",
-          variant: "default"
-        });
-      }
-
-      // Создаем транзакцию для списания фиксированной платы за публикацию
       const { data: transaction, error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -300,21 +234,14 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
         .select()
         .single();
 
-      if (transactionError) {
-        console.error('Transaction error:', transactionError);
-        throw transactionError;
-      }
+      if (transactionError) throw transactionError;
 
-      // Обновляем статус транзакции на completed для автоматического списания средств
       const { error: updateError } = await supabase
         .from('transactions')
         .update({ status: 'completed' })
         .eq('id', transaction.id);
 
-      if (updateError) {
-        console.error('Transaction update error:', updateError);
-        throw updateError;
-      }
+      if (updateError) throw updateError;
 
       toast({
         title: "Заказ создан",
@@ -390,25 +317,33 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       const service = orderData.additional_services.compressor_rent;
       const compressorHours = service.hours + service.delivery_hours;
       
-      // Базовая стоимость компрессора
-      let baseCost = compressorHours * 1500;
-      
-      // Стоимость молотков (зависит от типа и количества)
-      const hammerCosts = {
-        light: 500,    // Легкий молоток
-        medium: 800,   // Средний молоток
-        heavy: 1200    // Тяжелый молоток
+      // Базовая стоимость компрессора (зависит от мощности и типа молотков)
+      const baseRates = {
+        light: 1200,   // Легкий компрессор для легких молотков
+        medium: 1500,  // Средний компрессор для средних молотков
+        heavy: 1800    // Мощный компрессор для тяжелых молотков
       };
-      baseCost += hammerCosts[service.hammer_type as keyof typeof hammerCosts] * service.hammer_count;
+      
+      let baseCost = compressorHours * baseRates[service.hammer_type as keyof typeof baseRates];
+      
+      // Стоимость молотков (включена в базовую стоимость для первого, доплата за дополнительные)
+      if (service.hammer_count > 1) {
+        const extraHammerCost = {
+          light: 300,   
+          medium: 500,  
+          heavy: 700    
+        };
+        baseCost += extraHammerCost[service.hammer_type as keyof typeof extraHammerCost] * (service.hammer_count - 1);
+      }
       
       // Продувочные шланги
       if (service.has_blowing_hoses) {
-        baseCost += (service.hose_length / 50) * 300; // 300₽ за каждые 50м шланга
+        baseCost += Math.ceil(service.hose_length / 50) * 400; // 400₽ за каждые 50м
       }
       
       // Опрессовка газовых труб
       if (service.gas_pipe_testing) {
-        baseCost += 2000;
+        baseCost += 2500;
       }
       
       // НДС (если выбрано)
@@ -431,9 +366,15 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
       
       let garbageCost = vehicleCosts[service.vehicle_type as keyof typeof vehicleCosts] || 4500;
       
-      // Доплата за погрузку
+      // Доплата за погрузку (зависит от объёма)
       if (service.needs_loading) {
-        garbageCost += 2000;
+        const loadingCosts = {
+          gazelle_12: 1500,
+          gazelle_16: 2000,
+          kamaz_20: 2500,
+          kamaz_30: 3000
+        };
+        garbageCost += loadingCosts[service.vehicle_type as keyof typeof loadingCosts] || 1500;
       }
       
       totalCost += garbageCost;
@@ -444,7 +385,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="card-steel-dialog max-w-2xl max-h-[90vh] overflow-y-auto data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
+      <DialogContent className="card-steel-dialog max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2 text-steel-100">
             <Package className="w-5 h-5 text-primary" />
@@ -575,91 +516,6 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                 />
               </div>
             </div>
-
-            <div>
-              <Label htmlFor="start_time">Время начала работы</Label>
-              <Input
-                id="start_time"
-                type="time"
-                value={orderData.start_time}
-                onChange={(e) => setOrderData(prev => ({ ...prev, start_time: e.target.value }))}
-                className="mt-1"
-                placeholder="Когда нужно быть готовым к работе"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Дата начала работы</Label>
-                <Popover open={showCalendar} onOpenChange={setShowCalendar}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal mt-1"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {orderData.deadline ? (
-                        format(orderData.deadline, 'dd.MM.yyyy', { locale: ru })
-                      ) : (
-                        <span>Выберите дату</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={orderData.deadline || undefined}
-                      onSelect={(date) => {
-                        setOrderData(prev => ({ ...prev, deadline: date || null }));
-                        setShowCalendar(false);
-                      }}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div>
-                <Label htmlFor="work_duration">Продолжительность работы</Label>
-                <Select
-                  value={orderData.work_duration}
-                  onValueChange={(value) => setOrderData(prev => ({ ...prev, work_duration: value }))}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Выберите продолжительность" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1-2 часа">1-2 часа</SelectItem>
-                    <SelectItem value="3-4 часа">3-4 часа</SelectItem>
-                    <SelectItem value="Полдня">Полдня</SelectItem>
-                    <SelectItem value="Полный день">Полный день</SelectItem>
-                    <SelectItem value="Несколько дней">Несколько дней</SelectItem>
-                    <SelectItem value="Неделя">Неделя</SelectItem>
-                    <SelectItem value="Больше недели">Больше недели</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="work_format">Формат работы</Label>
-              <Select
-                value={orderData.work_format}
-                onValueChange={(value) => setOrderData(prev => ({ ...prev, work_format: value }))}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Выберите формат работы" />
-                </SelectTrigger>
-                <SelectContent>
-                  {WORK_FORMATS.map(format => (
-                    <SelectItem key={format} value={format}>
-                      {format}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
           {/* Additional Services */}
@@ -727,83 +583,26 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   </div>
 
                   {/* Equipment Section */}
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-steel-200">Оборудование</h4>
-                    
-                    {/* Hammer Type and Count */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Тип отбойного молотка</Label>
-                        <Select
-                          value={orderData.additional_services.compressor_rent.hammer_type}
-                          onValueChange={(value) => setOrderData(prev => ({
-                            ...prev,
-                            additional_services: {
-                              ...prev.additional_services,
-                              compressor_rent: { ...prev.additional_services.compressor_rent, hammer_type: value }
-                            }
-                          }))}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="light">Легкий (+500₽/шт)</SelectItem>
-                            <SelectItem value="medium">Средний (+800₽/шт)</SelectItem>
-                            <SelectItem value="heavy">Тяжелый (+1200₽/шт)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label>Количество молотков (1-3)</Label>
-                        <Input
-                          type="number"
-                          min="1"
-                          max="3"
-                          value={orderData.additional_services.compressor_rent.hammer_count}
-                          onChange={(e) => setOrderData(prev => ({
-                            ...prev,
-                            additional_services: {
-                              ...prev.additional_services,
-                              compressor_rent: { ...prev.additional_services.compressor_rent, hammer_count: parseInt(e.target.value) || 1 }
-                            }
-                          }))}
-                          className="mt-1"
-                        />
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-medium text-steel-200">Выбор оборудования</h4>
+                      <div className="text-xs text-steel-400 bg-steel-800/30 px-2 py-1 rounded">
+                        Стоимость зависит от мощности
                       </div>
                     </div>
-
-                    {/* Additional Equipment */}
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-3">
-                        <input
-                          type="checkbox"
-                          id="blowing_hoses"
-                          checked={orderData.additional_services.compressor_rent.has_blowing_hoses}
-                          onChange={(e) => setOrderData(prev => ({
-                            ...prev,
-                            additional_services: {
-                              ...prev.additional_services,
-                              compressor_rent: { ...prev.additional_services.compressor_rent, has_blowing_hoses: e.target.checked }
-                            }
-                          }))}
-                          className="w-4 h-4 text-primary"
-                        />
-                        <Label htmlFor="blowing_hoses" className="text-steel-300">
-                          Продувочные шланги (300₽/50м)
-                        </Label>
-                      </div>
-                      
-                      {orderData.additional_services.compressor_rent.has_blowing_hoses && (
-                        <div className="ml-7">
-                          <Label>Длина шлангов (м)</Label>
+                    
+                    {/* Hammer Configuration */}
+                    <div className="p-3 bg-steel-800/30 rounded-lg border border-steel-600">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Тип отбойных молотков</Label>
                           <Select
-                            value={orderData.additional_services.compressor_rent.hose_length.toString()}
+                            value={orderData.additional_services.compressor_rent.hammer_type}
                             onValueChange={(value) => setOrderData(prev => ({
                               ...prev,
                               additional_services: {
                                 ...prev.additional_services,
-                                compressor_rent: { ...prev.additional_services.compressor_rent, hose_length: parseInt(value) }
+                                compressor_rent: { ...prev.additional_services.compressor_rent, hammer_type: value }
                               }
                             }))}
                           >
@@ -811,97 +610,194 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="50">50 метров</SelectItem>
-                              <SelectItem value="100">100 метров</SelectItem>
-                              <SelectItem value="150">150 метров</SelectItem>
-                              <SelectItem value="200">200 метров</SelectItem>
+                              <SelectItem value="light">Легкий (до 20 кг) - 1200₽/час</SelectItem>
+                              <SelectItem value="medium">Средний (20-30 кг) - 1500₽/час</SelectItem>
+                              <SelectItem value="heavy">Тяжелый (30+ кг) - 1800₽/час</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
-                      )}
-
-                      <div className="flex items-center space-x-3">
-                        <input
-                          type="checkbox"
-                          id="gas_pipe_testing"
-                          checked={orderData.additional_services.compressor_rent.gas_pipe_testing}
-                          onChange={(e) => setOrderData(prev => ({
-                            ...prev,
-                            additional_services: {
-                              ...prev.additional_services,
-                              compressor_rent: { ...prev.additional_services.compressor_rent, gas_pipe_testing: e.target.checked }
-                            }
-                          }))}
-                          className="w-4 h-4 text-primary"
-                        />
-                        <Label htmlFor="gas_pipe_testing" className="text-steel-300">
-                          Опрессовка газовых труб (+2000₽)
-                        </Label>
+                        <div>
+                          <Label>Количество молотков (1-3)</Label>
+                          <Select
+                            value={orderData.additional_services.compressor_rent.hammer_count.toString()}
+                            onValueChange={(value) => setOrderData(prev => ({
+                              ...prev,
+                              additional_services: {
+                                ...prev.additional_services,
+                                compressor_rent: { ...prev.additional_services.compressor_rent, hammer_count: parseInt(value) }
+                              }
+                            }))}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">1 молоток (базовая цена)</SelectItem>
+                              <SelectItem value="2">2 молотка (+доплата)</SelectItem>
+                              <SelectItem value="3">3 молотка (+доплата)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Payment Method */}
-                    <div>
-                      <Label>Способ оплаты</Label>
-                      <Select
-                        value={orderData.additional_services.compressor_rent.payment_method}
-                        onValueChange={(value) => setOrderData(prev => ({
-                          ...prev,
-                          additional_services: {
-                            ...prev.additional_services,
-                            compressor_rent: { ...prev.additional_services.compressor_rent, payment_method: value }
-                          }
-                        }))}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cash">Наличными</SelectItem>
-                          <SelectItem value="with_vat">С НДС (+300₽)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    {/* Additional Equipment */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-steel-200">Дополнительное оборудование</h4>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-start space-x-3 p-3 bg-steel-800/20 rounded-lg">
+                          <input
+                            type="checkbox"
+                            id="blowing_hoses"
+                            checked={orderData.additional_services.compressor_rent.has_blowing_hoses}
+                            onChange={(e) => setOrderData(prev => ({
+                              ...prev,
+                              additional_services: {
+                                ...prev.additional_services,
+                                compressor_rent: { ...prev.additional_services.compressor_rent, has_blowing_hoses: e.target.checked }
+                              }
+                            }))}
+                            className="w-4 h-4 text-primary mt-1"
+                          />
+                          <div className="flex-1">
+                            <Label htmlFor="blowing_hoses" className="text-steel-300 font-medium">
+                              Продувочные шланги высокого давления
+                            </Label>
+                            <p className="text-xs text-steel-400 mt-1">
+                              Для очистки поверхностей, продувки труб и каналов
+                            </p>
+                            {orderData.additional_services.compressor_rent.has_blowing_hoses && (
+                              <div className="mt-2">
+                                <Label className="text-xs">Общая длина шлангов</Label>
+                                <Select
+                                  value={orderData.additional_services.compressor_rent.hose_length.toString()}
+                                  onValueChange={(value) => setOrderData(prev => ({
+                                    ...prev,
+                                    additional_services: {
+                                      ...prev.additional_services,
+                                      compressor_rent: { ...prev.additional_services.compressor_rent, hose_length: parseInt(value) }
+                                    }
+                                  }))}
+                                >
+                                  <SelectTrigger className="mt-1">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="50">50 м (+400₽)</SelectItem>
+                                    <SelectItem value="100">100 м (+800₽)</SelectItem>
+                                    <SelectItem value="150">150 м (+1200₽)</SelectItem>
+                                    <SelectItem value="200">200 м (+1600₽)</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3 p-3 bg-steel-800/20 rounded-lg">
+                          <input
+                            type="checkbox"
+                            id="gas_pipe_testing"
+                            checked={orderData.additional_services.compressor_rent.gas_pipe_testing}
+                            onChange={(e) => setOrderData(prev => ({
+                              ...prev,
+                              additional_services: {
+                                ...prev.additional_services,
+                                compressor_rent: { ...prev.additional_services.compressor_rent, gas_pipe_testing: e.target.checked }
+                              }
+                            }))}
+                            className="w-4 h-4 text-primary mt-1"
+                          />
+                          <div className="flex-1">
+                            <Label htmlFor="gas_pipe_testing" className="text-steel-300 font-medium">
+                              Опрессовка газовых труб (+2500₽)
+                            </Label>
+                            <p className="text-xs text-steel-400 mt-1">
+                              Проверка герметичности газопроводов давлением
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Work Type */}
-                    <div>
-                      <Label>Тип работ</Label>
-                      <Select
-                        value={orderData.additional_services.compressor_rent.work_type}
-                        onValueChange={(value) => setOrderData(prev => ({
-                          ...prev,
-                          additional_services: {
-                            ...prev.additional_services,
-                            compressor_rent: { ...prev.additional_services.compressor_rent, work_type: value }
-                          }
-                        }))}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Выберите тип работ" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="demolition">Демонтаж</SelectItem>
-                          <SelectItem value="blowing">Продувка</SelectItem>
-                          <SelectItem value="painting">Покраска</SelectItem>
-                          <SelectItem value="road_work">Дорожные работы</SelectItem>
-                          <SelectItem value="other">Другое</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                    {/* Payment and Work Type */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Способ оплаты</Label>
+                        <Select
+                          value={orderData.additional_services.compressor_rent.payment_method}
+                          onValueChange={(value) => setOrderData(prev => ({
+                            ...prev,
+                            additional_services: {
+                              ...prev.additional_services,
+                              compressor_rent: { ...prev.additional_services.compressor_rent, payment_method: value }
+                            }
+                          }))}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cash">Наличными</SelectItem>
+                            <SelectItem value="with_vat">Безналичный с НДС (+300₽)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                  <div className="p-3 bg-steel-800/50 rounded-lg">
-                    <div className="text-sm text-steel-400">
-                      <div className="flex justify-between items-center">
-                        <span>Примерная стоимость:</span>
-                        <span className="text-primary font-medium text-lg">
-                          {calculateAdditionalServicesCost() - (orderData.additional_services.garbage_removal.enabled ? 
-                            (()=>{
-                              const service = orderData.additional_services.garbage_removal;
-                              const vehicleCosts = { gazelle_12: 4500, gazelle_16: 5500, kamaz_20: 8500, kamaz_30: 12000 };
-                              return (vehicleCosts[service.vehicle_type as keyof typeof vehicleCosts] || 4500) + (service.needs_loading ? 2000 : 0);
-                            })() : 0)} ₽
-                        </span>
+                      <div>
+                        <Label>Тип работ</Label>
+                        <Select
+                          value={orderData.additional_services.compressor_rent.work_type}
+                          onValueChange={(value) => setOrderData(prev => ({
+                            ...prev,
+                            additional_services: {
+                              ...prev.additional_services,
+                              compressor_rent: { ...prev.additional_services.compressor_rent, work_type: value }
+                            }
+                          }))}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue placeholder="Выберите тип работ" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="demolition">Демонтаж конструкций</SelectItem>
+                            <SelectItem value="road_work">Дорожные работы</SelectItem>
+                            <SelectItem value="blowing">Продувка и очистка</SelectItem>
+                            <SelectItem value="foundation">Работы с фундаментом</SelectItem>
+                            <SelectItem value="renovation">Ремонтные работы</SelectItem>
+                            <SelectItem value="other">Другое</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-r from-steel-800/30 to-steel-700/30 rounded-lg border border-steel-600">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-steel-300 font-medium">Общая стоимость аренды:</span>
+                          <span className="text-primary font-bold text-xl">
+                            {(() => {
+                              const service = orderData.additional_services.compressor_rent;
+                              const compressorHours = service.hours + service.delivery_hours;
+                              const baseRates = { light: 1200, medium: 1500, heavy: 1800 };
+                              let baseCost = compressorHours * baseRates[service.hammer_type as keyof typeof baseRates];
+                              if (service.hammer_count > 1) {
+                                const extraCosts = { light: 300, medium: 500, heavy: 700 };
+                                baseCost += extraCosts[service.hammer_type as keyof typeof extraCosts] * (service.hammer_count - 1);
+                              }
+                              if (service.has_blowing_hoses) baseCost += Math.ceil(service.hose_length / 50) * 400;
+                              if (service.gas_pipe_testing) baseCost += 2500;
+                              if (service.payment_method === 'with_vat') baseCost += 300;
+                              return baseCost;
+                            })()} ₽
+                          </span>
+                        </div>
+                        <div className="text-xs text-steel-400">
+                          ⏱️ Время: {orderData.additional_services.compressor_rent.hours + orderData.additional_services.compressor_rent.delivery_hours} часов
+                          • 🔨 {orderData.additional_services.compressor_rent.hammer_count} молоток(а) • 
+                          {orderData.additional_services.compressor_rent.payment_method === 'with_vat' ? ' 💳 С НДС' : ' 💵 Наличные'}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -926,93 +822,123 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   className="w-4 h-4 text-primary"
                 />
                 <Label htmlFor="garbage_enabled" className="text-steel-200 font-medium">
-                  🚛 Вывоз мусора (от 12 кубов до пухто)
+                  🚛 Вывоз мусора (12-30 кубов, возможна погрузка)
                 </Label>
               </div>
               
               {orderData.additional_services.garbage_removal.enabled && (
                 <div className="space-y-4 pl-7">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Тип мусора</Label>
-                      <Select
-                        value={orderData.additional_services.garbage_removal.waste_type}
-                        onValueChange={(value) => setOrderData(prev => ({
-                          ...prev,
-                          additional_services: {
-                            ...prev.additional_services,
-                            garbage_removal: { ...prev.additional_services.garbage_removal, waste_type: value }
-                          }
-                        }))}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Выберите тип мусора" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="construction">Строительный мусор</SelectItem>
-                          <SelectItem value="household">Бытовой мусор</SelectItem>
-                          <SelectItem value="bulky">Крупногабаритный мусор</SelectItem>
-                          <SelectItem value="mixed">Смешанный</SelectItem>
-                          <SelectItem value="renovation">Ремонтный мусор</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Тип транспорта</Label>
-                      <Select
-                        value={orderData.additional_services.garbage_removal.vehicle_type}
-                        onValueChange={(value) => setOrderData(prev => ({
-                          ...prev,
-                          additional_services: {
-                            ...prev.additional_services,
-                            garbage_removal: { ...prev.additional_services.garbage_removal, vehicle_type: value }
-                          }
-                        }))}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gazelle_12">Газель 12 куб. (4500₽)</SelectItem>
-                          <SelectItem value="gazelle_16">Газель 16 куб. (5500₽)</SelectItem>
-                          <SelectItem value="kamaz_20">КамАЗ 20 куб. (8500₽)</SelectItem>
-                          <SelectItem value="kamaz_30">КамАЗ 30 куб. (12000₽)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      id="needs_loading"
-                      checked={orderData.additional_services.garbage_removal.needs_loading}
-                      onChange={(e) => setOrderData(prev => ({
+                  <div>
+                    <Label>Тип мусора</Label>
+                    <Select
+                      value={orderData.additional_services.garbage_removal.waste_type}
+                      onValueChange={(value) => setOrderData(prev => ({
                         ...prev,
                         additional_services: {
                           ...prev.additional_services,
-                          garbage_removal: { ...prev.additional_services.garbage_removal, needs_loading: e.target.checked }
+                          garbage_removal: { ...prev.additional_services.garbage_removal, waste_type: value }
                         }
                       }))}
-                      className="w-4 h-4 text-primary"
-                    />
-                    <Label htmlFor="needs_loading" className="text-steel-300">
-                      Нужна погрузка грузчиками (+2000₽)
-                    </Label>
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Выберите тип мусора" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="construction">🧱 Строительный мусор (бетон, кирпич)</SelectItem>
+                        <SelectItem value="renovation">🔨 Ремонтный мусор (гипсокартон, обои)</SelectItem>
+                        <SelectItem value="household">🏠 Бытовой мусор</SelectItem>
+                        <SelectItem value="bulky">📦 Крупногабаритный (мебель, техника)</SelectItem>
+                        <SelectItem value="mixed">🔄 Смешанный мусор</SelectItem>
+                        <SelectItem value="green">🌿 Растительные отходы</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   
-                  <div className="p-3 bg-steel-800/50 rounded-lg">
-                    <div className="text-sm text-steel-400">
-                      <div className="flex justify-between items-center">
-                        <span>Примерная стоимость:</span>
-                        <span className="text-primary font-medium text-lg">
-                          {(()=>{
-                            const service = orderData.additional_services.garbage_removal;
-                            const vehicleCosts = { gazelle_12: 4500, gazelle_16: 5500, kamaz_20: 8500, kamaz_30: 12000 };
-                            return (vehicleCosts[service.vehicle_type as keyof typeof vehicleCosts] || 4500) + (service.needs_loading ? 2000 : 0);
-                          })()} ₽
-                        </span>
+                  <div>
+                    <Label>Выбор транспорта</Label>
+                    <div className="mt-2 space-y-2">
+                      {[
+                        { value: 'gazelle_12', label: 'Газель 12 куб.', price: '4500₽', description: 'Для квартиры, небольшого офиса' },
+                        { value: 'gazelle_16', label: 'Газель 16 куб.', price: '5500₽', description: 'Для 1-2 комнатной квартиры' },
+                        { value: 'kamaz_20', label: 'КамАЗ 20 куб.', price: '8500₽', description: 'Для большой квартиры, частного дома' },
+                        { value: 'kamaz_30', label: 'КамАЗ 30 куб.', price: '12000₽', description: 'Для коттеджа, строительного участка' }
+                      ].map((vehicle) => (
+                        <div
+                          key={vehicle.value}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            orderData.additional_services.garbage_removal.vehicle_type === vehicle.value
+                              ? 'border-primary bg-primary/10'
+                              : 'border-steel-600 bg-steel-800/20 hover:border-steel-500'
+                          }`}
+                          onClick={() => setOrderData(prev => ({
+                            ...prev,
+                            additional_services: {
+                              ...prev.additional_services,
+                              garbage_removal: { ...prev.additional_services.garbage_removal, vehicle_type: vehicle.value as any }
+                            }
+                          }))}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-medium text-steel-200">{vehicle.label}</div>
+                              <div className="text-xs text-steel-400 mt-1">{vehicle.description}</div>
+                            </div>
+                            <div className="text-primary font-bold">{vehicle.price}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-steel-800/30 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id="needs_loading"
+                        checked={orderData.additional_services.garbage_removal.needs_loading}
+                        onChange={(e) => setOrderData(prev => ({
+                          ...prev,
+                          additional_services: {
+                            ...prev.additional_services,
+                            garbage_removal: { ...prev.additional_services.garbage_removal, needs_loading: e.target.checked }
+                          }
+                        }))}
+                        className="w-4 h-4 text-primary mt-1"
+                      />
+                      <div className="flex-1">
+                        <Label htmlFor="needs_loading" className="text-steel-300 font-medium">
+                          Погрузка силами грузчиков
+                        </Label>
+                        <p className="text-xs text-steel-400 mt-1">
+                          Доплата: {
+                            orderData.additional_services.garbage_removal.vehicle_type === 'gazelle_12' ? '1500₽' :
+                            orderData.additional_services.garbage_removal.vehicle_type === 'gazelle_16' ? '2000₽' :
+                            orderData.additional_services.garbage_removal.vehicle_type === 'kamaz_20' ? '2500₽' :
+                            '3000₽'
+                          } за погрузку и вынос мусора
+                        </p>
                       </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-steel-800/30 to-steel-700/30 rounded-lg border border-steel-600">
+                    <div className="flex justify-between items-center">
+                      <span className="text-steel-300 font-medium">Стоимость вывоза:</span>
+                      <span className="text-primary font-bold text-xl">
+                        {(() => {
+                          const service = orderData.additional_services.garbage_removal;
+                          const vehicleCosts = { gazelle_12: 4500, gazelle_16: 5500, kamaz_20: 8500, kamaz_30: 12000 };
+                          const loadingCosts = { gazelle_12: 1500, gazelle_16: 2000, kamaz_20: 2500, kamaz_30: 3000 };
+                          return (vehicleCosts[service.vehicle_type as keyof typeof vehicleCosts] || 4500) + 
+                                 (service.needs_loading ? (loadingCosts[service.vehicle_type as keyof typeof loadingCosts] || 1500) : 0);
+                        })()} ₽
+                      </span>
+                    </div>
+                    <div className="text-xs text-steel-400 mt-1">
+                      🚛 {orderData.additional_services.garbage_removal.vehicle_type === 'gazelle_12' ? '12' : 
+                           orderData.additional_services.garbage_removal.vehicle_type === 'gazelle_16' ? '16' :
+                           orderData.additional_services.garbage_removal.vehicle_type === 'kamaz_20' ? '20' : '30'} куб.
+                      {orderData.additional_services.garbage_removal.needs_loading && ' • 👥 С погрузкой'}
                     </div>
                   </div>
                 </div>
@@ -1089,20 +1015,15 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-4 pt-4">
-            <Button 
-              onClick={onClose}
-              variant="outline" 
-              className="flex-1"
-              disabled={isCreating}
-            >
+          {/* Submit Button */}
+          <div className="flex space-x-3">
+            <Button variant="outline" onClick={onClose} className="flex-1">
               Отмена
             </Button>
             <Button 
-              onClick={handleCreateOrder}
+              onClick={handleCreateOrder} 
+              disabled={isCreating || userBalance < getCurrentPriorityCost()}
               className="flex-1"
-              disabled={isCreating || !orderData.title.trim() || !orderData.description.trim() || !orderData.price.trim() || userBalance < getCurrentPriorityCost()}
             >
               {isCreating ? (
                 <>
