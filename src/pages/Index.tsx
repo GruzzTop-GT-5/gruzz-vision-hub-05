@@ -79,42 +79,37 @@ const Index = () => {
           <p className="text-steel-300">Платформа для поиска специалистов и разнорабочих</p>
         </div>
 
-        {/* Main Actions */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-center">Создать объявление</h2>
-          <div className="grid gap-4">
-            {user ? (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowCreateOrder(true)}
-              >
-                <User className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">👷 Найти Исполнителей</div>
-                  <div className="text-sm opacity-70">Разместить заказ на поиск людей</div>
-                </div>
-              </Button>
-            ) : (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowAuth(true)}
-              >
-                <User className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">👷 Найти Исполнителей</div>
-                  <div className="text-sm opacity-70">Разместить заказ на поиск людей</div>
-                </div>
-              </Button>
-            )}
-          </div>
-        </div>
 
         {/* Navigation Actions */}
         <div className="grid md:grid-cols-3 gap-4">
           {user ? (
+            <Button 
+              className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+              onClick={() => setShowCreateOrder(true)}
+            >
+              <User className="w-8 h-8" />
+              <div>
+                <div className="font-bold">Создать объявление</div>
+                <div className="text-sm opacity-70">Найти исполнителей</div>
+              </div>
+            </Button>
+          ) : (
+            <Button 
+              className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
+              onClick={() => setShowAuth(true)}
+            >
+              <User className="w-8 h-8" />
+              <div>
+                <div className="font-bold">Создать объявление</div>
+                <div className="text-sm opacity-70">Найти исполнителей</div>
+              </div>
+            </Button>
+          )}
+          
+          {user ? (
             <Link to="/orders">
               <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
-                <User className="w-8 h-8" />
+                <Search className="w-8 h-8" />
                 <div>
                   <div className="font-bold">Мои задания</div>
                   <div className="text-sm opacity-70">Размещенные мной заказы</div>
@@ -126,33 +121,10 @@ const Index = () => {
               className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
               onClick={() => setShowAuth(true)}
             >
-              <User className="w-8 h-8" />
+              <Search className="w-8 h-8" />
               <div>
                 <div className="font-bold">Мои задания</div>
                 <div className="text-sm opacity-70">Размещенные мной заказы</div>
-              </div>
-            </Button>
-          )}
-          
-          {user ? (
-            <Link to="/available-orders">
-              <Button className="btn-3d p-6 h-auto flex-col space-y-2 w-full">
-                <Search className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">Найти исполнителей</div>
-                  <div className="text-sm opacity-70">Резюме специалистов</div>
-                </div>
-              </Button>
-            </Link>
-          ) : (
-            <Button 
-              className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-              onClick={() => setShowAuth(true)}
-            >
-              <Search className="w-8 h-8" />
-              <div>
-                <div className="font-bold">Найти исполнителей</div>
-                <div className="text-sm opacity-70">Резюме специалистов</div>
               </div>
             </Button>
           )}
