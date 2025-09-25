@@ -10,14 +10,12 @@ import { Plus, Search, Filter, Calendar, User, Settings, Wrench, Truck, Package 
 import { Link } from 'react-router-dom';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { CreateOrderModal } from '@/components/CreateOrderModal';
-import { CreateComplexServiceModal } from '@/components/CreateComplexServiceModal';
 
 const Index = () => {
   const { user, userRole, loading, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showCreateOrder, setShowCreateOrder] = useState(false);
-  const [showComplexService, setShowComplexService] = useState(false);
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
@@ -81,10 +79,10 @@ const Index = () => {
           <p className="text-steel-300">Платформа для поиска специалистов и разнорабочих</p>
         </div>
 
-        {/* Main Services */}
+        {/* Main Actions */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-center">Создать объявление</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4">
             {user ? (
               <Button 
                 className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
@@ -92,8 +90,8 @@ const Index = () => {
               >
                 <User className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">👷 Найти Людей</div>
-                  <div className="text-sm opacity-70">Грузчики + Спецтехника + Вывоз</div>
+                  <div className="font-bold">👷 Найти Исполнителей</div>
+                  <div className="text-sm opacity-70">Разместить заказ на поиск людей</div>
                 </div>
               </Button>
             ) : (
@@ -103,32 +101,8 @@ const Index = () => {
               >
                 <User className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">👷 Найти Людей</div>
-                  <div className="text-sm opacity-70">Грузчики + Спецтехника + Вывоз</div>
-                </div>
-              </Button>
-            )}
-
-            {user ? (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowComplexService(true)}
-              >
-                <Package className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">🧩 Комплексный Заказ</div>
-                  <div className="text-sm opacity-70">Всё включено сразу</div>
-                </div>
-              </Button>
-            ) : (
-              <Button 
-                className="btn-3d p-6 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowAuth(true)}
-              >
-                <Package className="w-8 h-8" />
-                <div>
-                  <div className="font-bold">🧩 Комплексный Заказ</div>
-                  <div className="text-sm opacity-70">Всё включено сразу</div>
+                  <div className="font-bold">👷 Найти Исполнителей</div>
+                  <div className="text-sm opacity-70">Разместить заказ на поиск людей</div>
                 </div>
               </Button>
             )}
@@ -277,11 +251,6 @@ const Index = () => {
         isOpen={showCreateOrder}
         onClose={() => setShowCreateOrder(false)}
         onOrderCreated={() => setShowCreateOrder(false)}
-      />
-
-      <CreateComplexServiceModal
-        isOpen={showComplexService}
-        onClose={() => setShowComplexService(false)}
       />
     </Layout>
   );
