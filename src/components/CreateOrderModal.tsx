@@ -44,6 +44,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
   const [showCalendar, setShowCalendar] = useState(false);
   const [userBalance, setUserBalance] = useState<number>(0);
   const [priorityCosts, setPriorityCosts] = useState({ normal: 15, high: 35, urgent: 55 });
+  const [currentStep, setCurrentStep] = useState<'service-type' | 'order-details'>('service-type');
   
   const [orderData, setOrderData] = useState({
     title: '',

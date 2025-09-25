@@ -10,8 +10,6 @@ import { Plus, Search, Filter, Calendar, User, Settings, Wrench, Truck, Package 
 import { Link } from 'react-router-dom';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { CreateOrderModal } from '@/components/CreateOrderModal';
-import { CreateCompressorRentModal } from '@/components/CreateCompressorRentModal';
-import { CreateGarbageRemovalModal } from '@/components/CreateGarbageRemovalModal';
 import { CreateComplexServiceModal } from '@/components/CreateComplexServiceModal';
 
 const Index = () => {
@@ -19,8 +17,6 @@ const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showCreateOrder, setShowCreateOrder] = useState(false);
-  const [showCompressorRent, setShowCompressorRent] = useState(false);
-  const [showGarbageRemoval, setShowGarbageRemoval] = useState(false);
   const [showComplexService, setShowComplexService] = useState(false);
 
   const handleAuthSuccess = () => {
@@ -87,7 +83,7 @@ const Index = () => {
 
         {/* Main Services */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-center">Заказать услуги</h2>
+          <h2 className="text-xl font-bold text-center">Создать объявление</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {user ? (
               <Button 
@@ -96,8 +92,8 @@ const Index = () => {
               >
                 <User className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">👷 Заказать Грузчиков</div>
-                  <div className="text-sm opacity-70">Профессиональные грузчики</div>
+                  <div className="font-bold">👷 Найти Людей</div>
+                  <div className="text-sm opacity-70">Грузчики + Спецтехника + Вывоз</div>
                 </div>
               </Button>
             ) : (
@@ -107,8 +103,8 @@ const Index = () => {
               >
                 <User className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">👷 Заказать Грузчиков</div>
-                  <div className="text-sm opacity-70">Профессиональные грузчики</div>
+                  <div className="font-bold">👷 Найти Людей</div>
+                  <div className="text-sm opacity-70">Грузчики + Спецтехника + Вывоз</div>
                 </div>
               </Button>
             )}
@@ -120,8 +116,8 @@ const Index = () => {
               >
                 <Package className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">🧩 Заказать Всё Вместе</div>
-                  <div className="text-sm opacity-70">Грузчики + Компрессор + Вывоз</div>
+                  <div className="font-bold">🧩 Комплексный Заказ</div>
+                  <div className="text-sm opacity-70">Всё включено сразу</div>
                 </div>
               </Button>
             ) : (
@@ -131,59 +127,8 @@ const Index = () => {
               >
                 <Package className="w-8 h-8" />
                 <div>
-                  <div className="font-bold">🧩 Заказать Всё Вместе</div>
-                  <div className="text-sm opacity-70">Грузчики + Компрессор + Вывоз</div>
-                </div>
-              </Button>
-            )}
-          </div>
-          
-          {/* Additional Services */}
-          <div className="grid md:grid-cols-2 gap-4">
-            {user ? (
-              <Button 
-                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowCompressorRent(true)}
-              >
-                <Wrench className="w-6 h-6" />
-                <div>
-                  <div className="font-semibold text-sm">🔨 Аренда Компрессора</div>
-                  <div className="text-xs opacity-70">Компрессорное оборудование</div>
-                </div>
-              </Button>
-            ) : (
-              <Button 
-                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowAuth(true)}
-              >
-                <Wrench className="w-6 h-6" />
-                <div>
-                  <div className="font-semibold text-sm">🔨 Аренда Компрессора</div>
-                  <div className="text-xs opacity-70">Компрессорное оборудование</div>
-                </div>
-              </Button>
-            )}
-
-            {user ? (
-              <Button 
-                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowGarbageRemoval(true)}
-              >
-                <Truck className="w-6 h-6" />
-                <div>
-                  <div className="font-semibold text-sm">🚛 Вывоз Мусора</div>
-                  <div className="text-xs opacity-70">Строительный и бытовой</div>
-                </div>
-              </Button>
-            ) : (
-              <Button 
-                className="btn-3d p-4 h-auto flex-col space-y-2 w-full"
-                onClick={() => setShowAuth(true)}
-              >
-                <Truck className="w-6 h-6" />
-                <div>
-                  <div className="font-semibold text-sm">🚛 Вывоз Мусора</div>
-                  <div className="text-xs opacity-70">Строительный и бытовой</div>
+                  <div className="font-bold">🧩 Комплексный Заказ</div>
+                  <div className="text-sm opacity-70">Всё включено сразу</div>
                 </div>
               </Button>
             )}
@@ -332,20 +277,6 @@ const Index = () => {
         isOpen={showCreateOrder}
         onClose={() => setShowCreateOrder(false)}
         onOrderCreated={() => setShowCreateOrder(false)}
-      />
-
-      <CreateCompressorRentModal
-        isOpen={showCompressorRent}
-        onClose={() => setShowCompressorRent(false)}
-      />
-
-      <CreateGarbageRemovalModal
-        isOpen={showGarbageRemoval}
-        onClose={() => setShowGarbageRemoval(false)}
-        onNeedsWorkers={() => {
-          setShowGarbageRemoval(false);
-          setShowCreateOrder(true);
-        }}
       />
 
       <CreateComplexServiceModal
