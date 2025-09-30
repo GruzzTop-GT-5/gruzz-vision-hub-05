@@ -265,10 +265,20 @@ export default function Ads() {
       <div className="min-h-screen p-4">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-glow">Заказы на работу</h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center">
+                <Package className="w-6 h-6 text-steel-900" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent">
+                  Заказы на работу
+                </h1>
+                <p className="text-steel-400">Найдите подходящую работу от заказчиков</p>
+              </div>
+            </div>
             <Link to="/create-order">
-              <Button className="bg-primary hover:bg-primary/80">
+              <Button className="bg-gradient-to-r from-primary to-electric-600 hover:from-primary/80 hover:to-electric-600/80 shadow-lg">
                 <Plus className="w-4 h-4 mr-2" />
                 Разместить заказ
               </Button>

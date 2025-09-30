@@ -242,10 +242,17 @@ const Profile = () => {
     <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <User className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-glow">Мой профиль</h1>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-steel-900" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent">
+                  Мой профиль
+                </h1>
+                <p className="text-steel-400">Управление личной информацией</p>
+              </div>
             </div>
             <div className="flex space-x-2">
               {isEditing ? (
@@ -288,12 +295,15 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Основная информация */}
             <div className="lg:col-span-2 space-y-6">
-              <Card className="card-steel">
-                <CardHeader>
-                  <CardTitle className="text-steel-100">Основная информация</CardTitle>
+              <Card className="card-steel border-primary/20 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-primary/10 to-electric-600/10 border-b border-steel-600">
+                  <CardTitle className="text-steel-100 flex items-center space-x-2">
+                    <User className="w-5 h-5 text-primary" />
+                    <span>Основная информация</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-4">

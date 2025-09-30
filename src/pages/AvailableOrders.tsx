@@ -191,20 +191,27 @@ const AvailableOrders = () => {
       <div className="min-h-screen p-4">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Briefcase className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-glow">Поиск исполнителей</h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+                <Briefcase className="w-6 h-6 text-steel-900" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-glow bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                  Поиск исполнителей
+                </h1>
+                <p className="text-steel-400">Резюме специалистов и исполнителей</p>
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
               <Link to="/create-ad">
-                <Button className="bg-primary hover:bg-primary/80">
+                <Button className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-500/80 hover:to-blue-600/80 shadow-lg">
                   <Plus className="w-4 h-4 mr-2" />
                   Разместить резюме
                 </Button>
               </Link>
-              <div className="text-sm text-steel-400">
+              <div className="text-sm text-steel-400 bg-steel-800 px-3 py-1 rounded-full">
                 Найдено: {filteredResumes.length} резюме
               </div>
             </div>
