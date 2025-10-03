@@ -50,104 +50,80 @@ const Index = () => {
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
       <div className="p-4 space-y-6">
-        {/* Показать кнопку "Войти" если пользователь не авторизован */}
-        {!user && (
-          <div className="text-center mb-6">
-            <Link to="/auth">
-              <Button className="btn-3d px-8 py-3">
-                <User className="w-4 h-4 mr-2" />
-                Войти в аккаунт
-              </Button>
-            </Link>
-          </div>
-        )}
-
-        {/* Показать админ панель если пользователь администратор */}
-        {user && userRole && ['admin', 'system_admin', 'moderator', 'support'].includes(userRole) && (
-          <div className="text-center mb-6">
-            <Link to="/admin">
-              <Button className="btn-3d px-8 py-3 bg-gradient-to-r from-red-500 to-red-600">
-                <Settings className="w-4 h-4 mr-2" />
-                Административная панель
-              </Button>
-            </Link>
-          </div>
-        )}
         {/* Hero Section */}
-        <div className="text-center space-y-6 mb-8">
+        <div className="text-center space-y-6 mb-8 animate-fade-in">
           <div className="space-y-4">
-            <h1 className="text-4xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow">
               GruzzTop
             </h1>
-            <p className="text-xl text-steel-200 font-medium">
+            <p className="text-xl md:text-2xl text-foreground/90 font-semibold">
               Сервис поиска надежных исполнителей
             </p>
-            <p className="text-steel-400 max-w-2xl mx-auto">
-              Мы соединяем заказчиков с проверенными специалистами для выполнения различных задач. 
-              Все платежи проходят через нашу платформу с фиксированными тарифами для безопасности сделок.
+            <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Соединяем заказчиков с проверенными специалистами. Прозрачная оплата через платформу с фиксированными тарифами.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto text-sm">
-            <div className="bg-steel-800/50 p-4 rounded-lg border border-steel-600">
-              <div className="flex items-center justify-center mb-2">
-                <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-green-400" />
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="bg-card hover:bg-accent/5 p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center ring-2 ring-green-500/20">
+                  <Shield className="w-6 h-6 text-green-500" />
                 </div>
               </div>
-              <h3 className="font-semibold text-steel-100 mb-1">Проверенные исполнители</h3>
-              <p className="text-steel-400">Все специалисты проходят модерацию</p>
+              <h3 className="font-semibold text-foreground mb-2 text-center">Проверенные специалисты</h3>
+              <p className="text-muted-foreground text-sm text-center">Все исполнители проходят модерацию</p>
             </div>
             
-            <div className="bg-steel-800/50 p-4 rounded-lg border border-steel-600">
-              <div className="flex items-center justify-center mb-2">
-                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-blue-400" />
+            <div className="bg-card hover:bg-accent/5 p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center ring-2 ring-primary/20">
+                  <Clock className="w-6 h-6 text-primary" />
                 </div>
               </div>
-              <h3 className="font-semibold text-steel-100 mb-1">Фиксированные тарифы</h3>
-              <p className="text-steel-400">Прозрачная система оплаты</p>
+              <h3 className="font-semibold text-foreground mb-2 text-center">Быстрые сделки</h3>
+              <p className="text-muted-foreground text-sm text-center">Находите исполнителя за минуты</p>
             </div>
             
-            <div className="bg-steel-800/50 p-4 rounded-lg border border-steel-600">
-              <div className="flex items-center justify-center mb-2">
-                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-primary" />
+            <div className="bg-card hover:bg-accent/5 p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center ring-2 ring-blue-500/20">
+                  <User className="w-6 h-6 text-blue-500" />
                 </div>
               </div>
-              <h3 className="font-semibold text-steel-100 mb-1">Быстрый поиск</h3>
-              <p className="text-steel-400">Найдите исполнителя за минуты</p>
+              <h3 className="font-semibold text-foreground mb-2 text-center">Фиксированные тарифы</h3>
+              <p className="text-muted-foreground text-sm text-center">Прозрачная система оплаты</p>
             </div>
           </div>
         </div>
 
 
         {/* Main Navigation Cards */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {/* Создать объявление */}
           {user ? (
-            <Card className="card-steel group hover:border-primary/50 transition-all duration-300 cursor-pointer overflow-hidden" onClick={() => setShowCreateOrder(true)}>
-              <div className="p-6 text-center space-y-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-electric-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => setShowCreateOrder(true)}>
+              <div className="p-8 text-center space-y-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Plus className="w-8 h-8 text-steel-900" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                    <Plus className="w-10 h-10 text-primary-foreground" />
                   </div>
-                  <h3 className="text-xl font-bold text-steel-100 mb-2">Создать заказ</h3>
-                  <p className="text-steel-400">Опубликуйте задание и найдите исполнителей</p>
+                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
+                  <p className="text-muted-foreground text-sm">Разместите задание для исполнителей</p>
                 </div>
               </div>
             </Card>
           ) : (
-            <Card className="card-steel group hover:border-primary/50 transition-all duration-300 cursor-pointer overflow-hidden" onClick={() => setShowAuth(true)}>
-              <div className="p-6 text-center space-y-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-electric-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => setShowAuth(true)}>
+              <div className="p-8 text-center space-y-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Plus className="w-8 h-8 text-steel-900" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                    <Plus className="w-10 h-10 text-primary-foreground" />
                   </div>
-                  <h3 className="text-xl font-bold text-steel-100 mb-2">Создать заказ</h3>
-                  <p className="text-steel-400">Опубликуйте задание и найдите исполнителей</p>
+                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
+                  <p className="text-muted-foreground text-sm">Разместите задание для исполнителей</p>
                 </div>
               </div>
             </Card>
@@ -156,29 +132,29 @@ const Index = () => {
           {/* Мои задания */}
           {user ? (
             <Link to="/orders">
-              <Card className="card-steel group hover:border-green-500/50 transition-all duration-300 cursor-pointer overflow-hidden">
-                <div className="p-6 text-center space-y-4 relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10">
+                <div className="p-8 text-center space-y-4 relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <Briefcase className="w-8 h-8 text-steel-900" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                      <Briefcase className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-steel-100 mb-2">Мои заказы</h3>
-                    <p className="text-steel-400">Управляйте размещенными заказами</p>
+                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
+                    <p className="text-muted-foreground text-sm">Управление размещенными заказами</p>
                   </div>
                 </div>
               </Card>
             </Link>
           ) : (
-            <Card className="card-steel group hover:border-green-500/50 transition-all duration-300 cursor-pointer overflow-hidden" onClick={() => setShowAuth(true)}>
-              <div className="p-6 text-center space-y-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10" onClick={() => setShowAuth(true)}>
+              <div className="p-8 text-center space-y-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Briefcase className="w-8 h-8 text-steel-900" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                    <Briefcase className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-steel-100 mb-2">Мои заказы</h3>
-                  <p className="text-steel-400">Управляйте размещенными заказами</p>
+                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
+                  <p className="text-muted-foreground text-sm">Управление размещенными заказами</p>
                 </div>
               </div>
             </Card>
@@ -187,29 +163,29 @@ const Index = () => {
           {/* Найти работу */}
           {user ? (
             <Link to="/ads">
-              <Card className="card-steel group hover:border-orange-500/50 transition-all duration-300 cursor-pointer overflow-hidden">
-                <div className="p-6 text-center space-y-4 relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10">
+                <div className="p-8 text-center space-y-4 relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <Search className="w-8 h-8 text-steel-900" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                      <Search className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-steel-100 mb-2">Найти работу</h3>
-                    <p className="text-steel-400">Просматривайте доступные заказы</p>
+                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
+                    <p className="text-muted-foreground text-sm">Просмотр доступных заказов</p>
                   </div>
                 </div>
               </Card>
             </Link>
           ) : (
-            <Card className="card-steel group hover:border-orange-500/50 transition-all duration-300 cursor-pointer overflow-hidden" onClick={() => setShowAuth(true)}>
-              <div className="p-6 text-center space-y-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10" onClick={() => setShowAuth(true)}>
+              <div className="p-8 text-center space-y-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Search className="w-8 h-8 text-steel-900" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                    <Search className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-steel-100 mb-2">Найти работу</h3>
-                  <p className="text-steel-400">Просматривайте доступные заказы</p>
+                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
+                  <p className="text-muted-foreground text-sm">Просмотр доступных заказов</p>
                 </div>
               </div>
             </Card>
