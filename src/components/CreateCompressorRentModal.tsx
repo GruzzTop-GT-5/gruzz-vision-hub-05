@@ -264,17 +264,17 @@ export const CreateCompressorRentModal: React.FC<CreateCompressorRentModalProps>
             </div>
 
             {formData.rentalDuration && (
-              <div className="p-4 bg-muted rounded-lg">
-                <h3 className="font-semibold mb-2">Предварительная стоимость:</h3>
-                <p className="text-2xl font-bold text-primary">
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                <h3 className="font-semibold mb-2 text-foreground">Предварительная стоимость:</h3>
+                <p className="text-3xl font-bold text-primary mb-2">
                   {calculateCost().toLocaleString()} ₽
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Аренда: {formData.rentalDuration}ч × 1,500₽ = {(parseFloat(formData.rentalDuration) * 1500).toLocaleString()}₽
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>• Аренда: {formData.rentalDuration} ч × 1,500 ₽ = {(parseFloat(formData.rentalDuration) * 1500).toLocaleString()} ₽</p>
                   {formData.selectedEquipment.length > 0 && (
-                    <span><br/>Доп. оборудование: {formData.selectedEquipment.length} × 500₽ = {formData.selectedEquipment.length * 500}₽</span>
+                    <p>• Доп. оборудование: {formData.selectedEquipment.length} шт × 500 ₽ = {formData.selectedEquipment.length * 500} ₽</p>
                   )}
-                </p>
+                </div>
               </div>
             )}
           </div>

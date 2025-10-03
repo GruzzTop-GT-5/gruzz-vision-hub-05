@@ -206,13 +206,13 @@ export const CreateComplexServiceModal: React.FC<CreateComplexServiceModalProps>
                         {getServiceIcon(service.type)}
                         <span className="font-medium">{getServiceName(service.type)}</span>
                       </div>
-                      <div className="font-semibold">{service.cost.toLocaleString()}₽</div>
+                      <div className="font-semibold text-primary">{service.cost.toLocaleString()} ₽</div>
                     </div>
                   ))}
                   
-                  <div className="flex items-center justify-between p-4 bg-primary/10 rounded-lg">
-                    <span className="font-semibold text-lg">Общая стоимость:</span>
-                    <span className="font-bold text-xl text-primary">{totalCost.toLocaleString()}₽</span>
+                  <div className="flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                    <span className="font-semibold text-lg text-foreground">Общая стоимость:</span>
+                    <span className="font-bold text-2xl text-primary">{totalCost.toLocaleString()} ₽</span>
                   </div>
                 </div>
               </>

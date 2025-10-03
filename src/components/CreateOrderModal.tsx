@@ -396,26 +396,27 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
 
         <div className="space-y-6">
           {/* Balance Display */}
-          <div className="p-4 bg-steel-900/50 rounded-lg border border-steel-700">
+          <div className="p-4 bg-card rounded-lg border border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="text-steel-300">Ваш баланс:</span>
-                <span className="font-bold text-primary">{userBalance} GT Coins</span>
+                <span className="text-muted-foreground">Ваш баланс:</span>
+                <span className="font-bold text-primary">{userBalance} GT</span>
+                <span className="text-sm text-muted-foreground">(= {userBalance} ₽)</span>
               </div>
               <div className="text-right">
-                <p className="text-sm text-steel-400">Стоимость размещения:</p>
-                <p className="font-bold text-primary">{getCurrentPriorityCost()} GT Coins</p>
+                <p className="text-sm text-muted-foreground">Стоимость размещения:</p>
+                <p className="font-bold text-primary">{getCurrentPriorityCost()} GT (= {getCurrentPriorityCost()} ₽)</p>
                 {calculateAdditionalServicesCost() > 0 && (
                   <>
-                    <p className="text-sm text-steel-400 mt-1">Доп. услуги (примерно):</p>
-                    <p className="font-bold text-primary">{calculateAdditionalServicesCost().toLocaleString()} ₽</p>
+                    <p className="text-sm text-muted-foreground mt-1">Доп. услуги (примерно):</p>
+                    <p className="font-bold text-orange-500">{calculateAdditionalServicesCost().toLocaleString()} ₽</p>
                   </>
                 )}
               </div>
             </div>
             {userBalance < getCurrentPriorityCost() && (
-              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <p className="text-red-400 text-sm">
+              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-destructive text-sm">
                   Недостаточно средств. Пополните баланс.
                 </p>
               </div>

@@ -286,17 +286,17 @@ export const CreateGarbageRemovalModal: React.FC<CreateGarbageRemovalModalProps>
             </div>
 
             {formData.wasteType && formData.volume && (
-              <div className="p-4 bg-muted rounded-lg">
-                <h3 className="font-semibold mb-2">Предварительная стоимость:</h3>
-                <p className="text-2xl font-bold text-primary">
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                <h3 className="font-semibold mb-2 text-foreground">Предварительная стоимость:</h3>
+                <p className="text-3xl font-bold text-primary mb-2">
                   {calculateCost().toLocaleString()} ₽
                 </p>
-                <div className="text-sm text-muted-foreground mt-1">
-                  <p>Базовая стоимость: {wasteTypes.find(t => t.value === formData.wasteType)?.basePrice.toLocaleString()}₽</p>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>• Базовая стоимость: {wasteTypes.find(t => t.value === formData.wasteType)?.basePrice.toLocaleString()} ₽</p>
                   {formData.volume !== 'custom' && (
-                    <p>Объем: ×{volumeOptions.find(v => v.value === formData.volume)?.multiplier}</p>
+                    <p>• Коэффициент объёма: ×{volumeOptions.find(v => v.value === formData.volume)?.multiplier}</p>
                   )}
-                  {formData.needsLoading === 'yes' && <p>Погрузка: +1,500₽</p>}
+                  {formData.needsLoading === 'yes' && <p>• Погрузка: +1,500 ₽</p>}
                 </div>
               </div>
             )}

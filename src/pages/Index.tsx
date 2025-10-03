@@ -192,38 +192,57 @@ const Index = () => {
           )}
         </div>
 
+
         {/* Additional Information */}
         {user && (
-          <Card className="card-steel p-6">
-            <div className="text-center space-y-4">
-              <h3 className="text-xl font-bold text-steel-100">Как это работает?</h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="space-y-3">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
-                    <span className="text-xl font-bold text-primary">1</span>
-                  </div>
-                  <h4 className="font-semibold text-steel-100">Создайте заказ</h4>
-                  <p className="text-sm text-steel-400">Опишите задачу, укажите бюджет и сроки выполнения</p>
+          <div className="space-y-6">
+            {/* Price Info Card */}
+            <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
+              <div className="p-6 text-center">
+                <h3 className="text-2xl font-bold text-foreground mb-2">Стоимость размещения</h3>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className="text-4xl font-bold text-primary">1 GT</span>
+                  <span className="text-2xl text-muted-foreground">=</span>
+                  <span className="text-4xl font-bold text-primary">1 ₽</span>
                 </div>
-                
-                <div className="space-y-3">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
-                    <span className="text-xl font-bold text-green-400">2</span>
+                <p className="text-muted-foreground text-sm">
+                  GT Coins — внутренняя валюта платформы для размещения заказов
+                </p>
+              </div>
+            </Card>
+
+            {/* How it works */}
+            <Card className="bg-card border-border">
+              <div className="p-6 text-center space-y-6">
+                <h3 className="text-2xl font-bold text-foreground">Как это работает?</h3>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="space-y-3">
+                    <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto ring-2 ring-primary/20">
+                      <span className="text-2xl font-bold text-primary">1</span>
+                    </div>
+                    <h4 className="font-semibold text-foreground">Создайте заказ</h4>
+                    <p className="text-sm text-muted-foreground">Опишите задачу, укажите бюджет и условия работы</p>
                   </div>
-                  <h4 className="font-semibold text-steel-100">Выберите исполнителя</h4>
-                  <p className="text-sm text-steel-400">Получите отклики и выберите подходящего специалиста</p>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto">
-                    <span className="text-xl font-bold text-blue-400">3</span>
+                  
+                  <div className="space-y-3">
+                    <div className="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto ring-2 ring-green-500/20">
+                      <span className="text-2xl font-bold text-green-500">2</span>
+                    </div>
+                    <h4 className="font-semibold text-foreground">Выберите исполнителя</h4>
+                    <p className="text-sm text-muted-foreground">Получите отклики и выберите подходящего специалиста</p>
                   </div>
-                  <h4 className="font-semibold text-steel-100">Получите результат</h4>
-                  <p className="text-sm text-steel-400">Безопасная оплата после выполнения работы</p>
+                  
+                  <div className="space-y-3">
+                    <div className="w-14 h-14 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto ring-2 ring-blue-500/20">
+                      <span className="text-2xl font-bold text-blue-500">3</span>
+                    </div>
+                    <h4 className="font-semibold text-foreground">Получите результат</h4>
+                    <p className="text-sm text-muted-foreground">Безопасная оплата после выполнения работы</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         )}
 
         {/* Authentication prompt for non-logged users */}
