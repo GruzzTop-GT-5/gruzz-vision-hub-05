@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { OrderDetailsModal } from '@/components/OrderDetailsModal';
+import { OrderBidForm } from '@/components/OrderBidForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package, Clock } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package, Clock, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { format } from 'date-fns';
@@ -101,6 +102,8 @@ export default function Ads() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showBidForm, setShowBidForm] = useState(false);
+  const [selectedOrderForBid, setSelectedOrderForBid] = useState<Order | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -216,6 +219,20 @@ export default function Ads() {
   };
 
   const handleOrderUpdate = () => {
+    fetchOrders();
+  };
+
+  const handleBidClick = (order: Order) => {
+    if (!user) {
+      return;
+    }
+    setSelectedOrderForBid(order);
+    setShowBidForm(true);
+  };
+
+  const handleBidSuccess = () => {
+    setShowBidForm(false);
+    setSelectedOrderForBid(null);
     fetchOrders();
   };
 
@@ -474,19 +491,31 @@ export default function Ads() {
                         </div>
                       )}
 
-                      {/* Price */}
-                      <div className="flex items-center justify-between">
+                      {/* Price and Actions */}
+                      <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-4 h-4 text-green-400" />
                           <span className="text-lg font-bold text-steel-100">{order.price} ₽</span>
                         </div>
-                        <Button 
-                          size="sm" 
-                          className="bg-primary hover:bg-primary/80"
-                          onClick={() => handleViewDetails(order)}
-                        >
-                          Подробнее
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleViewDetails(order)}
+                          >
+                            Подробнее
+                          </Button>
+                          {user && (
+                            <Button 
+                              size="sm" 
+                              className="bg-primary hover:bg-primary/80"
+                              onClick={() => handleBidClick(order)}
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              Откликнуться
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -505,6 +534,20 @@ export default function Ads() {
         clientProfile={selectedOrder ? profiles[selectedOrder.client_id] : undefined}
         onUpdate={handleOrderUpdate}
       />
+
+      {/* Bid Form Modal */}
+      {selectedOrderForBid && (
+        <OrderBidForm
+          orderId={selectedOrderForBid.id}
+          orderTitle={selectedOrderForBid.title}
+          isOpen={showBidForm}
+          onClose={() => {
+            setShowBidForm(false);
+            setSelectedOrderForBid(null);
+          }}
+          onSuccess={handleBidSuccess}
+        />
+      )}
     </Layout>
   );
 }

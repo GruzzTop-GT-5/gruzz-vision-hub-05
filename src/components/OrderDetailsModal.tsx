@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrderBidsList } from '@/components/OrderBidsList';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -305,9 +306,10 @@ export const OrderDetailsModal = ({
         </DialogHeader>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details">Детали</TabsTrigger>
             <TabsTrigger value="files">Файлы</TabsTrigger>
+            {isClient && <TabsTrigger value="bids">Отклики</TabsTrigger>}
             <TabsTrigger value="history">История</TabsTrigger>
             <TabsTrigger value="chat">Чат</TabsTrigger>
           </TabsList>
@@ -564,6 +566,19 @@ export const OrderDetailsModal = ({
               )}
             </div>
           </TabsContent>
+
+          {/* Bids Tab - Only for Clients */}
+          {isClient && (
+            <TabsContent value="bids" className="space-y-4">
+              <OrderBidsList 
+                orderId={order.id} 
+                onBidAccepted={() => {
+                  onUpdate();
+                  onClose();
+                }}
+              />
+            </TabsContent>
+          )}
 
           <TabsContent value="history" className="space-y-4">
             <div className="space-y-2">
