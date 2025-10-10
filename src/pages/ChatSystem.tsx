@@ -211,19 +211,31 @@ export default function ChatSystem() {
     };
   };
 
-  const markNotificationAsRead = async (notificationId: string) => {
+  const markConversationNotificationsAsRead = async (conversationId: string | null) => {
+    if (!user?.id) return;
+    
     try {
-      await supabase
+      // Помечаем все непрочитанные уведомления из этого разговора
+      const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('id', notificationId);
+        .eq('user_id', user.id)
+        .eq('conversation_id', conversationId)
+        .eq('is_read', false);
 
+      if (error) throw error;
+
+      // Обновляем локальное состояние
       setNotifications(prev =>
-        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+        prev.map(n => 
+          n.conversation_id === conversationId ? { ...n, is_read: true } : n
+        )
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+      // Пересчитываем непрочитанные
+      fetchNotifications();
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error('Error marking notifications as read:', error);
     }
   };
 
@@ -435,8 +447,8 @@ export default function ChatSystem() {
                         !notification.is_read ? 'border-primary/20 bg-primary/5' : 'hover:bg-steel-800/50'
                       }`}
                       onClick={() => {
-                        if (!notification.is_read) {
-                          markNotificationAsRead(notification.id);
+                        if (!notification.is_read && notification.conversation_id) {
+                          markConversationNotificationsAsRead(notification.conversation_id);
                         }
                         if (notification.conversation_id) {
                           setSelectedConversation(notification.conversation_id);
