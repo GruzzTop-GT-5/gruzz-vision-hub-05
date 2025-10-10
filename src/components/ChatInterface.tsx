@@ -5,6 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,7 +32,9 @@ import {
   Image as ImageIcon, 
   File, 
   Download,
-  Phone
+  Phone,
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -59,6 +77,7 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -235,6 +254,33 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
     }
   };
 
+  const handleDeleteConversation = async () => {
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({ status: 'deleted' })
+        .eq('id', conversationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Чат удален",
+        description: "Чат успешно удален"
+      });
+
+      if (onClose) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить чат",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getMessageTime = (timestamp: string) => {
     return format(new Date(timestamp), 'HH:mm', { locale: ru });
   };
@@ -401,11 +447,30 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
             )}
           </div>
           
-          {onClose && (
-            <Button size="sm" variant="ghost" onClick={onClose}>
-              ✕
-            </Button>
-          )}
+          <div className="flex items-center space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="ghost">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem 
+                  className="text-red-500 focus:text-red-600 cursor-pointer"
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Удалить чат
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {onClose && (
+              <Button size="sm" variant="ghost" onClick={onClose}>
+                ✕
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Messages Area */}
@@ -488,6 +553,25 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
         </div>
       </Card>
       
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить чат?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить этот чат? Это действие нельзя будет отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConversation}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
