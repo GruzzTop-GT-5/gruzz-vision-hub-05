@@ -108,15 +108,36 @@ export default function ChatSystem() {
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(200);
 
       if (error) throw error;
       
       const notificationsList = data || [];
       
-      // Показываем все уведомления без группировки
-      setNotifications(notificationsList);
-      setUnreadCount(notificationsList.filter(n => !n.is_read).length);
+      // Группируем по conversation_id, показываем только последнее из каждой группы
+      const groupedMap = new Map<string, Notification>();
+      const unreadCounts = new Map<string, number>();
+      
+      notificationsList.forEach(notification => {
+        const key = notification.conversation_id || notification.id;
+        
+        // Считаем непрочитанные для каждой группы
+        if (!notification.is_read) {
+          unreadCounts.set(key, (unreadCounts.get(key) || 0) + 1);
+        }
+        
+        // Сохраняем только самое новое уведомление из группы
+        if (!groupedMap.has(key)) {
+          groupedMap.set(key, notification);
+        }
+      });
+      
+      const groupedList = Array.from(groupedMap.values())
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      setNotifications(groupedList);
+      // Суммируем все непрочитанные из всех групп
+      setUnreadCount(Array.from(unreadCounts.values()).reduce((sum, count) => sum + count, 0));
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
@@ -138,8 +159,19 @@ export default function ChatSystem() {
         (payload) => {
           const newNotification = payload.new as Notification;
           
-          // Добавляем новое уведомление в начало списка
-          setNotifications(prev => [newNotification, ...prev]);
+          // Обновляем список с группировкой
+          setNotifications(prev => {
+            const key = newNotification.conversation_id || newNotification.id;
+            
+            // Удаляем старые уведомления из этой группы
+            const filtered = prev.filter(n => 
+              (n.conversation_id || n.id) !== key
+            );
+            
+            // Добавляем новое уведомление в начало
+            return [newNotification, ...filtered];
+          });
+          
           setUnreadCount(prev => prev + 1);
           
           // Show toast notification
