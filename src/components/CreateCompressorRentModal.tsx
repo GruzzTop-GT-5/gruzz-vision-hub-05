@@ -241,22 +241,9 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
                 {location === 'city' ? '+1 ч' : location === 'suburb' ? '+2 ч' : 'Договорное'}
               </span>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="totalHours" className="text-steel-100 font-semibold">Общее количество часов:</Label>
-              <Input
-                id="totalHours"
-                type="number"
-                min={7}
-                max={44}
-                value={totalHours}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  const clampedValue = Math.min(44, Math.max(7, value));
-                  setManualTotalHours(clampedValue);
-                  setTotalHours(clampedValue);
-                }}
-                className="bg-steel-800/70 border-primary/30 text-xl font-bold text-steel-100 focus:border-primary"
-              />
+            <div className="flex justify-between text-xl font-bold">
+              <span>Общее количество часов:</span>
+              <span className="text-primary">{totalHours} ч</span>
             </div>
             <div className="flex justify-between text-xl font-bold text-primary">
               <span>Итого к оплате:</span>
