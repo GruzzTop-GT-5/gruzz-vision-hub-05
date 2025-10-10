@@ -123,9 +123,9 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>🔧 Аренда компрессора с оборудованием</DialogTitle>
+          <DialogTitle>🚚 Аренда Компрессора на базе газель с машинистом</DialogTitle>
           <DialogDescription>
-            Компрессор для пневмоинструмента, отбойные молотки, продувочные шланги
+            Компрессор для пневмоинструмента с оборудованием: отбойные молотки, продувочные шланги
           </DialogDescription>
         </DialogHeader>
 

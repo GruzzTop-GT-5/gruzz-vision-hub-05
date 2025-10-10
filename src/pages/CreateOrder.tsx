@@ -267,9 +267,55 @@ export default function CreateOrder() {
         }
       }
 
+      // If compressor is selected, create a conversation and send contact info
+      if (data.compressor_rent && compressorData) {
+        try {
+          // Create a conversation for compressor rental
+          const { data: conversationData, error: conversationError } = await supabase
+            .from('conversations')
+            .insert({
+              type: 'support',
+              category: 'compressor_rental',
+              title: `Аренда компрессора - Заказ #${orderData.order_number}`,
+              created_by: user.id,
+              participants: [user.id],
+              status: 'active'
+            })
+            .select()
+            .single();
+
+          if (conversationError) {
+            console.error('Error creating conversation:', conversationError);
+          } else if (conversationData) {
+            // Send automated message with contact information
+            const contactMessage = `📞 Контакты для аренды компрессора на базе газель с машинистом:\n\n` +
+              `Телефон: +7 (XXX) XXX-XX-XX\n` +
+              `Telegram: @compressor_rental\n\n` +
+              `Детали вашего заказа:\n` +
+              `• Время аренды: ${compressorData.totalHours} ч\n` +
+              `• Локация: ${compressorData.location === 'city' ? 'В городе' : compressorData.location === 'suburb' ? 'Загородом' : 'Далеко (договорное время)'}\n` +
+              `• Тип оплаты: ${compressorData.paymentType === 'cash' ? 'За наличку' : 'С НДС'}\n` +
+              `• Стоимость: ${compressorData.totalPrice.toLocaleString('ru-RU')} ₽\n\n` +
+              `Позвоните или напишите для уточнения деталей заказа.`;
+
+            await supabase
+              .from('messages')
+              .insert({
+                conversation_id: conversationData.id,
+                sender_id: user.id,
+                content: contactMessage,
+                message_type: 'system'
+              });
+          }
+        } catch (chatError) {
+          console.error('Error creating chat for compressor:', chatError);
+          // Don't block order creation if chat creation fails
+        }
+      }
+
       toast({
         title: "Заказ создан!",
-        description: `Заказ на работу размещен. Списано ${orderCost} GT Coins.${data.priority === 'urgent' ? ' Администраторы уведомлены о срочном заказе.' : ''}`
+        description: `Заказ на работу размещен. Списано ${orderCost} GT Coins.${data.priority === 'urgent' ? ' Администраторы уведомлены о срочном заказе.' : ''}${data.compressor_rent ? ' Контакты для аренды компрессора отправлены в чат.' : ''}`
       });
 
       navigate('/ads');
@@ -622,10 +668,10 @@ export default function CreateOrder() {
                         <div className="space-y-1 leading-none flex-1">
                           <FormLabel className="text-steel-100 flex items-center gap-2 cursor-pointer">
                             <Wrench className="w-4 h-4" />
-                            Аренда компрессора с оборудованием
+                            Аренда Компрессора на базе газель с машинистом
                           </FormLabel>
                           <p className="text-sm text-steel-400">
-                            Компрессор для пневмоинструмента, отбойные молотки, продувочные шланги
+                            Компрессор для пневмоинструмента с оборудованием: отбойные молотки, продувочные шланги
                           </p>
                           {compressorData && (
                             <div className="text-xs text-primary mt-2">
