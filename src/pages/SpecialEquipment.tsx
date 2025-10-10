@@ -149,7 +149,7 @@ export default function SpecialEquipment() {
                     <Truck className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-steel-100">Аренда спец техники</h2>
+                    <h2 className="text-xl font-semibold text-steel-100">Аренда спецтехники</h2>
                     <p className="text-sm text-steel-400">Закажите необходимую технику для ваших работ</p>
                   </div>
                 </div>
