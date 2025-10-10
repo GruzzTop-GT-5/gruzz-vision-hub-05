@@ -140,15 +140,19 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm, initi
       totalPrice
     };
 
-    // Save data and close modal
-    onConfirm(data);
-    onOpenChange(false);
-    
-    // Show success message
+    // Show success message first
     toast({
       title: "Сохранено!",
       description: `Аренда компрессора: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
     });
+
+    // Save data and close modal
+    onConfirm(data);
+    
+    // Force close with a small delay to ensure state updates
+    setTimeout(() => {
+      onOpenChange(false);
+    }, 50);
   };
 
   return (
@@ -366,10 +370,11 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm, initi
 
           {/* Buttons */}
           <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Отмена
             </Button>
             <Button 
+              type="button"
               onClick={handleConfirm}
               disabled={hours < 7 || !selectedDate}
             >
