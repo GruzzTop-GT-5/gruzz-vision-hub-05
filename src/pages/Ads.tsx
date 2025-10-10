@@ -435,84 +435,97 @@ export default function Ads() {
               {filteredOrders.map((order) => {
                 const client = profiles[order.client_id];
                 return (
-                  <Card key={order.id} className="card-steel border border-steel-600 h-full">
-                    <div className="p-6 space-y-4">
-                      {/* Header */}
-                      <div className="flex items-start justify-between">
-                        <div className="flex gap-2">
-                          <Badge className={getStatusColor(order.status)}>
+                  <Card 
+                    key={order.id} 
+                    className="card-steel border border-steel-600 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 flex flex-col h-[420px]"
+                  >
+                    <div className="p-6 flex flex-col h-full">
+                      {/* Header - Fixed Height */}
+                      <div className="flex items-start justify-between mb-4 min-h-[32px]">
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge className={`${getStatusColor(order.status)} text-xs`}>
                             Доступен
                           </Badge>
-                          <Badge className={getPriorityColor(order.priority)}>
+                          <Badge className={`${getPriorityColor(order.priority)} text-xs`}>
                             {order.priority === 'urgent' ? 'Срочно' :
                              order.priority === 'high' ? 'Высокий' :
                              order.priority === 'low' ? 'Низкий' : 'Обычный'}
                           </Badge>
                         </div>
-                        <span className="text-xs text-steel-400">
-                          {format(new Date(order.created_at), 'dd MMM yyyy', { locale: ru })}
+                        <span className="text-xs text-steel-400 whitespace-nowrap ml-2">
+                          {format(new Date(order.created_at), 'dd MMM', { locale: ru })}
                         </span>
                       </div>
 
-                      {/* Title */}
-                      <h3 className="text-lg font-bold text-steel-100 line-clamp-2">
+                      {/* Title - Fixed Height */}
+                      <h3 className="text-lg font-bold text-steel-100 line-clamp-2 mb-3 min-h-[56px]">
                         {order.title}
                       </h3>
 
-                      {/* Description */}
-                      <p className="text-steel-300 text-sm line-clamp-3">
+                      {/* Description - Fixed Height */}
+                      <p className="text-steel-300 text-sm line-clamp-3 mb-4 min-h-[60px]">
                         {order.description || 'Описание не указано'}
                       </p>
 
-                      {/* Service Type & Category */}
-                      <div className="flex items-center justify-between text-sm text-steel-400">
-                        <div className="flex items-center space-x-2">
-                          <Package className="w-4 h-4" />
-                          <span>{order.category || 'Не указано'}</span>
+                      {/* Service Info - Fixed Height */}
+                      <div className="space-y-2 mb-4 min-h-[60px]">
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center space-x-2 text-steel-400">
+                            <Package className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{order.category || 'Не указано'}</span>
+                          </div>
+                          <div className="flex items-center space-x-1 text-lg">
+                            {order.service_type === 'compressor_rent' && <span title="Аренда компрессора">🔨</span>}
+                            {order.service_type === 'garbage_removal' && <span title="Вывоз мусора">🚛</span>}
+                            {order.service_type === 'complex_service' && <span title="Комплексная услуга">🧩</span>}
+                            {(!order.service_type || order.service_type === 'workers') && <span title="Работники">👷</span>}
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          {order.service_type === 'compressor_rent' && <span>🔨</span>}
-                          {order.service_type === 'garbage_removal' && <span>🚛</span>}
-                          {order.service_type === 'complex_service' && <span>🧩</span>}
-                          {(!order.service_type || order.service_type === 'workers') && <span>👷</span>}
-                        </div>
-                      </div>
 
-                      {/* Client Info */}
-                      <div className="flex items-center space-x-2 text-sm text-steel-400">
-                        <User className="w-4 h-4" />
-                        <span>Заказчик: {client?.display_name || client?.full_name || 'Аноним'}</span>
-                      </div>
-
-                      {/* Deadline */}
-                      {order.deadline && (
                         <div className="flex items-center space-x-2 text-sm text-steel-400">
-                          <Clock className="w-4 h-4" />
-                          <span>До: {format(new Date(order.deadline), 'dd MMM yyyy', { locale: ru })}</span>
+                          <User className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{client?.display_name || client?.full_name || 'Аноним'}</span>
                         </div>
-                      )}
 
-                      {/* Price and Actions */}
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center space-x-2">
-                          <DollarSign className="w-4 h-4 text-green-400" />
-                          <span className="text-lg font-bold text-steel-100">{order.price} ₽</span>
+                        {order.deadline && (
+                          <div className="flex items-center space-x-2 text-sm text-steel-400">
+                            <Clock className="w-4 h-4 flex-shrink-0" />
+                            <span>До: {format(new Date(order.deadline), 'dd MMM yyyy', { locale: ru })}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Spacer to push bottom content down */}
+                      <div className="flex-1"></div>
+
+                      {/* Price and Actions - Fixed at Bottom */}
+                      <div className="pt-4 border-t border-steel-600/50">
+                        <div className="flex items-center justify-between gap-3 mb-3">
+                          <div className="flex items-center space-x-2">
+                            <DollarSign className="w-5 h-5 text-green-400 flex-shrink-0" />
+                            <span className="text-xl font-bold text-steel-100 whitespace-nowrap">
+                              {order.price.toLocaleString('ru-RU')} ₽
+                            </span>
+                          </div>
                         </div>
+                        
                         <div className="flex gap-2">
                           <Button 
                             size="sm" 
                             variant="outline"
                             onClick={() => handleViewDetails(order)}
+                            className="flex-1 hover:bg-steel-700/50"
                           >
+                            <Info className="w-4 h-4 mr-1" />
                             Подробнее
                           </Button>
                           {user && (
                             <Button 
                               size="sm" 
-                              className="bg-primary hover:bg-primary/80"
+                              className="flex-1 bg-primary hover:bg-primary/80 shadow-lg shadow-primary/20"
                               onClick={() => handleBidClick(order)}
                             >
-                              <Send className="w-4 h-4 mr-2" />
+                              <Send className="w-4 h-4 mr-1" />
                               Откликнуться
                             </Button>
                           )}
