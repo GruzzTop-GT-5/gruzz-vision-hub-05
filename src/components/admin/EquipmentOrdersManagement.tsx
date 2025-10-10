@@ -204,18 +204,47 @@ export const EquipmentOrdersManagement: React.FC = () => {
 
     setIsSending(true);
     try {
-      const { error } = await supabase
+      const { data: messageData, error } = await supabase
         .from('messages')
         .insert({
           conversation_id: conversationId,
           sender_id: user?.id,
           content: newMessage,
           message_type: 'text'
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
+      // Добавляем сообщение сразу в UI
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, role')
+        .eq('id', user?.id)
+        .single();
+
+      if (messageData) {
+        setMessages(prev => [...prev, {
+          ...messageData,
+          sender_profile: profile || { display_name: 'Админ', role: userRole || 'admin' }
+        }]);
+      }
+
       setNewMessage('');
+      
+      // Создаем уведомление для пользователя
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: orders.find(o => o.id === conversationId)?.created_by,
+          type: 'message',
+          title: 'Новое сообщение от администрации',
+          content: newMessage.substring(0, 100),
+          conversation_id: conversationId,
+          message_id: messageData.id
+        });
+
       toast({
         title: 'Сообщение отправлено',
         description: 'Пользователь получит уведомление'
@@ -262,10 +291,13 @@ export const EquipmentOrdersManagement: React.FC = () => {
   };
 
   const renderMessage = (message: Message, orderCreatorId: string) => {
+    // Проверяем, является ли отправитель обычным пользователем (не админ/система)
+    const senderRole = message.sender_profile?.role || 'user';
+    const isSystemOrAdmin = ['system_admin', 'admin', 'moderator', 'support'].includes(senderRole);
+    
     // Сообщения от пользователя (заказчика) - справа
-    const isUserMessage = message.sender_id === orderCreatorId;
     // Сообщения от системы/администрации - слева
-    const isSystemOrAdmin = !isUserMessage;
+    const isUserMessage = message.sender_id === orderCreatorId && !isSystemOrAdmin;
 
     // Извлекаем детали если это структурированное сообщение
     const details = message.content.includes('Контакты для аренды') 

@@ -357,11 +357,22 @@ export const AdminPanelNew = () => {
     {
       id: 'support',
       title: '🎧 Поддержка',
-      description: 'Управление тикетами и обращениями пользователей',
+      description: 'Управление тикетами, обращениями и заказами спецтехники',
       icon: <Headphones className="w-8 h-8" />,
       color: 'text-cyan-400',
       bgColor: 'from-cyan-500/10 to-cyan-600/20 border-cyan-500/30 hover:border-cyan-400/50',
-      component: <AdminTicketManagement />,
+      component: (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-xl font-bold text-steel-100 mb-4">Тикеты поддержки</h3>
+            <AdminTicketManagement />
+          </div>
+          <div className="pt-6 border-t border-steel-600">
+            <h3 className="text-xl font-bold text-steel-100 mb-4">Заказы спецтехники</h3>
+            <EquipmentOrdersManagement />
+          </div>
+        </div>
+      ),
       roles: ['admin', 'system_admin', 'support']
     },
     {
