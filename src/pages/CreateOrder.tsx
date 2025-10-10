@@ -317,7 +317,7 @@ export default function CreateOrder() {
                       <FormLabel className="text-steel-100">Название заказа <span className="text-red-400">*</span></FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Например: Нужны грузчики для переезда"
+                          placeholder="Например: Нужен грузчик для переезда в субботу"
                           className="bg-steel-700/50"
                           {...field}
                         />
@@ -335,7 +335,7 @@ export default function CreateOrder() {
                       <FormLabel className="text-steel-100">Категория работы <span className="text-red-400">*</span></FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Например: Разнорабочие, Грузчики, Переезд"
+                          placeholder="Например: Грузчики, Разнорабочие, Переезд"
                           className="bg-steel-700/50"
                           {...field}
                         />
@@ -350,10 +350,10 @@ export default function CreateOrder() {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-steel-100">Адрес объекта <span className="text-red-400">*</span></FormLabel>
+                      <FormLabel className="text-steel-100">📍 Адрес объекта <span className="text-red-400">*</span></FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="г. Москва, ул. Ленина 15"
+                          placeholder="Например: г. Москва, ул. Ленина 15"
                           className="bg-steel-700/50"
                           {...field}
                         />
@@ -369,7 +369,7 @@ export default function CreateOrder() {
                     name="hourly_rate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-steel-100">Оплата (₽) за час <span className="text-red-400">*</span></FormLabel>
+                        <FormLabel className="text-steel-100">💰 Оплата за 1 час <span className="text-red-400">*</span></FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -390,7 +390,7 @@ export default function CreateOrder() {
                     name="work_hours"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-steel-100">Часов работы <span className="text-red-400">*</span></FormLabel>
+                        <FormLabel className="text-steel-100">⏱ Часов работы <span className="text-red-400">*</span></FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -403,7 +403,7 @@ export default function CreateOrder() {
                         <p className="text-xs text-steel-400 mt-1">
                           {(form.watch('category')?.toLowerCase().includes('грузчик') || 
                             form.watch('category')?.toLowerCase().includes('разнорабочи'))
-                            ? 'Минимум 1 час' 
+                            ? 'Для грузчиков и разнорабочих: минимум 1 час' 
                             : 'Минимум 4 часа'}
                         </p>
                         <FormMessage />
@@ -416,7 +416,7 @@ export default function CreateOrder() {
                     name="priority"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-steel-100">Приоритет</FormLabel>
+                        <FormLabel className="text-steel-100">⚡ Приоритет</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="bg-steel-700/50">
@@ -444,7 +444,7 @@ export default function CreateOrder() {
                     name="start_time"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-steel-100">Время начала</FormLabel>
+                        <FormLabel className="text-steel-100">🕐 Время начала</FormLabel>
                         <FormControl>
                           <Input
                             type="time"
@@ -462,7 +462,7 @@ export default function CreateOrder() {
                     name="people_needed"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-steel-100">Нужно людей <span className="text-red-400">*</span></FormLabel>
+                        <FormLabel className="text-steel-100">👥 Нужно людей <span className="text-red-400">*</span></FormLabel>
                         <FormControl>
                           <Input
                             type="number"
