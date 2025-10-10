@@ -1,18 +1,14 @@
-// Страница "Мои заказы" - где пользователи видят свои размещенные заказы
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { OrderCard } from '@/components/OrderCard';
-import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/components/SimpleOrderFilters';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useOrderSorting } from '@/hooks/useOrderSorting';
-import { formatRubles } from '@/utils/currency';
-import { Package, Loader2, Clock, AlertTriangle } from 'lucide-react';
+import { Package, Loader2 } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -60,6 +56,11 @@ interface Profile {
   rating: number;
 }
 
+interface OrderFilters {
+  search: string;
+  status: string;
+}
+
 export default function Orders() {
   const { user, userRole, loading, signOut } = useAuth();
   const { toast } = useToast();
@@ -67,21 +68,34 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [filters, setFilters] = useState<OrderFiltersType>({
+  const [filters, setFilters] = useState<OrderFilters>({
     search: '',
-    status: 'all',
-    category: 'all',
-    priority: 'all',
-    role: 'all',
-    priceMin: '',
-    priceMax: '',
-    sortBy: 'created_at',
-    sortOrder: 'desc'
+    status: 'all'
   });
 
   const { sortedOrders, statistics } = useOrderSorting(orders as any, {
     includeExpired: true, // Показываем истекшие в "Моих заказах"
     includeInactive: true 
+  });
+
+  // Apply filters
+  const filteredOrders = sortedOrders.filter(order => {
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const matchesSearch = 
+        order.title?.toLowerCase().includes(searchLower) ||
+        order.description?.toLowerCase().includes(searchLower) ||
+        order.order_number?.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+    }
+
+    // Status filter
+    if (filters.status !== 'all' && order.status !== filters.status) {
+      return false;
+    }
+
+    return true;
   });
 
   useEffect(() => {
@@ -150,14 +164,7 @@ export default function Orders() {
   const clearFilters = () => {
     setFilters({
       search: '',
-      status: 'all',
-      category: 'all',
-      priority: 'all',
-      role: 'all',
-      priceMin: '',
-      priceMax: '',
-      sortBy: 'created_at',
-      sortOrder: 'desc'
+      status: 'all'
     });
   };
 
@@ -205,131 +212,114 @@ export default function Orders() {
       <div className="min-h-screen p-4">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-3">
               <BackButton />
               <Package className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-glow">Мои задания</h1>
-            </div>
-            
-            <div className="text-sm text-steel-400">
-              Всего: {statistics.total} | Активных: {statistics.active} | Истекших: {statistics.expired}
+              <div>
+                <h1 className="text-3xl font-bold text-glow">Мои задания</h1>
+                <p className="text-sm text-steel-400 mt-1">
+                  Управляйте своими заказами
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <Card className="card-steel p-4 text-center">
-              <Package className="w-6 h-6 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-steel-100">{stats.total}</div>
-              <div className="text-sm text-steel-400">Всего</div>
+          {/* Simple Stats - Quick View */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <Card className="card-steel-dialog p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
+              <div className="text-3xl font-bold text-primary">{stats.total}</div>
+              <div className="text-xs text-steel-400 mt-1">Всего</div>
             </Card>
             
-            <Card className="card-steel p-4 text-center">
-              <Package className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-steel-100">{stats.pending}</div>
-              <div className="text-sm text-steel-400">Ожидают</div>
+            <Card className="card-steel-dialog p-4 text-center hover:border-yellow-400/50 transition-colors cursor-pointer">
+              <div className="text-3xl font-bold text-yellow-400">{stats.pending}</div>
+              <div className="text-xs text-steel-400 mt-1">Ожидают</div>
             </Card>
             
-            <Card className="card-steel p-4 text-center">
-              <Package className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-steel-100">{stats.in_progress}</div>
-              <div className="text-sm text-steel-400">В работе</div>
+            <Card className="card-steel-dialog p-4 text-center hover:border-blue-400/50 transition-colors cursor-pointer">
+              <div className="text-3xl font-bold text-blue-400">{stats.in_progress}</div>
+              <div className="text-xs text-steel-400 mt-1">В работе</div>
             </Card>
             
-            <Card className="card-steel p-4 text-center">
-              <Package className="w-6 h-6 text-green-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-steel-100">{stats.completed}</div>
-              <div className="text-sm text-steel-400">Завершены</div>
+            <Card className="card-steel-dialog p-4 text-center hover:border-green-400/50 transition-colors cursor-pointer">
+              <div className="text-3xl font-bold text-green-400">{stats.completed}</div>
+              <div className="text-xs text-steel-400 mt-1">Завершены</div>
             </Card>
 
-            <Card className="card-steel p-4 text-center">
-              <Clock className="w-6 h-6 text-red-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-steel-100">{stats.expired}</div>
-              <div className="text-sm text-steel-400">Истекли</div>
+            <Card className="card-steel-dialog p-4 text-center hover:border-red-400/50 transition-colors cursor-pointer">
+              <div className="text-3xl font-bold text-red-400">{stats.expired}</div>
+              <div className="text-xs text-steel-400 mt-1">Истекли</div>
             </Card>
           </div>
 
-          {/* Filters */}
-          <SimpleOrderFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            onClearFilters={clearFilters}
-          />
+          {/* Simple Search */}
+          <Card className="card-steel-dialog p-4">
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                placeholder="Поиск заказов..."
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                className="flex-1 bg-steel-800/50 border border-steel-600 rounded-lg px-4 py-2 text-steel-100 placeholder-steel-500 focus:outline-none focus:border-primary transition-colors"
+              />
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                className="bg-steel-800/50 border border-steel-600 rounded-lg px-4 py-2 text-steel-100 focus:outline-none focus:border-primary transition-colors"
+              >
+                <option value="all">Все статусы</option>
+                <option value="pending">Ожидают</option>
+                <option value="accepted">Приняты</option>
+                <option value="in_progress">В работе</option>
+                <option value="completed">Завершены</option>
+                <option value="cancelled">Отменены</option>
+              </select>
+              {(filters.search || filters.status !== 'all') && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                >
+                  Сбросить
+                </Button>
+              )}
+            </div>
+          </Card>
 
-          {/* Orders List */}
+          {/* Orders List - Simple View */}
           {isLoading ? (
-            <Card className="card-steel p-8 text-center">
+            <Card className="card-steel-dialog p-8 text-center">
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-steel-300">Загрузка заказов...</p>
             </Card>
-          ) : sortedOrders.length === 0 ? (
-            <Card className="card-steel p-8 text-center space-y-4">
+          ) : filteredOrders.length === 0 ? (
+            <Card className="card-steel-dialog p-8 text-center space-y-4">
               <Package className="w-16 h-16 text-steel-500 mx-auto" />
-              <h3 className="text-xl font-bold text-steel-300">У вас пока нет заказов</h3>
-              <p className="text-steel-400">Создайте заказ через главную страницу или специальную кнопку "Создать заказ"</p>
+              <h3 className="text-xl font-bold text-steel-300">
+                {orders.length === 0 ? 'У вас пока нет заказов' : 'Ничего не найдено'}
+              </h3>
+              <p className="text-steel-400">
+                {orders.length === 0 
+                  ? 'Создайте заказ через главную страницу' 
+                  : 'Попробуйте изменить параметры фильтрации'}
+              </p>
             </Card>
           ) : (
-            <div className="space-y-4">
-              {/* Группировка по приоритетам */}
-              {statistics.urgent > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <AlertTriangle className="w-5 h-5 text-red-400" />
-                    <h2 className="text-lg font-semibold text-red-400">Срочные заказы ({statistics.urgent})</h2>
-                  </div>
-                  {sortedOrders.filter(order => (order.admin_priority_override || order.priority) === 'urgent').map((order) => (
-                    <OrderCard
-                      key={order.id}
-                      order={order as any}
-                      clientProfile={order.client_id === user.id ? { id: user.id, display_name: user.phone, full_name: null, avatar_url: null, role: userRole || 'user' } : null}
-                      executorProfile={order.executor_id ? profiles[order.executor_id] : null}
-                      onUpdate={handleOrderUpdate}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {statistics.high > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-5 h-5 text-yellow-400" />
-                    <h2 className="text-lg font-semibold text-yellow-400">Высокий приоритет ({statistics.high})</h2>
-                  </div>
-                  {sortedOrders.filter(order => (order.admin_priority_override || order.priority) === 'high').map((order) => (
-                    <OrderCard
-                      key={order.id}
-                      order={order as any}
-                      clientProfile={order.client_id === user.id ? { id: user.id, display_name: user.phone, full_name: null, avatar_url: null, role: userRole || 'user' } : null}
-                      executorProfile={order.executor_id ? profiles[order.executor_id] : null}
-                      onUpdate={handleOrderUpdate}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {statistics.normal > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Package className="w-5 h-5 text-green-400" />
-                    <h2 className="text-lg font-semibold text-green-400">Обычные заказы ({statistics.normal})</h2>
-                  </div>
-                  {sortedOrders.filter(order => (order.admin_priority_override || order.priority) === 'normal').map((order) => (
-                    <OrderCard
-                      key={order.id}
-                      order={order as any}
-                      clientProfile={order.client_id === user.id ? { id: user.id, display_name: user.phone, full_name: null, avatar_url: null, role: userRole || 'user' } : null}
-                      executorProfile={order.executor_id ? profiles[order.executor_id] : null}
-                      onUpdate={handleOrderUpdate}
-                    />
-                  ))}
-                </div>
-              )}
+            <div className="space-y-3">
+              {filteredOrders.map((order) => (
+                <OrderCard
+                  key={order.id}
+                  order={order as any}
+                  clientProfile={order.client_id === user.id ? { id: user.id, display_name: user.phone, full_name: null, avatar_url: null, role: userRole || 'user' } : null}
+                  executorProfile={order.executor_id ? profiles[order.executor_id] : null}
+                  onUpdate={handleOrderUpdate}
+                />
+              ))}
             </div>
           )}
         </div>
       </div>
-
     </Layout>
   );
 }
