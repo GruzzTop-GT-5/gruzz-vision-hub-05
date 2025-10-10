@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -223,6 +223,9 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
       <DialogContent className="max-w-md bg-steel-800 border-steel-600 data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <DialogHeader>
           <DialogTitle className="text-glow">Пополнение GT Coins</DialogTitle>
+          <DialogDescription>
+            Выберите способ пополнения баланса
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="direct" className="space-y-4">

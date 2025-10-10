@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { StarRating } from '@/components/StarRating';
 import { Eye, EyeOff, Plus, Minus, MessageSquare, User, Calendar, Award } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -283,6 +283,9 @@ export function AdminReviewModeration() {
                   <DialogContent className="card-steel">
                     <DialogHeader>
                       <DialogTitle className="text-glow">Модерация отзыва</DialogTitle>
+                      <DialogDescription>
+                        Измените бонусные баллы и добавьте комментарий к отзыву
+                      </DialogDescription>
                     </DialogHeader>
                     
                     <div className="space-y-4">

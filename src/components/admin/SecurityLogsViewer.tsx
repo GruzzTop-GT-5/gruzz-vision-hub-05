@@ -26,6 +26,7 @@ import { ru } from 'date-fns/locale';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -358,6 +359,9 @@ export const SecurityLogsViewer: React.FC = () => {
                           {getSeverityIcon(log.severity)}
                           <span>Детали события: {getEventTypeLabel(log.event_type)}</span>
                         </DialogTitle>
+                        <DialogDescription>
+                          Подробная информация о событии безопасности
+                        </DialogDescription>
                       </DialogHeader>
                       
                       <div className="space-y-4">

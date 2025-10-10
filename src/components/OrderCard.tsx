@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -546,6 +546,9 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
                 <DialogContent className="card-steel-dialog max-w-md data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
                   <DialogHeader>
                     <DialogTitle>Подтверждение действия</DialogTitle>
+                    <DialogDescription>
+                      Изменение статуса заказа
+                    </DialogDescription>
                   </DialogHeader>
                   
                   <div className="space-y-4">
@@ -645,6 +648,9 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
           <DialogContent className="card-steel-dialog max-w-md">
             <DialogHeader>
               <DialogTitle>Удалить заказ</DialogTitle>
+              <DialogDescription>
+                Подтверждение удаления заказа
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4">

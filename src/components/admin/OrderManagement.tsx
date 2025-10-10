@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Activity, Search, Clock, DollarSign, User, Edit, Trash2, RefreshCw, Eye, UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
@@ -510,6 +510,9 @@ export const OrderManagement: React.FC = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Редактировать заказ</DialogTitle>
+            <DialogDescription>
+              Измените параметры заказа и сохраните изменения
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>

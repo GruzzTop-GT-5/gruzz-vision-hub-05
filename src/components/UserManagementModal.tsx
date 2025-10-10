@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -398,6 +398,9 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                'Пользователь'}
             </Badge>
           </DialogTitle>
+          <DialogDescription>
+            Просмотр и редактирование данных пользователя
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -303,6 +303,9 @@ export const OrderDetailsModal = ({
             <Package className="w-5 h-5 text-primary" />
             <span>Заказ #{order.order_number}</span>
           </DialogTitle>
+          <DialogDescription>
+            Полная информация о заказе, файлы, откликах и истории изменений
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="details" className="w-full">

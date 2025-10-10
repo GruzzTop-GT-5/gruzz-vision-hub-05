@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -118,6 +118,9 @@ export const UserSearchModal = ({ isOpen, onClose, onStartChat }: UserSearchModa
       <DialogContent className="card-steel-dialog max-w-md data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
         <DialogHeader>
           <DialogTitle className="text-steel-100">Поиск пользователей</DialogTitle>
+          <DialogDescription>
+            Найдите пользователя для начала переписки
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
