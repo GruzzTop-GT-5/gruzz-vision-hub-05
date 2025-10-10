@@ -143,14 +143,16 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm, initi
     // Call onConfirm to save data
     onConfirm(data);
     
-    // Show success message
-    toast({
-      title: "Сохранено!",
-      description: `Аренда компрессора: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
-    });
-    
-    // Close modal - data will be preserved via initialData prop
+    // Close modal first
     onOpenChange(false);
+    
+    // Show success message after closing
+    setTimeout(() => {
+      toast({
+        title: "Сохранено!",
+        description: `Аренда компрессора: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
+      });
+    }, 100);
   };
 
   return (
