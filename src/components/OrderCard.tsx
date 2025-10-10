@@ -465,8 +465,8 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-steel-600">
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between pt-4 border-t border-steel-600 flex-wrap gap-3">
+          <div className="flex items-center space-x-2 flex-wrap gap-2">
             <Button 
               variant="outline" 
               size="sm" 
@@ -501,13 +501,15 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
               </Button>
             )}
 
-            {/* Edit and Delete buttons for order owner (client) */}
-            {isClient && ['pending', 'accepted'].includes(order.status) && (
+            {/* Management buttons for order owner (client) - always visible for client */}
+            {isClient && (
               <>
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => setShowEditModal(true)}
+                  disabled={['completed', 'cancelled'].includes(order.status)}
+                  className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
                 >
                   <Edit3 className="w-4 h-4 mr-1" />
                   Изменить
@@ -517,6 +519,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
                   variant="destructive" 
                   size="sm"
                   onClick={() => setShowDeleteDialog(true)}
+                  disabled={['completed'].includes(order.status)}
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
                   Удалить
