@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Menu,
   Home,
@@ -111,8 +112,7 @@ const navigationSections = {
       title: 'Сообщения',
       icon: <MessageSquare className="w-5 h-5" />,
       path: '/chat',
-      description: 'Переписка с заказчиками',
-      badge: 3
+      description: 'Переписка с заказчиками'
     }
   ],
   profile: [
@@ -234,6 +234,51 @@ export const NavigationMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, userRole, signOut } = useAuthContext();
   const navigate = useNavigate();
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+
+  // Подсчитываем только непрочитанные сообщения (не все уведомления)
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchUnreadMessages = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('type', 'message') // Только уведомления о сообщениях
+          .eq('is_read', false);
+
+        if (error) throw error;
+        setUnreadMessagesCount(count || 0);
+      } catch (error) {
+        console.error('Error fetching unread messages:', error);
+      }
+    };
+
+    fetchUnreadMessages();
+
+    // Подписываемся на новые уведомления
+    const channel = supabase
+      .channel(`user-messages-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          fetchUnreadMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -262,33 +307,40 @@ export const NavigationMenu = () => {
         {items
           .filter(item => !item.adminOnly || (item.adminOnly && isAdminUser))
           .filter(item => !item.roles || (item.roles && userRole && item.roles.includes(userRole)))
-          .map((item) => (
-            <Button
-              key={item.id}
-              variant="ghost"
-              className="w-full justify-start h-auto p-3 text-left"
-              onClick={() => handleNavigate(item.path)}
-            >
-              <div className="flex items-center gap-3 w-full">
-                {item.icon}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium truncate">{item.title}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="ml-2 text-xs">
-                        {item.badge}
-                      </Badge>
+          .map((item) => {
+            // Динамически добавляем бейдж для сообщений
+            const badge = item.id === 'chat' && unreadMessagesCount > 0 
+              ? unreadMessagesCount 
+              : item.badge;
+
+            return (
+              <Button
+                key={item.id}
+                variant="ghost"
+                className="w-full justify-start h-auto p-3 text-left"
+                onClick={() => handleNavigate(item.path)}
+              >
+                <div className="flex items-center gap-3 w-full">
+                  {item.icon}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium truncate">{item.title}</span>
+                      {badge && (
+                        <Badge variant="secondary" className="ml-2 text-xs">
+                          {badge}
+                        </Badge>
+                      )}
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground mt-1 truncate">
+                        {item.description}
+                      </p>
                     )}
                   </div>
-                  {item.description && (
-                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                      {item.description}
-                    </p>
-                  )}
                 </div>
-              </div>
-            </Button>
-          ))}
+              </Button>
+            );
+          })}
       </div>
       {showSeparator && <Separator className="my-4" />}
     </>
