@@ -296,7 +296,7 @@ export default function CreateOrder() {
               `• Локация: ${compressorData.location === 'city' ? 'В городе' : compressorData.location === 'suburb' ? 'Загородом' : 'Далеко (договорное время)'}\n` +
               `• Тип оплаты: ${compressorData.paymentType === 'cash' ? 'За наличку' : 'С НДС'}\n` +
               `• Стоимость: ${compressorData.totalPrice.toLocaleString('ru-RU')} ₽\n\n` +
-              `Позвоните или напишите для уточнения деталей заказа.`;
+              `⚠️ ВАЖНО: При звонке обязательно представьтесь, что звоните от GruzzTop, чтобы они понимали откуда и по какому заказу техники вы обращаетесь!`;
 
             await supabase
               .from('messages')
