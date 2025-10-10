@@ -107,12 +107,19 @@ export const AdminDashboard: React.FC = () => {
         t.status === 'completed'
       ).length || 0;
 
-      const totalRevenue = transactions
+      // Выручка = сумма всех завершенных депозитов минус завершенные выводы
+      const deposits = transactions
         ?.filter(t => t.status === 'completed' && t.type === 'deposit')
-        .reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0) || 0;
+      
+      const withdrawals = transactions
+        ?.filter(t => t.status === 'completed' && t.type === 'withdrawal')
+        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0) || 0;
+      
+      const totalRevenue = deposits - withdrawals;
 
       const openTickets = tickets?.filter(ticket => 
-        ticket.status === 'open'
+        ticket.status === 'open' || ticket.status === 'pending'
       ).length || 0;
 
       // Создаем данные для графика (последние 7 дней)
