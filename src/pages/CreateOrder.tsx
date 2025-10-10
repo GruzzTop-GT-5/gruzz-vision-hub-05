@@ -46,7 +46,7 @@ const orderFormSchema = z.object({
   }, 'Минимум 4 часа'),
   priority: z.enum(['normal', 'high', 'urgent'], { required_error: 'Выберите приоритет' }),
   deadline: z.date().optional(),
-  start_time: z.string().optional(),
+  start_datetime: z.string().optional(),
   people_needed: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, 'Минимум 1 человек'),
   compressor_rent: z.boolean().optional(),
   garbage_removal: z.boolean().optional()
@@ -186,7 +186,7 @@ export default function CreateOrder() {
           price: totalPrice,
           priority: data.priority,
           deadline: data.deadline ? data.deadline.toISOString() : null,
-          start_time: data.start_time || null,
+          start_time: data.start_datetime ? new Date(data.start_datetime).toISOString() : null,
           people_needed: Number(data.people_needed) || 1,
           people_accepted: 0,
           client_id: user.id,
@@ -467,13 +467,13 @@ export default function CreateOrder() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="start_time"
+                    name="start_datetime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-steel-100">🕐 Время начала</FormLabel>
+                        <FormLabel className="text-steel-100">🕐 Когда</FormLabel>
                         <FormControl>
                           <Input
-                            type="time"
+                            type="datetime-local"
                             className="bg-steel-700/50"
                             {...field}
                           />
