@@ -85,7 +85,11 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   useEffect(() => {
     fetchConversation();
     fetchMessages();
-    subscribeToMessages();
+    
+    const unsubscribe = subscribeToMessages();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [conversationId]);
 
   useEffect(() => {
