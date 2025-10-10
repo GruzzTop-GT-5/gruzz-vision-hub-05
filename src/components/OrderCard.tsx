@@ -61,6 +61,7 @@ interface Order {
   escrow_amount: number | null;
   commission_rate: number;
   platform_fee: number | null;
+  equipment_details?: any;
 }
 
 interface OrderCardProps {
@@ -384,7 +385,8 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
           <div className="space-y-2">
             <h4 className="text-sm font-medium text-steel-300">Дополнительные услуги:</h4>
             <div className="flex flex-wrap gap-2">
-              {order.client_requirements.additional_services.compressor_rent?.enabled && (
+              {/* Compressor rent - Hidden from executor */}
+              {order.client_requirements.additional_services.compressor_rent?.enabled && !isExecutor && (
                 <Badge variant="outline" className="text-xs">
                   🔨 Аренда компрессора ({order.client_requirements.additional_services.compressor_rent.hours + order.client_requirements.additional_services.compressor_rent.delivery_hours}ч)
                 </Badge>

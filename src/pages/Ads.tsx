@@ -45,6 +45,7 @@ interface Order {
   commission_rate: number;
   platform_fee: number | null;
   service_type?: string;
+  equipment_details?: any;
 }
 
 interface Profile {

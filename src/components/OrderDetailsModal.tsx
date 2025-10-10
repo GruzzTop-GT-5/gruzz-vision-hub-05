@@ -59,6 +59,7 @@ interface Order {
   escrow_amount: number | null;
   commission_rate: number;
   platform_fee: number | null;
+  equipment_details?: any;
 }
 
 interface OrderFile {
@@ -460,6 +461,37 @@ export const OrderDetailsModal = ({
                         <pre className="text-steel-200 text-sm whitespace-pre-wrap">
                           {JSON.stringify(order.executor_proposal, null, 2)}
                         </pre>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Equipment Details - Hidden from Executor */}
+                {order.equipment_details && !isExecutor && (
+                  <div>
+                    <Label className="text-steel-300">🔧 Аренда компрессора</Label>
+                    <Card className="card-steel mt-1">
+                      <CardContent className="p-3 space-y-2">
+                        {order.equipment_details.compressor && (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-steel-400">Время:</span>
+                              <span className="text-steel-200">{order.equipment_details.compressor.hours} ч</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-steel-400">Локация:</span>
+                              <span className="text-steel-200">{order.equipment_details.compressor.location}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-steel-400">Оплата:</span>
+                              <span className="text-steel-200">{order.equipment_details.compressor.paymentType}</span>
+                            </div>
+                            <div className="flex justify-between font-semibold">
+                              <span className="text-sm text-steel-300">Стоимость:</span>
+                              <span className="text-primary">{order.equipment_details.compressor.price.toLocaleString('ru-RU')} ₽</span>
+                            </div>
+                          </>
+                        )}
                       </CardContent>
                     </Card>
                   </div>
