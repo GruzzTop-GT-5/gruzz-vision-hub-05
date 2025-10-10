@@ -242,7 +242,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
               </span>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="totalHours" className="text-steel-100 font-semibold">Итого часов (можно изменить вручную):</Label>
+              <Label htmlFor="totalHours" className="text-steel-100 font-semibold">Общее количество часов:</Label>
               <Input
                 id="totalHours"
                 type="number"
