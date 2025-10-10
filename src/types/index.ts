@@ -68,6 +68,8 @@ export interface Review {
   hidden_at?: string;
   moderated_by?: string;
   moderated_at?: string;
+  moderation_status?: 'pending' | 'approved' | 'rejected';
+  rejection_reason?: string;
   created_at?: string;
   author?: User;
   target_user?: User;

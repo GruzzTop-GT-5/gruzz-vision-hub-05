@@ -997,7 +997,11 @@ export type Database = {
           is_reported: boolean | null
           moderated_at: string | null
           moderated_by: string | null
+          moderation_status:
+            | Database["public"]["Enums"]["review_moderation_status"]
+            | null
           rating: number | null
+          rejection_reason: string | null
           target_user_id: string
           transaction_id: string | null
         }
@@ -1015,7 +1019,11 @@ export type Database = {
           is_reported?: boolean | null
           moderated_at?: string | null
           moderated_by?: string | null
+          moderation_status?:
+            | Database["public"]["Enums"]["review_moderation_status"]
+            | null
           rating?: number | null
+          rejection_reason?: string | null
           target_user_id: string
           transaction_id?: string | null
         }
@@ -1033,7 +1041,11 @@ export type Database = {
           is_reported?: boolean | null
           moderated_at?: string | null
           moderated_by?: string | null
+          moderation_status?:
+            | Database["public"]["Enums"]["review_moderation_status"]
+            | null
           rating?: number | null
+          rejection_reason?: string | null
           target_user_id?: string
           transaction_id?: string | null
         }
@@ -1452,6 +1464,7 @@ export type Database = {
       ad_status: "active" | "inactive" | "sold"
       ban_type: "order_mute" | "payment_mute" | "account_block"
       payment_method: "bank_card" | "yoomoney" | "ozon" | "manual_transfer"
+      review_moderation_status: "pending" | "approved" | "rejected"
       transaction_status: "pending" | "completed" | "rejected"
       transaction_type: "deposit" | "withdrawal" | "payment" | "purchase"
       user_role: "user" | "system_admin" | "admin" | "moderator" | "support"
@@ -1586,6 +1599,7 @@ export const Constants = {
       ad_status: ["active", "inactive", "sold"],
       ban_type: ["order_mute", "payment_mute", "account_block"],
       payment_method: ["bank_card", "yoomoney", "ozon", "manual_transfer"],
+      review_moderation_status: ["pending", "approved", "rejected"],
       transaction_status: ["pending", "completed", "rejected"],
       transaction_type: ["deposit", "withdrawal", "payment", "purchase"],
       user_role: ["user", "system_admin", "admin", "moderator", "support"],

@@ -26,6 +26,7 @@ import { PerformanceMonitor } from '@/components/admin/PerformanceMonitor';
 import { NotificationCenter } from '@/components/admin/NotificationCenter';
 import { PromoCodeManagement } from '@/components/admin/PromoCodeManagement';
 import { EquipmentOrdersManagement } from '@/components/admin/EquipmentOrdersManagement';
+import { ReviewModerationQueue } from '@/components/admin/ReviewModerationQueue';
 import { Navigate } from 'react-router-dom';
 import {
   Activity,
@@ -348,6 +349,7 @@ export const AdminPanelNew = () => {
       bgColor: 'from-red-500/10 to-red-600/20 border-red-500/30 hover:border-red-400/50',
       component: (
         <div className="space-y-6">
+          <ReviewModerationQueue />
           <ContentModerationQueue />
           <AutoModerationRules />
           <AdminReviewModeration />
