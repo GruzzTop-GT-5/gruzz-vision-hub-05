@@ -242,36 +242,60 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
     return format(new Date(timestamp), 'HH:mm', { locale: ru });
   };
 
+  const parseStructuredMessage = (content: string) => {
+    const phoneMatch = content.match(/Телефон:\s*([\+\d\s\-]+)/);
+    const telegramMatch = content.match(/Telegram:\s*(@[\w_]+)/);
+    const durationMatch = content.match(/Время аренды:\s*([\dа-я\s]+)/i);
+    const locationMatch = content.match(/Локация:\s*(.+?)(?=\n|$)/);
+    const titleMatch = content.match(/^📞\s*(.+?):/);
+    
+    if (phoneMatch || telegramMatch || durationMatch) {
+      return {
+        isStructured: true,
+        title: titleMatch?.[1] || null,
+        phone: phoneMatch?.[1]?.trim() || null,
+        telegram: telegramMatch?.[1] || null,
+        duration: durationMatch?.[1]?.trim() || null,
+        location: locationMatch?.[1]?.trim() || null,
+        rawContent: content
+      };
+    }
+    
+    return { isStructured: false, rawContent: content };
+  };
+
   const renderMessage = (message: Message) => {
     const isOwnMessage = message.sender_id === user?.id;
+    const structuredData = message.content ? parseStructuredMessage(message.content) : null;
     
     return (
       <div key={message.id} className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
         <div className={`max-w-[70%] ${isOwnMessage ? 'order-1' : 'order-2'}`}>
           <div
-            className={`rounded-lg p-3 ${
+            className={`rounded-xl p-4 shadow-lg ${
               isOwnMessage
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-steel-700 text-steel-100'
+                ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground'
+                : 'bg-gradient-to-br from-steel-700 to-steel-800 text-steel-50 border border-steel-600'
             }`}
           >
             {/* File/Image content */}
             {message.file_url && (
-              <div className="mb-2">
+              <div className="mb-3">
                 {message.message_type === 'image' ? (
                   <img
                     src={message.file_url}
                     alt={message.file_name || 'Изображение'}
-                    className="max-w-full h-auto rounded cursor-pointer"
+                    className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => window.open(message.file_url!, '_blank')}
                   />
                 ) : (
-                  <div className="flex items-center space-x-2 p-2 bg-black/20 rounded">
-                    <File className="w-4 h-4" />
-                    <span className="flex-1 text-sm">{message.file_name}</span>
+                  <div className="flex items-center space-x-3 p-3 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
+                    <File className="w-5 h-5 flex-shrink-0" />
+                    <span className="flex-1 text-sm font-medium truncate">{message.file_name}</span>
                     <Button
                       size="sm"
                       variant="ghost"
+                      className="hover:bg-white/10"
                       onClick={() => window.open(message.file_url!, '_blank')}
                     >
                       <Download className="w-4 h-4" />
@@ -281,21 +305,69 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
               </div>
             )}
             
-            {/* Text content */}
-            {message.content && (
-              <p className="whitespace-pre-wrap break-words">{message.content}</p>
+            {/* Structured content */}
+            {message.content && structuredData?.isStructured ? (
+              <div className="space-y-3">
+                {structuredData.title && (
+                  <div className="flex items-center space-x-2 pb-2 border-b border-current/20">
+                    <Phone className="w-4 h-4" />
+                    <h4 className="font-semibold">{structuredData.title}</h4>
+                  </div>
+                )}
+                
+                {structuredData.phone && (
+                  <div className="flex items-start space-x-2">
+                    <span className="text-xs opacity-70 min-w-[80px]">Телефон:</span>
+                    <a href={`tel:${structuredData.phone}`} className="font-mono text-sm font-medium hover:underline">
+                      {structuredData.phone}
+                    </a>
+                  </div>
+                )}
+                
+                {structuredData.telegram && (
+                  <div className="flex items-start space-x-2">
+                    <span className="text-xs opacity-70 min-w-[80px]">Telegram:</span>
+                    <a href={`https://t.me/${structuredData.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="font-mono text-sm font-medium hover:underline">
+                      {structuredData.telegram}
+                    </a>
+                  </div>
+                )}
+                
+                {(structuredData.duration || structuredData.location) && (
+                  <div className="pt-2 border-t border-current/20 space-y-2">
+                    <p className="text-xs font-semibold opacity-90">Детали заказа:</p>
+                    {structuredData.duration && (
+                      <div className="flex items-start space-x-2">
+                        <span className="text-xs opacity-70">•</span>
+                        <span className="text-sm">Время аренды: <strong>{structuredData.duration}</strong></span>
+                      </div>
+                    )}
+                    {structuredData.location && (
+                      <div className="flex items-start space-x-2">
+                        <span className="text-xs opacity-70">•</span>
+                        <span className="text-sm">Локация: <strong>{structuredData.location}</strong></span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Regular text content */
+              message.content && (
+                <p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
+              )
             )}
           </div>
           
-          <div className={`flex items-center mt-1 text-xs text-steel-400 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+          <div className={`flex items-center mt-1.5 text-xs text-steel-400 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
             <span>{getMessageTime(message.created_at)}</span>
-            {message.is_edited && <span className="ml-2">(изменено)</span>}
+            {message.is_edited && <span className="ml-2 opacity-70">(изменено)</span>}
           </div>
         </div>
         
         {!isOwnMessage && (
           <Avatar className="w-8 h-8 mr-3 order-1">
-            <AvatarFallback>
+            <AvatarFallback className="bg-steel-600 text-steel-200">
               {message.sender_id.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
