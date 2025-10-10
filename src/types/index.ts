@@ -11,6 +11,15 @@ export interface User {
   is_premium?: boolean;
   role: 'user' | 'system_admin' | 'admin' | 'moderator' | 'support';
   rating: number;
+  reviews_count?: number;
+  verified_reviews_count?: number;
+  rating_distribution?: {
+    "1": number;
+    "2": number;
+    "3": number;
+    "4": number;
+    "5": number;
+  };
   balance: number;
   created_at?: string;
 }
