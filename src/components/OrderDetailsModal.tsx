@@ -323,133 +323,213 @@ export const OrderDetailsModal = ({
               <CardHeader>
                 <CardTitle className="text-steel-100">{order.title}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* Main Description */}
                 {order.description && (
-                  <div>
-                    <Label className="text-steel-300">Описание</Label>
-                    <p className="text-steel-200 mt-1">{order.description}</p>
+                  <div className="space-y-2">
+                    <Label className="text-steel-300 text-base font-semibold">📝 Описание работы</Label>
+                    <Card className="card-steel bg-steel-800/30">
+                      <CardContent className="p-4">
+                        <p className="text-steel-200 whitespace-pre-wrap leading-relaxed">{order.description}</p>
+                      </CardContent>
+                    </Card>
                   </div>
                 )}
 
+                {/* Price and Category Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-steel-300">Цена</Label>
-                    <p className="text-2xl font-bold text-primary">{order.price.toLocaleString('ru-RU')} GT</p>
+                  <div className="space-y-2">
+                    <Label className="text-steel-300 text-sm">💰 Цена</Label>
+                    <Card className="card-steel bg-steel-800/30">
+                      <CardContent className="p-4">
+                        <p className="text-2xl font-bold text-primary">{order.price.toLocaleString('ru-RU')} GT</p>
+                      </CardContent>
+                    </Card>
                   </div>
                   
-                  <div>
-                    <Label className="text-steel-300">Категория</Label>
-                    <p className="text-steel-200">{order.category || 'Без категории'}</p>
+                  <div className="space-y-2">
+                    <Label className="text-steel-300 text-sm">📂 Категория</Label>
+                    <Card className="card-steel bg-steel-800/30">
+                      <CardContent className="p-4">
+                        <p className="text-steel-200">{order.category || 'Без категории'}</p>
+                      </CardContent>
+                    </Card>
                   </div>
 
                   {order.deadline && (
-                    <div>
-                      <Label className="text-steel-300">Срок выполнения</Label>
-                      <p className="text-steel-200">
-                        {format(new Date(order.deadline), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                      </p>
+                    <div className="space-y-2">
+                      <Label className="text-steel-300 text-sm">⏰ Срок выполнения</Label>
+                      <Card className="card-steel bg-steel-800/30">
+                        <CardContent className="p-4">
+                          <p className="text-steel-200">
+                            {format(new Date(order.deadline), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                          </p>
+                        </CardContent>
+                      </Card>
                     </div>
                   )}
 
-                  <div>
-                    <Label className="text-steel-300">Требуется</Label>
-                    <p className="text-steel-200">{order.revision_count} из {order.max_revisions}</p>
+                  <div className="space-y-2">
+                    <Label className="text-steel-300 text-sm">🔄 Правки</Label>
+                    <Card className="card-steel bg-steel-800/30">
+                      <CardContent className="p-4">
+                        <p className="text-steel-200">{order.revision_count} из {order.max_revisions}</p>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
 
                 {/* Participants */}
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <User className="w-4 h-4 text-steel-400" />
-                    <span className="text-sm text-steel-300">Клиент:</span>
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={clientProfile?.avatar_url} />
-                      <AvatarFallback>
-                        {(clientProfile?.display_name || clientProfile?.full_name || 'K').charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-steel-100">
-                      {clientProfile?.display_name || clientProfile?.full_name || 'Клиент'}
-                    </span>
-                  </div>
+                  <Label className="text-steel-300 text-base font-semibold">👥 Участники</Label>
+                  
+                  <Card className="card-steel bg-steel-800/30">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <User className="w-5 h-5 text-primary flex-shrink-0" />
+                        <span className="text-sm text-steel-400 w-24">Клиент:</span>
+                        <div className="flex items-center space-x-2 flex-1">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={clientProfile?.avatar_url} />
+                            <AvatarFallback>
+                              {(clientProfile?.display_name || clientProfile?.full_name || 'K').charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-steel-100 font-medium">
+                            {clientProfile?.display_name || clientProfile?.full_name || 'Клиент'}
+                          </span>
+                        </div>
+                      </div>
 
-                  {order.executor_id && executorProfile && (
-                    <div className="flex items-center space-x-3">
-                      <User className="w-4 h-4 text-steel-400" />
-                      <span className="text-sm text-steel-300">Исполнитель:</span>
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={executorProfile?.avatar_url} />
-                        <AvatarFallback>
-                          {(executorProfile?.display_name || executorProfile?.full_name || 'И').charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-steel-100">
-                        {executorProfile?.display_name || executorProfile?.full_name || 'Исполнитель'}
-                      </span>
-                    </div>
-                  )}
+                      {order.executor_id && executorProfile && (
+                        <div className="flex items-center space-x-3 pt-3 border-t border-steel-600/50">
+                          <User className="w-5 h-5 text-green-400 flex-shrink-0" />
+                          <span className="text-sm text-steel-400 w-24">Исполнитель:</span>
+                          <div className="flex items-center space-x-2 flex-1">
+                            <Avatar className="w-8 h-8">
+                              <AvatarImage src={executorProfile?.avatar_url} />
+                              <AvatarFallback>
+                                {(executorProfile?.display_name || executorProfile?.full_name || 'И').charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-steel-100 font-medium">
+                              {executorProfile?.display_name || executorProfile?.full_name || 'Исполнитель'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
 
-                {/* Requirements & Proposal */}
+                {/* Client Requirements - Structured */}
                 {order.client_requirements && (
-                  <div>
-                    <Label className="text-steel-300">Требования клиента</Label>
-                    <Card className="card-steel mt-1">
-                      <CardContent className="p-3 space-y-3">
-                        {typeof order.client_requirements === 'object' ? (
-                          <>
-                            {order.client_requirements.location && (
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Адрес объекта:</p>
-                                <p className="text-steel-200">{order.client_requirements.location}</p>
+                  <div className="space-y-3">
+                    <Label className="text-steel-300 text-base font-semibold">📋 Детали заказа</Label>
+                    
+                    {typeof order.client_requirements === 'object' ? (
+                      <div className="space-y-3">
+                        {/* Address */}
+                        {order.client_requirements.location && (
+                          <Card className="card-steel bg-steel-800/30">
+                            <CardContent className="p-4">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <span className="text-lg">📍</span>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-steel-300 mb-1">Адрес объекта</p>
+                                  <p className="text-steel-100 font-medium">{order.client_requirements.location}</p>
+                                </div>
                               </div>
-                            )}
-                            {order.client_requirements.specifications && (
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Требования к работникам:</p>
-                                <p className="text-steel-200">{order.client_requirements.specifications}</p>
-                              </div>
-                            )}
-                            {order.client_requirements.additional_notes && (
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Условия работы:</p>
-                                <p className="text-steel-200">{order.client_requirements.additional_notes}</p>
-                              </div>
-                            )}
-                            {order.client_requirements.people_count && (
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Количество рабочих:</p>
-                                <p className="text-steel-200">{order.client_requirements.people_count} человек</p>
-                              </div>
-                            )}
-                            {order.client_requirements.payment_type && (
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Тип оплаты:</p>
-                                <p className="text-steel-200">
-                                  {order.client_requirements.payment_type === 'hourly' && 'Почасовая оплата'}
-                                  {order.client_requirements.payment_type === 'daily' && 'Дневная оплата'}
-                                  {order.client_requirements.payment_type === 'project' && 'За весь объем работ'}
-                                </p>
-                              </div>
-                            )}
-                            {order.client_requirements.work_duration && (
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Продолжительность:</p>
-                                <p className="text-steel-200">{order.client_requirements.work_duration}</p>
-                              </div>
-                            )}
-                            {order.client_requirements.preferred_communication && (
-                              <div>
-                                <p className="text-sm font-medium text-steel-300">Предпочтительная связь:</p>
-                                <p className="text-steel-200">{order.client_requirements.preferred_communication}</p>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <p className="text-steel-200">{order.client_requirements}</p>
+                            </CardContent>
+                          </Card>
                         )}
-                      </CardContent>
-                    </Card>
+
+                        {/* Worker Requirements */}
+                        {order.client_requirements.specifications && (
+                          <Card className="card-steel bg-steel-800/30">
+                            <CardContent className="p-4">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <span className="text-lg">👷</span>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-steel-300 mb-1">Требования к работникам</p>
+                                  <p className="text-steel-200">{order.client_requirements.specifications}</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+
+                        {/* Work Conditions */}
+                        {order.client_requirements.additional_notes && (
+                          <Card className="card-steel bg-steel-800/30">
+                            <CardContent className="p-4">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-yellow-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <span className="text-lg">⚙️</span>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-steel-300 mb-1">Условия работы</p>
+                                  <p className="text-steel-200">{order.client_requirements.additional_notes}</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+
+                        {/* Additional Info Grid */}
+                        <div className="grid grid-cols-2 gap-3">
+                          {order.client_requirements.people_count && (
+                            <Card className="card-steel bg-steel-800/30">
+                              <CardContent className="p-3">
+                                <p className="text-xs text-steel-400 mb-1">Количество рабочих</p>
+                                <p className="text-steel-100 font-semibold">{order.client_requirements.people_count} чел.</p>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {order.client_requirements.payment_type && (
+                            <Card className="card-steel bg-steel-800/30">
+                              <CardContent className="p-3">
+                                <p className="text-xs text-steel-400 mb-1">Тип оплаты</p>
+                                <p className="text-steel-100 font-semibold">
+                                  {order.client_requirements.payment_type === 'hourly' && 'Почасовая'}
+                                  {order.client_requirements.payment_type === 'daily' && 'Дневная'}
+                                  {order.client_requirements.payment_type === 'project' && 'За весь объем'}
+                                </p>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {order.client_requirements.work_duration && (
+                            <Card className="card-steel bg-steel-800/30">
+                              <CardContent className="p-3">
+                                <p className="text-xs text-steel-400 mb-1">Продолжительность</p>
+                                <p className="text-steel-100 font-semibold">{order.client_requirements.work_duration}</p>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {order.client_requirements.preferred_communication && (
+                            <Card className="card-steel bg-steel-800/30">
+                              <CardContent className="p-3">
+                                <p className="text-xs text-steel-400 mb-1">Связь</p>
+                                <p className="text-steel-100 font-semibold">{order.client_requirements.preferred_communication}</p>
+                              </CardContent>
+                            </Card>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <Card className="card-steel bg-steel-800/30">
+                        <CardContent className="p-4">
+                          <p className="text-steel-200">{order.client_requirements}</p>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 )}
 
