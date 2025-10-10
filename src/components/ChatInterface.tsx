@@ -36,7 +36,8 @@ import {
   Phone,
   MoreVertical,
   Trash2,
-  User
+  User,
+  ShieldAlert
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -328,6 +329,54 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
     }
   };
 
+  const handleCallAdmin = async () => {
+    try {
+      // Получаем всех администраторов
+      const { data: admins, error: adminError } = await supabase
+        .from('profiles')
+        .select('id')
+        .in('role', ['system_admin', 'admin', 'moderator']);
+
+      if (adminError) throw adminError;
+
+      if (!admins || admins.length === 0) {
+        toast({
+          title: "Информация",
+          description: "В данный момент нет доступных администраторов",
+          variant: "default"
+        });
+        return;
+      }
+
+      // Создаем уведомления для всех администраторов
+      const notifications = admins.map(admin => ({
+        user_id: admin.id,
+        type: 'admin_call',
+        title: '🚨 Вызов администратора',
+        content: `Пользователь запросил помощь администратора в чате`,
+        conversation_id: conversationId
+      }));
+
+      const { error: notifyError } = await supabase
+        .from('notifications')
+        .insert(notifications);
+
+      if (notifyError) throw notifyError;
+
+      toast({
+        title: "Администраторы уведомлены",
+        description: "Администраторы получили уведомление о вашем запросе"
+      });
+    } catch (error) {
+      console.error('Error calling admin:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось вызвать администратора",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getMessageTime = (timestamp: string) => {
     return format(new Date(timestamp), 'HH:mm', { locale: ru });
   };
@@ -535,7 +584,14 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
                   <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem 
+                  className="text-orange-500 focus:text-orange-600 cursor-pointer"
+                  onClick={handleCallAdmin}
+                >
+                  <ShieldAlert className="w-4 h-4 mr-2" />
+                  Позвать администратора
+                </DropdownMenuItem>
                 <DropdownMenuItem 
                   className="text-red-500 focus:text-red-600 cursor-pointer"
                   onClick={() => setShowDeleteDialog(true)}
