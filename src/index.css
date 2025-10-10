@@ -198,7 +198,7 @@
 @layer components {
   /* Premium 3D Button Effects */
   .btn-3d {
-    @apply relative overflow-hidden transform transition-all duration-500;
+    @apply relative overflow-hidden;
     background: var(--gradient-metal);
     box-shadow: var(--shadow-3d);
     border: 2px solid transparent;
@@ -208,46 +208,13 @@
     z-index: 1;
   }
   
-  .btn-3d:hover {
-    transform: translateY(-6px) scale(1.05);
-    box-shadow: var(--shadow-glow), var(--shadow-3d);
-    transition: var(--transition-bounce);
-  }
-  
-  .btn-3d:active {
-    transform: translateY(2px) scale(0.98);
-    box-shadow: var(--shadow-inset);
-    transition: all 0.1s ease-out;
-  }
-  
   /* Primary gradient overlay */
   .btn-3d::before {
-    @apply absolute inset-0 opacity-0 transition-all duration-500;
+    @apply absolute inset-0 opacity-0;
     content: '';
     background: var(--gradient-primary);
     border-radius: inherit;
     z-index: -1;
-  }
-  
-  .btn-3d:hover::before {
-    @apply opacity-40;
-  }
-  
-  /* Shine effect */
-  .btn-3d::after {
-    @apply absolute inset-0 opacity-0 transition-all duration-700;
-    content: '';
-    background: linear-gradient(45deg, 
-      transparent 30%, 
-      rgba(255, 255, 255, 0.3) 50%, 
-      transparent 70%);
-    transform: translateX(-100%);
-    z-index: 2;
-  }
-  
-  .btn-3d:hover::after {
-    @apply opacity-100;
-    transform: translateX(100%);
   }
   
   /* Cinematic Animated Background */
@@ -292,13 +259,7 @@
     box-shadow: var(--shadow-steel);
     border: 2px solid transparent;
     background-clip: padding-box;
-    transition: var(--transition-smooth);
     position: relative;
-  }
-  
-  .card-steel:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: var(--shadow-glow), var(--shadow-steel);
   }
   
   /* Top highlight */
@@ -310,21 +271,6 @@
       hsl(var(--primary)) 20%, 
       hsl(var(--primary)) 80%, 
       transparent);
-  }
-  
-  /* Hover glow overlay */
-  .card-steel::after {
-    @apply absolute inset-0 opacity-0 transition-all duration-700;
-    content: '';
-    background: linear-gradient(135deg, 
-      transparent 30%, 
-      hsl(var(--primary), 0.08) 50%, 
-      transparent 70%);
-    pointer-events: none;
-  }
-  
-  .card-steel:hover::after {
-    @apply opacity-100;
   }
   
   /* Enhanced Menu Animations */
@@ -380,22 +326,11 @@
     background: var(--gradient-steel);
     border: 2px solid hsl(var(--border));
     box-shadow: var(--shadow-inset);
-    transition: var(--transition-smooth);
-  }
-  
-  .input-steel:focus {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-glow), var(--shadow-inset);
-    border-color: hsl(var(--primary));
   }
   
   /* Special Effects */
   .hover-scale {
-    @apply transition-all duration-300;
-  }
-  
-  .hover-scale:hover {
-    transform: scale(1.05);
+    /* Disabled hover scale effect */
   }
   
   /* Glass morphism effect */
@@ -426,19 +361,14 @@
       transparent);
   }
 
-  /* Card steel menu (glow hover only, no scale/transform) */
+  /* Card steel menu (no hover effects) */
   .card-steel-menu {
     @apply relative overflow-hidden;
     background: var(--gradient-steel);
     box-shadow: var(--shadow-steel);
     border: 2px solid transparent;
     background-clip: padding-box;
-    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-  }
-  
-  .card-steel-menu:hover {
-    box-shadow: var(--shadow-glow), var(--shadow-steel);
   }
   
   /* Top highlight for menu */
@@ -450,21 +380,6 @@
       hsl(var(--primary)) 20%, 
       hsl(var(--primary)) 80%, 
       transparent);
-  }
-  
-  /* Hover glow overlay for menu */
-  .card-steel-menu::after {
-    @apply absolute inset-0 opacity-0 transition-all duration-700;
-    content: '';
-    background: linear-gradient(135deg, 
-      transparent 30%, 
-      hsl(var(--primary), 0.08) 50%, 
-      transparent 70%);
-    pointer-events: none;
-  }
-  
-  .card-steel-menu:hover::after {
-    @apply opacity-100;
   }
 }
 
