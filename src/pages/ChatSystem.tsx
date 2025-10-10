@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { SupportSystem } from '@/components/SupportSystem';
 import { ChatInterface } from '@/components/ChatInterface';
 import { ConversationList } from '@/components/ConversationList';
@@ -439,59 +440,61 @@ export default function ChatSystem() {
                   <p className="text-steel-400">Здесь будут отображаться ваши уведомления</p>
                 </Card>
               ) : (
-                <div className="space-y-4">
-                  {notifications.map((notification) => (
-                    <Card 
-                      key={notification.id}
-                      className={`card-steel p-4 cursor-pointer transition-colors ${
-                        !notification.is_read ? 'border-primary/20 bg-primary/5' : 'hover:bg-steel-800/50'
-                      }`}
-                      onClick={async () => {
-                        // Отмечаем уведомление как прочитанное
-                        if (!notification.is_read) {
-                          try {
-                            await supabase
-                              .from('notifications')
-                              .update({ is_read: true })
-                              .eq('id', notification.id);
-                            
-                            // Обновляем локальное состояние
-                            setNotifications(prev =>
-                              prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
-                            );
-                            setUnreadCount(prev => Math.max(0, prev - 1));
-                          } catch (error) {
-                            console.error('Error marking notification as read:', error);
+                <ScrollArea className="h-[600px] pr-4">
+                  <div className="space-y-4">
+                    {notifications.map((notification) => (
+                      <Card 
+                        key={notification.id}
+                        className={`card-steel p-4 cursor-pointer transition-colors ${
+                          !notification.is_read ? 'border-primary/20 bg-primary/5' : 'hover:bg-steel-800/50'
+                        }`}
+                        onClick={async () => {
+                          // Отмечаем уведомление как прочитанное
+                          if (!notification.is_read) {
+                            try {
+                              await supabase
+                                .from('notifications')
+                                .update({ is_read: true })
+                                .eq('id', notification.id);
+                              
+                              // Обновляем локальное состояние
+                              setNotifications(prev =>
+                                prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
+                              );
+                              setUnreadCount(prev => Math.max(0, prev - 1));
+                            } catch (error) {
+                              console.error('Error marking notification as read:', error);
+                            }
                           }
-                        }
-                        
-                        // Переходим к чату, если есть conversation_id
-                        if (notification.conversation_id) {
-                          setSelectedConversation(notification.conversation_id);
-                        }
-                      }}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-1 flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <h3 className="font-medium text-steel-100 truncate">{notification.title}</h3>
-                            {!notification.is_read && (
-                              <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                          
+                          // Переходим к чату, если есть conversation_id
+                          if (notification.conversation_id) {
+                            setSelectedConversation(notification.conversation_id);
+                          }
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <div className="flex items-center space-x-2">
+                              <h3 className="font-medium text-steel-100 truncate">{notification.title}</h3>
+                              {!notification.is_read && (
+                                <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                              )}
+                            </div>
+                            {notification.content && (
+                              <p className="text-steel-300 text-sm line-clamp-2">
+                                {notification.content}
+                              </p>
                             )}
-                          </div>
-                          {notification.content && (
-                            <p className="text-steel-300 text-sm line-clamp-2">
-                              {notification.content}
+                            <p className="text-xs text-steel-400">
+                              {format(new Date(notification.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
                             </p>
-                          )}
-                          <p className="text-xs text-steel-400">
-                            {format(new Date(notification.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                          </p>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
               )}
             </TabsContent>
           </Tabs>
