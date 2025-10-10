@@ -310,11 +310,13 @@ export const OrderDetailsModal = ({
         </DialogHeader>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${
+            isClient ? 5 : (isExecutor ? 3 : 2)
+          }, minmax(0, 1fr))` }}>
             <TabsTrigger value="details">Детали</TabsTrigger>
-            <TabsTrigger value="files">Файлы</TabsTrigger>
+            {(isClient || isExecutor) && <TabsTrigger value="files">Файлы</TabsTrigger>}
             {isClient && <TabsTrigger value="bids">Отклики</TabsTrigger>}
-            <TabsTrigger value="history">История</TabsTrigger>
+            {(isClient || isExecutor) && <TabsTrigger value="history">История</TabsTrigger>}
             <TabsTrigger value="chat">Чат</TabsTrigger>
           </TabsList>
 
@@ -580,6 +582,8 @@ export const OrderDetailsModal = ({
             </Card>
           </TabsContent>
 
+          {/* Files Tab - Only for Client and Executor */}
+          {(isClient || isExecutor) && (
           <TabsContent value="files" className="space-y-4">
             {/* File Upload */}
             {(isClient || isExecutor) && order.status !== 'completed' && order.status !== 'cancelled' && (
@@ -681,6 +685,7 @@ export const OrderDetailsModal = ({
               )}
             </div>
           </TabsContent>
+          )}
 
           {/* Bids Tab - Only for Clients */}
           {isClient && (
@@ -695,6 +700,8 @@ export const OrderDetailsModal = ({
             </TabsContent>
           )}
 
+          {/* History Tab - Only for Client and Executor */}
+          {(isClient || isExecutor) && (
           <TabsContent value="history" className="space-y-4">
             <div className="space-y-2">
               {statusHistory.length === 0 ? (
@@ -740,6 +747,7 @@ export const OrderDetailsModal = ({
               )}
             </div>
           </TabsContent>
+          )}
 
           <TabsContent value="chat" className="space-y-4">
             <Card className="card-steel">
