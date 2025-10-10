@@ -38,20 +38,45 @@ export const TransactionManagement: React.FC = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Загружаем транзакции
+      const { data: transactionsData, error: transactionsError } = await supabase
         .from('transactions')
-        .select(`
-          *,
-          profiles:user_id (
-            phone,
-            display_name
-          )
-        `)
+        .select('*')
         .eq('type', 'deposit') // Показываем только пополнения
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setTransactions((data as any) || []);
+      if (transactionsError) {
+        console.error('Error fetching transactions:', transactionsError);
+        setTransactions([]);
+        return;
+      }
+
+      if (!transactionsData || transactionsData.length === 0) {
+        setTransactions([]);
+        return;
+      }
+
+      // Получаем уникальные user_id
+      const userIds = [...new Set(transactionsData.map(t => t.user_id))];
+
+      // Загружаем профили пользователей
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, phone, display_name')
+        .in('id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Объединяем данные
+      const transactionsWithProfiles = transactionsData.map(transaction => ({
+        ...transaction,
+        profiles: profilesData?.find(p => p.id === transaction.user_id) || null
+      }));
+
+      setTransactions(transactionsWithProfiles);
     } catch (error) {
       handleError(error, { component: 'TransactionManagement', action: 'fetchTransactions' });
     } finally {

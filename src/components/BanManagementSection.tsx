@@ -76,32 +76,49 @@ export const BanManagementSection = () => {
   const fetchUserBans = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch bans first
+      const { data: bansData, error: bansError } = await supabase
         .from('user_bans')
-        .select(`
-          *,
-          profiles!user_id (
-            display_name,
-            full_name,
-            phone
-          ),
-          issued_by_profile:profiles!issued_by (
-            display_name,
-            full_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        // If the table doesn't exist, just set empty array
-        if (error.code === 'PGRST200') {
-          setUserBans([]);
-          setIsLoading(false);
-          return;
-        }
-        throw error;
+      if (bansError) {
+        console.error('Error fetching user bans:', bansError);
+        setUserBans([]);
+        setIsLoading(false);
+        return;
       }
-      setUserBans((data as any) || []);
+
+      if (!bansData || bansData.length === 0) {
+        setUserBans([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Get unique user IDs (both banned users and issuers)
+      const userIds = [...new Set([
+        ...bansData.map(ban => ban.user_id),
+        ...bansData.map(ban => ban.issued_by)
+      ])];
+
+      // Fetch profiles for all users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, display_name, full_name, phone')
+        .in('id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Combine bans with profile data
+      const bansWithProfiles = bansData.map(ban => ({
+        ...ban,
+        profiles: profilesData?.find(p => p.id === ban.user_id) || null,
+        issued_by_profile: profilesData?.find(p => p.id === ban.issued_by) || null
+      }));
+
+      setUserBans(bansWithProfiles);
     } catch (error) {
       console.error('Error fetching user bans:', error);
       toast({
