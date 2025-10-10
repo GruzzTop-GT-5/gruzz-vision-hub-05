@@ -93,23 +93,23 @@
 @layer base {
   :root {
     /* Premium Professional Dark Theme - Deep Navy & Electric Blue Accents */
-    --background: 222 47% 6%;        /* Deep navy background */
+    --background: 222 47% 9%;        /* Lighter navy background */
     --foreground: 210 40% 98%;       /* Crisp white text */
     
-    --card: 222 40% 10%;             /* Card navy */
+    --card: 222 40% 14%;             /* Lighter card */
     --card-foreground: 210 40% 96%;  /* Light text */
     
-    --popover: 222 45% 12%;          /* Popover surface */
+    --popover: 222 45% 16%;          /* Lighter popover surface */
     --popover-foreground: 210 40% 96%; /* Light text */
     
     --primary: 217 91% 60%;          /* Electric blue */
     --primary-foreground: 210 40% 98%; /* Light text on blue */
     
-    --secondary: 222 35% 20%;        /* Steel blue */
+    --secondary: 222 35% 25%;        /* Lighter steel blue */
     --secondary-foreground: 210 40% 98%; /* Light text */
     
-    --muted: 222 35% 15%;            /* Muted navy */
-    --muted-foreground: 215 20% 65%; /* Muted text */
+    --muted: 222 35% 20%;            /* Lighter muted navy */
+    --muted-foreground: 215 20% 70%; /* Lighter muted text */
     
     --accent: 217 91% 60%;           /* Accent blue */
     --accent-foreground: 210 40% 98%; /* Light text */
@@ -117,8 +117,8 @@
     --destructive: 0 84% 60%;        /* Red */
     --destructive-foreground: 210 40% 98%; /* Light text */
     
-    --border: 222 30% 18%;           /* Border */
-    --input: 222 40% 12%;            /* Input background */
+    --border: 222 30% 22%;           /* Lighter border */
+    --input: 222 40% 16%;            /* Lighter input background */
     --ring: 217 91% 60%;             /* Focus ring blue */
     
     --radius: 0.75rem;
@@ -135,14 +135,14 @@
       hsl(222, 30%, 18%) 100%);
     
     --gradient-steel: linear-gradient(135deg, 
-      hsl(222, 40%, 12%) 0%, 
-      hsl(222, 45%, 10%) 50%, 
-      hsl(222, 50%, 8%) 100%);
+      hsl(222, 40%, 16%) 0%, 
+      hsl(222, 45%, 14%) 50%, 
+      hsl(222, 50%, 12%) 100%);
     
     --gradient-dark: linear-gradient(135deg, 
-      hsl(222, 50%, 8%) 0%, 
-      hsl(222, 55%, 6%) 50%, 
-      hsl(222, 60%, 4%) 100%);
+      hsl(222, 50%, 12%) 0%, 
+      hsl(222, 55%, 10%) 50%, 
+      hsl(222, 60%, 8%) 100%);
     
     --gradient-button: linear-gradient(135deg,
       hsl(217, 91%, 65%) 0%,
