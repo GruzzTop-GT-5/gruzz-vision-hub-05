@@ -96,9 +96,9 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="card-steel max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-steel-100">
+      <DialogContent className="card-steel max-w-2xl max-h-[90vh] overflow-y-auto transition-none">
+        <DialogHeader className="transition-none">
+          <DialogTitle className="text-2xl font-bold text-steel-100 transition-none">
             {isOwnProfile ? 'Мой профиль' : 'Профиль пользователя'}
           </DialogTitle>
         </DialogHeader>
@@ -111,12 +111,12 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
             </div>
           </div>
         ) : profile ? (
-          <div className="space-y-6">
+          <div className="space-y-6 transition-none">
             {/* Profile Info */}
-            <Card className="bg-steel-800/50 border-steel-600 p-6">
-              <div className="flex items-start space-x-4">
+            <Card className="bg-steel-800/50 border-steel-600 p-6 transition-none hover:shadow-none">
+              <div className="flex items-start space-x-4 transition-none">
                 {/* Avatar */}
-                <Avatar className="w-16 h-16 border-2 border-primary/20">
+                <Avatar className="w-16 h-16 border-2 border-primary/20 transition-none">
                   {profile.avatar_url ? (
                     <AvatarImage src={profile.avatar_url} alt={getUserDisplayName()} />
                   ) : (
