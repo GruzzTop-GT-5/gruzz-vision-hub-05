@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { sanitizeInput, validateFileUpload } from '@/utils/security';
+import { UserProfileModal } from '@/components/UserProfileModal';
 import { 
   Send, 
   Paperclip, 
@@ -34,7 +35,8 @@ import {
   Download,
   Phone,
   MoreVertical,
-  Trash2
+  Trash2,
+  User
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -78,6 +80,9 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   const [isSending, setIsSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [participantProfiles, setParticipantProfiles] = useState<Map<string, any>>(new Map());
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,6 +90,7 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   useEffect(() => {
     fetchConversation();
     fetchMessages();
+    fetchParticipantProfiles();
     
     const unsubscribe = subscribeToMessages();
     return () => {
@@ -123,6 +129,33 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
         description: "Не удалось загрузить чат",
         variant: "destructive"
       });
+    }
+  };
+
+  const fetchParticipantProfiles = async () => {
+    try {
+      const { data: conv } = await supabase
+        .from('conversations')
+        .select('participants')
+        .eq('id', conversationId)
+        .single();
+
+      if (!conv?.participants) return;
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, display_name, full_name, avatar_url')
+        .in('id', conv.participants);
+
+      if (profiles) {
+        const profilesMap = new Map();
+        profiles.forEach(profile => {
+          profilesMap.set(profile.id, profile);
+        });
+        setParticipantProfiles(profilesMap);
+      }
+    } catch (error) {
+      console.error('Error fetching participant profiles:', error);
     }
   };
 
@@ -321,13 +354,40 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
     return { isStructured: false, rawContent: content };
   };
 
+  const handleUserClick = (userId: string) => {
+    setSelectedUserId(userId);
+    setShowProfileModal(true);
+  };
+
+  const getUserDisplayInfo = (userId: string) => {
+    const profile = participantProfiles.get(userId);
+    return {
+      name: profile?.display_name || profile?.full_name || `ID: ${userId.slice(0, 8)}...`,
+      avatar: profile?.avatar_url
+    };
+  };
+
   const renderMessage = (message: Message) => {
     const isOwnMessage = message.sender_id === user?.id;
     const structuredData = message.content ? parseStructuredMessage(message.content) : null;
+    const userInfo = getUserDisplayInfo(message.sender_id);
     
     return (
       <div key={message.id} className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
         <div className={`max-w-[70%] ${isOwnMessage ? 'order-1' : 'order-2'}`}>
+          {/* Sender name for non-own messages */}
+          {!isOwnMessage && (
+            <div className="ml-11 mb-1">
+              <button
+                onClick={() => handleUserClick(message.sender_id)}
+                className="text-xs text-steel-400 hover:text-primary transition-colors cursor-pointer flex items-center space-x-1"
+              >
+                <User className="w-3 h-3" />
+                <span>{userInfo.name}</span>
+              </button>
+            </div>
+          )}
+          
           <div
             className={`rounded-xl p-4 shadow-lg ${
               isOwnMessage
@@ -423,10 +483,17 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
         </div>
         
         {!isOwnMessage && (
-          <Avatar className="w-8 h-8 mr-3 order-1">
-            <AvatarFallback className="bg-steel-600 text-steel-200">
-              {message.sender_id.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
+          <Avatar 
+            className="w-8 h-8 mr-3 order-1 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+            onClick={() => handleUserClick(message.sender_id)}
+          >
+            {userInfo.avatar ? (
+              <AvatarImage src={userInfo.avatar} alt={userInfo.name} />
+            ) : (
+              <AvatarFallback className="bg-steel-600 text-steel-200">
+                {message.sender_id.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            )}
           </Avatar>
         )}
       </div>
@@ -586,6 +653,13 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        userId={selectedUserId}
+        open={showProfileModal}
+        onOpenChange={setShowProfileModal}
+      />
     </>
   );
 };
