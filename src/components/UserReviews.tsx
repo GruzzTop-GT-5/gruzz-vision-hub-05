@@ -38,6 +38,8 @@ export const UserReviews = ({ userId, canLeaveReview = false, transactionId }: U
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  console.log('UserReviews рендерится', { userId, canLeaveReview, transactionId });
+
   useEffect(() => {
     fetchUserData();
     fetchReviews();

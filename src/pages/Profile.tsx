@@ -306,7 +306,10 @@ const Profile = () => {
             <div className="flex space-x-2">
               <Button 
                 variant={showReviews ? "default" : "outline"}
-                onClick={() => setShowReviews(!showReviews)}
+                onClick={() => {
+                  console.log('Кнопка отзывов нажата', { showReviews, userId: user?.id });
+                  setShowReviews(!showReviews);
+                }}
                 className="flex items-center space-x-2"
               >
                 <MessageSquare className="w-4 h-4" />
@@ -703,11 +706,17 @@ const Profile = () => {
           </div>
 
           {/* Раздел отзывов */}
-          {showReviews && user?.id && (
+          {showReviews && user?.id ? (
             <div className="mt-8">
               <UserReviews userId={user.id} canLeaveReview={false} />
             </div>
-          )}
+          ) : showReviews && !user?.id ? (
+            <div className="mt-8">
+              <Card className="card-steel p-6">
+                <p className="text-steel-300">Ошибка: ID пользователя не найден</p>
+              </Card>
+            </div>
+          ) : null}
         </div>
       </div>
     </Layout>
