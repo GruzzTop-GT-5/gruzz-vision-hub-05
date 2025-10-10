@@ -39,11 +39,11 @@ const orderFormSchema = z.object({
   description: z.string().min(20, 'Описание должно содержать минимум 20 символов').max(1000, 'Описание слишком длинное'),
   category: z.string().min(1, 'Выберите категорию работы'),
   address: z.string().min(5, 'Укажите адрес объекта').max(200, 'Адрес слишком длинный'),
-  hourly_rate: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 100, 'Минимум 100₽/час'),
+  hourly_rate: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 400, 'Минимум 400₽/час'),
   work_hours: z.string().refine((val) => {
     const num = Number(val);
-    return !isNaN(num) && num >= 1;
-  }, 'Минимум 1 час'),
+    return !isNaN(num) && num >= 4;
+  }, 'Минимум 4 часа'),
   priority: z.enum(['normal', 'high', 'urgent'], { required_error: 'Выберите приоритет' }),
   deadline: z.date().optional(),
   start_time: z.string().optional(),
@@ -405,12 +405,12 @@ export default function CreateOrder() {
                           <Input
                             type="number"
                             placeholder="500"
-                            min="100"
+                            min="400"
                             className="bg-steel-700/50"
                             {...field}
                           />
                         </FormControl>
-                        <p className="text-xs text-steel-400 mt-1">Минимум 100₽/час</p>
+                        <p className="text-xs text-steel-400 mt-1">Минимум 400₽/час</p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -425,18 +425,14 @@ export default function CreateOrder() {
                         <FormControl>
                           <Input
                             type="number"
-                            placeholder="4"
-                            min="1"
-                            className="bg-steel-700/50"
+                            value="4"
+                            readOnly
+                            disabled
+                            className="bg-steel-700/50 cursor-not-allowed"
                             {...field}
                           />
                         </FormControl>
-                        <p className="text-xs text-steel-400 mt-1">
-                          {(form.watch('category')?.toLowerCase().includes('грузчик') || 
-                            form.watch('category')?.toLowerCase().includes('разнорабочи'))
-                            ? 'Для грузчиков и разнорабочих: минимум 1 час' 
-                            : 'Минимум 4 часа'}
-                        </p>
+                        <p className="text-xs text-steel-400 mt-1">Минимум 4 часа</p>
                         <FormMessage />
                       </FormItem>
                     )}
