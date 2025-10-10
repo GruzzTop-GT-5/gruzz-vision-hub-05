@@ -343,7 +343,10 @@ export const NavigationMenu = () => {
 
               {/* Основные разделы */}
               <NavigationSection title="Работа" items={navigationSections.work} />
+              
+              {/* Спец техника - отдельная секция */}
               <NavigationSection title="Спец техника" items={navigationSections.equipment} />
+              
               <NavigationSection title="Услуги" items={navigationSections.services} />
               <NavigationSection title="Профиль" items={navigationSections.profile} />
               
