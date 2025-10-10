@@ -138,10 +138,55 @@ const Profile = () => {
     }
   };
 
+  // Форматирование номера телефона
+  const formatPhoneNumber = (value: string) => {
+    // Удаляем все символы кроме цифр
+    const cleaned = value.replace(/\D/g, '');
+    
+    // Ограничиваем до 11 цифр (1 + 10)
+    const limited = cleaned.slice(0, 11);
+    
+    // Добавляем +7 если номер начинается с 8 или пустой
+    let formatted = limited;
+    if (formatted.startsWith('8')) {
+      formatted = '7' + formatted.slice(1);
+    } else if (formatted.length > 0 && !formatted.startsWith('7')) {
+      formatted = '7' + formatted;
+    }
+    
+    // Форматируем как +7 XXX-XXX-XX-XX
+    if (formatted.length >= 1) {
+      let result = '+7';
+      if (formatted.length > 1) {
+        result += ' ' + formatted.slice(1, 4);
+      }
+      if (formatted.length > 4) {
+        result += '-' + formatted.slice(4, 7);
+      }
+      if (formatted.length > 7) {
+        result += '-' + formatted.slice(7, 9);
+      }
+      if (formatted.length > 9) {
+        result += '-' + formatted.slice(9, 11);
+      }
+      return result;
+    }
+    
+    return '+7 ';
+  };
+
   const handleInputChange = (field: keyof ProfileData, value: string | number) => {
     setProfileData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhoneNumber(value);
+    setProfileData(prev => ({
+      ...prev,
+      phone: formatted
     }));
   };
 
@@ -473,22 +518,23 @@ const Profile = () => {
                      </div>
                    </div>
 
-                   <div className="space-y-2">
-                     <Label className="text-steel-400 text-sm">Телефон</Label>
-                     {isEditing ? (
-                       <Input
-                         value={profileData.phone || ''}
-                         onChange={(e) => handleInputChange('phone', e.target.value)}
-                         className="bg-steel-700 border-steel-600 text-steel-100"
-                         placeholder="Введите номер телефона"
-                       />
-                     ) : (
-                       <div className="flex items-center space-x-2">
-                         <Phone className="w-4 h-4 text-steel-400" />
-                         <p className="text-steel-100">{profileData.phone || 'Не указан'}</p>
-                       </div>
-                     )}
-                   </div>
+                    <div className="space-y-2">
+                      <Label className="text-steel-400 text-sm">Телефон</Label>
+                      {isEditing ? (
+                        <Input
+                          type="tel"
+                          value={profileData.phone || '+7 '}
+                          onChange={(e) => handlePhoneChange(e.target.value)}
+                          className="bg-steel-700 border-steel-600 text-steel-100"
+                          placeholder="+7 XXX-XXX-XX-XX"
+                        />
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <Phone className="w-4 h-4 text-steel-400" />
+                          <p className="text-steel-100">{profileData.phone || 'Не указан'}</p>
+                        </div>
+                      )}
+                    </div>
 
                     <div className="space-y-2">
                       <Label className="text-steel-400 text-sm">Telegram</Label>
