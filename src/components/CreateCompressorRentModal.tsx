@@ -140,19 +140,15 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm, initi
       totalPrice
     };
 
-    // Call onConfirm to save data
+    // Save data and close modal
     onConfirm(data);
-    
-    // Close modal first
     onOpenChange(false);
     
-    // Show success message after closing
-    setTimeout(() => {
-      toast({
-        title: "Сохранено!",
-        description: `Аренда компрессора: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
-      });
-    }, 100);
+    // Show success message
+    toast({
+      title: "Сохранено!",
+      description: `Аренда компрессора: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
+    });
   };
 
   return (
@@ -375,7 +371,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm, initi
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={hoursError || hours < 7}
+              disabled={hours < 7 || !selectedDate}
             >
               Подтвердить
             </Button>
