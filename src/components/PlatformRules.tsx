@@ -184,7 +184,7 @@ export const PlatformRules = () => {
           </TabsTrigger>
           <TabsTrigger 
             value="payments"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-electric-600 data-[state=active]:text-steel-900 py-3 hover:scale-100 active:scale-100"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-electric-600 data-[state=active]:text-steel-900 py-3"
           >
             <Shield className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Пополнение</span>
@@ -192,7 +192,7 @@ export const PlatformRules = () => {
           </TabsTrigger>
           <TabsTrigger 
             value="privacy"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-electric-600 data-[state=active]:text-steel-900 py-3 hover:scale-100 active:scale-100"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-electric-600 data-[state=active]:text-steel-900 py-3"
           >
             <FileText className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Конфиденциальность</span>
