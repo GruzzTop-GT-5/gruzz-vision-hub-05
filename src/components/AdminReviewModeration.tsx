@@ -49,32 +49,54 @@ export function AdminReviewModeration() {
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      // Сначала загружаем отзывы
+      const { data: reviewsData, error: reviewsError } = await supabase
         .from('reviews')
-        .select(`
-          id,
-          rating,
-          comment,
-          created_at,
-          is_hidden,
-          admin_bonus_points,
-          admin_comment,
-          author_profile:profiles!reviews_author_id_fkey (
-            display_name,
-            full_name,
-            phone
-          ),
-          target_profile:profiles!reviews_target_user_id_fkey (
-            display_name,
-            full_name,
-            phone,
-            rating
-          )
-        `)
+        .select('id, rating, comment, created_at, is_hidden, admin_bonus_points, admin_comment, author_id, target_user_id')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setReviews(data || []);
+      if (reviewsError) throw reviewsError;
+
+      if (!reviewsData || reviewsData.length === 0) {
+        setReviews([]);
+        return;
+      }
+
+      // Получаем уникальные ID пользователей
+      const userIds = [...new Set([
+        ...reviewsData.map(r => r.author_id),
+        ...reviewsData.map(r => r.target_user_id)
+      ])];
+
+      // Загружаем профили пользователей
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, display_name, full_name, phone, rating')
+        .in('id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Объединяем данные
+      const reviewsWithProfiles = reviewsData.map(review => ({
+        ...review,
+        author_profile: profilesData?.find(p => p.id === review.author_id) || {
+          display_name: null,
+          full_name: null,
+          phone: null
+        },
+        target_profile: profilesData?.find(p => p.id === review.target_user_id) || {
+          display_name: null,
+          full_name: null,
+          phone: null,
+          rating: 0
+        }
+      }));
+
+      setReviews(reviewsWithProfiles);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       toast({
