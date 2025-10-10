@@ -555,19 +555,99 @@ export default function CreateOrder() {
                   <FormField
                     control={form.control}
                     name="start_datetime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-steel-100">🕐 Когда</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="datetime-local"
-                            className="bg-steel-700/50"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const currentDate = field.value ? new Date(field.value) : undefined;
+                      const currentHour = currentDate ? currentDate.getHours().toString().padStart(2, '0') : '09';
+                      const currentMinute = currentDate ? currentDate.getMinutes().toString().padStart(2, '0') : '00';
+                      
+                      const handleDateChange = (date: Date | undefined) => {
+                        if (date) {
+                          const newDate = new Date(date);
+                          const hour = currentDate ? currentDate.getHours() : 9;
+                          const minute = currentDate ? currentDate.getMinutes() : 0;
+                          newDate.setHours(hour, minute, 0, 0);
+                          field.onChange(newDate.toISOString().slice(0, 16));
+                        }
+                      };
+                      
+                      const handleTimeChange = (hour: string, minute: string) => {
+                        if (currentDate) {
+                          const newDate = new Date(currentDate);
+                          newDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
+                          field.onChange(newDate.toISOString().slice(0, 16));
+                        }
+                      };
+                      
+                      return (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-steel-100">🕐 На какое время</FormLabel>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    className={`justify-start text-left font-normal bg-steel-700/50 ${
+                                      !currentDate && "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {currentDate ? format(currentDate, "dd.MM.yyyy", { locale: ru }) : <span>дд.мм.гггг</span>}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <CalendarComponent
+                                  mode="single"
+                                  selected={currentDate}
+                                  onSelect={handleDateChange}
+                                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                  initialFocus
+                                  className="p-3 pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            
+                            <div className="flex gap-1">
+                              <Select 
+                                value={currentHour} 
+                                onValueChange={(hour) => handleTimeChange(hour, currentMinute)}
+                              >
+                                <SelectTrigger className="bg-steel-700/50">
+                                  <SelectValue placeholder="--" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[200px]">
+                                  {Array.from({ length: 24 }, (_, i) => {
+                                    const hour = i.toString().padStart(2, '0');
+                                    return (
+                                      <SelectItem key={hour} value={hour}>
+                                        {hour}
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                              <span className="flex items-center text-steel-400">:</span>
+                              <Select 
+                                value={currentMinute} 
+                                onValueChange={(minute) => handleTimeChange(currentHour, minute)}
+                              >
+                                <SelectTrigger className="bg-steel-700/50">
+                                  <SelectValue placeholder="--" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[200px]">
+                                  {['00', '15', '30', '45'].map((minute) => (
+                                    <SelectItem key={minute} value={minute}>
+                                      {minute}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField
