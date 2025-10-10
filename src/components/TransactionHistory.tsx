@@ -78,31 +78,32 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'topup_direct':
-      case 'topup_manual':
+      case 'deposit':
       case 'refund':
         return <ArrowUpCircle className="w-5 h-5 text-green-400" />;
       case 'purchase':
+      case 'payment':
+      case 'withdrawal':
         return <ArrowDownCircle className="w-5 h-5 text-red-400" />;
       default:
-        return <ArrowUpCircle className="w-5 h-5 text-steel-400" />;
+        return <Clock className="w-5 h-5 text-yellow-400" />;
     }
   };
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'topup_direct':
-        return 'Пополнение (прямой платеж)';
-      case 'topup_manual':
-        return 'Пополнение (ручной перевод)';
+      case 'deposit':
+        return 'Пополнение баланса';
+      case 'payment':
+        return 'Размещение заказа';
       case 'purchase':
         return 'Покупка услуги';
+      case 'withdrawal':
+        return 'Вывод средств';
       case 'refund':
         return 'Возврат средств';
-      case 'admin_adjustment':
-        return 'Корректировка администратора';
       default:
-        return type;
+        return 'Транзакция';
     }
   };
 

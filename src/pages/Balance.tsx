@@ -7,6 +7,7 @@ import { BackButton } from '@/components/BackButton';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Info, Shield, Zap, TrendingUp } from 'lucide-react';
 
 const Balance = () => {
@@ -46,76 +47,139 @@ const Balance = () => {
 
           {/* Information Cards */}
           <div className="grid md:grid-cols-2 gap-4">
-            <Card className="card-steel p-4 space-y-3">
-              <div className="flex items-center space-x-2">
-                <Info className="w-5 h-5 text-primary" />
-                <h3 className="font-medium text-steel-100">Как это работает</h3>
+            <Card className="card-steel p-6 space-y-3 border-primary/20">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <Info className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-steel-100 text-lg">Как это работает</h3>
               </div>
-              <ul className="text-sm text-steel-300 space-y-1">
-                <li>• 1 GT Coin = 1 ₽</li>
-                <li>• Пополнение от 100 GT</li>
-                <li>• Фиксированная стоимость размещения</li>
-                <li>• Быстрое подтверждение платежей</li>
+              <ul className="text-sm text-steel-300 space-y-2">
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">•</span>
+                  <span><span className="font-semibold text-primary">1 GT Coin = 1 ₽</span> (рубль)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">•</span>
+                  <span>Пополнение от <span className="font-semibold">100 GT</span></span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">•</span>
+                  <span>Стоимость размещения: <span className="font-semibold text-primary">15-55 GT (₽)</span></span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-primary mr-2">•</span>
+                  <span>Быстрое подтверждение платежей</span>
+                </li>
               </ul>
             </Card>
 
-            <Card className="card-steel p-4 space-y-3">
-              <div className="flex items-center space-x-2">
-                <Shield className="w-5 h-5 text-green-400" />
-                <h3 className="font-medium text-steel-100">Безопасность</h3>
+            <Card className="card-steel p-6 space-y-3 border-green-500/20">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-green-400" />
+                </div>
+                <h3 className="font-semibold text-steel-100 text-lg">Безопасность</h3>
               </div>
-              <ul className="text-sm text-steel-300 space-y-1">
-                <li>• Защищенные транзакции</li>
-                <li>• Контроль администрации</li>
-                <li>• История всех операций</li>
-                <li>• Возврат при ошибках</li>
+              <ul className="text-sm text-steel-300 space-y-2">
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Защищенные транзакции</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Контроль администрации</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>История всех операций</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Возврат при ошибках</span>
+                </li>
               </ul>
             </Card>
           </div>
 
           {/* Payment Methods Info */}
-          <Card className="card-steel p-6 space-y-4">
-            <div className="flex items-center space-x-2">
-              <Zap className="w-5 h-5 text-electric-400" />
-              <h3 className="font-medium text-steel-100">Способы пополнения</h3>
+          <Card className="card-steel p-6 space-y-5 border-electric-400/20">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-electric-400/20 rounded-lg flex items-center justify-center">
+                <Zap className="w-5 h-5 text-electric-400" />
+              </div>
+              <h3 className="font-semibold text-steel-100 text-lg">Способы пополнения</h3>
             </div>
             
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="text-center space-y-2 opacity-50">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto">
-                  <TrendingUp className="w-6 h-6 text-white" />
+              {/* Bank Card - In Development */}
+              <Card className="card-steel p-4 space-y-3 opacity-50 border-steel-600/30">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-lg">
+                  <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <h4 className="font-medium text-steel-200">Банковская карта</h4>
-                <p className="text-xs text-steel-400">В разработке</p>
-              </div>
+                <div className="text-center space-y-1">
+                  <h4 className="font-semibold text-steel-200">Банковская карта</h4>
+                  <Badge variant="outline" className="text-xs text-steel-400 border-steel-500">
+                    В разработке
+                  </Badge>
+                  <p className="text-xs text-steel-400 pt-1">Скоро будет доступно</p>
+                </div>
+              </Card>
               
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto">
-                  <TrendingUp className="w-6 h-6 text-white" />
+              {/* YooMoney - Active */}
+              <Card className="card-steel p-4 space-y-3 border-purple-500/30 hover:border-purple-500/50 transition-colors cursor-pointer">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-purple-500/20">
+                  <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <h4 className="font-medium text-steel-200">ЮMoney</h4>
-                <p className="text-xs text-steel-400">Быстрое пополнение</p>
-              </div>
+                <div className="text-center space-y-1">
+                  <h4 className="font-semibold text-steel-100">ЮMoney</h4>
+                  <Badge className="text-xs bg-purple-500/20 text-purple-400 border-purple-400/20">
+                    Активно
+                  </Badge>
+                  <p className="text-xs text-steel-400 pt-1">Быстрое пополнение</p>
+                </div>
+              </Card>
               
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mx-auto">
-                  <TrendingUp className="w-6 h-6 text-white" />
+              {/* Ozon - Active */}
+              <Card className="card-steel p-4 space-y-3 border-orange-500/30 hover:border-orange-500/50 transition-colors cursor-pointer">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-orange-500/20">
+                  <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <h4 className="font-medium text-steel-200">Ozon</h4>
-                <p className="text-xs text-steel-400">Удобно и просто</p>
-              </div>
+                <div className="text-center space-y-1">
+                  <h4 className="font-semibold text-steel-100">Ozon</h4>
+                  <Badge className="text-xs bg-orange-500/20 text-orange-400 border-orange-400/20">
+                    Активно
+                  </Badge>
+                  <p className="text-xs text-steel-400 pt-1">Удобно и просто</p>
+                </div>
+              </Card>
             </div>
           </Card>
 
           {/* Terms */}
-          <Card className="card-steel p-4">
-            <h3 className="font-medium text-steel-100 mb-2">Условия использования</h3>
-            <div className="text-xs text-steel-400 space-y-1">
-              <p>• GT Coins используются только внутри платформы GruzzTop</p>
-              <p>• Минимальная сумма пополнения: 100 GT</p>
-              <p>• Максимальная сумма пополнения: 50,000 GT за раз</p>
-              <p>• Все транзакции проверяются администрацией</p>
-              <p>• Возврат возможен только при технических ошибках</p>
+          <Card className="card-steel p-5 border-steel-600/50">
+            <h3 className="font-semibold text-steel-100 mb-3 text-lg">Условия использования</h3>
+            <div className="text-sm text-steel-400 space-y-2">
+              <p className="flex items-start">
+                <span className="text-primary mr-2">•</span>
+                <span>GT Coins используются только внутри платформы GruzzTop</span>
+              </p>
+              <p className="flex items-start">
+                <span className="text-primary mr-2">•</span>
+                <span>Минимальная сумма пополнения: <span className="text-steel-200 font-semibold">100 GT (₽)</span></span>
+              </p>
+              <p className="flex items-start">
+                <span className="text-primary mr-2">•</span>
+                <span>Максимальная сумма пополнения: <span className="text-steel-200 font-semibold">50,000 GT (₽)</span> за раз</span>
+              </p>
+              <p className="flex items-start">
+                <span className="text-primary mr-2">•</span>
+                <span>Все транзакции проверяются администрацией</span>
+              </p>
+              <p className="flex items-start">
+                <span className="text-primary mr-2">•</span>
+                <span>Возврат возможен только при технических ошибках</span>
+              </p>
             </div>
           </Card>
         </div>
