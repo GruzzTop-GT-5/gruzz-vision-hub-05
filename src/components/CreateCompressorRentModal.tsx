@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface CompressorRentData {
   hours: number;
@@ -37,9 +38,9 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   const [paymentType, setPaymentType] = useState<'cash' | 'vat'>('cash');
   const [datetime, setDatetime] = useState('');
   const [totalHours, setTotalHours] = useState(8);
-  const [manualTotalHours, setManualTotalHours] = useState<number | null>(null);
   const [totalPrice, setTotalPrice] = useState(12000);
   const [minDatetime, setMinDatetime] = useState('');
+  const [hoursError, setHoursError] = useState(false);
 
   // Set minimum datetime (tomorrow) and reset on open
   useEffect(() => {
@@ -62,19 +63,13 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
       setEquipment([]);
       setPaymentType('cash');
       setDatetime('');
-      setManualTotalHours(null);
       setTotalHours(8);
+      setHoursError(false);
     }
   }, [open]);
 
   // Calculate total hours based on base hours and location
   useEffect(() => {
-    // If manual total hours is set, don't auto-calculate
-    if (manualTotalHours !== null) {
-      setTotalHours(manualTotalHours);
-      return;
-    }
-
     let extraHours = 0;
     
     if (location === 'city') {
@@ -88,7 +83,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
     
     const calculatedTotal = hours + extraHours;
     setTotalHours(calculatedTotal);
-  }, [hours, location, manualTotalHours]);
+  }, [hours, location]);
 
   // Calculate total price
   useEffect(() => {
@@ -136,15 +131,38 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
             <Input
               id="hours"
               type="number"
-              min="7"
-              max="44"
+              min="1"
+              max="100"
               value={hours}
               onChange={(e) => {
                 const value = Number(e.target.value);
-                setHours(Math.min(44, Math.max(7, value)));
+                setHours(value);
+                
+                if (value < 7) {
+                  setHoursError(true);
+                  toast({
+                    title: "Ошибка",
+                    description: "Минимальное время аренды — 7 часов",
+                    variant: "destructive",
+                  });
+                } else if (value > 44) {
+                  setHoursError(true);
+                  toast({
+                    title: "Ошибка",
+                    description: "Максимальное время аренды — 44 часа",
+                    variant: "destructive",
+                  });
+                } else {
+                  setHoursError(false);
+                }
               }}
-              className="bg-steel-700/50"
+              className={`bg-steel-700/50 ${hoursError ? 'border-red-500' : ''}`}
             />
+            {hoursError && (
+              <p className="text-sm text-red-500">
+                {hours < 7 ? 'Минимальное время — 7 часов' : 'Максимальное время — 44 часа'}
+              </p>
+            )}
           </div>
 
           {/* Location Selection */}
@@ -258,6 +276,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
             </Button>
             <Button 
               onClick={handleConfirm}
+              disabled={hoursError || hours < 7 || hours > 44}
             >
               Подтвердить
             </Button>
