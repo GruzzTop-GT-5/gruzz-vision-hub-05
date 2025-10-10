@@ -657,21 +657,26 @@ export default function CreateOrder() {
                     control={form.control}
                     name="compressor_rent"
                     render={({ field }) => (
-                      <FormItem 
+                       <FormItem 
                         className="flex flex-row items-start space-x-3 space-y-0 rounded-lg border border-steel-600/50 p-4 bg-steel-700/30 cursor-pointer hover:bg-steel-700/40 transition-colors"
                         onClick={() => {
                           if (!field.value) {
                             setShowCompressorModal(true);
                           } else {
-                            field.onChange(false);
-                            setCompressorData(null);
+                            // Allow editing
+                            setShowCompressorModal(true);
                           }
                         }}
                       >
                         <FormControl>
                           <Checkbox
                             checked={field.value}
-                            onCheckedChange={() => {}}
+                            onCheckedChange={(checked) => {
+                              if (!checked) {
+                                field.onChange(false);
+                                setCompressorData(null);
+                              }
+                            }}
                             onClick={(e) => e.stopPropagation()}
                           />
                         </FormControl>
@@ -779,8 +784,9 @@ export default function CreateOrder() {
         onOpenChange={setShowCompressorModal}
         initialData={compressorData}
         onConfirm={(data) => {
+          console.log('Saving compressor data:', data);
           setCompressorData(data);
-          form.setValue('compressor_rent', true);
+          form.setValue('compressor_rent', true, { shouldValidate: true });
         }}
       />
      </Layout>
