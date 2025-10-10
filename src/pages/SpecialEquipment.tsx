@@ -68,14 +68,30 @@ export default function SpecialEquipment() {
           `"Здравствуйте! Заказываю технику через GruzzTop на ${orderDateTime}"\n\n` +
           `Это нужно, чтобы они понимали откуда вы и по какому заказу обращаетесь.`;
 
-        await supabase
+        const { data: messageData } = await supabase
           .from('messages')
           .insert({
             conversation_id: conversationData.id,
             sender_id: user?.id,
             content: contactMessage,
             message_type: 'text'
-          });
+          })
+          .select()
+          .single();
+
+        // Create notification for the user
+        if (messageData) {
+          await supabase
+            .from('notifications')
+            .insert({
+              user_id: user?.id,
+              type: 'equipment_order',
+              title: 'Заказ спецтехники создан',
+              content: 'Контакты для аренды компрессора отправлены в чат',
+              conversation_id: conversationData.id,
+              message_id: messageData.id
+            });
+        }
 
         toast({
           title: "Заказ создан!",

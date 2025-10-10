@@ -25,6 +25,7 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { PerformanceMonitor } from '@/components/admin/PerformanceMonitor';
 import { NotificationCenter } from '@/components/admin/NotificationCenter';
 import { PromoCodeManagement } from '@/components/admin/PromoCodeManagement';
+import { EquipmentOrdersManagement } from '@/components/admin/EquipmentOrdersManagement';
 import { Navigate } from 'react-router-dom';
 import {
   Activity,
@@ -47,7 +48,8 @@ import {
   HelpCircle,
   ArrowLeft,
   DollarSign,
-  Percent
+  Percent,
+  Truck
 } from 'lucide-react';
 
 interface AdminModule {
@@ -303,6 +305,16 @@ export const AdminPanelNew = () => {
       bgColor: 'from-emerald-500/10 to-emerald-600/20 border-emerald-500/30 hover:border-emerald-400/50',
       component: <OrderManagement />,
       roles: ['admin', 'system_admin', 'moderator']
+    },
+    {
+      id: 'equipment',
+      title: '🚛 Спецтехника',
+      description: 'Мониторинг заказов аренды компрессоров и другой техники',
+      icon: <Truck className="w-8 h-8" />,
+      color: 'text-orange-400',
+      bgColor: 'from-orange-500/10 to-orange-600/20 border-orange-500/30 hover:border-orange-400/50',
+      component: <EquipmentOrdersManagement />,
+      roles: ['admin', 'system_admin', 'support']
     },
     {
       id: 'transactions',
