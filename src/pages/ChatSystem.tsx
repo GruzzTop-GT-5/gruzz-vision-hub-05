@@ -242,21 +242,24 @@ export default function ChatSystem() {
     );
   }
 
-  // Desktop layout with sidebar
-  if (selectedConversation && window.innerWidth >= 768) {
+  // Full screen chat mode (when conversation is selected)
+  if (selectedConversation) {
     return (
       <Layout user={user} userRole={userRole} onSignOut={signOut}>
-        <div className="min-h-screen flex">
-          <div className="w-80 border-r border-steel-600">
-            <ConversationList
-              onSelectConversation={setSelectedConversation}
-              selectedConversationId={selectedConversation}
-              refreshTrigger={refreshTrigger}
-              onConversationDeleted={fetchConversations}
-            />
-          </div>
-          <div className="flex-1 p-4">
-            <div className="h-full">
+        <div className="min-h-screen p-4">
+          <div className="max-w-6xl mx-auto space-y-4">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedConversation(null)}
+                className="flex items-center space-x-2"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>← Вернуться к списку чатов</span>
+              </Button>
+            </div>
+            
+            <div className="h-[calc(100vh-140px)]">
               <ChatInterface
                 conversationId={selectedConversation}
                 onClose={() => setSelectedConversation(null)}
@@ -270,32 +273,6 @@ export default function ChatSystem() {
           onClose={() => setIsUserSearchOpen(false)}
           onStartChat={startNewChat}
         />
-      </Layout>
-    );
-  }
-
-  // Mobile layout - full screen chat
-  if (selectedConversation) {
-    return (
-      <Layout user={user} userRole={userRole} onSignOut={signOut}>
-        <div className="min-h-screen p-4">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                onClick={() => setSelectedConversation(null)}
-              >
-                ← Назад
-              </Button>
-              <h1 className="text-3xl font-bold text-glow">Чат</h1>
-            </div>
-            
-            <ChatInterface
-              conversationId={selectedConversation}
-              onClose={() => setSelectedConversation(null)}
-            />
-          </div>
-        </div>
       </Layout>
     );
   }
@@ -362,26 +339,13 @@ export default function ChatSystem() {
               </div>
 
               <div className="grid lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 grid lg:grid-cols-2 gap-6">
+                <div className="lg:col-span-2">
                 <ConversationList
                   onSelectConversation={setSelectedConversation}
                   selectedConversationId={selectedConversation}
                   refreshTrigger={refreshTrigger}
                   onConversationDeleted={fetchConversations}
                 />
-                
-                {selectedConversation ? (
-                  <ChatInterface
-                    conversationId={selectedConversation}
-                    onClose={() => setSelectedConversation(null)}
-                  />
-                ) : (
-                  <Card className="card-steel p-8 text-center">
-                    <MessageSquare className="w-16 h-16 text-steel-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-steel-300 mb-2">Выберите чат</h3>
-                    <p className="text-steel-400">Выберите чат из списка или создайте новый</p>
-                  </Card>
-                )}
                 </div>
                 
                 <OnlineUsersWidget onStartChat={startNewChat} />

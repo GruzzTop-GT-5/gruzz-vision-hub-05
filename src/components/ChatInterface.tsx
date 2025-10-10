@@ -389,7 +389,7 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
 
   return (
     <>
-      <Card className="card-steel flex flex-col h-96">
+      <Card className="card-steel flex flex-col h-full">
         {/* Chat Header */}
         <div className="flex items-center justify-between p-4 border-b border-steel-600">
           <div className="flex items-center space-x-3">
