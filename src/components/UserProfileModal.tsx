@@ -96,9 +96,9 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="card-steel max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-steel-100">
+      <DialogContent className="card-steel max-w-2xl max-h-[90vh] overflow-y-auto !transition-none !duration-0">
+        <DialogHeader className="!transition-none !duration-0">
+          <DialogTitle className="text-2xl font-bold text-steel-100 !transition-none !duration-0">
             {isOwnProfile ? 'Мой профиль' : 'Профиль пользователя'}
           </DialogTitle>
         </DialogHeader>
@@ -111,12 +111,12 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
             </div>
           </div>
         ) : profile ? (
-          <div className="space-y-6">
+          <div className="space-y-6 !transition-none !duration-0">
             {/* Profile Info */}
-            <Card className="bg-steel-800/50 border-steel-600 p-6">
-              <div className="flex items-start space-x-4">
+            <Card className="bg-steel-800/50 border-steel-600 p-6 !transition-none !duration-0">
+              <div className="flex items-start space-x-4 !transition-none !duration-0">
                 {/* Avatar */}
-                <Avatar className="w-16 h-16 border-2 border-primary/20">
+                <Avatar className="w-16 h-16 border-2 border-primary/20 !transition-none !duration-0">
                   {profile.avatar_url ? (
                     <AvatarImage src={profile.avatar_url} alt={getUserDisplayName()} />
                   ) : (
@@ -127,7 +127,7 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
                 </Avatar>
 
                 {/* Info */}
-                <div className="flex-1 space-y-3">
+                <div className="flex-1 space-y-3 !transition-none !duration-0">
                   <div>
                     <div className="flex items-center space-x-2 mb-1">
                       <h3 className="text-xl font-bold text-steel-100">
