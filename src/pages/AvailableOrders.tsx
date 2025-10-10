@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,7 +65,7 @@ interface Category {
 }
 
 const AvailableOrders = () => {
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuthContext();
   const { toast } = useToast();
 
   const [resumes, setResumes] = useState<Resume[]>([]);

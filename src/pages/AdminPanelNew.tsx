@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout } from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { BackButton } from '@/components/BackButton';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -253,7 +253,7 @@ const AdminInstructionsModal = () => {
 };
 
 export const AdminPanelNew = () => {
-  const { user, userRole, loading, signOut } = useAuth();
+  const { user, userRole, loading, signOut } = useAuthContext();
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
 
   if (loading) {

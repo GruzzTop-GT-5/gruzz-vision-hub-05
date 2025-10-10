@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OrderCard } from '@/components/OrderCard';
@@ -62,7 +62,7 @@ interface OrderFilters {
 }
 
 export default function Orders() {
-  const { user, userRole, loading, signOut } = useAuth();
+  const { user, userRole, loading, signOut } = useAuthContext();
   const { toast } = useToast();
   
   const [orders, setOrders] = useState<Order[]>([]);

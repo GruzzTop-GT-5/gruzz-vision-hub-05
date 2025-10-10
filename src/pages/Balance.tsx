@@ -5,13 +5,13 @@ import { TopUpModal } from '@/components/TopUpModal';
 import { TransactionHistory } from '@/components/TransactionHistory';
 import { BackButton } from '@/components/BackButton';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Info, Shield, Zap, TrendingUp } from 'lucide-react';
 
 const Balance = () => {
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuthContext();
   const [showTopUp, setShowTopUp] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 

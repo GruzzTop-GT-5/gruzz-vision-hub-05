@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,7 +46,7 @@ interface Notification {
 }
 
 export default function ChatSystem() {
-  const { user, userRole, loading, signOut } = useAuth();
+  const { user, userRole, loading, signOut } = useAuthContext();
   const { toast } = useToast();
   
   const [conversations, setConversations] = useState<Conversation[]>([]);

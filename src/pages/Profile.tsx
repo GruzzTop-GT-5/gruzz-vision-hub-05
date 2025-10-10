@@ -4,7 +4,7 @@ import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { RatingInfoDialog } from '@/components/RatingInfoDialog';
 import { PromoCodeSection } from '@/components/PromoCodeSection';
 import { UserReviews } from '@/components/UserReviews';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/AuthForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +38,7 @@ interface ProfileData {
 }
 
 const Profile = () => {
-  const { user, userRole, userType, userSubtype, signOut } = useAuth();
+  const { user, userRole, userType, userSubtype, signOut } = useAuthContext();
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState<ProfileData>({});
   const [isEditing, setIsEditing] = useState(false);

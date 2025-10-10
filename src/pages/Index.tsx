@@ -4,7 +4,7 @@ import { WelcomeScreen } from '@/components/WelcomeScreen';
 import { AuthForm } from '@/components/AuthForm';
 import { RoleSelection } from '@/components/RoleSelection';
 import { LegalFooter } from '@/components/LegalFooter';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Search, Filter, Calendar, User, Settings, Wrench, Truck, Package, Shield, Clock, Briefcase } from 'lucide-react';
@@ -13,7 +13,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
-  const { user, userRole, needsRoleSelection, loading, signOut } = useAuth();
+  const { user, userRole, needsRoleSelection, loading, signOut } = useAuthContext();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);

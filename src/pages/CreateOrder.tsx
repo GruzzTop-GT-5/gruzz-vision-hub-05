@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { AuthRequired } from '@/components/AuthRequired';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +64,7 @@ const PRIORITY_OPTIONS = [
 ];
 
 export default function CreateOrder() {
-  const { user, userRole, loading, signOut } = useAuth();
+  const { user, userRole, loading, signOut } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAuth, setShowAuth] = useState(false);
