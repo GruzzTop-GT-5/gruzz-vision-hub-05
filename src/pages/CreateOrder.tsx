@@ -425,10 +425,9 @@ export default function CreateOrder() {
                         <FormControl>
                           <Input
                             type="number"
-                            value="4"
-                            readOnly
-                            disabled
-                            className="bg-steel-700/50 cursor-not-allowed"
+                            placeholder="4"
+                            min="4"
+                            className="bg-steel-700/50"
                             {...field}
                           />
                         </FormControl>
