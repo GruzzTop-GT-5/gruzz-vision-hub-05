@@ -31,11 +31,14 @@ export const BalanceCard = ({ userId, onTopUpClick, onHistoryClick }: BalanceCar
         .from('profiles')
         .select('balance')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching balance:', error);
+        throw error;
+      }
 
-      setBalance(data.balance || 0);
+      setBalance(data?.balance || 0);
     } catch (error) {
       console.error('Error fetching balance:', error);
       toast({
