@@ -289,8 +289,8 @@ export default function CreateOrder() {
           } else if (conversationData) {
             // Send automated message with contact information
             const contactMessage = `📞 Контакты для аренды компрессора на базе газель с машинистом:\n\n` +
-              `Телефон: +7 (XXX) XXX-XX-XX\n` +
-              `Telegram: @compressor_rental\n\n` +
+              `Телефон: +7 911 552-27-27\n` +
+              `Telegram: @OOO_DIAL\n\n` +
               `Детали вашего заказа:\n` +
               `• Время аренды: ${compressorData.totalHours} ч\n` +
               `• Локация: ${compressorData.location === 'city' ? 'В городе' : compressorData.location === 'suburb' ? 'Загородом' : 'Далеко (договорное время)'}\n` +
