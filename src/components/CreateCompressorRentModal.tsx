@@ -127,12 +127,11 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
         <div className="space-y-6 py-4">
           {/* Hours Input */}
           <div className="space-y-2">
-            <Label htmlFor="hours">Время аренды (минимум 7 часов, максимум 44 часа)</Label>
+            <Label htmlFor="hours">Время аренды (минимум 7 часов)</Label>
             <Input
               id="hours"
               type="number"
               min="1"
-              max="100"
               value={hours}
               onChange={(e) => {
                 const value = Number(e.target.value);
@@ -145,13 +144,6 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
                     description: "Минимальное время аренды — 7 часов",
                     variant: "destructive",
                   });
-                } else if (value > 44) {
-                  setHoursError(true);
-                  toast({
-                    title: "Ошибка",
-                    description: "Максимальное время аренды — 44 часа",
-                    variant: "destructive",
-                  });
                 } else {
                   setHoursError(false);
                 }
@@ -160,7 +152,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
             />
             {hoursError && (
               <p className="text-sm text-red-500">
-                {hours < 7 ? 'Минимальное время — 7 часов' : 'Максимальное время — 44 часа'}
+                Минимальное время — 7 часов
               </p>
             )}
           </div>
@@ -276,7 +268,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={hoursError || hours < 7 || hours > 44}
+              disabled={hoursError || hours < 7}
             >
               Подтвердить
             </Button>
