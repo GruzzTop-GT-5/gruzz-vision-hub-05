@@ -92,82 +92,89 @@
 
 @layer base {
   :root {
-    /* Enhanced Masculine Theme - Steel and Electric Blue Palette */
-    --background: 210 50% 4%;     /* Darker charcoal */
-    --foreground: 210 40% 98%;    /* Crisp white */
+    /* Premium Professional Dark Theme - Deep Navy & Gold Accents */
+    --background: 222 47% 6%;        /* Deep navy background */
+    --foreground: 210 40% 98%;       /* Crisp white text */
     
-    --card: 210 45% 8%;          /* Dark steel */
-    --card-foreground: 210 40% 96%; /* Light steel */
+    --card: 222 40% 10%;             /* Card navy */
+    --card-foreground: 210 40% 96%;  /* Light text */
     
-    --popover: 210 40% 10%;       /* Dark steel surface */
+    --popover: 222 45% 12%;          /* Popover surface */
     --popover-foreground: 210 40% 96%; /* Light text */
     
-    --primary: 195 100% 55%;      /* Bright electric blue */
-    --primary-foreground: 210 50% 4%; /* Dark contrast */
+    --primary: 46 95% 58%;           /* Premium gold */
+    --primary-foreground: 222 47% 11%; /* Dark text on gold */
     
-    --secondary: 210 35% 18%;     /* Medium steel */
+    --secondary: 217 91% 60%;        /* Professional blue */
     --secondary-foreground: 210 40% 98%; /* Light text */
     
-    --muted: 210 40% 12%;         /* Muted steel */
-    --muted-foreground: 210 30% 70%; /* Muted text */
+    --muted: 222 35% 15%;            /* Muted navy */
+    --muted-foreground: 215 20% 65%; /* Muted text */
     
-    --accent: 195 100% 45%;        /* Accent blue */
-    --accent-foreground: 210 40% 98%; /* Accent text */
+    --accent: 46 95% 58%;            /* Accent gold */
+    --accent-foreground: 222 47% 11%; /* Dark text */
     
-    --destructive: 0 84% 60%;     /* Red */
+    --destructive: 0 84% 60%;        /* Red */
     --destructive-foreground: 210 40% 98%; /* Light text */
     
-    --border: 210 35% 18%;        /* Border steel */
-    --input: 210 40% 12%;         /* Input background */
-    --ring: 195 100% 55%;         /* Focus ring */
+    --border: 222 30% 18%;           /* Border */
+    --input: 222 40% 12%;            /* Input background */
+    --ring: 46 95% 58%;              /* Focus ring gold */
     
     --radius: 0.75rem;
     
     /* Premium Gradients */
     --gradient-primary: linear-gradient(135deg, 
-      hsl(195, 100%, 60%) 0%, 
-      hsl(195, 100%, 50%) 25%, 
-      hsl(210, 100%, 45%) 50%, 
-      hsl(220, 100%, 40%) 75%,
-      hsl(230, 100%, 35%) 100%);
+      hsl(46, 95%, 65%) 0%, 
+      hsl(46, 95%, 58%) 50%, 
+      hsl(46, 85%, 50%) 100%);
+    
+    --gradient-secondary: linear-gradient(135deg,
+      hsl(217, 91%, 65%) 0%,
+      hsl(217, 91%, 60%) 50%,
+      hsl(217, 81%, 55%) 100%);
     
     --gradient-steel: linear-gradient(135deg, 
-      hsl(210, 40%, 12%) 0%, 
-      hsl(210, 45%, 10%) 30%, 
-      hsl(210, 50%, 8%) 70%, 
-      hsl(210, 55%, 6%) 100%);
+      hsl(222, 40%, 12%) 0%, 
+      hsl(222, 45%, 10%) 50%, 
+      hsl(222, 50%, 8%) 100%);
     
     --gradient-dark: linear-gradient(135deg, 
-      hsl(210, 50%, 6%) 0%, 
-      hsl(210, 55%, 4%) 50%, 
-      hsl(210, 60%, 3%) 100%);
+      hsl(222, 50%, 8%) 0%, 
+      hsl(222, 55%, 6%) 50%, 
+      hsl(222, 60%, 4%) 100%);
     
     --gradient-button: linear-gradient(135deg,
-      hsl(195, 100%, 50%) 0%,
-      hsl(210, 100%, 45%) 100%);
+      hsl(46, 95%, 60%) 0%,
+      hsl(46, 90%, 55%) 100%);
     
     --gradient-button-hover: linear-gradient(135deg,
-      hsl(195, 100%, 60%) 0%,
-      hsl(210, 100%, 55%) 100%);
+      hsl(46, 100%, 65%) 0%,
+      hsl(46, 95%, 60%) 100%);
     
     /* Premium Shadows */
     --shadow-card: 
-      0 0 0 1px rgba(255, 255, 255, 0.03),
-      0 4px 12px rgba(0, 0, 0, 0.7),
-      0 16px 48px rgba(0, 0, 0, 0.5);
+      0 0 0 1px rgba(255, 215, 0, 0.05),
+      0 4px 16px rgba(0, 0, 0, 0.6),
+      0 8px 32px rgba(0, 0, 0, 0.4);
     
     --shadow-glow-primary: 
-      0 0 20px hsla(195, 100%, 55%, 0.5),
-      0 0 40px hsla(195, 100%, 55%, 0.3),
-      0 0 60px hsla(195, 100%, 55%, 0.2);
+      0 0 20px hsla(46, 95%, 58%, 0.4),
+      0 0 40px hsla(46, 95%, 58%, 0.2),
+      0 0 60px hsla(46, 95%, 58%, 0.1);
     
     --shadow-glow-soft: 
-      0 0 10px hsla(195, 100%, 55%, 0.3),
-      0 0 20px hsla(195, 100%, 55%, 0.2);
+      0 0 10px hsla(46, 95%, 58%, 0.25),
+      0 0 20px hsla(46, 95%, 58%, 0.15);
     
     --shadow-inset: 
-      inset 0 2px 4px rgba(0, 0, 0, 0.4),
-      inset 0 1px 2px rgba(0, 0, 0, 0.6);
+      inset 0 2px 4px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(0, 0, 0, 0.7);
+      
+    --shadow-steel:
+      0 2px 8px rgba(0, 0, 0, 0.4),
+      0 4px 16px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.03);
   }
 
   * {
@@ -218,14 +225,14 @@
   }
   
   .animated-bg::before {
-    @apply absolute inset-0 opacity-15;
+    @apply absolute inset-0 opacity-10;
     content: '';
     background-image: 
-      radial-gradient(circle at 15% 15%, hsl(195, 100%, 50%, 0.2) 0%, transparent 50%),
-      radial-gradient(circle at 85% 85%, hsl(195, 100%, 40%, 0.15) 0%, transparent 60%),
-      radial-gradient(circle at 50% 30%, hsl(210, 30%, 25%, 0.1) 0%, transparent 40%),
-      radial-gradient(circle at 30% 80%, hsl(195, 100%, 60%, 0.08) 0%, transparent 50%);
-    animation: float 12s ease-in-out infinite, glow 6s ease-in-out infinite alternate;
+      radial-gradient(circle at 20% 20%, hsla(46, 95%, 58%, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsla(217, 91%, 60%, 0.12) 0%, transparent 60%),
+      radial-gradient(circle at 50% 40%, hsla(222, 40%, 25%, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 30% 80%, hsla(46, 95%, 58%, 0.08) 0%, transparent 50%);
+    animation: float 15s ease-in-out infinite, glow 8s ease-in-out infinite alternate;
   }
   
   .animated-bg::after {
@@ -234,15 +241,15 @@
     background-image: 
       repeating-linear-gradient(45deg,
         transparent,
-        transparent 100px,
-        hsl(195, 100%, 50%, 0.02) 102px,
-        hsl(195, 100%, 50%, 0.02) 104px),
+        transparent 120px,
+        hsla(46, 95%, 58%, 0.02) 122px,
+        hsla(46, 95%, 58%, 0.02) 124px),
       repeating-linear-gradient(-45deg,
         transparent,
-        transparent 150px,
-        hsl(210, 30%, 25%, 0.03) 152px,
-        hsl(210, 30%, 25%, 0.03) 154px);
-    animation: float 16s ease-in-out infinite reverse;
+        transparent 180px,
+        hsla(217, 91%, 60%, 0.02) 182px,
+        hsla(217, 91%, 60%, 0.02) 184px);
+    animation: float 20s ease-in-out infinite reverse;
   }
   
   /* Premium Steel Card Effect */
@@ -257,7 +264,7 @@
   
   .card-steel:hover {
     box-shadow: var(--shadow-card), var(--shadow-glow-soft);
-    border-color: hsla(195, 100%, 55%, 0.3);
+    border-color: hsla(46, 95%, 58%, 0.3);
   }
   
   /* Top highlight */
@@ -266,7 +273,7 @@
     content: '';
     background: linear-gradient(90deg, 
       transparent, 
-      hsla(195, 100%, 55%, 0.5) 50%, 
+      hsla(46, 95%, 58%, 0.5) 50%, 
       transparent);
   }
   
@@ -352,7 +359,7 @@
     content: '';
     background: linear-gradient(90deg, 
       transparent, 
-      hsla(195, 100%, 60%, 0.8) 50%, 
+      hsla(46, 95%, 58%, 0.7) 50%, 
       transparent);
   }
 
