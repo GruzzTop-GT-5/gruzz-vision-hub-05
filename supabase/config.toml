@@ -1,13 +1,1 @@
 project_id = "huwjvdqdnktddnmfmflw"
-
-[functions.expire-orders]
-verify_jwt = false
-
-[functions.notify-urgent-order]
-verify_jwt = true
-
-[functions.notify-payment]
-verify_jwt = false
-
-[functions.notify-support-ticket]
-verify_jwt = false
