@@ -288,15 +288,27 @@ export default function CreateOrder() {
             console.error('Error creating conversation:', conversationError);
           } else if (conversationData) {
             // Send automated message with contact information
+            const orderDateTime = compressorData.datetime 
+              ? new Date(compressorData.datetime).toLocaleString('ru-RU', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
+              : 'Не указано';
+              
             const contactMessage = `📞 Контакты для аренды компрессора на базе газель с машинистом:\n\n` +
               `Телефон: +7 911 552-27-27\n` +
               `Telegram: @OOO_DIAL\n\n` +
-              `Детали вашего заказа:\n` +
+              `📋 Детали вашего заказа:\n` +
+              `• Дата и время: ${orderDateTime}\n` +
               `• Время аренды: ${compressorData.totalHours} ч\n` +
-              `• Локация: ${compressorData.location === 'city' ? 'В городе' : compressorData.location === 'suburb' ? 'Загородом' : 'Далеко (договорное время)'}\n` +
-              `• Тип оплаты: ${compressorData.paymentType === 'cash' ? 'За наличку' : 'С НДС'}\n` +
-              `• Стоимость: ${compressorData.totalPrice.toLocaleString('ru-RU')} ₽\n\n` +
-              `⚠️ ВАЖНО: При звонке обязательно представьтесь, что звоните от GruzzTop, чтобы они понимали откуда и по какому заказу техники вы обращаетесь!`;
+              `• Локация: ${compressorData.location === 'city' ? 'В городе' : compressorData.location === 'suburb' ? 'Загородом' : 'Далеко (договорное время)'}\n\n` +
+              `💰 Стоимость:\n` +
+              `• Тип оплаты: ${compressorData.paymentType === 'cash' ? 'За наличку (1500 ₽/час)' : 'С НДС (1800 ₽/час)'}\n` +
+              `• Итого к оплате: ${compressorData.totalPrice.toLocaleString('ru-RU')} ₽\n\n` +
+              `⚠️ ВАЖНО: При звонке обязательно представьтесь, что вы звоните от GruzzTop, чтобы они понимали откуда и по какому заказу техники вы обращаетесь!`;
 
             await supabase
               .from('messages')
