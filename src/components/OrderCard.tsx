@@ -478,7 +478,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
               ) : (
                 <MessageSquare className="w-4 h-4 mr-1" />
               )}
-              Чат
+              Написать сообщение
             </Button>
             
             <Button 
@@ -487,7 +487,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
               onClick={() => setShowDetailsModal(true)}
             >
               <FileText className="w-4 h-4 mr-1" />
-              Детали
+              Посмотреть детали
             </Button>
 
             {order.status === 'completed' && (
@@ -497,7 +497,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
                 onClick={() => setShowReviewModal(true)}
               >
                 <Star className="w-4 h-4 mr-1" />
-                Оценить
+                Оставить отзыв
               </Button>
             )}
 
@@ -512,7 +512,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
                   className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
                 >
                   <Edit3 className="w-4 h-4 mr-1" />
-                  Изменить
+                  Изменить заказ
                 </Button>
                 
                 <Button 
@@ -522,7 +522,7 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
                   disabled={['completed'].includes(order.status)}
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
-                  Удалить
+                  Удалить заказ
                 </Button>
               </>
             )}
