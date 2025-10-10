@@ -1,294 +1,249 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { CalendarDays, Clock, MapPin, Wrench } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
-interface CreateCompressorRentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface CompressorRentData {
+  hours: number;
+  location: 'city' | 'suburb' | 'far';
+  equipment: string[];
+  paymentType: 'cash' | 'vat';
+  datetime: string;
+  totalHours: number;
+  totalPrice: number;
 }
 
-const workTypes = [
-  { value: 'demolition', label: 'Демонтаж' },
-  { value: 'cleaning', label: 'Продувка' },
-  { value: 'construction', label: 'Строительные работы' },
-  { value: 'other', label: 'Другое' }
+interface CreateCompressorRentModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (data: CompressorRentData) => void;
+}
+
+const EQUIPMENT_OPTIONS = [
+  { id: 'jackhammer3', label: '3 отбойных молотка' },
+  { id: 'blow_hose', label: 'Шланг для продувки' },
+  { id: 'pressure_hose', label: 'Шланг для опрессовки разных труб' }
 ];
 
-const additionalEquipment = [
-  'Пневматический молоток',
-  'Шланги дополнительные (10м)',
-  'Насадки для продувки',
-  'Защитное оборудование',
-  'Удлинитель'
-];
+export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: CreateCompressorRentModalProps) {
+  const [hours, setHours] = useState(7);
+  const [location, setLocation] = useState<'city' | 'suburb' | 'far'>('city');
+  const [equipment, setEquipment] = useState<string[]>([]);
+  const [paymentType, setPaymentType] = useState<'cash' | 'vat'>('cash');
+  const [datetime, setDatetime] = useState('');
+  const [totalHours, setTotalHours] = useState(8);
+  const [totalPrice, setTotalPrice] = useState(12000);
+  const [minDatetime, setMinDatetime] = useState('');
 
-export const CreateCompressorRentModal: React.FC<CreateCompressorRentModalProps> = ({
-  isOpen,
-  onClose
-}) => {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    workType: '',
-    customWorkType: '',
-    rentalDuration: '',
-    date: '',
-    time: '',
-    address: '',
-    description: '',
-    selectedEquipment: [] as string[]
-  });
+  // Set minimum datetime (tomorrow)
+  useEffect(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const hours = String(tomorrow.getHours()).padStart(2, '0');
+    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+    
+    setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      toast.error('Необходима авторизация');
+  // Calculate total hours based on base hours and location
+  useEffect(() => {
+    let extraHours = 0;
+    
+    if (location === 'city') {
+      extraHours = 1;
+    } else if (location === 'suburb') {
+      extraHours = 2;
+    } else if (location === 'far') {
+      // Договорное время - не добавляем автоматически
+      extraHours = 0;
+    }
+    
+    const calculatedTotal = hours + extraHours;
+    setTotalHours(calculatedTotal);
+  }, [hours, location]);
+
+  // Calculate total price
+  useEffect(() => {
+    const pricePerHour = paymentType === 'cash' ? 1500 : 1800; // 1500 + 300 НДС
+    setTotalPrice(totalHours * pricePerHour);
+  }, [totalHours, paymentType]);
+
+  const handleEquipmentToggle = (equipmentId: string) => {
+    setEquipment(prev => 
+      prev.includes(equipmentId) 
+        ? prev.filter(id => id !== equipmentId)
+        : [...prev, equipmentId]
+    );
+  };
+
+  const handleConfirm = () => {
+    if (!datetime) {
       return;
     }
 
-    setLoading(true);
-    
-    try {
-      const workTypeValue = formData.workType === 'other' ? formData.customWorkType : formData.workType;
-      const hourlyRate = 1500; // 1500 руб/час базовая ставка
-      const equipmentCost = formData.selectedEquipment.length * 500; // 500 руб за каждое доп. оборудование
-      const totalCost = (parseFloat(formData.rentalDuration) * hourlyRate) + equipmentCost;
+    const data: CompressorRentData = {
+      hours,
+      location,
+      equipment,
+      paymentType,
+      datetime,
+      totalHours,
+      totalPrice
+    };
 
-      // Получаем номер заказа с типом
-      const { data: orderNumberData, error: numberError } = await supabase
-        .rpc('generate_order_number_with_type', { p_service_type: 'compressor_rent' });
-
-      if (numberError) throw numberError;
-
-      const { error } = await supabase.from('orders').insert({
-        order_number: orderNumberData,
-        title: `Аренда компрессора - ${workTypeValue}`,
-        description: formData.description,
-        category: 'Аренда компрессора',
-        service_type: 'compressor_rent',
-        work_type: workTypeValue,
-        rental_duration_hours: parseInt(formData.rentalDuration),
-        additional_equipment: formData.selectedEquipment,
-        price: totalCost,
-        deadline: `${formData.date}T${formData.time}`,
-        client_id: user.id,
-        status: 'pending',
-        equipment_details: {
-          workType: workTypeValue,
-          duration: formData.rentalDuration,
-          address: formData.address,
-          date: formData.date,
-          time: formData.time,
-          additionalEquipment: formData.selectedEquipment,
-          description: formData.description
-        }
-      });
-
-      if (error) throw error;
-
-      toast.success('Заказ на аренду компрессора создан!');
-      onClose();
-      setFormData({
-        workType: '',
-        customWorkType: '',
-        rentalDuration: '',
-        date: '',
-        time: '',
-        address: '',
-        description: '',
-        selectedEquipment: []
-      });
-    } catch (error) {
-      console.error('Error creating compressor rent order:', error);
-      toast.error('Ошибка при создании заказа');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEquipmentChange = (equipment: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      selectedEquipment: checked 
-        ? [...prev.selectedEquipment, equipment]
-        : prev.selectedEquipment.filter(item => item !== equipment)
-    }));
-  };
-
-  const calculateCost = () => {
-    const hourlyRate = 1500;
-    const equipmentCost = formData.selectedEquipment.length * 500;
-    const duration = parseFloat(formData.rentalDuration) || 0;
-    return (duration * hourlyRate) + equipmentCost;
+    onConfirm(data);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Wrench className="w-5 h-5" />
-            Аренда компрессора
-          </DialogTitle>
+          <DialogTitle>🔧 Аренда компрессора с оборудованием</DialogTitle>
+          <DialogDescription>
+            Компрессор для пневмоинструмента, отбойные молотки, продувочные шланги
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="workType">Для каких работ нужен компрессор?</Label>
-              <Select
-                value={formData.workType}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, workType: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите тип работ" />
-                </SelectTrigger>
-                <SelectContent>
-                  {workTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {formData.workType === 'other' && (
-              <div>
-                <Label htmlFor="customWorkType">Укажите тип работ</Label>
-                <Input
-                  id="customWorkType"
-                  value={formData.customWorkType}
-                  onChange={(e) => setFormData(prev => ({ ...prev, customWorkType: e.target.value }))}
-                  placeholder="Опишите, для каких работ нужен компрессор"
-                  required
-                />
-              </div>
-            )}
-
-            <div>
-              <Label>Дополнительное оборудование</Label>
-              <div className="grid grid-cols-1 gap-2 mt-2">
-                {additionalEquipment.map((equipment) => (
-                  <div key={equipment} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={equipment}
-                      checked={formData.selectedEquipment.includes(equipment)}
-                      onCheckedChange={(checked) => handleEquipmentChange(equipment, checked as boolean)}
-                    />
-                    <Label htmlFor={equipment} className="text-sm">
-                      {equipment} (+500₽)
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="date" className="flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4" />
-                  Дата
-                </Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                  min={new Date().toISOString().split('T')[0]}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="time" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Время
-                </Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => setFormData(prev => ({ ...prev, time: e.target.value }))}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="rentalDuration">На какой срок (часов)?</Label>
-              <Input
-                id="rentalDuration"
-                type="number"
-                min="1"
-                max="24"
-                value={formData.rentalDuration}
-                onChange={(e) => setFormData(prev => ({ ...prev, rentalDuration: e.target.value }))}
-                placeholder="Количество часов аренды"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="address" className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Адрес
-              </Label>
-              <Input
-                id="address"
-                value={formData.address}
-                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                placeholder="Укажите адрес для доставки компрессора"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="description">Дополнительные требования</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Опишите особые требования или детали работы"
-                rows={3}
-              />
-            </div>
-
-            {formData.rentalDuration && (
-              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                <h3 className="font-semibold mb-2 text-foreground">Предварительная стоимость:</h3>
-                <p className="text-3xl font-bold text-primary mb-2">
-                  {calculateCost().toLocaleString()} ₽
-                </p>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>• Аренда: {formData.rentalDuration} ч × 1,500 ₽ = {(parseFloat(formData.rentalDuration) * 1500).toLocaleString()} ₽</p>
-                  {formData.selectedEquipment.length > 0 && (
-                    <p>• Доп. оборудование: {formData.selectedEquipment.length} шт × 500 ₽ = {formData.selectedEquipment.length * 500} ₽</p>
-                  )}
-                </div>
-              </div>
-            )}
+        <div className="space-y-6 py-4">
+          {/* Hours Input */}
+          <div className="space-y-2">
+            <Label htmlFor="hours">Время аренды (минимум 7 часов)</Label>
+            <Input
+              id="hours"
+              type="number"
+              min="7"
+              value={hours}
+              onChange={(e) => setHours(Math.max(7, Number(e.target.value)))}
+              className="bg-steel-700/50"
+            />
           </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" disabled={loading} className="flex-1">
-              {loading ? 'Создание заказа...' : 'Заказать компрессор'}
-            </Button>
-            <Button type="button" variant="outline" onClick={onClose}>
+          {/* Location Selection */}
+          <div className="space-y-3">
+            <Label>Локация (влияет на время подачи)</Label>
+            <RadioGroup value={location} onValueChange={(value) => setLocation(value as any)}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="city" id="city" />
+                <Label htmlFor="city" className="font-normal cursor-pointer">
+                  В городе (+1 час на подачу)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="suburb" id="suburb" />
+                <Label htmlFor="suburb" className="font-normal cursor-pointer">
+                  Загородом (+2 часа на подачу)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="far" id="far" />
+                <Label htmlFor="far" className="font-normal cursor-pointer">
+                  Слишком далеко (договорное время)
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Equipment Selection */}
+          <div className="space-y-3">
+            <Label>Оборудование (не влияет на цену)</Label>
+            <div className="space-y-2">
+              {EQUIPMENT_OPTIONS.map((item) => (
+                <div key={item.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={item.id}
+                    checked={equipment.includes(item.id)}
+                    onCheckedChange={() => handleEquipmentToggle(item.id)}
+                  />
+                  <Label htmlFor={item.id} className="font-normal cursor-pointer">
+                    {item.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment Type */}
+          <div className="space-y-3">
+            <Label>Тип оплаты</Label>
+            <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as any)}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="cash" id="cash" />
+                <Label htmlFor="cash" className="font-normal cursor-pointer">
+                  За наличку (1 500 ₽/час)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="vat" id="vat" />
+                <Label htmlFor="vat" className="font-normal cursor-pointer">
+                  С НДС (1 800 ₽/час)
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* DateTime Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="datetime">Дата и время (минимум на следующий день)</Label>
+            <Input
+              id="datetime"
+              type="datetime-local"
+              min={minDatetime}
+              value={datetime}
+              onChange={(e) => setDatetime(e.target.value)}
+              className="bg-steel-700/50"
+            />
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Компрессор необходимо заказывать заранее минимум за день
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          {/* Summary */}
+          <div className="bg-steel-700/30 p-4 rounded-lg space-y-2">
+            <div className="flex justify-between">
+              <span>Базовое время аренды:</span>
+              <span className="font-semibold">{hours} ч</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Время на подачу:</span>
+              <span className="font-semibold">
+                {location === 'city' ? '+1 ч' : location === 'suburb' ? '+2 ч' : 'Договорное'}
+              </span>
+            </div>
+            <div className="flex justify-between text-lg font-bold">
+              <span>Итого часов:</span>
+              <span>{totalHours} ч</span>
+            </div>
+            <div className="flex justify-between text-xl font-bold text-primary">
+              <span>Итого к оплате:</span>
+              <span>{totalPrice.toLocaleString('ru-RU')} ₽</span>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
               Отмена
             </Button>
+            <Button onClick={handleConfirm} disabled={!datetime}>
+              Подтвердить
+            </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
-};
+}
