@@ -23,6 +23,7 @@ import {
   Bell,
   FileText,
   Zap,
+  Truck,
   Activity,
   Lock,
   Cog,
@@ -78,7 +79,7 @@ const navigationSections = {
     {
       id: 'special-equipment',
       title: 'Спец техника',
-      icon: <Zap className="w-5 h-5" />,
+      icon: <Truck className="w-5 h-5" />,
       path: '/special-equipment',
       description: 'Аренда компрессора и другой техники'
     }
