@@ -37,26 +37,44 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   const [paymentType, setPaymentType] = useState<'cash' | 'vat'>('cash');
   const [datetime, setDatetime] = useState('');
   const [totalHours, setTotalHours] = useState(8);
+  const [manualTotalHours, setManualTotalHours] = useState<number | null>(null);
   const [totalPrice, setTotalPrice] = useState(12000);
   const [minDatetime, setMinDatetime] = useState('');
 
-  // Set minimum datetime (tomorrow)
+  // Set minimum datetime (tomorrow) and reset on open
   useEffect(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const day = String(tomorrow.getDate()).padStart(2, '0');
-    const hours = String(tomorrow.getHours()).padStart(2, '0');
-    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
-    
-    setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
-  }, []);
+    if (open) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      const year = tomorrow.getFullYear();
+      const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const day = String(tomorrow.getDate()).padStart(2, '0');
+      const hours = String(tomorrow.getHours()).padStart(2, '0');
+      const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+      
+      setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
+      
+      // Reset all fields when modal opens
+      setHours(7);
+      setLocation('city');
+      setEquipment([]);
+      setPaymentType('cash');
+      setDatetime('');
+      setManualTotalHours(null);
+      setTotalHours(8);
+    }
+  }, [open]);
 
   // Calculate total hours based on base hours and location
   useEffect(() => {
+    // If manual total hours is set, don't auto-calculate
+    if (manualTotalHours !== null) {
+      setTotalHours(manualTotalHours);
+      return;
+    }
+
     let extraHours = 0;
     
     if (location === 'city') {
@@ -70,7 +88,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
     
     const calculatedTotal = hours + extraHours;
     setTotalHours(calculatedTotal);
-  }, [hours, location]);
+  }, [hours, location, manualTotalHours]);
 
   // Calculate total price
   useEffect(() => {
@@ -87,16 +105,12 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   };
 
   const handleConfirm = () => {
-    if (!datetime) {
-      return;
-    }
-
     const data: CompressorRentData = {
       hours,
       location,
       equipment,
       paymentType,
-      datetime,
+      datetime: datetime || new Date(Date.now() + 86400000).toISOString(), // Default to tomorrow if not set
       totalHours,
       totalPrice
     };
@@ -212,7 +226,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
           </div>
 
           {/* Summary */}
-          <div className="bg-steel-700/30 p-4 rounded-lg space-y-2">
+          <div className="bg-steel-700/30 p-4 rounded-lg space-y-3">
             <div className="flex justify-between">
               <span>Базовое время аренды:</span>
               <span className="font-semibold">{hours} ч</span>
@@ -223,9 +237,20 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
                 {location === 'city' ? '+1 ч' : location === 'suburb' ? '+2 ч' : 'Договорное'}
               </span>
             </div>
-            <div className="flex justify-between text-lg font-bold">
-              <span>Итого часов:</span>
-              <span>{totalHours} ч</span>
+            <div className="space-y-2">
+              <Label htmlFor="totalHours">Итого часов (можно изменить вручную):</Label>
+              <Input
+                id="totalHours"
+                type="number"
+                min={hours}
+                value={totalHours}
+                onChange={(e) => {
+                  const value = Math.max(hours, Number(e.target.value));
+                  setManualTotalHours(value);
+                  setTotalHours(value);
+                }}
+                className="bg-steel-700/50 text-lg font-bold"
+              />
             </div>
             <div className="flex justify-between text-xl font-bold text-primary">
               <span>Итого к оплате:</span>
@@ -238,7 +263,9 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Отмена
             </Button>
-            <Button onClick={handleConfirm} disabled={!datetime}>
+            <Button 
+              onClick={handleConfirm}
+            >
               Подтвердить
             </Button>
           </div>
