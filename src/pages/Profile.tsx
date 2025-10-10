@@ -3,6 +3,7 @@ import { Layout } from '@/components/Layout';
 import { UserRatingDisplay } from '@/components/UserRatingDisplay';
 import { RatingInfoDialog } from '@/components/RatingInfoDialog';
 import { PromoCodeSection } from '@/components/PromoCodeSection';
+import { UserReviews } from '@/components/UserReviews';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/AuthForm';
@@ -15,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { User, Edit, Star, MapPin, Calendar, Briefcase, Phone, Save, Check, X, Camera, Upload } from 'lucide-react';
+import { User, Edit, Star, MapPin, Calendar, Briefcase, Phone, Save, Check, X, Camera, Upload, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileData {
@@ -45,6 +46,7 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -302,6 +304,14 @@ const Profile = () => {
               </div>
             </div>
             <div className="flex space-x-2">
+              <Button 
+                variant={showReviews ? "default" : "outline"}
+                onClick={() => setShowReviews(!showReviews)}
+                className="flex items-center space-x-2"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Отзывы</span>
+              </Button>
               {isEditing ? (
                 <>
                   <Button 
@@ -691,6 +701,13 @@ const Profile = () => {
               )}
             </div>
           </div>
+
+          {/* Раздел отзывов */}
+          {showReviews && user?.id && (
+            <div className="mt-8">
+              <UserReviews userId={user.id} canLeaveReview={false} />
+            </div>
+          )}
         </div>
       </div>
     </Layout>
