@@ -107,7 +107,7 @@ const Index = () => {
               <div className="p-8 text-center space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
                     <Plus className="w-10 h-10 text-primary-foreground" />
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
@@ -120,7 +120,7 @@ const Index = () => {
               <div className="p-8 text-center space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
                     <Plus className="w-10 h-10 text-primary-foreground" />
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
@@ -137,7 +137,7 @@ const Index = () => {
                 <div className="p-8 text-center space-y-4 relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                    <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
                       <Briefcase className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
@@ -151,7 +151,7 @@ const Index = () => {
               <div className="p-8 text-center space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
                     <Briefcase className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
@@ -168,7 +168,7 @@ const Index = () => {
                 <div className="p-8 text-center space-y-4 relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                    <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
                       <Search className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
@@ -182,7 +182,7 @@ const Index = () => {
               <div className="p-8 text-center space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                  <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
                     <Search className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>

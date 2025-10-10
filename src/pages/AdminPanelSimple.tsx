@@ -229,7 +229,7 @@ export default function AdminPanelSimple() {
           {/* Management Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Users Management */}
-            <Card className="card-steel border-blue-500/20 hover:border-blue-500/40 transition-colors">
+            <Card className="card-steel border-blue-500/20 hover:border-blue-500/40 hover:scale-105 transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-steel-100 flex items-center space-x-2">
                   <Users className="w-5 h-5 text-blue-400" />
@@ -253,7 +253,7 @@ export default function AdminPanelSimple() {
             </Card>
 
             {/* Orders Management */}
-            <Card className="card-steel border-green-500/20 hover:border-green-500/40 transition-colors">
+            <Card className="card-steel border-green-500/20 hover:border-green-500/40 hover:scale-105 transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-steel-100 flex items-center space-x-2">
                   <Package className="w-5 h-5 text-green-400" />
@@ -277,7 +277,7 @@ export default function AdminPanelSimple() {
             </Card>
 
             {/* Finance Management */}
-            <Card className="card-steel border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+            <Card className="card-steel border-yellow-500/20 hover:border-yellow-500/40 hover:scale-105 transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-steel-100 flex items-center space-x-2">
                   <CreditCard className="w-5 h-5 text-yellow-400" />
@@ -301,7 +301,7 @@ export default function AdminPanelSimple() {
             </Card>
 
             {/* Moderation */}
-            <Card className="card-steel border-red-500/20 hover:border-red-500/40 transition-colors">
+            <Card className="card-steel border-red-500/20 hover:border-red-500/40 hover:scale-105 transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-steel-100 flex items-center space-x-2">
                   <Eye className="w-5 h-5 text-red-400" />
@@ -325,7 +325,7 @@ export default function AdminPanelSimple() {
             </Card>
 
             {/* Analytics */}
-            <Card className="card-steel border-cyan-500/20 hover:border-cyan-500/40 transition-colors">
+            <Card className="card-steel border-cyan-500/20 hover:border-cyan-500/40 hover:scale-105 transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-steel-100 flex items-center space-x-2">
                   <BarChart3 className="w-5 h-5 text-cyan-400" />
@@ -351,7 +351,7 @@ export default function AdminPanelSimple() {
             </Card>
 
             {/* Settings */}
-            <Card className="card-steel border-purple-500/20 hover:border-purple-500/40 transition-colors">
+            <Card className="card-steel border-purple-500/20 hover:border-purple-500/40 hover:scale-105 transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-steel-100 flex items-center space-x-2">
                   <Settings className="w-5 h-5 text-purple-400" />

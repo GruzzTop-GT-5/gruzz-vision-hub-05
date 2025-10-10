@@ -127,7 +127,7 @@ const Balance = () => {
               </Card>
               
               {/* YooMoney - Active */}
-              <Card className="card-steel p-4 space-y-3 border-purple-500/30 hover:border-purple-500/50 transition-colors cursor-pointer">
+              <Card className="card-steel p-4 space-y-3 border-purple-500/30 hover:border-purple-500/50 hover:scale-105 transition-all duration-300 cursor-pointer">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-purple-500/20">
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>
@@ -141,7 +141,7 @@ const Balance = () => {
               </Card>
               
               {/* Ozon - Active */}
-              <Card className="card-steel p-4 space-y-3 border-orange-500/30 hover:border-orange-500/50 transition-colors cursor-pointer">
+              <Card className="card-steel p-4 space-y-3 border-orange-500/30 hover:border-orange-500/50 hover:scale-105 transition-all duration-300 cursor-pointer">
                 <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-orange-500/20">
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>

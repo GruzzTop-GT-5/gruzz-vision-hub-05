@@ -95,7 +95,7 @@ export const OptimizedOrderCard = memo<OptimizedOrderCardProps>(({
 
   return (
     <Card 
-      className="card-steel p-4 hover:bg-steel-700 transition-colors cursor-pointer"
+      className="card-steel p-4 hover:bg-steel-700 hover:scale-105 transition-all duration-300 cursor-pointer"
       onClick={handleClick}
     >
       <div className="flex justify-between items-start mb-3">

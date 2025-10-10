@@ -308,7 +308,7 @@ export const SecurityLogsViewer: React.FC = () => {
             </Card>
           ) : (
             filteredLogs.map((log) => (
-              <Card key={log.id} className="card-steel-lighter p-3 hover:bg-steel-700/50 transition-colors">
+              <Card key={log.id} className="card-steel-lighter p-3 hover:bg-steel-700/50 hover:scale-105 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 flex-1">
                     <div className="flex items-center space-x-2">

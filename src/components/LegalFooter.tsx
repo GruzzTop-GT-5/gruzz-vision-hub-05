@@ -37,7 +37,7 @@ export const LegalFooter: React.FC = () => {
         {/* Legal Links Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {legalLinks.map((link, index) => (
-            <Card key={index} className="hover:bg-muted/50 transition-colors">
+            <Card key={index} className="hover:bg-muted/50 hover:scale-105 transition-all duration-300">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   {link.icon}
