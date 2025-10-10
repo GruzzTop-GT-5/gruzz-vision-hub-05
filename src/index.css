@@ -339,28 +339,11 @@
     @apply animate-slide-up;
   }
   
-  /* Premium Hamburger Menu */
+  /* Hamburger Menu - Removed animations */
   .hamburger-line {
-    @apply w-7 h-0.5 transition-all duration-500;
-    background: linear-gradient(90deg, 
-      hsl(var(--foreground)), 
-      hsl(var(--primary)));
-    box-shadow: 0 0 8px hsl(var(--primary), 0.4);
+    @apply w-7 h-0.5;
+    background: hsl(var(--primary));
     border-radius: 2px;
-  }
-  
-  .hamburger-open .hamburger-line:nth-child(1) {
-    transform: rotate(45deg) translate(7px, 7px);
-    background: hsl(var(--primary));
-  }
-  
-  .hamburger-open .hamburger-line:nth-child(2) {
-    @apply opacity-0 scale-0;
-  }
-  
-  .hamburger-open .hamburger-line:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -7px);
-    background: hsl(var(--primary));
   }
   
   /* Enhanced Glowing Effects */

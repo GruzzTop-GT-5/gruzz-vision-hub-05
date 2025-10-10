@@ -101,17 +101,37 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
           </div>
         </div>
 
-        {/* Hamburger Menu */}
+        {/* Close Menu Button */}
         <button
           onClick={toggleMenu}
-          className={`relative z-50 w-8 h-8 flex flex-col justify-center items-center space-y-1 transition-all duration-300 ${
-            isMenuOpen ? 'hamburger-open' : ''
-          }`}
+          className="relative z-50 w-8 h-8 flex items-center justify-center"
           aria-label="Toggle menu"
         >
-          <div className="hamburger-line"></div>
-          <div className="hamburger-line"></div>
-          <div className="hamburger-line"></div>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            className="text-primary"
+          >
+            {isMenuOpen ? (
+              <>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </>
+            )}
+          </svg>
         </button>
       </header>
 
