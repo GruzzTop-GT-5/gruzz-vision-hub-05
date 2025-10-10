@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,11 +38,43 @@ interface ReviewCardProps {
   onReviewReported?: () => void;
 }
 
+interface AuthorProfile {
+  id: string;
+  display_name: string | null;
+  full_name: string | null;
+  phone: string | null;
+}
+
 export const ReviewCard = ({ review, onReviewReported }: ReviewCardProps) => {
   const { user } = useAuthContext();
   const { toast } = useToast();
   const [reportReason, setReportReason] = useState('');
   const [isReporting, setIsReporting] = useState(false);
+  const [authorProfile, setAuthorProfile] = useState<AuthorProfile | null>(null);
+
+  useEffect(() => {
+    fetchAuthorProfile();
+  }, [review.author_id]);
+
+  const fetchAuthorProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, display_name, full_name, phone')
+        .eq('id', review.author_id)
+        .single();
+
+      if (error) throw error;
+      setAuthorProfile(data);
+    } catch (error) {
+      console.error('Error fetching author profile:', error);
+    }
+  };
+
+  const getAuthorDisplayName = () => {
+    if (!authorProfile) return `ID: ${review.author_id.slice(0, 8)}...`;
+    return authorProfile.display_name || authorProfile.full_name || `ID: ${review.author_id.slice(0, 8)}...`;
+  };
 
   const handleReportReview = async () => {
     if (!user?.id || !reportReason.trim()) return;
@@ -94,7 +126,7 @@ export const ReviewCard = ({ review, onReviewReported }: ReviewCardProps) => {
           </div>
           <div>
             <p className="text-steel-200 font-medium">
-              ID: {review.author_id.slice(0, 8)}...
+              {getAuthorDisplayName()}
             </p>
             <div className="flex items-center space-x-2 text-xs text-steel-400">
               <Calendar className="w-3 h-3" />
