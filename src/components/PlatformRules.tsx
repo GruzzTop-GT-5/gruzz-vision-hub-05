@@ -29,7 +29,7 @@ interface RulesSectionProps {
 }
 
 const RulesSection = ({ title, content, icon, variant = 'default' }: RulesSectionProps) => {
-  let cardClasses = 'card-steel border-2';
+  let cardClasses = 'card-steel-dialog border-2';
   let headerGradient = '';
   
   if (variant === 'warning') {
