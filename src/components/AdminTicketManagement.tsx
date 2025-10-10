@@ -221,19 +221,28 @@ export const AdminTicketManagement = () => {
 
   const handleMarkAsResolved = async (callId: string) => {
     try {
-      const { error } = await supabase
+      // Отмечаем уведомление как прочитанное
+      const { error: updateError } = await supabase
         .from('notifications')
         .update({ is_read: true })
         .eq('id', callId);
 
-      if (error) throw error;
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw updateError;
+      }
 
       toast({
         title: "Отмечено как решено",
         description: "Вызов помечен как решенный"
       });
 
-      fetchAdminCalls();
+      // Обновляем список вызовов
+      setAdminCalls(prev => 
+        prev.map(call => 
+          call.id === callId ? { ...call, is_read: true } : call
+        )
+      );
     } catch (error) {
       console.error('Error marking call as resolved:', error);
       toast({
@@ -246,19 +255,24 @@ export const AdminTicketManagement = () => {
 
   const handleCloseCall = async (callId: string) => {
     try {
-      const { error } = await supabase
+      // Удаляем уведомление
+      const { error: deleteError } = await supabase
         .from('notifications')
         .delete()
         .eq('id', callId);
 
-      if (error) throw error;
+      if (deleteError) {
+        console.error('Delete error:', deleteError);
+        throw deleteError;
+      }
 
       toast({
         title: "Вызов закрыт",
         description: "Вызов успешно закрыт"
       });
 
-      fetchAdminCalls();
+      // Удаляем вызов из локального состояния
+      setAdminCalls(prev => prev.filter(call => call.id !== callId));
     } catch (error) {
       console.error('Error closing call:', error);
       toast({
