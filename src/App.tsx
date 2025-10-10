@@ -34,6 +34,7 @@ const App = () => (
           <Route path="/ads" element={<Pages.Ads />} />
           <Route path="/create-ad" element={<Pages.CreateAd />} />
           <Route path="/create-order" element={<Pages.CreateOrder />} />
+          <Route path="/special-equipment" element={<Pages.SpecialEquipment />} />
           <Route path="/ad/:id" element={<Pages.AdDetails />} />
           <Route path="/my-ads" element={<Pages.MyAds />} />
           <Route path="/profile" element={<Pages.Profile />} />

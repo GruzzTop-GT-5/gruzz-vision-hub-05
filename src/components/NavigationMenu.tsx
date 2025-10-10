@@ -74,6 +74,15 @@ const navigationSections = {
       description: 'Активные и завершенные задания'
     }
   ],
+  equipment: [
+    {
+      id: 'special-equipment',
+      title: 'Спец техника',
+      icon: <Zap className="w-5 h-5" />,
+      path: '/special-equipment',
+      description: 'Аренда компрессора и другой техники'
+    }
+  ],
   services: [
     {
       id: 'ads',
@@ -334,6 +343,7 @@ export const NavigationMenu = () => {
 
               {/* Основные разделы */}
               <NavigationSection title="Работа" items={navigationSections.work} />
+              <NavigationSection title="Спец техника" items={navigationSections.equipment} />
               <NavigationSection title="Услуги" items={navigationSections.services} />
               <NavigationSection title="Профиль" items={navigationSections.profile} />
               

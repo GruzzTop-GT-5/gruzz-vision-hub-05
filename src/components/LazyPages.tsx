@@ -18,4 +18,5 @@ export const Ads = lazy(() => import('@/pages/Ads'));
 export const MyAds = lazy(() => import('@/pages/MyAds'));
 export const CreateAd = lazy(() => import('@/pages/CreateAd'));
 export const AdDetails = lazy(() => import('@/pages/AdDetails'));
+export const SpecialEquipment = lazy(() => import('@/pages/SpecialEquipment'));
 export const NotFound = lazy(() => import('@/pages/NotFound'));
