@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -575,73 +576,75 @@ export const NotificationCenter = () => {
               <p className="text-muted-foreground">Нет уведомлений для отображения</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredNotifications.map((notification) => (
-                <Card key={notification.id} className={`border ${!notification.is_read ? 'bg-muted/30' : ''}`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {getNotificationIcon(notification.type)}
-                          <h4 className="font-medium">{notification.title}</h4>
-                          {!notification.is_read && (
-                            <Badge variant="secondary" className="text-xs">Новое</Badge>
-                          )}
-                          <Badge variant="outline" className="text-xs">
-                            {notificationTypes[notification.type as keyof typeof notificationTypes]?.label}
-                          </Badge>
+            <ScrollArea className="h-[600px]">
+              <div className="space-y-4 pr-4">
+                {filteredNotifications.map((notification) => (
+                  <Card key={notification.id} className={`border ${!notification.is_read ? 'bg-muted/30' : ''}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            {getNotificationIcon(notification.type)}
+                            <h4 className="font-medium">{notification.title}</h4>
+                            {!notification.is_read && (
+                              <Badge variant="secondary" className="text-xs">Новое</Badge>
+                            )}
+                            <Badge variant="outline" className="text-xs">
+                              {notificationTypes[notification.type as keyof typeof notificationTypes]?.label}
+                            </Badge>
+                          </div>
+                          
+                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                            {notification.content}
+                          </p>
+                          
+                          <p className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(notification.created_at), { 
+                              addSuffix: true, 
+                              locale: ru 
+                            })}
+                          </p>
                         </div>
                         
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {notification.content}
-                        </p>
-                        
-                        <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(notification.created_at), { 
-                            addSuffix: true, 
-                            locale: ru 
-                          })}
-                        </p>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        {!notification.is_read && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => markAsRead(notification.id)}
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </Button>
-                        )}
-                        
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <Trash2 className="w-4 h-4" />
+                        <div className="flex items-center gap-2">
+                          {!notification.is_read && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => markAsRead(notification.id)}
+                            >
+                              <CheckCircle className="w-4 h-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Удалить уведомление?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Это действие нельзя отменить. Уведомление будет удалено навсегда.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Отмена</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteNotification(notification.id)}>
-                                Удалить
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                          )}
+                          
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Удалить уведомление?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Это действие нельзя отменить. Уведомление будет удалено навсегда.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteNotification(notification.id)}>
+                                  Удалить
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
           )}
         </CardContent>
       </Card>
