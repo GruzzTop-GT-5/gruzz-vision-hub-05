@@ -125,6 +125,14 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Info Alert */}
+          <Alert className="bg-primary/10 border-primary/30">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              После создания объявления вам поступит в личные сообщения контакты для связи по заказу техники
+            </AlertDescription>
+          </Alert>
+
           {/* Hours Input */}
           <div className="space-y-2">
             <Label htmlFor="hours">Время аренды (минимум 7 часов)</Label>
