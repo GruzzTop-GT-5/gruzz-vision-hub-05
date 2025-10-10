@@ -6,14 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { OrderCard } from '@/components/OrderCard';
-import { CreateOrderModal } from '@/components/CreateOrderModal';
 import { SimpleOrderFilters, type OrderFilters as OrderFiltersType } from '@/components/SimpleOrderFilters';
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useOrderSorting } from '@/hooks/useOrderSorting';
 import { formatRubles } from '@/utils/currency';
-import { Package, Plus, Loader2, Clock, AlertTriangle } from 'lucide-react';
+import { Package, Loader2, Clock, AlertTriangle } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -68,7 +67,6 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [filters, setFilters] = useState<OrderFiltersType>({
     search: '',
     status: 'all',
@@ -224,17 +222,8 @@ export default function Orders() {
               <h1 className="text-3xl font-bold text-glow">Мои задания</h1>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <Button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="bg-primary hover:bg-primary/80"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Новый заказ
-              </Button>
-              <div className="text-sm text-steel-400">
-                Всего: {statistics.total} | Активных: {statistics.active} | Истекших: {statistics.expired}
-              </div>
+            <div className="text-sm text-steel-400">
+              Всего: {statistics.total} | Активных: {statistics.active} | Истекших: {statistics.expired}
             </div>
           </div>
 
@@ -288,14 +277,7 @@ export default function Orders() {
             <Card className="card-steel p-8 text-center space-y-4">
               <Package className="w-16 h-16 text-steel-500 mx-auto" />
               <h3 className="text-xl font-bold text-steel-300">У вас пока нет заказов</h3>
-              <p className="text-steel-400">Создайте первый заказ, чтобы найти исполнителей для ваших задач</p>
-              <Button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="bg-primary hover:bg-primary/80 mt-4"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Создать заказ
-              </Button>
+              <p className="text-steel-400">Создайте заказ через главную страницу или специальную кнопку "Создать заказ"</p>
             </Card>
           ) : (
             <div className="space-y-4">
@@ -358,11 +340,6 @@ export default function Orders() {
         </div>
       </div>
 
-      <CreateOrderModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onOrderCreated={handleOrderCreated}
-      />
     </Layout>
   );
 }
