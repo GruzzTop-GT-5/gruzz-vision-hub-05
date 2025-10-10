@@ -78,7 +78,7 @@ const navigationSections = {
   equipment: [
     {
       id: 'special-equipment',
-      title: 'Спец техника',
+      title: 'Спецтехника',
       icon: <Truck className="w-5 h-5" />,
       path: '/special-equipment',
       description: 'Аренда компрессора и другой техники'
@@ -345,8 +345,8 @@ export const NavigationMenu = () => {
               {/* Основные разделы */}
               <NavigationSection title="Работа" items={navigationSections.work} />
               
-              {/* Спец техника - отдельная секция */}
-              <NavigationSection title="Спец техника" items={navigationSections.equipment} />
+              {/* Спецтехника - отдельная секция */}
+              <NavigationSection title="Спецтехника" items={navigationSections.equipment} />
               
               <NavigationSection title="Услуги" items={navigationSections.services} />
               <NavigationSection title="Профиль" items={navigationSections.profile} />

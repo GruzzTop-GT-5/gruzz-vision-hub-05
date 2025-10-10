@@ -138,7 +138,7 @@ export default function SpecialEquipment() {
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <BackButton />
-              <h1 className="text-3xl font-bold text-glow">Спец техника</h1>
+              <h1 className="text-3xl font-bold text-glow">Спецтехника</h1>
               <div></div>
             </div>
 
