@@ -6,8 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CalendarIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface CompressorRentData {
   hours: number;
@@ -36,26 +42,19 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   const [location, setLocation] = useState<'city' | 'suburb' | 'far'>('city');
   const [equipment, setEquipment] = useState<string[]>([]);
   const [paymentType, setPaymentType] = useState<'cash' | 'vat'>('cash');
-  const [datetime, setDatetime] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedHour, setSelectedHour] = useState<string>('09');
+  const [selectedMinute, setSelectedMinute] = useState<string>('00');
   const [totalHours, setTotalHours] = useState(8);
   const [totalPrice, setTotalPrice] = useState(12000);
-  const [minDatetime, setMinDatetime] = useState('');
   const [hoursError, setHoursError] = useState(false);
 
-  // Set minimum datetime when modal opens
+  // Set default date to tomorrow when modal opens
   useEffect(() => {
-    if (open) {
+    if (open && !selectedDate) {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      
-      const year = tomorrow.getFullYear();
-      const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-      const day = String(tomorrow.getDate()).padStart(2, '0');
-      const hours = String(tomorrow.getHours()).padStart(2, '0');
-      const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
-      
-      setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
+      setSelectedDate(tomorrow);
     }
   }, [open]);
 
@@ -101,12 +100,26 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
       return;
     }
 
+    // Validate date selection
+    if (!selectedDate) {
+      toast({
+        title: "Ошибка",
+        description: "Выберите дату",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Combine date and time
+    const datetime = new Date(selectedDate);
+    datetime.setHours(parseInt(selectedHour), parseInt(selectedMinute), 0, 0);
+
     const data: CompressorRentData = {
       hours,
       location,
       equipment,
       paymentType,
-      datetime: datetime || new Date(Date.now() + 86400000).toISOString(), // Default to tomorrow if not set
+      datetime: datetime.toISOString(),
       totalHours,
       totalPrice
     };
@@ -129,7 +142,9 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
       setLocation('city');
       setEquipment([]);
       setPaymentType('cash');
-      setDatetime('');
+      setSelectedDate(undefined);
+      setSelectedHour('09');
+      setSelectedMinute('00');
       setTotalHours(8);
       setHoursError(false);
     }, 300);
@@ -249,17 +264,82 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
             </RadioGroup>
           </div>
 
-          {/* DateTime Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="datetime">Дата и время (минимум на следующий день)</Label>
-            <Input
-              id="datetime"
-              type="datetime-local"
-              min={minDatetime}
-              value={datetime}
-              onChange={(e) => setDatetime(e.target.value)}
-              className="bg-steel-700/50"
-            />
+          {/* Date and Time Selection */}
+          <div className="space-y-4">
+            <Label>Дата и время (минимум на следующий день)</Label>
+            
+            {/* Date Picker */}
+            <div className="space-y-2">
+              <Label className="text-sm text-steel-400">Дата</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal bg-steel-700/50",
+                      !selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, "PPP", { locale: ru }) : <span>Выберите дату</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={(date) => {
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      tomorrow.setHours(0, 0, 0, 0);
+                      return date < tomorrow;
+                    }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Time Selection */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm text-steel-400">Час</Label>
+                <Select value={selectedHour} onValueChange={setSelectedHour}>
+                  <SelectTrigger className="bg-steel-700/50">
+                    <SelectValue placeholder="Час" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {Array.from({ length: 24 }, (_, i) => {
+                      const hour = i.toString().padStart(2, '0');
+                      return (
+                        <SelectItem key={hour} value={hour}>
+                          {hour}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm text-steel-400">Минуты</Label>
+                <Select value={selectedMinute} onValueChange={setSelectedMinute}>
+                  <SelectTrigger className="bg-steel-700/50">
+                    <SelectValue placeholder="Минуты" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {['00', '15', '30', '45'].map((minute) => (
+                      <SelectItem key={minute} value={minute}>
+                        {minute}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
