@@ -140,30 +140,17 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm, initi
       totalPrice
     };
 
-    // Call onConfirm first to save data
+    // Call onConfirm to save data
     onConfirm(data);
     
     // Show success message
     toast({
       title: "Сохранено!",
-      description: `Аренда компрессора добавлена: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
+      description: `Аренда компрессора: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
     });
     
-    // Close modal
+    // Close modal - data will be preserved via initialData prop
     onOpenChange(false);
-    
-    // Reset fields after modal closes
-    setTimeout(() => {
-      setHours(7);
-      setLocation('city');
-      setEquipment([]);
-      setPaymentType('cash');
-      setSelectedDate(undefined);
-      setSelectedHour('09');
-      setSelectedMinute('00');
-      setTotalHours(8);
-      setHoursError(false);
-    }, 300);
   };
 
   return (
