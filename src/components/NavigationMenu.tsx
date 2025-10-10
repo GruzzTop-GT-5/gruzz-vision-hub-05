@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { 
   Menu,
@@ -232,7 +232,7 @@ const navigationSections = {
 
 export const NavigationMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuthContext();
   const navigate = useNavigate();
 
   const handleNavigate = (path: string) => {

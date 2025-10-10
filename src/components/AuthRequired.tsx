@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ export const AuthRequired: React.FC<AuthRequiredProps> = ({
   children, 
   fallback 
 }) => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthContext();
 
   if (loading) {
     return (

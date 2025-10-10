@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { 
   Users, 
   MessageSquare, 
@@ -32,7 +32,7 @@ interface OnlineUsersWidgetProps {
 }
 
 export const OnlineUsersWidget = ({ onStartChat }: OnlineUsersWidgetProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [presenceChannel, setPresenceChannel] = useState<any>(null);
 
