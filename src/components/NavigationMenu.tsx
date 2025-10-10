@@ -258,7 +258,7 @@ export const NavigationMenu = () => {
 
     fetchUnreadMessages();
 
-    // Подписываемся на новые уведомления
+    // Подписываемся на новые уведомления ТОЛЬКО типа message
     const channel = supabase
       .channel(`user-messages-${user.id}`)
       .on(
@@ -267,7 +267,7 @@ export const NavigationMenu = () => {
           event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${user.id}`
+          filter: `user_id=eq.${user.id},type=eq.message` // Фильтруем по типу!
         },
         () => {
           fetchUnreadMessages();
