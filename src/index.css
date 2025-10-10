@@ -209,6 +209,7 @@
   }
   
   .btn-3d:hover {
+    transform: translateY(-6px) scale(1.05);
     box-shadow: var(--shadow-glow), var(--shadow-3d);
     transition: var(--transition-bounce);
   }
@@ -296,6 +297,7 @@
   }
   
   .card-steel:hover {
+    transform: translateY(-8px) scale(1.02);
     box-shadow: var(--shadow-glow), var(--shadow-steel);
   }
   
@@ -393,7 +395,7 @@
   }
   
   .hover-scale:hover {
-    box-shadow: var(--shadow-glow);
+    transform: scale(1.05);
   }
   
   /* Glass morphism effect */
