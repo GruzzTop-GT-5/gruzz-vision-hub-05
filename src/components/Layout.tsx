@@ -104,7 +104,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
         {/* Hamburger Menu */}
         <button
           onClick={toggleMenu}
-          className={`relative z-50 w-8 h-8 flex flex-col justify-center items-center space-y-1 ${
+          className={`relative z-50 w-8 h-8 flex flex-col justify-center items-center space-y-1 transition-all duration-300 ${
             isMenuOpen ? 'hamburger-open' : ''
           }`}
           aria-label="Toggle menu"

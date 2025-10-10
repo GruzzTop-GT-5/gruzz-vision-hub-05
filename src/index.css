@@ -341,7 +341,7 @@
   
   /* Premium Hamburger Menu */
   .hamburger-line {
-    @apply w-7 h-0.5;
+    @apply w-7 h-0.5 transition-all duration-500;
     background: linear-gradient(90deg, 
       hsl(var(--foreground)), 
       hsl(var(--primary)));
