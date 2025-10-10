@@ -98,9 +98,19 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
         .from('conversations')
         .select('*')
         .eq('id', conversationId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      
+      if (!data) {
+        toast({
+          title: "Ошибка",
+          description: "Разговор не найден",
+          variant: "destructive"
+        });
+        return;
+      }
+      
       setConversation(data);
     } catch (error) {
       console.error('Error fetching conversation:', error);
