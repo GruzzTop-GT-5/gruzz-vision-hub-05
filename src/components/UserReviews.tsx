@@ -101,11 +101,11 @@ export const UserReviews = ({ userId, canLeaveReview = false, transactionId }: U
   }
 
   return (
-    <div className="space-y-6 !transition-none">
+    <div className="space-y-6">
       {/* Rating Summary */}
-      <Card className="card-steel p-6 !transition-none">
-        <div className="space-y-4 !transition-none">
-          <div className="flex items-center space-x-2 !transition-none">
+      <Card className="card-steel p-6">
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
             <MessageSquare className="w-5 h-5 text-primary" />
             <h2 className="text-xl font-bold text-steel-100">Отзывы и рейтинг</h2>
           </div>
@@ -124,7 +124,7 @@ export const UserReviews = ({ userId, canLeaveReview = false, transactionId }: U
             {canLeaveReview && user && user.id !== userId && !showReviewForm && (
               <Button
                 onClick={() => setShowReviewForm(true)}
-                className="bg-primary hover:bg-primary/80 !transition-none"
+                className="bg-primary hover:bg-primary/80"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Оставить отзыв
