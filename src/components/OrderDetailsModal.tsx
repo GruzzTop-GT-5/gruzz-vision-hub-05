@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -103,12 +104,14 @@ export const OrderDetailsModal = ({
 }: OrderDetailsModalProps) => {
   const { user } = useAuthContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [files, setFiles] = useState<OrderFile[]>([]);
   const [statusHistory, setStatusHistory] = useState<StatusHistory[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadDescription, setUploadDescription] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
 
   const isClient = user?.id === order?.client_id;
   const isExecutor = user?.id === order?.executor_id;
@@ -292,6 +295,75 @@ export const OrderDetailsModal = ({
       cancelled: 'Отменен'
     };
     return labels[status as keyof typeof labels] || status;
+  };
+
+  const handleOpenChat = async () => {
+    if (!order || !user) return;
+
+    // Determine the other participant
+    const otherParticipantId = isClient ? order.executor_id : order.client_id;
+    
+    if (!otherParticipantId) {
+      toast({
+        title: "Ошибка",
+        description: isClient 
+          ? "Исполнитель еще не назначен на этот заказ" 
+          : "Не удалось определить клиента заказа",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsCreatingChat(true);
+
+    try {
+      // Check if conversation already exists
+      const { data: existingConversations, error: fetchError } = await supabase
+        .from('conversations')
+        .select('id')
+        .contains('participants', [user.id, otherParticipantId])
+        .eq('type', 'chat')
+        .limit(1);
+
+      if (fetchError) throw fetchError;
+
+      let conversationId: string;
+
+      if (existingConversations && existingConversations.length > 0) {
+        // Use existing conversation
+        conversationId = existingConversations[0].id;
+      } else {
+        // Create new conversation
+        const { data: newConversation, error: createError } = await supabase
+          .from('conversations')
+          .insert({
+            type: 'chat',
+            title: `Чат по заказу #${order.order_number}`,
+            participants: [user.id, otherParticipantId],
+            created_by: user.id,
+            status: 'active'
+          })
+          .select('id')
+          .single();
+
+        if (createError) throw createError;
+        conversationId = newConversation.id;
+      }
+
+      // Navigate to chat
+      navigate(`/chat?conversation=${conversationId}`);
+      onClose();
+      
+    } catch (error) {
+      console.error('Error opening chat:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть чат",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingChat(false);
+    }
   };
 
   if (!order) return null;
@@ -754,10 +826,29 @@ export const OrderDetailsModal = ({
               <CardContent className="p-8 text-center">
                 <MessageSquare className="w-12 h-12 text-steel-500 mx-auto mb-2" />
                 <p className="text-steel-300 mb-4">Чат по заказу</p>
-                <Button>
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Открыть чат
-                </Button>
+                {!order.executor_id && isClient ? (
+                  <p className="text-steel-400 text-sm mb-4">
+                    Чат будет доступен после назначения исполнителя
+                  </p>
+                ) : (
+                  <Button 
+                    onClick={handleOpenChat}
+                    disabled={isCreatingChat}
+                    className="bg-primary hover:bg-primary/80"
+                  >
+                    {isCreatingChat ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                        Загрузка...
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Открыть чат
+                      </>
+                    )}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
