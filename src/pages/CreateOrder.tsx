@@ -23,6 +23,15 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  color: string;
+  is_active: boolean;
+}
+
 // Updated to use dynamic priority costs
 
 const orderFormSchema = z.object({
@@ -45,14 +54,6 @@ const orderFormSchema = z.object({
 
 type OrderFormData = z.infer<typeof orderFormSchema>;
 
-interface Category {
-  id: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  color: string;
-  is_active: boolean;
-}
 
 const PRIORITY_OPTIONS = [
   { value: 'normal', label: 'Обычный (15 GT)', cost: 15 },
@@ -68,6 +69,7 @@ export default function CreateOrder() {
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [priorityCosts, setPriorityCosts] = useState({ normal: 15, high: 35, urgent: 55 });
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderFormSchema),
@@ -85,12 +87,13 @@ export default function CreateOrder() {
     }
   });
 
-  // Fetch user balance and priority costs
+  // Fetch user balance, priority costs, and categories
   useEffect(() => {
     if (user?.id) {
       fetchUserBalance();
     }
     fetchPriorityCosts();
+    fetchCategories();
   }, [user?.id]);
 
   const fetchUserBalance = async () => {
@@ -128,6 +131,21 @@ export default function CreateOrder() {
       }
     } catch (error) {
       console.error('Error fetching priority costs:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -338,13 +356,21 @@ export default function CreateOrder() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-steel-100">Категория <span className="text-red-400">*</span></FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Например: Грузчики, Разнорабочие, Переезд"
-                          className="bg-steel-700/50"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-steel-700/50">
+                            <SelectValue placeholder="Выберите категорию" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category.id} value={category.name}>
+                              {category.icon && <span className="mr-2">{category.icon}</span>}
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
