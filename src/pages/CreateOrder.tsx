@@ -337,7 +337,7 @@ export default function CreateOrder() {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-steel-100">Категория работы <span className="text-red-400">*</span></FormLabel>
+                      <FormLabel className="text-steel-100">Категория <span className="text-red-400">*</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Например: Грузчики, Разнорабочие, Переезд"
