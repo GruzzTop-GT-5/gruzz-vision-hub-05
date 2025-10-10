@@ -266,7 +266,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
 
           {/* Date and Time Selection */}
           <div className="space-y-3">
-            <Label>Когда</Label>
+            <Label>На какое время</Label>
             
             <div className="grid grid-cols-2 gap-3">
               {/* Date Picker */}
