@@ -65,7 +65,19 @@ export const EquipmentOrdersManagement: React.FC = () => {
           fetchEquipmentOrders();
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('Subscribed to equipment orders changes');
+        }
+        if (err) {
+          console.error('Error subscribing to equipment orders:', err);
+          toast({
+            title: 'Ошибка подписки',
+            description: 'Не удалось подключиться к обновлениям в реальном времени',
+            variant: 'destructive'
+          });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -177,22 +189,42 @@ export const EquipmentOrdersManagement: React.FC = () => {
           filter: `conversation_id=eq.${conversationId}`
         },
         async (payload) => {
-          const newMsg = payload.new as Message;
-          
-          // Получаем профиль отправителя
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('display_name, role')
-            .eq('id', newMsg.sender_id)
-            .single();
+          try {
+            const newMsg = payload.new as Message;
+            
+            // Получаем профиль отправителя
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('display_name, role')
+              .eq('id', newMsg.sender_id)
+              .maybeSingle();
 
-          setMessages(prev => [...prev, {
-            ...newMsg,
-            sender_profile: profile || { display_name: 'Система', role: 'system' }
-          }]);
+            if (error) {
+              console.error('Error fetching sender profile:', error);
+            }
+
+            setMessages(prev => [...prev, {
+              ...newMsg,
+              sender_profile: profile || { display_name: 'Система', role: 'system' }
+            }]);
+          } catch (error) {
+            console.error('Error processing new message:', error);
+          }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        if (status === 'SUBSCRIBED') {
+          console.log(`Subscribed to messages for conversation ${conversationId}`);
+        }
+        if (err) {
+          console.error('Error subscribing to messages:', err);
+          toast({
+            title: 'Ошибка подписки',
+            description: 'Не удалось подключиться к сообщениям в реальном времени',
+            variant: 'destructive'
+          });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
