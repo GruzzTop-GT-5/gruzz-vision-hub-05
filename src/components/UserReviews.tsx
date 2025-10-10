@@ -124,7 +124,7 @@ export const UserReviews = ({ userId, canLeaveReview = false, transactionId }: U
             {canLeaveReview && user && user.id !== userId && !showReviewForm && (
               <Button
                 onClick={() => setShowReviewForm(true)}
-                className="bg-primary hover:bg-primary/80"
+                className="bg-primary hover:bg-primary/80 transition-colors"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Оставить отзыв

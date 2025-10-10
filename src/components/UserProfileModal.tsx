@@ -96,7 +96,7 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="card-steel max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="card-steel max-w-2xl max-h-[90vh] overflow-y-auto min-h-[400px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-steel-100">
             {isOwnProfile ? 'Мой профиль' : 'Профиль пользователя'}
