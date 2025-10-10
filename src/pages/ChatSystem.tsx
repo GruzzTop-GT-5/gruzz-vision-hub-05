@@ -446,10 +446,26 @@ export default function ChatSystem() {
                       className={`card-steel p-4 cursor-pointer transition-colors ${
                         !notification.is_read ? 'border-primary/20 bg-primary/5' : 'hover:bg-steel-800/50'
                       }`}
-                      onClick={() => {
-                        if (!notification.is_read && notification.conversation_id) {
-                          markConversationNotificationsAsRead(notification.conversation_id);
+                      onClick={async () => {
+                        // Отмечаем уведомление как прочитанное
+                        if (!notification.is_read) {
+                          try {
+                            await supabase
+                              .from('notifications')
+                              .update({ is_read: true })
+                              .eq('id', notification.id);
+                            
+                            // Обновляем локальное состояние
+                            setNotifications(prev =>
+                              prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
+                            );
+                            setUnreadCount(prev => Math.max(0, prev - 1));
+                          } catch (error) {
+                            console.error('Error marking notification as read:', error);
+                          }
                         }
+                        
+                        // Переходим к чату, если есть conversation_id
                         if (notification.conversation_id) {
                           setSelectedConversation(notification.conversation_id);
                         }
