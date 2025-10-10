@@ -354,7 +354,7 @@ export const OrderDetailsModal = ({
       }
 
       // Navigate to chat
-      navigate(`/chat?conversation=${conversationId}`);
+      navigate(`/chat-system?conversation=${conversationId}`);
       onClose();
       
     } catch (error) {
