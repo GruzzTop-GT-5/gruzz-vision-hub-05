@@ -14,7 +14,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Coins, AlertCircle, Calendar, MapPin } from 'lucide-react';
+import { Coins, AlertCircle, Calendar, MapPin, Wrench, Truck } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { BackButton } from '@/components/BackButton';
 import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -37,7 +38,9 @@ const orderFormSchema = z.object({
   priority: z.enum(['normal', 'high', 'urgent'], { required_error: 'Выберите приоритет' }),
   deadline: z.date().optional(),
   start_time: z.string().optional(),
-  people_needed: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, 'Минимум 1 человек')
+  people_needed: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, 'Минимум 1 человек'),
+  compressor_rent: z.boolean().optional(),
+  garbage_removal: z.boolean().optional()
 });
 
 type OrderFormData = z.infer<typeof orderFormSchema>;
@@ -76,7 +79,9 @@ export default function CreateOrder() {
       hourly_rate: '',
       work_hours: '4',
       priority: 'normal',
-      people_needed: '1'
+      people_needed: '1',
+      compressor_rent: false,
+      garbage_removal: false
     }
   });
 
@@ -536,6 +541,60 @@ export default function CreateOrder() {
                     </FormItem>
                   )}
                 />
+
+                {/* Additional Services Section */}
+                <div className="space-y-4">
+                  <Separator />
+                  <h3 className="text-lg font-semibold text-steel-100">Дополнительные услуги</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="compressor_rent"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-lg border border-steel-600/50 p-4 bg-steel-700/30">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none flex-1">
+                          <FormLabel className="text-steel-100 flex items-center gap-2">
+                            <Wrench className="w-4 h-4" />
+                            Аренда компрессора с оборудованием
+                          </FormLabel>
+                          <p className="text-sm text-steel-400">
+                            Компрессор для пневмоинструмента, отбойные молотки, продувочные шланги
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="garbage_removal"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-lg border border-steel-600/50 p-4 bg-steel-700/30">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none flex-1">
+                          <FormLabel className="text-steel-100 flex items-center gap-2">
+                            <Truck className="w-4 h-4" />
+                            Вывоз мусора (12-30 кубов, возможна погрузка)
+                          </FormLabel>
+                          <p className="text-sm text-steel-400">
+                            Вывоз строительного мусора, доступны разные объемы транспорта
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 {/* Total Cost Display */}
                 <Card className="card-steel p-4 border-primary/30">

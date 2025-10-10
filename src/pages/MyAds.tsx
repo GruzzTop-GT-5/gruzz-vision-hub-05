@@ -10,13 +10,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BackButton } from '@/components/BackButton';
-import { CreateOrderModal } from '@/components/CreateOrderModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Package, Plus, Edit3, Trash2, Search, Filter, DollarSign, Calendar, Clock, Eye, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface Ad {
   id: string;
@@ -70,6 +69,7 @@ const categories = [
 const MyAds = () => {
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [items, setItems] = useState<MyItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<MyItem[]>([]);
@@ -80,7 +80,6 @@ const MyAds = () => {
   const [selectedType, setSelectedType] = useState('all');
   
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showCreateVacancyModal, setShowCreateVacancyModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MyItem | null>(null);
@@ -452,7 +451,7 @@ const MyAds = () => {
             
             <div className="flex gap-2">
               <Button 
-                onClick={() => setShowCreateVacancyModal(true)}
+                onClick={() => navigate('/create-order')}
                 className="bg-primary hover:bg-primary/80"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -593,7 +592,7 @@ const MyAds = () => {
               </p>
               {items.length === 0 && (
                 <div className="flex gap-4 justify-center">
-                  <Button onClick={() => setShowCreateVacancyModal(true)}>
+                  <Button onClick={() => navigate('/create-order')}>
                     <Plus className="w-4 h-4 mr-2" />
                     Создать объявление
                   </Button>
@@ -912,17 +911,6 @@ const MyAds = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {/* Create Vacancy Modal */}
-      {showCreateVacancyModal && (
-        <CreateOrderModal
-          isOpen={showCreateVacancyModal}
-          onClose={() => setShowCreateVacancyModal(false)}
-          onOrderCreated={() => {
-            setShowCreateVacancyModal(false);
-            fetchItems();
-          }}
-        />
-      )}
     </Layout>
   );
 };

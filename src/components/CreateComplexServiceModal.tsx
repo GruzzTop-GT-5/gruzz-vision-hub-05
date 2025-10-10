@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { CreateOrderModal } from '@/components/CreateOrderModal';
 import { CreateCompressorRentModal } from '@/components/CreateCompressorRentModal';
 import { CreateGarbageRemovalModal } from '@/components/CreateGarbageRemovalModal';
 import { useAuth } from '@/hooks/useAuth';
@@ -231,22 +230,6 @@ export const CreateComplexServiceModal: React.FC<CreateComplexServiceModalProps>
           </div>
         </DialogContent>
       </Dialog>
-
-      <CreateOrderModal
-        isOpen={currentStep === 'workers'}
-        onClose={() => setCurrentStep('selection')}
-        onOrderCreated={() => setCurrentStep('selection')}
-      />
-
-      <CreateCompressorRentModal
-        isOpen={currentStep === 'compressor'}
-        onClose={() => setCurrentStep('selection')}
-      />
-
-      <CreateGarbageRemovalModal
-        isOpen={currentStep === 'garbage'}
-        onClose={() => setCurrentStep('selection')}
-      />
     </>
   );
 };

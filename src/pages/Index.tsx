@@ -10,13 +10,13 @@ import { Card } from '@/components/ui/card';
 import { Plus, Search, Filter, Calendar, User, Settings, Wrench, Truck, Package, Shield, Clock, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
-import { CreateOrderModal } from '@/components/CreateOrderModal';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const { user, userRole, needsRoleSelection, loading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [showCreateOrder, setShowCreateOrder] = useState(false);
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
@@ -103,7 +103,7 @@ const Index = () => {
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {/* Создать объявление */}
           {user ? (
-            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => setShowCreateOrder(true)}>
+            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => navigate('/create-order')}>
               <div className="p-8 text-center space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
@@ -264,12 +264,7 @@ const Index = () => {
         <LegalFooter />
       </div>
 
-      {/* Service Modals */}
-      <CreateOrderModal
-        isOpen={showCreateOrder}
-        onClose={() => setShowCreateOrder(false)}
-        onOrderCreated={() => setShowCreateOrder(false)}
-      />
+      {/* Service Modals - removed, redirecting to /create-order page */}
 
       {/* Role Selection Modal */}
       {user && needsRoleSelection && (
