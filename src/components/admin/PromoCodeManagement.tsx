@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Copy, Plus, Eye, ToggleLeft, ToggleRight, Send } from 'lucide-react';
 import { format } from 'date-fns';
@@ -32,6 +33,7 @@ export const PromoCodeManagement: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState('create');
   const { toast } = useToast();
+  const { userRole } = useAuth();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -72,6 +74,16 @@ export const PromoCodeManagement: React.FC = () => {
   };
 
   const createPromoCode = async () => {
+    // Проверка прав доступа
+    if (!userRole || !['system_admin', 'admin'].includes(userRole)) {
+      toast({
+        title: "Ошибка доступа",
+        description: "У вас недостаточно прав для создания промокодов",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!formData.name || !formData.bonus_amount || !formData.expires_at) {
       toast({
         title: 'Ошибка',

@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Ban,
   UserX,
@@ -59,6 +60,7 @@ interface UserBan {
 
 export const BanManagementSection = () => {
   const { toast } = useToast();
+  const { userRole } = useAuth();
   const [userBans, setUserBans] = useState<UserBan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
