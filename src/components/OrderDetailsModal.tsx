@@ -344,9 +344,12 @@ export const OrderDetailsModal = ({
             status: 'active'
           })
           .select('id')
-          .single();
+          .maybeSingle();
 
         if (createError) throw createError;
+        if (!newConversation) {
+          throw new Error('Failed to create conversation');
+        }
         conversationId = newConversation.id;
       }
 
