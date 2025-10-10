@@ -132,13 +132,17 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
         <div className="space-y-6 py-4">
           {/* Hours Input */}
           <div className="space-y-2">
-            <Label htmlFor="hours">Время аренды (минимум 7 часов)</Label>
+            <Label htmlFor="hours">Время аренды (минимум 7 часов, максимум 44 часа)</Label>
             <Input
               id="hours"
               type="number"
               min="7"
+              max="44"
               value={hours}
-              onChange={(e) => setHours(Math.max(7, Number(e.target.value)))}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                setHours(Math.min(44, Math.max(7, value)));
+              }}
               className="bg-steel-700/50"
             />
           </div>
@@ -242,12 +246,14 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
               <Input
                 id="totalHours"
                 type="number"
-                min={hours}
+                min={7}
+                max={44}
                 value={totalHours}
                 onChange={(e) => {
-                  const value = Math.max(hours, Number(e.target.value));
-                  setManualTotalHours(value);
-                  setTotalHours(value);
+                  const value = Number(e.target.value);
+                  const clampedValue = Math.min(44, Math.max(7, value));
+                  setManualTotalHours(clampedValue);
+                  setTotalHours(clampedValue);
                 }}
                 className="bg-steel-800/70 border-primary/30 text-xl font-bold text-steel-100 focus:border-primary"
               />
