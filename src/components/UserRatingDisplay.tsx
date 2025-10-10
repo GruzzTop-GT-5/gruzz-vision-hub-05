@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { StarRating } from '@/components/StarRating';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
+import { UserBadge } from '@/components/UserBadge';
 import { Star, Award, TrendingUp } from 'lucide-react';
 
 interface UserRatingDisplayProps {
@@ -91,12 +92,16 @@ export function UserRatingDisplay({ userId, showDetails = false, className = "" 
   }
 
   return (
-    <div className={`flex items-center justify-center space-x-2 ${className}`}>
-      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-      <span className="text-steel-100 font-medium">{ratingData.rating.toFixed(1)}</span>
+    <div className={`flex items-center space-x-3 ${className}`}>
+      <div className="flex items-center space-x-2">
+        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+        <span className="text-steel-100 font-medium">{ratingData.rating.toFixed(1)}</span>
+      </div>
+      
+      <UserBadge rating={ratingData.rating} size="sm" showDescription={showDetails} />
       
       {showDetails && (
-        <div className="flex items-center space-x-2 ml-2">
+        <div className="flex items-center space-x-2">
           <span className="text-sm text-steel-300">
             ({ratingData.totalReviews} отзыв{ratingData.totalReviews !== 1 ? (ratingData.totalReviews < 5 ? 'а' : 'ов') : ''})
           </span>
