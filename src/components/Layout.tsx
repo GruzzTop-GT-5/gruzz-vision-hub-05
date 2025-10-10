@@ -176,8 +176,8 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
                   <item.icon className="w-5 h-5 text-steel-400 group-hover:text-primary transition-colors" />
                   <span className="font-medium">{item.label}</span>
                 </div>
-                {/* Notification badge for relevant menu items */}
-                {((item.href === '/chat-system' || item.href === '/balance') && unreadCount > 0) && (
+                {/* Notification badge only for chat */}
+                {(item.href === '/chat-system' && unreadCount > 0) && (
                   <div className="flex items-center justify-center w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </div>
@@ -266,11 +266,6 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
             >
               <Wallet className="h-5 w-5 mb-1" />
               Баланс
-              {unreadCount > 0 && (
-                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </div>
-              )}
             </Link>
           </div>
         </nav>
