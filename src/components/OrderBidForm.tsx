@@ -89,7 +89,7 @@ export function OrderBidForm({ orderId, orderTitle, isOpen, onClose, onSuccess }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="card-steel max-w-lg">
+      <DialogContent className="sm:max-w-lg bg-steel-800 border border-steel-600 data-[state=open]:animate-none data-[state=closed]:animate-none">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-steel-100">
             Откликнуться на заказ
@@ -109,7 +109,7 @@ export function OrderBidForm({ orderId, orderTitle, isOpen, onClose, onSuccess }
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={6}
-              className="resize-none"
+              className="resize-none bg-steel-700/50 border-steel-600 focus:border-primary transition-colors"
               disabled={isSubmitting}
             />
             <p className="text-xs text-steel-400">
