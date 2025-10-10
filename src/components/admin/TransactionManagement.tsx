@@ -9,6 +9,7 @@ import { CreditCard, Search, Check, X, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { handleError } from '@/lib/errorHandler';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -34,6 +35,7 @@ export const TransactionManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { userRole } = useAuth();
 
   const fetchTransactions = async () => {
     try {
@@ -90,6 +92,16 @@ export const TransactionManagement: React.FC = () => {
 
   const updateTransactionStatus = async (transactionId: string, newStatus: 'pending' | 'completed' | 'rejected', adminNotes?: string) => {
     try {
+      // Проверка прав доступа
+      if (!userRole || !['system_admin', 'admin', 'support'].includes(userRole)) {
+        toast({
+          title: "Ошибка доступа",
+          description: "У вас недостаточно прав для выполнения этой операции",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('transactions')
         .update({ 
