@@ -12,9 +12,11 @@ import {
   Users,
   CheckCircle,
   AlertTriangle,
-  Info
+  Info,
+  Award
 } from 'lucide-react';
 import { PLATFORM_RULES, TERMS_VERSION, TERMS_LAST_UPDATED } from '@/data/legal';
+import { RatingSystemInfo } from '@/components/RatingSystemInfo';
 
 interface RulesSectionProps {
   title: string;
@@ -97,7 +99,7 @@ const RulesSection = ({ title, content, icon, variant = 'default' }: RulesSectio
 };
 
 export const PlatformRules = () => {
-  const [activeTab, setActiveTab] = useState("commission");
+  const [activeTab, setActiveTab] = useState("rating");
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
@@ -147,7 +149,15 @@ export const PlatformRules = () => {
 
       {/* Rules Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto gap-2 bg-steel-800/50 p-2">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto gap-2 bg-steel-800/50 p-2">
+          <TabsTrigger 
+            value="rating" 
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-electric-600 data-[state=active]:text-steel-900 py-3"
+          >
+            <Award className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Рейтинг</span>
+            <span className="sm:hidden">Рейтинг</span>
+          </TabsTrigger>
           <TabsTrigger 
             value="commission" 
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-electric-600 data-[state=active]:text-steel-900 py-3"
@@ -191,6 +201,10 @@ export const PlatformRules = () => {
         </TabsList>
 
         <ScrollArea className="h-[600px] w-full pr-4">
+          <TabsContent value="rating" className="mt-0">
+            <RatingSystemInfo />
+          </TabsContent>
+
           <TabsContent value="commission" className="mt-0">
             <RulesSection
               title={PLATFORM_RULES.commission.title}

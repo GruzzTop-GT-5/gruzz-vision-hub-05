@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { UserRatingDisplay } from '@/components/UserRatingDisplay';
+import { RatingInfoDialog } from '@/components/RatingInfoDialog';
 import { PromoCodeSection } from '@/components/PromoCodeSection';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -640,8 +641,9 @@ const Profile = () => {
                   </div>
 
                   <div className="text-center">
-                    <div className="flex justify-center mb-1">
+                    <div className="flex items-center justify-center gap-2 mb-1">
                       {user?.id && <UserRatingDisplay userId={user.id} showDetails={false} />}
+                      <RatingInfoDialog currentRating={profileData.rating} />
                     </div>
                     <div className="text-steel-300 text-sm">Рейтинг</div>
                   </div>
