@@ -556,13 +556,14 @@ export default function CreateOrder() {
                     control={form.control}
                     name="start_datetime"
                     render={({ field }) => {
-                      const currentDate = field.value ? new Date(field.value) : undefined;
+                      const currentDate = field.value ? new Date(field.value) : null;
                       const currentHour = currentDate ? currentDate.getHours().toString().padStart(2, '0') : '09';
                       const currentMinute = currentDate ? currentDate.getMinutes().toString().padStart(2, '0') : '00';
                       
                       const handleDateChange = (date: Date | undefined) => {
                         if (date) {
                           const newDate = new Date(date);
+                          // Use current time values or defaults
                           const hour = currentDate ? currentDate.getHours() : 9;
                           const minute = currentDate ? currentDate.getMinutes() : 0;
                           newDate.setHours(hour, minute, 0, 0);
@@ -570,12 +571,20 @@ export default function CreateOrder() {
                         }
                       };
                       
-                      const handleTimeChange = (hour: string, minute: string) => {
-                        if (currentDate) {
-                          const newDate = new Date(currentDate);
-                          newDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
-                          field.onChange(newDate.toISOString().slice(0, 16));
-                        }
+                      const handleHourChange = (hour: string) => {
+                        // Create date if it doesn't exist
+                        const dateToUse = currentDate || new Date();
+                        const newDate = new Date(dateToUse);
+                        newDate.setHours(parseInt(hour), parseInt(currentMinute), 0, 0);
+                        field.onChange(newDate.toISOString().slice(0, 16));
+                      };
+                      
+                      const handleMinuteChange = (minute: string) => {
+                        // Create date if it doesn't exist
+                        const dateToUse = currentDate || new Date();
+                        const newDate = new Date(dateToUse);
+                        newDate.setHours(parseInt(currentHour), parseInt(minute), 0, 0);
+                        field.onChange(newDate.toISOString().slice(0, 16));
                       };
                       
                       return (
@@ -598,7 +607,7 @@ export default function CreateOrder() {
                               <PopoverContent className="w-auto p-0" align="start">
                                 <CalendarComponent
                                   mode="single"
-                                  selected={currentDate}
+                                  selected={currentDate || undefined}
                                   onSelect={handleDateChange}
                                   disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                                   initialFocus
@@ -610,7 +619,7 @@ export default function CreateOrder() {
                             <div className="flex gap-1">
                               <Select 
                                 value={currentHour} 
-                                onValueChange={(hour) => handleTimeChange(hour, currentMinute)}
+                                onValueChange={handleHourChange}
                               >
                                 <SelectTrigger className="bg-steel-700/50">
                                   <SelectValue placeholder="--" />
@@ -629,7 +638,7 @@ export default function CreateOrder() {
                               <span className="flex items-center text-steel-400">:</span>
                               <Select 
                                 value={currentMinute} 
-                                onValueChange={(minute) => handleTimeChange(currentHour, minute)}
+                                onValueChange={handleMinuteChange}
                               >
                                 <SelectTrigger className="bg-steel-700/50">
                                   <SelectValue placeholder="--" />
