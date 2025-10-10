@@ -687,15 +687,19 @@ export default function CreateOrder() {
                     control={form.control}
                     name="garbage_removal"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-lg border border-steel-600/50 p-4 bg-steel-700/30">
+                      <FormItem 
+                        className="flex flex-row items-start space-x-3 space-y-0 rounded-lg border border-steel-600/50 p-4 bg-steel-700/30 cursor-pointer hover:bg-steel-700/40 transition-colors"
+                        onClick={() => field.onChange(!field.value)}
+                      >
                         <FormControl>
                           <Checkbox
                             checked={field.value}
-                            onCheckedChange={field.onChange}
+                            onCheckedChange={() => {}}
+                            onClick={(e) => e.stopPropagation()}
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none flex-1">
-                          <FormLabel className="text-steel-100 flex items-center gap-2">
+                          <FormLabel className="text-steel-100 flex items-center gap-2 cursor-pointer">
                             <Truck className="w-4 h-4" />
                             Вывоз мусора (12-30 кубов, возможна погрузка)
                           </FormLabel>
