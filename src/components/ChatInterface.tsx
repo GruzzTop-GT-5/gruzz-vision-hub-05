@@ -16,9 +16,7 @@ import {
   Image as ImageIcon, 
   File, 
   Download,
-  MoreVertical,
-  Phone,
-  Video
+  Phone
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -62,7 +60,6 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   const [isSending, setIsSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
-  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -404,23 +401,11 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
             )}
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Button 
-              size="sm" 
-              variant="ghost"
-              onClick={() => setIsVideoCallOpen(true)}
-            >
-              <Video className="w-4 h-4" />
+          {onClose && (
+            <Button size="sm" variant="ghost" onClick={onClose}>
+              ✕
             </Button>
-            <Button size="sm" variant="ghost">
-              <MoreVertical className="w-4 h-4" />
-            </Button>
-            {onClose && (
-              <Button size="sm" variant="ghost" onClick={onClose}>
-                ✕
-              </Button>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Messages Area */}
