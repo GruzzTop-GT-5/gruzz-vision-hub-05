@@ -961,7 +961,7 @@ export const CreateOrderModal = ({ isOpen, onClose, onOrderCreated, adId }: Crea
                   ...prev,
                   client_requirements: { ...prev.client_requirements, location: e.target.value }
                 }))}
-                placeholder="Укажите полный адрес или ближайшую станцию метро"
+                placeholder="г. Москва, ул. Ленина 15"
                 className="mt-1"
               />
             </div>
