@@ -91,6 +91,16 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   };
 
   const handleConfirm = () => {
+    // Validate hours before confirming
+    if (hours < 7) {
+      toast({
+        title: "Ошибка",
+        description: "Минимальное время аренды — 7 часов",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const data: CompressorRentData = {
       hours,
       location,
@@ -101,7 +111,16 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
       totalPrice
     };
 
+    // Call onConfirm first to save data
     onConfirm(data);
+    
+    // Show success message
+    toast({
+      title: "Сохранено!",
+      description: `Аренда компрессора добавлена: ${totalHours} ч, ${totalPrice.toLocaleString('ru-RU')} ₽`,
+    });
+    
+    // Close modal
     onOpenChange(false);
     
     // Reset fields after modal closes
