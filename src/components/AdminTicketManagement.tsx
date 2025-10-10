@@ -66,6 +66,7 @@ interface AdminCall {
   conversation_id: string | null;
   is_read: boolean;
   created_at: string;
+  caller_id?: string;
   user?: {
     display_name: string | null;
     full_name: string | null;
@@ -137,18 +138,46 @@ export const AdminTicketManagement = () => {
       const { data, error } = await supabase
         .from('notifications')
         .select(`
-          *,
-          user:profiles!notifications_user_id_fkey(
-            display_name,
-            full_name,
-            phone
-          )
+          *
         `)
         .eq('type', 'admin_call')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAdminCalls(data || []);
+      
+      // Получаем данные пользователей из разговоров
+      const callsWithUsers = await Promise.all(
+        (data || []).map(async (call) => {
+          if (call.conversation_id) {
+            const { data: conv } = await supabase
+              .from('conversations')
+              .select('created_by, participants')
+              .eq('id', call.conversation_id)
+              .single();
+
+            if (conv) {
+              // Находим пользователя, который НЕ является текущим админом (получателем уведомления)
+              const callerIds = conv.participants.filter((id: string) => id !== call.user_id);
+              const callerId = callerIds[0] || conv.created_by;
+
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('display_name, full_name, phone')
+                .eq('id', callerId)
+                .single();
+
+              return {
+                ...call,
+                caller_id: callerId,
+                user: profile
+              };
+            }
+          }
+          return call;
+        })
+      );
+
+      setAdminCalls(callsWithUsers);
     } catch (error) {
       console.error('Error fetching admin calls:', error);
     }
