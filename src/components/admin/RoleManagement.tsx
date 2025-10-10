@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { handleError } from '@/lib/errorHandler';
 import {
   Users,
@@ -55,7 +55,7 @@ interface RoleChange {
 
 export const RoleManagement: React.FC = () => {
   const { toast } = useToast();
-  const { user: currentUser, userRole } = useAuth();
+  const { user: currentUser, userRole } = useAuthContext();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');

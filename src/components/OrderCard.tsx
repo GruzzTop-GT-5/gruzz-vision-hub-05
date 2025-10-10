@@ -11,7 +11,7 @@ import { OrderDetailsModal } from '@/components/OrderDetailsModal';
 import { ReviewModal } from '@/components/ReviewModal';
 import { EditOrderModal } from '@/components/EditOrderModal';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Clock, 
@@ -71,7 +71,7 @@ interface OrderCardProps {
 }
 
 export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: OrderCardProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
   const [statusReason, setStatusReason] = useState('');

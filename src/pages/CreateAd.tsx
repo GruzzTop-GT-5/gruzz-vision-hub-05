@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +42,7 @@ interface Category {
 }
 
 export default function CreateAd() {
-  const { user, userRole, loading, signOut } = useAuth();
+  const { user, userRole, loading, signOut } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userBalance, setUserBalance] = useState<number | null>(null);

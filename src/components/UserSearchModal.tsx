@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Search, MessageSquare, Star } from 'lucide-react';
 
@@ -28,7 +28,7 @@ interface UserSearchModalProps {
 }
 
 export const UserSearchModal = ({ isOpen, onClose, onStartChat }: UserSearchModalProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<Profile[]>([]);

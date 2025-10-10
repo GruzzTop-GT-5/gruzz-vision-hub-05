@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { sanitizeInput, validateFileUpload } from '@/utils/security';
 import { 
@@ -69,7 +69,7 @@ interface ChatInterfaceProps {
 }
 
 export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);

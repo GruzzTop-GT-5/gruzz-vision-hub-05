@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Star } from 'lucide-react';
 
@@ -25,7 +25,7 @@ export const ReviewModal = ({
   reviewedUserName,
   onReviewSubmitted 
 }: ReviewModalProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
   
   const [rating, setRating] = useState(0);

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OrderBidsList } from '@/components/OrderBidsList';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Clock, 
@@ -100,7 +100,7 @@ export const OrderDetailsModal = ({
   executorProfile, 
   onUpdate 
 }: OrderDetailsModalProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
   
   const [files, setFiles] = useState<OrderFile[]>([]);

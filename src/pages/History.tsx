@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { AuthRequired } from '@/components/AuthRequired';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,7 +32,7 @@ interface Transaction {
 }
 
 const History = () => {
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuthContext();
   const { toast } = useToast();
   const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);

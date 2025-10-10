@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { sanitizeInput } from '@/utils/security';
 import { ChatInterface } from '@/components/ChatInterface';
@@ -84,7 +84,7 @@ const STATUS_COLORS = {
 };
 
 export const SupportSystem = () => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
   
   const [tickets, setTickets] = useState<SupportTicket[]>([]);

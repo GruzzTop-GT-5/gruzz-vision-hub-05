@@ -1,10 +1,10 @@
 import React from 'react';
 import { Layout } from '@/components/Layout';
 import { PlatformRules } from '@/components/PlatformRules';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 const Rules = () => {
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuthContext();
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>

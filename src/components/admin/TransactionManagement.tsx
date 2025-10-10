@@ -9,7 +9,7 @@ import { CreditCard, Search, Check, X, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { handleError } from '@/lib/errorHandler';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -35,7 +35,7 @@ export const TransactionManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { userRole } = useAuth();
+  const { userRole } = useAuthContext();
 
   const fetchTransactions = async () => {
     try {

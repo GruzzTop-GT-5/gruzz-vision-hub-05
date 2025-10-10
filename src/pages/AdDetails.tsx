@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, Calendar, MapPin, Clock } from "lucide-react";
 import { Layout } from "@/components/Layout";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import type { Database } from "@/integrations/supabase/types";
 
 type Ad = Database['public']['Tables']['ads']['Row'] & {
@@ -18,7 +18,7 @@ type Ad = Database['public']['Tables']['ads']['Row'] & {
 
 export default function AdDetails() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [ad, setAd] = useState<Ad | null>(null);
   const [loading, setLoading] = useState(true);
 

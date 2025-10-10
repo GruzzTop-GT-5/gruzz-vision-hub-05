@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StarRating } from '@/components/StarRating';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flag, User, Calendar } from 'lucide-react';
@@ -39,7 +39,7 @@ interface ReviewCardProps {
 }
 
 export const ReviewCard = ({ review, onReviewReported }: ReviewCardProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
   const [reportReason, setReportReason] = useState('');
   const [isReporting, setIsReporting] = useState(false);

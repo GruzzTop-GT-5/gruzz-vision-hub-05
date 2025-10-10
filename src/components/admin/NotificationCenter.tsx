@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 interface NotificationItem {
   id: string;
@@ -81,7 +81,7 @@ export const NotificationCenter = () => {
   });
 
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
 
   const notificationTypes = {
     info: { label: 'Информация', icon: Info, color: 'blue' },

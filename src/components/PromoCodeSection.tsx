@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Gift, Sparkles } from 'lucide-react';
 
 export const PromoCodeSection: React.FC = () => {
   const [promoCode, setPromoCode] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
 
   const activatePromoCode = async () => {
     if (!promoCode.trim()) {
