@@ -265,12 +265,11 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
           </div>
 
           {/* Date and Time Selection */}
-          <div className="space-y-4">
-            <Label>Дата и время (минимум на следующий день)</Label>
+          <div className="space-y-3">
+            <Label>Когда</Label>
             
-            {/* Date Picker */}
-            <div className="space-y-2">
-              <Label className="text-sm text-steel-400">Дата</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Date Picker */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -281,7 +280,7 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, "PPP", { locale: ru }) : <span>Выберите дату</span>}
+                    {selectedDate ? format(selectedDate, "dd.MM.yyyy", { locale: ru }) : <span>дд.мм.гггг</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -300,15 +299,12 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
                   />
                 </PopoverContent>
               </Popover>
-            </div>
 
-            {/* Time Selection */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-sm text-steel-400">Час</Label>
+              {/* Time Selection */}
+              <div className="flex gap-2">
                 <Select value={selectedHour} onValueChange={setSelectedHour}>
                   <SelectTrigger className="bg-steel-700/50">
-                    <SelectValue placeholder="Час" />
+                    <SelectValue placeholder="--" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px]">
                     {Array.from({ length: 24 }, (_, i) => {
@@ -321,13 +317,10 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
                     })}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm text-steel-400">Минуты</Label>
+                <span className="flex items-center text-steel-400">:</span>
                 <Select value={selectedMinute} onValueChange={setSelectedMinute}>
                   <SelectTrigger className="bg-steel-700/50">
-                    <SelectValue placeholder="Минуты" />
+                    <SelectValue placeholder="--" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px]">
                     {['00', '15', '30', '45'].map((minute) => (
