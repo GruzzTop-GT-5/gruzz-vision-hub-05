@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Truck, Phone, Calendar, Clock, MapPin, DollarSign, Wrench, MessageSquare } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { Truck, Phone, Calendar, Clock, MapPin, DollarSign, Wrench, MessageSquare, Send, ChevronDown, ChevronUp, User } from 'lucide-react';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 interface EquipmentOrder {
   id: string;
@@ -14,29 +17,40 @@ interface EquipmentOrder {
   created_at: string;
   last_message_at: string;
   status: string;
-  messages: Array<{
-    id: string;
-    content: string;
-    created_at: string;
-    sender_id: string;
-  }>;
   creator_profile: {
     display_name: string;
     phone: string;
     telegram_username: string;
+    role: string;
+  };
+}
+
+interface Message {
+  id: string;
+  content: string;
+  created_at: string;
+  sender_id: string;
+  sender_profile?: {
+    display_name: string;
+    role: string;
   };
 }
 
 export const EquipmentOrdersManagement: React.FC = () => {
   const [orders, setOrders] = useState<EquipmentOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { user, userRole } = useAuth();
 
   useEffect(() => {
     fetchEquipmentOrders();
 
-    // Подписываемся на изменения в conversations
     const channel = supabase
       .channel('equipment-orders-changes')
       .on(
@@ -58,37 +72,42 @@ export const EquipmentOrdersManagement: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedOrderId) {
+      fetchMessages(selectedOrderId);
+      subscribeToMessages(selectedOrderId);
+    }
+    return () => {
+      if (selectedOrderId) {
+        supabase.removeChannel(supabase.channel(`messages-${selectedOrderId}`));
+      }
+    };
+  }, [selectedOrderId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const fetchEquipmentOrders = async () => {
     try {
       setLoading(true);
 
-      // Получаем все conversations с title "Аренда компрессора"
       const { data: conversations, error } = await supabase
         .from('conversations')
-        .select(`
-          id,
-          title,
-          created_by,
-          created_at,
-          last_message_at,
-          status,
-          messages (
-            id,
-            content,
-            created_at,
-            sender_id
-          )
-        `)
+        .select('id, title, created_by, created_at, last_message_at, status')
         .eq('title', 'Аренда компрессора')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Получаем профили создателей
       const creatorIds = conversations?.map(c => c.created_by) || [];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, display_name, phone, telegram_username')
+        .select('id, display_name, phone, telegram_username, role')
         .in('id', creatorIds);
 
       const ordersWithProfiles = conversations?.map(conv => ({
@@ -96,7 +115,8 @@ export const EquipmentOrdersManagement: React.FC = () => {
         creator_profile: profiles?.find(p => p.id === conv.created_by) || {
           display_name: 'Неизвестный',
           phone: '',
-          telegram_username: ''
+          telegram_username: '',
+          role: 'user'
         }
       })) || [];
 
@@ -113,30 +133,195 @@ export const EquipmentOrdersManagement: React.FC = () => {
     }
   };
 
+  const fetchMessages = async (conversationId: string) => {
+    try {
+      const { data: messagesData, error } = await supabase
+        .from('messages')
+        .select('id, content, created_at, sender_id')
+        .eq('conversation_id', conversationId)
+        .eq('is_deleted', false)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Получаем профили отправителей
+      const senderIds = [...new Set(messagesData?.map(m => m.sender_id) || [])];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, display_name, role')
+        .in('id', senderIds);
+
+      const messagesWithProfiles = messagesData?.map(msg => ({
+        ...msg,
+        sender_profile: profiles?.find(p => p.id === msg.sender_id) || {
+          display_name: 'Система',
+          role: 'system'
+        }
+      })) || [];
+
+      setMessages(messagesWithProfiles);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
+
+  const subscribeToMessages = (conversationId: string) => {
+    const channel = supabase
+      .channel(`messages-${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        async (payload) => {
+          const newMsg = payload.new as Message;
+          
+          // Получаем профиль отправителя
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, role')
+            .eq('id', newMsg.sender_id)
+            .single();
+
+          setMessages(prev => [...prev, {
+            ...newMsg,
+            sender_profile: profile || { display_name: 'Система', role: 'system' }
+          }]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleSendMessage = async (conversationId: string) => {
+    if (!newMessage.trim() || isSending) return;
+
+    setIsSending(true);
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: user?.id,
+          content: newMessage,
+          message_type: 'text'
+        });
+
+      if (error) throw error;
+
+      setNewMessage('');
+      toast({
+        title: 'Сообщение отправлено',
+        description: 'Пользователь получит уведомление'
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось отправить сообщение',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const toggleOrderExpanded = (orderId: string) => {
+    const newExpanded = new Set(expandedOrders);
+    if (newExpanded.has(orderId)) {
+      newExpanded.delete(orderId);
+      if (selectedOrderId === orderId) {
+        setSelectedOrderId(null);
+      }
+    } else {
+      newExpanded.add(orderId);
+      setSelectedOrderId(orderId);
+    }
+    setExpandedOrders(newExpanded);
+  };
+
   const extractOrderDetails = (content: string) => {
     const details: any = {};
-    
-    // Извлекаем дату и время
     const dateMatch = content.match(/На какое время: (.+)/);
     if (dateMatch) details.datetime = dateMatch[1];
-    
-    // Извлекаем время аренды
     const hoursMatch = content.match(/Время аренды: (\d+) ч/);
     if (hoursMatch) details.hours = hoursMatch[1];
-    
-    // Извлекаем локацию
     const locationMatch = content.match(/Локация: (.+)/);
     if (locationMatch) details.location = locationMatch[1];
-    
-    // Извлекаем стоимость
     const priceMatch = content.match(/Итого к оплате: ([\d\s]+) ₽/);
     if (priceMatch) details.price = priceMatch[1];
-    
-    // Извлекаем тип оплаты
     const paymentMatch = content.match(/Тип оплаты: (.+)/);
     if (paymentMatch) details.paymentType = paymentMatch[1];
-    
     return details;
+  };
+
+  const renderMessage = (message: Message, orderCreatorId: string) => {
+    // Сообщения от пользователя (заказчика) - справа
+    const isUserMessage = message.sender_id === orderCreatorId;
+    // Сообщения от системы/администрации - слева
+    const isSystemOrAdmin = !isUserMessage;
+
+    // Извлекаем детали если это структурированное сообщение
+    const details = message.content.includes('Контакты для аренды') 
+      ? extractOrderDetails(message.content) 
+      : null;
+
+    return (
+      <div
+        key={message.id}
+        className={`flex ${isUserMessage ? 'justify-end' : 'justify-start'} mb-3`}
+      >
+        <div className={`max-w-[75%] ${isUserMessage ? 'order-1' : 'order-2'}`}>
+          <div className="flex items-end gap-2 mb-1">
+            {isSystemOrAdmin && (
+              <Badge variant="outline" className="text-xs">
+                {message.sender_profile?.role === 'system_admin' ? 'Администрация' : 
+                 message.sender_profile?.role === 'admin' ? 'Админ' :
+                 message.sender_profile?.role === 'support' ? 'Поддержка' : 'Система'}
+              </Badge>
+            )}
+            <span className="text-xs text-steel-400">
+              {format(new Date(message.created_at), 'HH:mm', { locale: ru })}
+            </span>
+          </div>
+
+          <div
+            className={`rounded-xl p-3 shadow-md ${
+              isUserMessage
+                ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground'
+                : 'bg-gradient-to-br from-steel-700 to-steel-800 text-steel-50 border border-steel-600'
+            }`}
+          >
+            {details ? (
+              <div className="space-y-2 text-sm">
+                <p className="font-semibold mb-2">📞 Контакты для аренды компрессора</p>
+                {details.datetime && <p>🕐 На какое время: <strong>{details.datetime}</strong></p>}
+                {details.hours && <p>⏱ Время аренды: <strong>{details.hours} ч</strong></p>}
+                {details.location && <p>📍 Локация: <strong>{details.location}</strong></p>}
+                {details.price && <p>💰 Итого: <strong>{details.price} ₽</strong></p>}
+                {details.paymentType && <p>💳 Оплата: <strong>{details.paymentType}</strong></p>}
+              </div>
+            ) : (
+              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                {message.content}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {isUserMessage && (
+          <div className="w-8 h-8 ml-2 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <User className="w-4 h-4 text-primary" />
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (loading) {
@@ -148,7 +333,7 @@ export const EquipmentOrdersManagement: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-steel-100">Заказы спецтехники</h2>
@@ -167,105 +352,93 @@ export const EquipmentOrdersManagement: React.FC = () => {
           <p className="text-steel-400">Нет заказов спецтехники</p>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="space-y-4">
           {orders.map((order) => {
-            const lastMessage = order.messages?.[0];
-            const details = lastMessage ? extractOrderDetails(lastMessage.content) : {};
+            const isExpanded = expandedOrders.has(order.id);
+            const firstMessage = messages.find(m => m.content.includes('Контакты для аренды'));
+            const details = firstMessage ? extractOrderDetails(firstMessage.content) : {};
 
             return (
-              <Card key={order.id} className="card-steel p-6 hover:border-primary/30 transition-colors">
-                <div className="space-y-4">
-                  {/* Заголовок */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
-                        <Truck className="w-6 h-6 text-primary" />
+              <Card key={order.id} className="card-steel overflow-hidden">
+                {/* Header */}
+                <div 
+                  className="p-4 cursor-pointer hover:bg-steel-700/20 transition-colors"
+                  onClick={() => toggleOrderExpanded(order.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <Truck className="w-5 h-5 text-primary" />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-steel-100">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-semibold text-steel-100 truncate">
                           {order.title}
                         </h3>
-                        <p className="text-sm text-steel-400">
-                          Создан: {new Date(order.created_at).toLocaleString('ru-RU')}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant={order.status === 'active' ? 'default' : 'secondary'}>
-                      {order.status === 'active' ? 'Активен' : 'Неактивен'}
-                    </Badge>
-                  </div>
-
-                  {/* Информация о заказчике */}
-                  <div className="bg-steel-700/30 rounded-lg p-4 space-y-2">
-                    <h4 className="text-sm font-semibold text-steel-200 mb-2">Заказчик:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                      <div className="flex items-center gap-2 text-steel-300">
-                        <Phone className="w-4 h-4 text-primary" />
-                        <span>{order.creator_profile.phone || 'Не указан'}</span>
-                      </div>
-                      {order.creator_profile.telegram_username && (
-                        <div className="flex items-center gap-2 text-steel-300">
-                          <MessageSquare className="w-4 h-4 text-primary" />
-                          <span>@{order.creator_profile.telegram_username}</span>
+                        <div className="flex items-center gap-3 text-xs text-steel-400 mt-1">
+                          <span>{order.creator_profile.display_name || 'Без имени'}</span>
+                          {order.creator_profile.phone && (
+                            <span className="flex items-center gap-1">
+                              <Phone className="w-3 h-3" />
+                              {order.creator_profile.phone}
+                            </span>
+                          )}
+                          {details.datetime && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {details.datetime}
+                            </span>
+                          )}
                         </div>
-                      )}
-                      <div className="flex items-center gap-2 text-steel-300">
-                        <span className="font-medium">{order.creator_profile.display_name || 'Без имени'}</span>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Детали заказа */}
-                  {Object.keys(details).length > 0 && (
-                    <div className="bg-steel-700/30 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-steel-200 mb-3">Детали заказа:</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
-                        {details.datetime && (
-                          <div className="flex items-center gap-2 text-steel-300">
-                            <Calendar className="w-4 h-4 text-primary" />
-                            <span>{details.datetime}</span>
-                          </div>
-                        )}
-                        {details.hours && (
-                          <div className="flex items-center gap-2 text-steel-300">
-                            <Clock className="w-4 h-4 text-primary" />
-                            <span>{details.hours} часов</span>
-                          </div>
-                        )}
-                        {details.location && (
-                          <div className="flex items-center gap-2 text-steel-300">
-                            <MapPin className="w-4 h-4 text-primary" />
-                            <span>{details.location}</span>
-                          </div>
-                        )}
-                        {details.price && (
-                          <div className="flex items-center gap-2 text-steel-300">
-                            <DollarSign className="w-4 h-4 text-primary" />
-                            <span>{details.price} ₽</span>
-                          </div>
-                        )}
-                        {details.paymentType && (
-                          <div className="flex items-center gap-2 text-steel-300">
-                            <Wrench className="w-4 h-4 text-primary" />
-                            <span>{details.paymentType}</span>
-                          </div>
-                        )}
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={order.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                        {order.status === 'active' ? 'Активен' : 'Неактивен'}
+                      </Badge>
+                      {isExpanded ? <ChevronUp className="w-5 h-5 text-steel-400" /> : <ChevronDown className="w-5 h-5 text-steel-400" />}
                     </div>
-                  )}
-
-                  {/* Кнопка для перехода в чат */}
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={() => navigate('/chat-system')}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      Открыть чат
-                    </Button>
                   </div>
                 </div>
+
+                {/* Expanded content with chat */}
+                {isExpanded && selectedOrderId === order.id && (
+                  <div className="border-t border-steel-600">
+                    {/* Messages area */}
+                    <div className="h-96 overflow-y-auto p-4 bg-steel-900/20">
+                      {messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-steel-400">
+                          <p>Нет сообщений</p>
+                        </div>
+                      ) : (
+                        <>
+                          {messages.map(msg => renderMessage(msg, order.created_by))}
+                          <div ref={messagesEndRef} />
+                        </>
+                      )}
+                    </div>
+
+                    {/* Input area */}
+                    <div className="p-4 border-t border-steel-600 bg-steel-800/30">
+                      <div className="flex gap-2">
+                        <Input
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage(order.id)}
+                          placeholder="Написать сообщение..."
+                          className="flex-1"
+                          disabled={isSending}
+                        />
+                        <Button
+                          onClick={() => handleSendMessage(order.id)}
+                          disabled={isSending || !newMessage.trim()}
+                          size="icon"
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </Card>
             );
           })}
