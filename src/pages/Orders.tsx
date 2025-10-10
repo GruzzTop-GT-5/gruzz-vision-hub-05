@@ -98,17 +98,7 @@ export default function Orders() {
       // Получаем заказы пользователя (где он клиент)
       const { data: ordersData, error } = await supabase
         .from('orders')
-        .select(`
-          *,
-          profiles!orders_client_id_fkey (
-            display_name,
-            full_name,
-            avatar_url,
-            telegram_photo_url,
-            role,
-            rating
-          )
-        `)
+        .select('*')
         .eq('client_id', user.id)
         .order('created_at', { ascending: false });
 
