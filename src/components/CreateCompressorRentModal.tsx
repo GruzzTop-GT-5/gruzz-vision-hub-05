@@ -42,22 +42,25 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   const [minDatetime, setMinDatetime] = useState('');
   const [hoursError, setHoursError] = useState(false);
 
-  // Set minimum datetime (tomorrow) and reset on open
+  // Set minimum datetime only once when modal opens
   useEffect(() => {
-    if (open) {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      
-      const year = tomorrow.getFullYear();
-      const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-      const day = String(tomorrow.getDate()).padStart(2, '0');
-      const hours = String(tomorrow.getHours()).padStart(2, '0');
-      const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
-      
-      setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
-      
-      // Reset all fields when modal opens
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const hours = String(tomorrow.getHours()).padStart(2, '0');
+    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+    
+    setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
+  }, []);
+
+  // Reset fields only when modal closes successfully
+  useEffect(() => {
+    if (!open) {
+      // Reset all fields when modal closes
       setHours(7);
       setLocation('city');
       setEquipment([]);
