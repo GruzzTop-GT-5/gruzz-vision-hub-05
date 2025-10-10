@@ -108,37 +108,14 @@ export default function ChatSystem() {
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(200); // Загружаем больше для правильной группировки
+        .limit(100);
 
       if (error) throw error;
       
       const notificationsList = data || [];
       
-      // Группируем по conversation_id, оставляя только последнее уведомление
-      const groupedNotifications = notificationsList.reduce((acc, notification) => {
-        const key = notification.conversation_id || notification.id;
-        
-        if (!acc[key]) {
-          acc[key] = notification;
-        } else {
-          // Если это уведомление новее, заменяем
-          if (new Date(notification.created_at) > new Date(acc[key].created_at)) {
-            acc[key] = notification;
-          }
-          // Суммируем непрочитанные
-          if (!notification.is_read && acc[key].is_read) {
-            acc[key] = { ...notification };
-          }
-        }
-        
-        return acc;
-      }, {} as Record<string, Notification>);
-      
-      const groupedList = Object.values(groupedNotifications)
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 50); // Показываем только 50 последних групп
-      
-      setNotifications(groupedList);
+      // Показываем все уведомления без группировки
+      setNotifications(notificationsList);
       setUnreadCount(notificationsList.filter(n => !n.is_read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -161,19 +138,8 @@ export default function ChatSystem() {
         (payload) => {
           const newNotification = payload.new as Notification;
           
-          // Обновляем список уведомлений с группировкой
-          setNotifications(prev => {
-            const key = newNotification.conversation_id || newNotification.id;
-            
-            // Удаляем старые уведомления из той же группы
-            const filtered = prev.filter(n => 
-              (n.conversation_id || n.id) !== key
-            );
-            
-            // Добавляем новое уведомление в начало
-            return [newNotification, ...filtered];
-          });
-          
+          // Добавляем новое уведомление в начало списка
+          setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
           // Show toast notification
@@ -191,9 +157,19 @@ export default function ChatSystem() {
           table: 'notifications',
           filter: `user_id=eq.${user.id}`
         },
-        () => {
-          // Перезагружаем все уведомления при обновлении
-          fetchNotifications();
+        (payload) => {
+          const updatedNotification = payload.new as Notification;
+          
+          // Обновляем уведомление в списке
+          setNotifications(prev =>
+            prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
+          );
+          
+          // Пересчитываем непрочитанные
+          setNotifications(current => {
+            setUnreadCount(current.filter(n => !n.is_read).length);
+            return current;
+          });
         }
       )
       .subscribe();
