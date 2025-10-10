@@ -42,32 +42,20 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   const [minDatetime, setMinDatetime] = useState('');
   const [hoursError, setHoursError] = useState(false);
 
-  // Set minimum datetime only once when modal opens
+  // Set minimum datetime when modal opens
   useEffect(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const day = String(tomorrow.getDate()).padStart(2, '0');
-    const hours = String(tomorrow.getHours()).padStart(2, '0');
-    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
-    
-    setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
-  }, []);
-
-  // Reset fields only when modal closes successfully
-  useEffect(() => {
-    if (!open) {
-      // Reset all fields when modal closes
-      setHours(7);
-      setLocation('city');
-      setEquipment([]);
-      setPaymentType('cash');
-      setDatetime('');
-      setTotalHours(8);
-      setHoursError(false);
+    if (open) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      const year = tomorrow.getFullYear();
+      const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const day = String(tomorrow.getDate()).padStart(2, '0');
+      const hours = String(tomorrow.getHours()).padStart(2, '0');
+      const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+      
+      setMinDatetime(`${year}-${month}-${day}T${hours}:${minutes}`);
     }
   }, [open]);
 
@@ -115,6 +103,17 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
 
     onConfirm(data);
     onOpenChange(false);
+    
+    // Reset fields after modal closes
+    setTimeout(() => {
+      setHours(7);
+      setLocation('city');
+      setEquipment([]);
+      setPaymentType('cash');
+      setDatetime('');
+      setTotalHours(8);
+      setHoursError(false);
+    }, 300);
   };
 
   return (
