@@ -401,7 +401,10 @@ export default function CreateOrder() {
                           />
                         </FormControl>
                         <p className="text-xs text-steel-400 mt-1">
-                          {form.watch('category')?.toLowerCase().includes('грузчик') ? 'Минимум 1 час' : 'Минимум 4 часа'}
+                          {(form.watch('category')?.toLowerCase().includes('грузчик') || 
+                            form.watch('category')?.toLowerCase().includes('разнорабочи'))
+                            ? 'Для грузчиков и разнорабочих: минимум 1 час' 
+                            : 'Минимум 4 часа'}
                         </p>
                         <FormMessage />
                       </FormItem>
@@ -536,7 +539,7 @@ export default function CreateOrder() {
 
                 {/* Total Cost Display */}
                 <Card className="card-steel p-4 border-primary/30">
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <h4 className="text-sm font-semibold text-steel-200">Итоговая стоимость работы:</h4>
                     <div className="space-y-1 text-sm text-steel-300">
                       <p className="flex justify-between">
@@ -553,10 +556,16 @@ export default function CreateOrder() {
                       </p>
                       <Separator className="my-2" />
                       <p className="flex justify-between text-lg">
-                        <span className="text-steel-100">ИТОГО к оплате:</span>
+                        <span className="text-steel-100">ИТОГО к оплате исполнителю:</span>
                         <span className="font-bold text-primary">
                           {(Number(form.watch('hourly_rate') || 0) * Number(form.watch('work_hours') || 0) * Number(form.watch('people_needed') || 0)).toLocaleString('ru-RU')}₽
                         </span>
+                      </p>
+                    </div>
+                    <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                      <p className="text-xs text-orange-200 leading-relaxed">
+                        ⚠️ <strong>Важно:</strong> Оплата исполнителям производится НАПРЯМУЮ на объекте после выполнения работы. 
+                        Платформа не участвует в финансовых расчетах между заказчиком и исполнителем.
                       </p>
                     </div>
                   </div>

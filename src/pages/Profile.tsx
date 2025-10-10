@@ -35,7 +35,7 @@ interface ProfileData {
 }
 
 const Profile = () => {
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole, userType, userSubtype, signOut } = useAuth();
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState<ProfileData>({});
   const [isEditing, setIsEditing] = useState(false);
@@ -487,19 +487,53 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-steel-400 text-sm">Специализация</Label>
-                    {isEditing ? (
-                      <Input
-                        value={profileData.qualification || ''}
-                        onChange={(e) => handleInputChange('qualification', e.target.value)}
-                        className="bg-steel-700 border-steel-600 text-steel-100"
-                        placeholder="Введите вашу специализацию"
-                      />
-                    ) : (
-                      <p className="text-steel-100">{profileData.qualification || 'Не указана'}</p>
-                    )}
-                  </div>
+                   <div className="space-y-2">
+                     <Label className="text-steel-400 text-sm">Тип профиля</Label>
+                     <div className="flex items-center gap-2">
+                       {userType === 'executor' ? (
+                         <Badge className="bg-primary/20 text-primary border-primary/30">
+                           Исполнитель
+                         </Badge>
+                       ) : userType === 'client' ? (
+                         <Badge className="bg-electric-500/20 text-electric-400 border-electric-500/30">
+                           Заказчик
+                         </Badge>
+                       ) : (
+                         <span className="text-steel-400 text-sm">Не выбрано</span>
+                       )}
+                     </div>
+                   </div>
+
+                   <div className="space-y-2">
+                     <Label className="text-steel-400 text-sm">Роль</Label>
+                     <p className="text-steel-100">
+                       {userSubtype ? (
+                         userSubtype === 'loader' ? 'Грузчик' :
+                         userSubtype === 'cleaner' ? 'Уборщик' :
+                         userSubtype === 'handyman' ? 'Разнорабочий' :
+                         userSubtype === 'builder' ? 'Строитель' :
+                         userSubtype === 'logistician' ? 'Логист' :
+                         userSubtype === 'client' ? 'Заказчик' :
+                         userSubtype === 'foreman' ? 'Прораб' :
+                         userSubtype === 'manager' ? 'Менеджер' :
+                         userSubtype
+                       ) : 'Не выбрана'}
+                     </p>
+                   </div>
+
+                   <div className="space-y-2">
+                     <Label className="text-steel-400 text-sm">Специализация</Label>
+                     {isEditing ? (
+                       <Input
+                         value={profileData.qualification || ''}
+                         onChange={(e) => handleInputChange('qualification', e.target.value)}
+                         className="bg-steel-700 border-steel-600 text-steel-100"
+                         placeholder="Введите вашу специализацию"
+                       />
+                     ) : (
+                       <p className="text-steel-100">{profileData.qualification || 'Не указана'}</p>
+                     )}
+                   </div>
 
                   <div className="space-y-2">
                     <Label className="text-steel-400 text-sm">О себе</Label>
