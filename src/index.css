@@ -425,6 +425,47 @@
       hsl(var(--primary)) 80%, 
       transparent);
   }
+
+  /* Card steel menu (glow hover only, no scale/transform) */
+  .card-steel-menu {
+    @apply relative overflow-hidden;
+    background: var(--gradient-steel);
+    box-shadow: var(--shadow-steel);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  
+  .card-steel-menu:hover {
+    box-shadow: var(--shadow-glow), var(--shadow-steel);
+  }
+  
+  /* Top highlight for menu */
+  .card-steel-menu::before {
+    @apply absolute top-0 left-0 w-full h-0.5 opacity-50;
+    content: '';
+    background: linear-gradient(90deg, 
+      transparent, 
+      hsl(var(--primary)) 20%, 
+      hsl(var(--primary)) 80%, 
+      transparent);
+  }
+  
+  /* Hover glow overlay for menu */
+  .card-steel-menu::after {
+    @apply absolute inset-0 opacity-0 transition-all duration-700;
+    content: '';
+    background: linear-gradient(135deg, 
+      transparent 30%, 
+      hsl(var(--primary), 0.08) 50%, 
+      transparent 70%);
+    pointer-events: none;
+  }
+  
+  .card-steel-menu:hover::after {
+    @apply opacity-100;
+  }
 }
 
 /* Enhanced Animations */

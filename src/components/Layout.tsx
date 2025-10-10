@@ -122,7 +122,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
 
       {/* Slide-down Menu */}
       <div
-        className={`fixed top-0 right-0 z-40 w-80 max-w-full h-screen card-steel-dialog transition-transform duration-300 overflow-y-auto ${
+        className={`fixed top-0 right-0 z-40 w-80 max-w-full h-screen card-steel-menu transition-transform duration-300 overflow-y-auto ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
