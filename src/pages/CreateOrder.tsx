@@ -23,6 +23,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { CreateCompressorRentModal } from '@/components/CreateCompressorRentModal';
+import { DateTimeField } from '@/components/DateTimeField';
 
 interface Category {
   id: string;
@@ -555,108 +556,16 @@ export default function CreateOrder() {
                   <FormField
                     control={form.control}
                     name="start_datetime"
-                    render={({ field }) => {
-                      const currentDate = field.value ? new Date(field.value) : null;
-                      const currentHour = currentDate ? currentDate.getHours().toString().padStart(2, '0') : '09';
-                      const currentMinute = currentDate ? currentDate.getMinutes().toString().padStart(2, '0') : '00';
-                      
-                      const handleDateChange = (date: Date | undefined) => {
-                        if (date) {
-                          const newDate = new Date(date);
-                          // Use current time values or defaults
-                          const hour = currentDate ? currentDate.getHours() : 9;
-                          const minute = currentDate ? currentDate.getMinutes() : 0;
-                          newDate.setHours(hour, minute, 0, 0);
-                          field.onChange(newDate.toISOString().slice(0, 16));
-                        }
-                      };
-                      
-                      const handleHourChange = (hour: string) => {
-                        // Create date if it doesn't exist
-                        const dateToUse = currentDate || new Date();
-                        const newDate = new Date(dateToUse);
-                        newDate.setHours(parseInt(hour), parseInt(currentMinute), 0, 0);
-                        field.onChange(newDate.toISOString().slice(0, 16));
-                      };
-                      
-                      const handleMinuteChange = (minute: string) => {
-                        // Create date if it doesn't exist
-                        const dateToUse = currentDate || new Date();
-                        const newDate = new Date(dateToUse);
-                        newDate.setHours(parseInt(currentHour), parseInt(minute), 0, 0);
-                        field.onChange(newDate.toISOString().slice(0, 16));
-                      };
-                      
-                      return (
-                        <FormItem className="flex flex-col">
-                          <FormLabel className="text-steel-100">🕐 На какое время</FormLabel>
-                          <div className="grid grid-cols-2 gap-2">
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    className={`justify-start text-left font-normal bg-steel-700/50 ${
-                                      !currentDate && "text-muted-foreground"
-                                    }`}
-                                  >
-                                    {currentDate ? format(currentDate, "dd.MM.yyyy", { locale: ru }) : <span>дд.мм.гггг</span>}
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <CalendarComponent
-                                  mode="single"
-                                  selected={currentDate || undefined}
-                                  onSelect={handleDateChange}
-                                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                  initialFocus
-                                  className="p-3 pointer-events-auto"
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            
-                            <div className="flex gap-1">
-                              <Select 
-                                value={currentHour} 
-                                onValueChange={handleHourChange}
-                              >
-                                <SelectTrigger className="bg-steel-700/50">
-                                  <SelectValue placeholder="--" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                  {Array.from({ length: 24 }, (_, i) => {
-                                    const hour = i.toString().padStart(2, '0');
-                                    return (
-                                      <SelectItem key={hour} value={hour}>
-                                        {hour}
-                                      </SelectItem>
-                                    );
-                                  })}
-                                </SelectContent>
-                              </Select>
-                              <span className="flex items-center text-steel-400">:</span>
-                              <Select 
-                                value={currentMinute} 
-                                onValueChange={handleMinuteChange}
-                              >
-                                <SelectTrigger className="bg-steel-700/50">
-                                  <SelectValue placeholder="--" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                  {['00', '15', '30', '45'].map((minute) => (
-                                    <SelectItem key={minute} value={minute}>
-                                      {minute}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="text-steel-100">🕐 На какое время</FormLabel>
+                        <DateTimeField 
+                          value={field.value} 
+                          onChange={field.onChange}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
 
                   <FormField
