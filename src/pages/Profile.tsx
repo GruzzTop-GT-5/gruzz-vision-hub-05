@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { User, Edit, Star, MapPin, Calendar, Briefcase, Phone, Save, Check, X, Camera, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -410,12 +411,33 @@ const Profile = () => {
                     <div className="space-y-2">
                       <Label className="text-steel-400 text-sm">Гражданство</Label>
                       {isEditing ? (
-                        <Input
+                        <Select
                           value={profileData.citizenship || ''}
-                          onChange={(e) => handleInputChange('citizenship', e.target.value)}
-                          className="bg-steel-700 border-steel-600 text-steel-100"
-                          placeholder="Введите гражданство"
-                        />
+                          onValueChange={(value) => handleInputChange('citizenship', value)}
+                        >
+                          <SelectTrigger className="bg-steel-700 border-steel-600 text-steel-100">
+                            <SelectValue placeholder="Выберите страну" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-steel-800 border-steel-600 text-steel-100">
+                            <SelectItem value="Россия">🇷🇺 Россия</SelectItem>
+                            <SelectItem value="Казахстан">🇰🇿 Казахстан</SelectItem>
+                            <SelectItem value="Узбекистан">🇺🇿 Узбекистан</SelectItem>
+                            <SelectItem value="Кыргызстан">🇰🇬 Кыргызстан</SelectItem>
+                            <SelectItem value="Таджикистан">🇹🇯 Таджикистан</SelectItem>
+                            <SelectItem value="Беларусь">🇧🇾 Беларусь</SelectItem>
+                            <SelectItem value="Украина">🇺🇦 Украина</SelectItem>
+                            <SelectItem value="Азербайджан">🇦🇿 Азербайджан</SelectItem>
+                            <SelectItem value="Армения">🇦🇲 Армения</SelectItem>
+                            <SelectItem value="Грузия">🇬🇪 Грузия</SelectItem>
+                            <SelectItem value="Молдова">🇲🇩 Молдова</SelectItem>
+                            <SelectItem value="Туркменистан">🇹🇲 Туркменистан</SelectItem>
+                            <SelectItem value="Турция">🇹🇷 Турция</SelectItem>
+                            <SelectItem value="Польша">🇵🇱 Польша</SelectItem>
+                            <SelectItem value="Германия">🇩🇪 Германия</SelectItem>
+                            <SelectItem value="США">🇺🇸 США</SelectItem>
+                            <SelectItem value="Другое">🌍 Другое</SelectItem>
+                          </SelectContent>
+                        </Select>
                       ) : (
                         <p className="text-steel-100">{profileData.citizenship || 'Не указано'}</p>
                       )}
