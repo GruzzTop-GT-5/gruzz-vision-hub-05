@@ -471,16 +471,18 @@ export default function ChatSystem() {
                         }
                       }}
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1 flex-1 min-w-0">
                           <div className="flex items-center space-x-2">
-                            <h3 className="font-medium text-steel-100">{notification.title}</h3>
+                            <h3 className="font-medium text-steel-100 truncate">{notification.title}</h3>
                             {!notification.is_read && (
-                              <div className="w-2 h-2 bg-primary rounded-full"></div>
+                              <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
                             )}
                           </div>
                           {notification.content && (
-                            <p className="text-steel-300 text-sm">{notification.content}</p>
+                            <p className="text-steel-300 text-sm line-clamp-2">
+                              {notification.content}
+                            </p>
                           )}
                           <p className="text-xs text-steel-400">
                             {format(new Date(notification.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
