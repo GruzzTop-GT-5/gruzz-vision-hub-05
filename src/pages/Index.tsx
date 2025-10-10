@@ -200,15 +200,15 @@ const Index = () => {
             {/* Price Info Card */}
             <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
               <div className="p-6 text-center">
-                <h3 className="text-2xl font-bold text-foreground mb-2">Стоимость размещения</h3>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-4xl font-bold text-primary">1 GT</span>
-                  <span className="text-2xl text-muted-foreground">=</span>
-                  <span className="text-4xl font-bold text-primary">1 ₽</span>
-                </div>
-                <p className="text-muted-foreground text-sm">
-                  GT Coins — внутренняя валюта платформы для размещения заказов
+                <h3 className="text-2xl font-bold text-foreground mb-3">Стоимость размещения</h3>
+                <p className="text-lg text-foreground font-semibold mb-4">
+                  Фиксированная стоимость, установленная платформой
                 </p>
+                <div className="flex items-center justify-center gap-2 py-3 px-6 bg-background/50 rounded-lg inline-flex">
+                  <span className="text-2xl font-bold text-primary">1 GT</span>
+                  <span className="text-xl text-muted-foreground">=</span>
+                  <span className="text-2xl font-bold text-primary">1 рубль</span>
+                </div>
               </div>
             </Card>
 
