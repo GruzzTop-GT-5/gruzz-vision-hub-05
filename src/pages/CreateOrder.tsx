@@ -220,7 +220,7 @@ export default function CreateOrder() {
           price: totalPrice,
           priority: data.priority,
           deadline: data.deadline ? data.deadline.toISOString() : null,
-          start_time: data.start_datetime ? new Date(data.start_datetime).toISOString() : null,
+          start_time: data.start_datetime ? new Date(data.start_datetime).toTimeString().split(' ')[0] : null,
           people_needed: Number(data.people_needed) || 1,
           people_accepted: 0,
           client_id: user.id,
