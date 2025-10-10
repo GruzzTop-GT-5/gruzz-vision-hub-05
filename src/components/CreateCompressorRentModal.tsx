@@ -29,6 +29,7 @@ interface CreateCompressorRentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (data: CompressorRentData) => void;
+  initialData?: CompressorRentData | null;
 }
 
 const EQUIPMENT_OPTIONS = [
@@ -37,7 +38,7 @@ const EQUIPMENT_OPTIONS = [
   { id: 'pressure_hose', label: 'Шланг для опрессовки разных труб' }
 ];
 
-export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: CreateCompressorRentModalProps) {
+export function CreateCompressorRentModal({ open, onOpenChange, onConfirm, initialData }: CreateCompressorRentModalProps) {
   const [hours, setHours] = useState(7);
   const [location, setLocation] = useState<'city' | 'suburb' | 'far'>('city');
   const [equipment, setEquipment] = useState<string[]>([]);
@@ -49,14 +50,29 @@ export function CreateCompressorRentModal({ open, onOpenChange, onConfirm }: Cre
   const [totalPrice, setTotalPrice] = useState(12000);
   const [hoursError, setHoursError] = useState(false);
 
-  // Set default date to tomorrow when modal opens
+  // Restore from initialData when modal opens
   useEffect(() => {
-    if (open && !selectedDate) {
+    if (open && initialData) {
+      setHours(initialData.hours);
+      setLocation(initialData.location);
+      setEquipment(initialData.equipment);
+      setPaymentType(initialData.paymentType);
+      setTotalHours(initialData.totalHours);
+      setTotalPrice(initialData.totalPrice);
+      
+      if (initialData.datetime) {
+        const date = new Date(initialData.datetime);
+        setSelectedDate(date);
+        setSelectedHour(date.getHours().toString().padStart(2, '0'));
+        setSelectedMinute(date.getMinutes().toString().padStart(2, '0'));
+      }
+    } else if (open && !initialData) {
+      // Set defaults only if no initialData
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       setSelectedDate(tomorrow);
     }
-  }, [open]);
+  }, [open, initialData]);
 
   // Calculate total hours based on base hours and location
   useEffect(() => {

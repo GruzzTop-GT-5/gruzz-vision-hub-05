@@ -777,6 +777,7 @@ export default function CreateOrder() {
       <CreateCompressorRentModal
         open={showCompressorModal}
         onOpenChange={setShowCompressorModal}
+        initialData={compressorData}
         onConfirm={(data) => {
           setCompressorData(data);
           form.setValue('compressor_rent', true);
