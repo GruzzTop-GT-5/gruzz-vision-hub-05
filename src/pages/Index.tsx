@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
 import { AuthForm } from '@/components/AuthForm';
+import { RoleSelection } from '@/components/RoleSelection';
 import { LegalFooter } from '@/components/LegalFooter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { CreateOrderModal } from '@/components/CreateOrderModal';
 
 const Index = () => {
-  const { user, userRole, loading, signOut } = useAuth();
+  const { user, userRole, needsRoleSelection, loading, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showCreateOrder, setShowCreateOrder] = useState(false);
@@ -269,6 +270,17 @@ const Index = () => {
         onClose={() => setShowCreateOrder(false)}
         onOrderCreated={() => setShowCreateOrder(false)}
       />
+
+      {/* Role Selection Modal */}
+      {user && needsRoleSelection && (
+        <RoleSelection
+          isOpen={needsRoleSelection}
+          onComplete={() => {
+            // Reload user data after role selection
+            window.location.reload();
+          }}
+        />
+      )}
     </Layout>
   );
 };

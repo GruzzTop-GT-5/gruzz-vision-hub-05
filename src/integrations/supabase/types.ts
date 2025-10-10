@@ -740,6 +740,8 @@ export type Database = {
           telegram_id: number | null
           telegram_photo_url: string | null
           telegram_username: string | null
+          user_subtype: string | null
+          user_type: Database["public"]["Enums"]["user_type"] | null
         }
         Insert: {
           age?: number | null
@@ -759,6 +761,8 @@ export type Database = {
           telegram_id?: number | null
           telegram_photo_url?: string | null
           telegram_username?: string | null
+          user_subtype?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
         }
         Update: {
           age?: number | null
@@ -778,6 +782,8 @@ export type Database = {
           telegram_id?: number | null
           telegram_photo_url?: string | null
           telegram_username?: string | null
+          user_subtype?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
         }
         Relationships: []
       }
@@ -1436,6 +1442,7 @@ export type Database = {
       transaction_status: "pending" | "completed" | "rejected"
       transaction_type: "deposit" | "withdrawal" | "payment" | "purchase"
       user_role: "user" | "system_admin" | "admin" | "moderator" | "support"
+      user_type: "executor" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1569,6 +1576,7 @@ export const Constants = {
       transaction_status: ["pending", "completed", "rejected"],
       transaction_type: ["deposit", "withdrawal", "payment", "purchase"],
       user_role: ["user", "system_admin", "admin", "moderator", "support"],
+      user_type: ["executor", "client"],
     },
   },
 } as const

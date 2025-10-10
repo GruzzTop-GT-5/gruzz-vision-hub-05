@@ -8,6 +8,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { BackButton } from '@/components/BackButton';
 import { TelegramAuthForm } from './TelegramAuthForm';
 import { TermsAcceptance } from './TermsAcceptance';
+import { RoleSelection } from './RoleSelection';
 import { useTelegram } from '@/hooks/useTelegram';
 
 interface AuthFormProps {
@@ -37,6 +38,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   const { toast } = useToast();
   const { isInTelegram } = useTelegram();
   const [showTermsAcceptance, setShowTermsAcceptance] = useState(false);
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [pendingSignup, setPendingSignup] = useState<any>(null);
 
   // If running in Telegram, use Telegram auth
@@ -82,12 +84,12 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
 
       toast({
         title: "Регистрация успешна",
-        description: "Добро пожаловать в GruzzTop!"
+        description: "Теперь выберите вашу роль"
       });
 
       setShowTermsAcceptance(false);
       setPendingSignup(null);
-      onSuccess();
+      setShowRoleSelection(true);
     } catch (error) {
       toast({
         title: "Ошибка",
@@ -408,6 +410,15 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         onCancel={() => {
           setShowTermsAcceptance(false);
           setPendingSignup(null);
+        }}
+      />
+
+      {/* Role Selection Modal */}
+      <RoleSelection
+        isOpen={showRoleSelection}
+        onComplete={() => {
+          setShowRoleSelection(false);
+          onSuccess();
         }}
       />
     </AnimatedBackground>
