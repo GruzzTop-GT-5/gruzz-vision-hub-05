@@ -7,8 +7,10 @@ import { StarRating } from '@/components/StarRating';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, AlertTriangle } from 'lucide-react';
+import { MessageSquare, AlertTriangle, CheckCircle } from 'lucide-react';
 import { sanitizeInput, detectSuspiciousInput } from '@/utils/security';
+import { validateRating, validateComment } from '@/utils/validation';
+import { handleError } from '@/utils/errorReporting';
 
 interface ReviewFormProps {
   targetUserId: string;
@@ -41,13 +43,28 @@ export const ReviewForm = ({
       return;
     }
 
-    if (rating === 0) {
+    // Валидация рейтинга
+    const ratingValidation = validateRating(rating);
+    if (!ratingValidation.valid) {
       toast({
-        title: "Ошибка",
-        description: "Пожалуйста, поставьте оценку",
+        title: "Ошибка валидации",
+        description: ratingValidation.errors.join(', '),
         variant: "destructive"
       });
       return;
+    }
+
+    // Валидация комментария если есть
+    if (comment.trim()) {
+      const commentValidation = validateComment(comment);
+      if (!commentValidation.valid) {
+        toast({
+          title: "Ошибка валидации",
+          description: commentValidation.errors.join(', '),
+          variant: "destructive"
+        });
+        return;
+      }
     }
 
     // Security: Check for suspicious content
@@ -55,7 +72,7 @@ export const ReviewForm = ({
     if (detectSuspiciousInput(comment)) {
       toast({
         title: "Подозрительный контент",
-        description: "Ваш комментарий содержит подозрительный контент и будет проверен модераторами",
+        description: "Ваш комментарий содержит подозрительный контент",
         variant: "destructive"
       });
       return;
@@ -99,18 +116,23 @@ export const ReviewForm = ({
       }
 
       toast({
-        title: "Отзыв отправлен!",
-        description: "Спасибо за ваш отзыв. Он поможет другим пользователям."
+        title: "Отзыв отправлен на модерацию!",
+        description: "Ваш отзыв будет проверен администратором и опубликован после одобрения."
       });
 
       setRating(0);
       setComment('');
       onReviewSubmitted?.();
     } catch (error) {
-      console.error('Error submitting review:', error);
+      const errorMessage = handleError('ReviewForm', 'submitReview', error, {
+        targetUserId,
+        transactionId,
+        rating
+      });
+      
       toast({
         title: "Ошибка",
-        description: "Не удалось отправить отзыв. Попробуйте еще раз.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
