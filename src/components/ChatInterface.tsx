@@ -484,7 +484,7 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
         
         {!isOwnMessage && (
           <Avatar 
-            className="w-8 h-8 mr-3 order-1 cursor-pointer hover:opacity-80 transition-opacity ring-2 ring-transparent hover:ring-primary/50"
+            className="w-8 h-8 mr-3 order-1 cursor-pointer hover:opacity-70 transition-opacity"
             onClick={() => handleUserClick(message.sender_id)}
           >
             {userInfo.avatar ? (
