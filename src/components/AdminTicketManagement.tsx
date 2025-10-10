@@ -7,8 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import {
   Clock,
   AlertCircle,
@@ -22,7 +24,9 @@ import {
   Pause,
   XCircle,
   AlertTriangle,
-  Settings
+  Settings,
+  Bell,
+  Reply
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -53,9 +57,27 @@ interface SupportTicket {
   };
 }
 
+interface AdminCall {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  content: string | null;
+  conversation_id: string | null;
+  is_read: boolean;
+  created_at: string;
+  user?: {
+    display_name: string | null;
+    full_name: string | null;
+    phone: string | null;
+  };
+}
+
 export const AdminTicketManagement = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [adminCalls, setAdminCalls] = useState<AdminCall[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -72,6 +94,8 @@ export const AdminTicketManagement = () => {
 
   useEffect(() => {
     fetchTickets();
+    fetchAdminCalls();
+    subscribeToAdminCalls();
   }, []);
 
   const fetchTickets = async () => {
@@ -105,6 +129,114 @@ export const AdminTicketManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAdminCalls = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select(`
+          *,
+          user:profiles!notifications_user_id_fkey(
+            display_name,
+            full_name,
+            phone
+          )
+        `)
+        .eq('type', 'admin_call')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAdminCalls(data || []);
+    } catch (error) {
+      console.error('Error fetching admin calls:', error);
+    }
+  };
+
+  const subscribeToAdminCalls = () => {
+    const channel = supabase
+      .channel('admin-calls')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: 'type=eq.admin_call'
+        },
+        () => {
+          fetchAdminCalls();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleRespondToCall = async (call: AdminCall) => {
+    if (call.conversation_id) {
+      navigate(`/chat-system?conversation=${call.conversation_id}`);
+      
+      // Mark as read
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', call.id);
+      
+      fetchAdminCalls();
+    }
+  };
+
+  const handleMarkAsResolved = async (callId: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', callId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Отмечено как решено",
+        description: "Вызов помечен как решенный"
+      });
+
+      fetchAdminCalls();
+    } catch (error) {
+      console.error('Error marking call as resolved:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить статус",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCloseCall = async (callId: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', callId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Вызов закрыт",
+        description: "Вызов успешно закрыт"
+      });
+
+      fetchAdminCalls();
+    } catch (error) {
+      console.error('Error closing call:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось закрыть вызов",
+        variant: "destructive"
+      });
     }
   };
 
@@ -239,8 +371,108 @@ export const AdminTicketManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <Card className="card-steel p-4">
+      <Tabs defaultValue="calls" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="calls" className="flex items-center gap-2">
+            <Bell className="w-4 h-4" />
+            Вызовы ({adminCalls.filter(c => !c.is_read).length})
+          </TabsTrigger>
+          <TabsTrigger value="tickets" className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" />
+            Тикеты ({tickets.length})
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Admin Calls Tab */}
+        <TabsContent value="calls" className="space-y-4">
+          <Card className="card-steel">
+            <ScrollArea className="h-[600px] p-4">
+              <div className="space-y-4">
+                {adminCalls.length === 0 ? (
+                  <div className="text-center py-8 text-steel-400">Нет активных вызовов</div>
+                ) : (
+                  adminCalls.map((call) => (
+                    <Card key={call.id} className={`card-steel-lighter p-4 ${!call.is_read ? 'border-2 border-red-500/50' : ''}`}>
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge className="text-red-400 bg-red-400/10 border-red-400/20 animate-pulse">
+                                🚨 Вызов администратора
+                              </Badge>
+                              {!call.is_read && (
+                                <Badge variant="default">Новый</Badge>
+                              )}
+                            </div>
+                            
+                            <h3 className="font-semibold text-steel-100 mb-2">
+                              {call.title}
+                            </h3>
+                            
+                            {call.content && (
+                              <p className="text-steel-300 text-sm mb-3">
+                                {call.content}
+                              </p>
+                            )}
+                            
+                            <div className="flex items-center gap-4 text-sm text-steel-400">
+                              <div className="flex items-center gap-1">
+                                <User className="w-4 h-4" />
+                                {call.user?.display_name || call.user?.phone || 'Неизвестен'}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {format(new Date(call.created_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 pt-3 border-t border-steel-600">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleRespondToCall(call)}
+                            className="flex items-center gap-2"
+                          >
+                            <Reply className="w-4 h-4" />
+                            Ответить
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleMarkAsResolved(call.id)}
+                            disabled={call.is_read}
+                            className="flex items-center gap-2"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            Решено
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCloseCall(call.id)}
+                            className="flex items-center gap-2 text-red-400 hover:text-red-300"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            Закрыть
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </Card>
+        </TabsContent>
+
+        {/* Tickets Tab */}
+        <TabsContent value="tickets" className="space-y-4">
+          {/* Filters */}
+          <Card className="card-steel p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4" />
@@ -453,6 +685,8 @@ export const AdminTicketManagement = () => {
           </div>
         </ScrollArea>
       </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
