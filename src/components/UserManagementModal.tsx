@@ -183,10 +183,11 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
     setLoading(true);
     try {
-      // Create transaction with correct type - trigger will update balance automatically
+      const currentUser = await supabase.auth.getUser();
       const transactionType = balanceOperation === 'add' ? 'deposit' : 'withdrawal';
       
-      const { error: transactionError } = await supabase
+      // Create transaction with completed status - trigger will update balance
+      const { data: transaction, error: transactionError } = await supabase
         .from('transactions')
         .insert({
           user_id: user.id,
@@ -194,10 +195,24 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
           amount: amount,
           status: 'completed',
           admin_notes: balanceReason,
-          processed_by: (await supabase.auth.getUser()).data.user?.id
-        } as any);
+          processed_by: currentUser.data.user?.id
+        })
+        .select()
+        .single();
 
       if (transactionError) throw transactionError;
+
+      // Wait a moment for trigger to execute
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Verify balance was updated
+      const { data: updatedProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
 
       // Create notification
       await supabase
@@ -206,22 +221,22 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
           user_id: user.id,
           type: 'balance_update',
           title: `Баланс ${balanceOperation === 'add' ? 'пополнен' : 'списан'}`,
-          content: `${balanceOperation === 'add' ? 'Начислено' : 'Списано'} ${amount} GT Coins. Причина: ${balanceReason}`
+          content: `${balanceOperation === 'add' ? 'Начислено' : 'Списано'} ${amount} GT Coins. Причина: ${balanceReason}. Текущий баланс: ${updatedProfile.balance.toFixed(2)} GT`
         });
 
       toast({
         title: "Успешно",
-        description: "Баланс пользователя обновлен"
+        description: `Баланс обновлен. Новый баланс: ${updatedProfile.balance.toFixed(2)} GT Coins`
       });
 
       setBalanceAmount('');
       setBalanceReason('');
       onUserUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating balance:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось обновить баланс",
+        description: error.message || "Не удалось обновить баланс",
         variant: "destructive"
       });
     } finally {
@@ -308,47 +323,38 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
     setLoading(true);
     try {
-      // Update user rating
-      const { error: ratingError } = await supabase
-        .from('profiles')
-        .update({ rating: rating })
-        .eq('id', user.id);
-
-      if (ratingError) throw ratingError;
-
-      // Log admin action
-      await supabase
-        .from('admin_logs')
-        .insert({
-          action: 'update_rating',
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-          target_id: user.id,
-          target_type: 'user'
+      const currentUser = await supabase.auth.getUser();
+      
+      // Use RPC function to update rating with proper permissions
+      const { data, error: rpcError } = await supabase
+        .rpc('admin_update_user_rating', {
+          p_user_id: user.id,
+          p_new_rating: rating,
+          p_reason: ratingReason,
+          p_admin_id: currentUser.data.user?.id
         });
 
-      // Create notification
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: user.id,
-          type: 'rating_update',
-          title: 'Рейтинг изменен',
-          content: `Ваш рейтинг был изменен на ${rating}. Причина: ${ratingReason}`
-        });
+      if (rpcError) throw rpcError;
+
+      const result = data as { success: boolean; error?: string; old_rating?: number; new_rating: number };
+      
+      if (!result?.success) {
+        throw new Error(result?.error || 'Не удалось обновить рейтинг');
+      }
 
       toast({
         title: "Успешно",
-        description: "Рейтинг пользователя обновлен"
+        description: `Рейтинг изменен с ${result.old_rating?.toFixed(2) || '0.00'} на ${result.new_rating.toFixed(2)}`
       });
 
       setNewRating('');
       setRatingReason('');
       onUserUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating rating:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось обновить рейтинг",
+        description: error.message || "Не удалось обновить рейтинг",
         variant: "destructive"
       });
     } finally {

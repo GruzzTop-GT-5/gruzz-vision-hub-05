@@ -1364,6 +1364,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_update_user_rating: {
+        Args: {
+          p_admin_id: string
+          p_new_rating: number
+          p_reason: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       deactivate_expired_bans: {
         Args: Record<PropertyKey, never>
         Returns: undefined
