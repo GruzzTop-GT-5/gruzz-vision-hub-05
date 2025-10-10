@@ -143,7 +143,7 @@ const MyAds = () => {
       console.error('Error fetching items:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить объявления и вакансии",
+        description: "Не удалось загрузить вакансии и объявления",
         variant: "destructive"
       });
     } finally {
@@ -225,8 +225,8 @@ const MyAds = () => {
       if (error) throw error;
 
       toast({
-        title: "Объявление создано",
-        description: "Ваше объявление было успешно создано"
+        title: "Вакансия создана",
+        description: "Ваша вакансия была успешно создана"
       });
 
       resetForm();
@@ -236,7 +236,7 @@ const MyAds = () => {
       console.error('Error creating ad:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось создать объявление",
+        description: "Не удалось создать вакансию",
         variant: "destructive"
       });
     } finally {
@@ -294,7 +294,7 @@ const MyAds = () => {
 
       toast({
         title: "Успешно обновлено",
-        description: selectedItem?.type === 'ad' ? "Объявление обновлено" : "Вакансия обновлена"
+        description: selectedItem?.type === 'ad' ? "Вакансия обновлена" : "Объявление обновлено"
       });
 
       resetForm();
@@ -305,7 +305,7 @@ const MyAds = () => {
       console.error('Error updating ad:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось обновить объявление",
+        description: "Не удалось обновить",
         variant: "destructive"
       });
     } finally {
@@ -337,8 +337,8 @@ const MyAds = () => {
       }
 
       toast({
-        title: selectedItem.type === 'ad' ? "Объявление удалено" : "Вакансия удалена",
-        description: selectedItem.type === 'ad' ? "Объявление успешно удалено" : "Вакансия успешно удалена"
+        title: selectedItem.type === 'ad' ? "Вакансия удалена" : "Объявление удалено",
+        description: selectedItem.type === 'ad' ? "Вакансия успешно удалена" : "Объявление успешно удалено"
       });
 
       setShowDeleteDialog(false);
@@ -348,7 +348,7 @@ const MyAds = () => {
       console.error('Error deleting ad:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось удалить объявление",
+        description: "Не удалось удалить",
         variant: "destructive"
       });
     } finally {
@@ -452,10 +452,7 @@ const MyAds = () => {
             
             <div className="flex gap-2">
               <Button 
-                onClick={() => {
-                  resetForm();
-                  setShowCreateModal(true);
-                }}
+                onClick={() => setShowCreateVacancyModal(true)}
                 className="bg-primary hover:bg-primary/80"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -464,7 +461,10 @@ const MyAds = () => {
               
               <Button 
                 variant="outline"
-                onClick={() => setShowCreateVacancyModal(true)}
+                onClick={() => {
+                  resetForm();
+                  setShowCreateModal(true);
+                }}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Создать вакансию
@@ -493,7 +493,7 @@ const MyAds = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-steel-100">{stats.ads}</p>
-                  <p className="text-sm text-steel-400">Объявлений</p>
+                  <p className="text-sm text-steel-400">Вакансий</p>
                 </div>
               </div>
             </Card>
@@ -505,7 +505,7 @@ const MyAds = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-steel-100">{stats.vacancies}</p>
-                  <p className="text-sm text-steel-400">Вакансий</p>
+                  <p className="text-sm text-steel-400">Объявлений</p>
                 </div>
               </div>
             </Card>
@@ -593,14 +593,14 @@ const MyAds = () => {
               </p>
               {items.length === 0 && (
                 <div className="flex gap-4 justify-center">
-                  <Button onClick={() => {
-                    resetForm();
-                    setShowCreateModal(true);
-                  }}>
+                  <Button onClick={() => setShowCreateVacancyModal(true)}>
                     <Plus className="w-4 h-4 mr-2" />
                     Создать объявление
                   </Button>
-                  <Button variant="outline" onClick={() => setShowCreateVacancyModal(true)}>
+                  <Button variant="outline" onClick={() => {
+                    resetForm();
+                    setShowCreateModal(true);
+                  }}>
                     <Plus className="w-4 h-4 mr-2" />
                     Создать вакансию
                   </Button>
@@ -697,11 +697,11 @@ const MyAds = () => {
         </div>
       </div>
 
-      {/* Create Ad Modal */}
+      {/* Create Vacancy (Resume) Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="card-steel-dialog max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Создать объявление</DialogTitle>
+            <DialogTitle>Создать вакансию</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
@@ -711,7 +711,7 @@ const MyAds = () => {
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="Введите название объявления"
+                placeholder="Например: Грузчик с опытом 5 лет"
               />
             </div>
 
@@ -730,13 +730,13 @@ const MyAds = () => {
             </div>
 
             <div>
-              <Label htmlFor="price">Цена *</Label>
+              <Label htmlFor="price">Стоимость услуг (₽/час) *</Label>
               <Input
                 id="price"
                 type="number"
                 value={formData.price}
                 onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                placeholder="Введите цену в рублях"
+                placeholder="Введите стоимость в рублях"
               />
             </div>
 
@@ -746,7 +746,7 @@ const MyAds = () => {
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Опишите ваше объявление"
+                placeholder="Расскажите о своих навыках и опыте работы"
                 rows={4}
               />
             </div>
@@ -780,11 +780,13 @@ const MyAds = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Ad Modal */}
+      {/* Edit Item Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent className="card-steel-dialog max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Редактировать объявление</DialogTitle>
+            <DialogTitle>
+              {selectedItem?.type === 'ad' ? 'Редактировать вакансию' : 'Редактировать объявление'}
+            </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
@@ -794,7 +796,7 @@ const MyAds = () => {
                 id="edit-title"
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="Введите название объявления"
+                placeholder={selectedItem?.type === 'ad' ? 'Введите название вакансии' : 'Введите название объявления'}
               />
             </div>
 
@@ -813,13 +815,15 @@ const MyAds = () => {
             </div>
 
             <div>
-              <Label htmlFor="edit-price">Цена *</Label>
+              <Label htmlFor="edit-price">
+                {selectedItem?.type === 'ad' ? 'Стоимость услуг (₽/час) *' : 'Оплата (₽) *'}
+              </Label>
               <Input
                 id="edit-price"
                 type="number"
                 value={formData.price}
                 onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                placeholder="Введите цену в рублях"
+                placeholder="Введите стоимость в рублях"
               />
             </div>
 
@@ -829,7 +833,7 @@ const MyAds = () => {
                 id="edit-description"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Опишите ваше объявление"
+                placeholder={selectedItem?.type === 'ad' ? 'Опишите свои услуги' : 'Опишите задание'}
                 rows={4}
               />
             </div>
