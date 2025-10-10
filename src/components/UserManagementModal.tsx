@@ -183,7 +183,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
     setLoading(true);
     try {
-      // Create transaction with correct type
+      // Create transaction with correct type - trigger will update balance automatically
       const transactionType = balanceOperation === 'add' ? 'deposit' : 'withdrawal';
       
       const { error: transactionError } = await supabase
@@ -198,18 +198,6 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
         } as any);
 
       if (transactionError) throw transactionError;
-
-      // Update user balance
-      const newBalance = balanceOperation === 'add' 
-        ? user.balance + amount 
-        : user.balance - amount;
-
-      const { error: balanceError } = await supabase
-        .from('profiles')
-        .update({ balance: Math.max(0, newBalance) })
-        .eq('id', user.id);
-
-      if (balanceError) throw balanceError;
 
       // Create notification
       await supabase

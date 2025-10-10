@@ -776,27 +776,7 @@ export default function AdminPanel() {
 
       if (transactionError) throw transactionError;
 
-      // Get current balance first
-      const { data: userProfile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('balance')
-        .eq('id', selectedUserId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const currentBalance = userProfile.balance || 0;
-      const newBalance = balanceOperation === 'add' 
-        ? currentBalance + amount 
-        : currentBalance - amount;
-
-      // Update user balance
-      const { error: balanceError } = await supabase
-        .from('profiles')
-        .update({ balance: newBalance })
-        .eq('id', selectedUserId);
-
-      if (balanceError) throw balanceError;
+      // Trigger will update balance automatically
 
       // Log admin action
       await logAdminAction(
