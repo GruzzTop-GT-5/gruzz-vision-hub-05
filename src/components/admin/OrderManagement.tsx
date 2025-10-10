@@ -575,14 +575,14 @@ export const OrderManagement: React.FC = () => {
               <div>
                 <Label>Админский приоритет (переопределение)</Label>
                 <Select 
-                  value={editForm.admin_priority_override} 
-                  onValueChange={(value) => setEditForm({ ...editForm, admin_priority_override: value })}
+                  value={editForm.admin_priority_override || 'none'} 
+                  onValueChange={(value) => setEditForm({ ...editForm, admin_priority_override: value === 'none' ? '' : value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Без переопределения" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Без переопределения</SelectItem>
+                    <SelectItem value="none">Без переопределения</SelectItem>
                     <SelectItem value="low">Низкий</SelectItem>
                     <SelectItem value="normal">Обычный</SelectItem>
                     <SelectItem value="high">Высокий</SelectItem>
