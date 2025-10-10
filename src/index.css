@@ -209,7 +209,7 @@
   }
   
   .btn-3d:hover {
-    transform: translateY(-6px) scale(1.05) perspective(500px) rotateX(5deg);
+    transform: translateY(-6px) scale(1.05);
     box-shadow: var(--shadow-glow), var(--shadow-3d);
     transition: var(--transition-bounce);
   }
@@ -241,13 +241,13 @@
       transparent 30%, 
       rgba(255, 255, 255, 0.3) 50%, 
       transparent 70%);
-    transform: translateX(-100%) skewX(-20deg);
+    transform: translateX(-100%);
     z-index: 2;
   }
   
   .btn-3d:hover::after {
     @apply opacity-100;
-    transform: translateX(100%) skewX(-20deg);
+    transform: translateX(100%);
   }
   
   /* Cinematic Animated Background */
@@ -297,7 +297,7 @@
   }
   
   .card-steel:hover {
-    transform: translateY(-8px) perspective(1000px) rotateX(3deg) rotateY(2deg);
+    transform: translateY(-8px) scale(1.02);
     box-shadow: var(--shadow-glow), var(--shadow-steel);
   }
   
@@ -395,7 +395,7 @@
   }
   
   .hover-scale:hover {
-    transform: scale(1.05) perspective(500px) rotateX(2deg);
+    transform: scale(1.05);
   }
   
   /* Glass morphism effect */
@@ -430,13 +430,13 @@
 /* Enhanced Animations */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0px);
   }
   33% {
-    transform: translateY(-15px) rotate(1deg);
+    transform: translateY(-15px);
   }
   66% {
-    transform: translateY(-8px) rotate(-1deg);
+    transform: translateY(-8px);
   }
 }
 
