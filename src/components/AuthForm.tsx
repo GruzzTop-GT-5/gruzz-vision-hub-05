@@ -18,6 +18,38 @@ interface AuthFormProps {
   onBack?: () => void;
 }
 
+const countriesList = [
+  'Россия',
+  'Украина',
+  'Беларусь',
+  'Казахстан',
+  'Узбекистан',
+  'Кыргызстан',
+  'Таджикистан',
+  'Туркменистан',
+  'Азербайджан',
+  'Армения',
+  'Грузия',
+  'Молдова',
+  'Латвия',
+  'Литва',
+  'Эстония',
+  'Польша',
+  'Германия',
+  'Франция',
+  'Италия',
+  'Испания',
+  'США',
+  'Великобритания',
+  'Канада',
+  'Австралия',
+  'Китай',
+  'Индия',
+  'Турция',
+  'Израиль',
+  'Другое'
+];
+
 const specializationsList = [
   'Грузчик',
   'Разнорабочий',
@@ -51,6 +83,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       firstName: '',
       lastName: '',
       citizenship: '',
+      customCitizenship: '',
       age: '',
       telegram: '',
       userType: '', // 'client' или 'executor'
@@ -109,13 +142,18 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       }
 
       if (signUpData.user) {
+        // Определяем финальное гражданство
+        const finalCitizenship = formData.citizenship === 'Другое' 
+          ? formData.customCitizenship 
+          : formData.citizenship;
+        
         // Обновляем профиль с дополнительными данными
         const { error: updateError } = await supabase
           .from('profiles')
           .update({
             full_name: `${formData.firstName} ${formData.lastName}`,
             display_name: `${formData.firstName} ${formData.lastName}`,
-            citizenship: formData.citizenship,
+            citizenship: finalCitizenship,
             age: parseInt(formData.age),
             telegram_username: formData.telegram || null,
             bio: formData.bio || null,
@@ -228,7 +266,17 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         if (!formData.citizenship.trim()) {
           toast({
             title: "Ошибка",
-            description: "Укажите гражданство",
+            description: "Выберите гражданство",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (formData.citizenship === 'Другое' && !formData.customCitizenship.trim()) {
+          toast({
+            title: "Ошибка",
+            description: "Укажите ваше гражданство",
             variant: "destructive"
           });
           setIsLoading(false);
@@ -399,18 +447,40 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                 <label className="text-xs sm:text-sm font-medium text-steel-200">
                   Гражданство <span className="text-red-400">*</span>
                 </label>
-                <div className="relative">
-                  <Globe className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
-                  <input
-                    type="text"
-                    value={formData.citizenship}
-                    onChange={(e) => setFormData({ ...formData, citizenship: e.target.value })}
-                    placeholder="Россия"
-                    className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
-                    required
-                  />
-                </div>
+                <Select value={formData.citizenship} onValueChange={(value) => setFormData({ ...formData, citizenship: value })}>
+                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base bg-steel-800/80 border-steel-600 z-50">
+                    <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-steel-400 mr-2" />
+                    <SelectValue placeholder="Выберите страну" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-steel-800 border-steel-600 z-50 max-h-60">
+                    {countriesList.map((country) => (
+                      <SelectItem key={country} value={country} className="text-steel-100 hover:bg-steel-700 focus:bg-steel-700">
+                        {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Свое гражданство если выбрано "Другое" */}
+              {formData.citizenship === 'Другое' && (
+                <div className="space-y-1.5 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-steel-200">
+                    Укажите ваше гражданство <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <Globe className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
+                    <input
+                      type="text"
+                      value={formData.customCitizenship}
+                      onChange={(e) => setFormData({ ...formData, customCitizenship: e.target.value })}
+                      placeholder="Ваша страна"
+                      className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Возраст */}
               <div className="space-y-1.5 sm:space-y-2">
@@ -455,12 +525,12 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                   Тип пользователя <span className="text-red-400">*</span>
                 </label>
                 <Select value={formData.userType} onValueChange={(value) => setFormData({ ...formData, userType: value })}>
-                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base">
+                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base bg-steel-800/80 border-steel-600 z-50">
                     <SelectValue placeholder="Выберите тип" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="client">Заказчик</SelectItem>
-                    <SelectItem value="executor">Исполнитель</SelectItem>
+                  <SelectContent className="bg-steel-800 border-steel-600 z-50">
+                    <SelectItem value="client" className="text-steel-100 hover:bg-steel-700 focus:bg-steel-700">Заказчик</SelectItem>
+                    <SelectItem value="executor" className="text-steel-100 hover:bg-steel-700 focus:bg-steel-700">Исполнитель</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -471,12 +541,14 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                   Специализация <span className="text-red-400">*</span>
                 </label>
                 <Select value={formData.specialization} onValueChange={(value) => setFormData({ ...formData, specialization: value })}>
-                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base">
+                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base bg-steel-800/80 border-steel-600 z-50">
                     <SelectValue placeholder="Выберите" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-60">
+                  <SelectContent className="bg-steel-800 border-steel-600 z-50 max-h-60">
                     {specializationsList.map((spec) => (
-                      <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                      <SelectItem key={spec} value={spec} className="text-steel-100 hover:bg-steel-700 focus:bg-steel-700">
+                        {spec}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
