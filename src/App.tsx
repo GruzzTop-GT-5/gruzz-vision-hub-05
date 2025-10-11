@@ -46,6 +46,7 @@ const App = () => (
             <Route path="/history" element={<Pages.History />} />
             <Route path="/admin" element={<Pages.AdminPanel />} />
             <Route path="/chat-system" element={<Pages.ChatSystem />} />
+            <Route path="/chat" element={<Pages.ChatSystem />} />
             <Route path="*" element={<Pages.NotFound />} />
           </Routes>
         </Suspense>
