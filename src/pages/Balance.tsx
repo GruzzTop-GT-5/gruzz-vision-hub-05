@@ -117,7 +117,7 @@ const Balance = () => {
               <h3 className="font-semibold text-steel-100 text-lg">Способы пополнения</h3>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               {/* Bank Card - In Development */}
               <Card className="card-steel p-4 space-y-3 opacity-50 border-steel-600/30">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-lg">
@@ -143,20 +143,6 @@ const Balance = () => {
                     Активно
                   </Badge>
                   <p className="text-xs text-steel-400 pt-1">Быстрое пополнение</p>
-                </div>
-              </Card>
-              
-              {/* Ozon - Active */}
-              <Card className="card-steel p-4 space-y-3 border-orange-500/30 hover:border-orange-500/50 hover:scale-105 transition-all duration-300 cursor-pointer">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-orange-500/20">
-                  <TrendingUp className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-center space-y-1">
-                  <h4 className="font-semibold text-steel-100">Ozon</h4>
-                  <Badge className="text-xs bg-orange-500/20 text-orange-400 border-orange-400/20">
-                    Активно
-                  </Badge>
-                  <p className="text-xs text-steel-400 pt-1">Удобно и просто</p>
                 </div>
               </Card>
             </div>
