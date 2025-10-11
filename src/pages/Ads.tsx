@@ -290,7 +290,7 @@ export default function Ads() {
               </div>
               <div className="min-w-0">
                 <h1 className="text-base sm:text-3xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent leading-tight">
-                  Заказы на работу
+                  Доска Объявлений
                 </h1>
                 <p className="text-[10px] sm:text-sm text-steel-400">Найдите подходящую работу от заказчиков</p>
               </div>
