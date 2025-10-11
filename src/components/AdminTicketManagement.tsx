@@ -741,16 +741,7 @@ export const AdminTicketManagement = () => {
                               </p>
                             </div>
                             
-                            <div className="grid grid-cols-2 gap-2">
-                              <Button
-                                onClick={() => updateTicketStatus(ticket.id, newStatus || ticket.status, adminNote)}
-                                disabled={!newStatus || newStatus === ticket.status}
-                                className="w-full"
-                              >
-                                <Send className="w-4 h-4 mr-2" />
-                                Обновить статус
-                              </Button>
-                              
+                            <div className="grid grid-cols-3 gap-2">
                               {ticket.conversation_id && (
                                 <Button
                                   variant="outline"
@@ -762,10 +753,13 @@ export const AdminTicketManagement = () => {
                                 </Button>
                               )}
                               
-                              {ticket.status !== 'in_progress' && (
+                              {ticket.status === 'open' && (
                                 <Button
                                   variant="outline"
-                                  onClick={() => updateTicketStatus(ticket.id, 'in_progress')}
+                                  onClick={() => {
+                                    updateTicketStatus(ticket.id, 'in_progress');
+                                    setNewStatus('in_progress');
+                                  }}
                                   className="w-full"
                                 >
                                   <Pause className="w-4 h-4 mr-2" />
@@ -773,14 +767,44 @@ export const AdminTicketManagement = () => {
                                 </Button>
                               )}
                               
-                              {ticket.status !== 'resolved' && (
+                              {ticket.status !== 'resolved' && ticket.status !== 'closed' && (
                                 <Button
                                   variant="default"
-                                  onClick={() => updateTicketStatus(ticket.id, 'resolved', adminNote)}
+                                  onClick={() => {
+                                    updateTicketStatus(ticket.id, 'resolved', adminNote);
+                                    setNewStatus('resolved');
+                                  }}
                                   className="w-full bg-green-600 hover:bg-green-700"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-2" />
-                                  Решить тикет
+                                  Решить
+                                </Button>
+                              )}
+                              
+                              {ticket.status !== 'closed' && (
+                                <Button
+                                  variant="destructive"
+                                  onClick={() => {
+                                    updateTicketStatus(ticket.id, 'closed', adminNote);
+                                    setNewStatus('closed');
+                                    setDetailsOpen(false);
+                                  }}
+                                  className="w-full"
+                                >
+                                  <XCircle className="w-4 h-4 mr-2" />
+                                  Закрыть тикет
+                                </Button>
+                              )}
+                              
+                              {newStatus && newStatus !== ticket.status && (
+                                <Button
+                                  onClick={() => {
+                                    updateTicketStatus(ticket.id, newStatus, adminNote);
+                                  }}
+                                  className="w-full col-span-3"
+                                >
+                                  <Send className="w-4 h-4 mr-2" />
+                                  Применить статус: {getStatusLabel(newStatus)}
                                 </Button>
                               )}
                             </div>
