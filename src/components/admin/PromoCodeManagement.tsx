@@ -302,252 +302,369 @@ export const PromoCodeManagement: React.FC = () => {
             <TabsTrigger value="list">Список промокодов</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="create" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Название промокода *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Скидка 10%"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="promo_type">Тип промокода *</Label>
-                <Select 
-                  value={formData.promo_type} 
-                  onValueChange={(value: any) => setFormData({ ...formData, promo_type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bonus">💰 Бонус (GT коины)</SelectItem>
-                    <SelectItem value="discount_percent">📊 Скидка (%)</SelectItem>
-                    <SelectItem value="discount_fixed">💸 Скидка (фикс.)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {formData.promo_type === 'bonus' && (
-                <div className="space-y-2">
-                  <Label htmlFor="bonus_amount">Сумма бонуса (GT) *</Label>
-                  <Input
-                    id="bonus_amount"
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    value={formData.bonus_amount}
-                    onChange={(e) => setFormData({ ...formData, bonus_amount: e.target.value })}
-                    placeholder="100"
-                  />
-                </div>
-              )}
-
-              {(formData.promo_type === 'discount_percent' || formData.promo_type === 'discount_fixed') && (
-                <div className="space-y-2">
-                  <Label htmlFor="discount_value">
-                    {formData.promo_type === 'discount_percent' ? 'Размер скидки (%) *' : 'Размер скидки (GT) *'}
-                  </Label>
-                  <Input
-                    id="discount_value"
-                    type="number"
-                    min="1"
-                    step={formData.promo_type === 'discount_percent' ? '1' : '0.01'}
-                    max={formData.promo_type === 'discount_percent' ? '100' : undefined}
-                    value={formData.discount_value}
-                    onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
-                    placeholder={formData.promo_type === 'discount_percent' ? '10' : '50'}
-                  />
-                </div>
-              )}
-
-              {(formData.promo_type === 'discount_percent' || formData.promo_type === 'discount_fixed') && (
-                <>
+          <TabsContent value="create" className="space-y-6">
+            {/* Main Info Section */}
+            <Card className="card-steel-lighter">
+              <CardHeader>
+                <CardTitle className="text-lg">Основная информация</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="min_order_amount">Минимальная сумма заказа (GT)</Label>
+                    <Label htmlFor="name" className="text-base">Название промокода *</Label>
                     <Input
-                      id="min_order_amount"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.min_order_amount}
-                      onChange={(e) => setFormData({ ...formData, min_order_amount: e.target.value })}
-                      placeholder="0"
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Например: Скидка 10%"
+                      className="text-base"
                     />
+                    <p className="text-xs text-steel-400">Внутреннее название для вашего удобства</p>
                   </div>
 
-                  {formData.promo_type === 'discount_percent' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="promo_type" className="text-base">Тип промокода *</Label>
+                    <Select 
+                      value={formData.promo_type} 
+                      onValueChange={(value: any) => setFormData({ ...formData, promo_type: value })}
+                    >
+                      <SelectTrigger className="text-base">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bonus">💰 Бонус на баланс (GT коины)</SelectItem>
+                        <SelectItem value="discount_percent">📊 Скидка в процентах (%)</SelectItem>
+                        <SelectItem value="discount_fixed">💸 Фиксированная скидка (GT)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-steel-400">
+                      {formData.promo_type === 'bonus' && '→ Пользователь получит GT коины на баланс'}
+                      {formData.promo_type === 'discount_percent' && '→ Скидка в % от суммы заказа'}
+                      {formData.promo_type === 'discount_fixed' && '→ Фиксированная скидка в GT'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="text-base">Описание для пользователей</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Опишите условия и преимущества промокода..."
+                    rows={3}
+                    className="text-base resize-none"
+                  />
+                  <p className="text-xs text-steel-400">Это увидят пользователи при активации промокода</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Benefit Settings */}
+            <Card className="card-steel-lighter">
+              <CardHeader>
+                <CardTitle className="text-lg">
+                  {formData.promo_type === 'bonus' && '💰 Настройка бонуса'}
+                  {formData.promo_type === 'discount_percent' && '📊 Настройка процентной скидки'}
+                  {formData.promo_type === 'discount_fixed' && '💸 Настройка фиксированной скидки'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {formData.promo_type === 'bonus' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="bonus_amount" className="text-base">Сумма бонуса (GT) *</Label>
+                    <Input
+                      id="bonus_amount"
+                      type="number"
+                      min="1"
+                      step="0.01"
+                      value={formData.bonus_amount}
+                      onChange={(e) => setFormData({ ...formData, bonus_amount: e.target.value })}
+                      placeholder="100"
+                      className="text-base"
+                    />
+                    <p className="text-xs text-steel-400">
+                      Сколько GT коинов получит пользователь на баланс при активации
+                    </p>
+                  </div>
+                )}
+
+                {(formData.promo_type === 'discount_percent' || formData.promo_type === 'discount_fixed') && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="max_discount">Максимальная скидка (GT)</Label>
+                      <Label htmlFor="discount_value" className="text-base">
+                        {formData.promo_type === 'discount_percent' ? 'Размер скидки (%) *' : 'Размер скидки (GT) *'}
+                      </Label>
                       <Input
-                        id="max_discount"
+                        id="discount_value"
                         type="number"
                         min="1"
-                        step="0.01"
-                        value={formData.max_discount}
-                        onChange={(e) => setFormData({ ...formData, max_discount: e.target.value })}
-                        placeholder="Оставьте пустым для неограниченной"
+                        step={formData.promo_type === 'discount_percent' ? '1' : '0.01'}
+                        max={formData.promo_type === 'discount_percent' ? '100' : undefined}
+                        value={formData.discount_value}
+                        onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
+                        placeholder={formData.promo_type === 'discount_percent' ? '10' : '50'}
+                        className="text-base"
                       />
+                      <p className="text-xs text-steel-400">
+                        {formData.promo_type === 'discount_percent' 
+                          ? 'Процент скидки (от 1% до 100%)'
+                          : 'Фиксированная скидка в GT коинах'}
+                      </p>
                     </div>
-                  )}
-                </>
-              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="usage_limit">Лимит использования</Label>
-                <Input
-                  id="usage_limit"
-                  type="number"
-                  min="1"
-                  value={formData.usage_limit}
-                  onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
-                  placeholder="Оставьте пустым для безлимитного"
-                />
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="min_order_amount" className="text-base">Минимальная сумма заказа (GT)</Label>
+                      <Input
+                        id="min_order_amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formData.min_order_amount}
+                        onChange={(e) => setFormData({ ...formData, min_order_amount: e.target.value })}
+                        placeholder="0"
+                        className="text-base"
+                      />
+                      <p className="text-xs text-steel-400">
+                        Минимальная сумма для применения скидки (0 = без ограничений)
+                      </p>
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="expires_at">Дата окончания *</Label>
-                <Input
-                  id="expires_at"
-                  type="datetime-local"
-                  value={formData.expires_at}
-                  onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
-                />
-              </div>
+                    {formData.promo_type === 'discount_percent' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="max_discount" className="text-base">Максимальная скидка (GT)</Label>
+                        <Input
+                          id="max_discount"
+                          type="number"
+                          min="1"
+                          step="0.01"
+                          value={formData.max_discount}
+                          onChange={(e) => setFormData({ ...formData, max_discount: e.target.value })}
+                          placeholder="Оставьте пустым для неограниченной"
+                          className="text-base"
+                        />
+                        <p className="text-xs text-steel-400">
+                          Ограничение максимальной скидки в GT (пусто = без ограничений)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="target_audience">Целевая аудитория</Label>
-                <Select 
-                  value={formData.target_audience} 
-                  onValueChange={(value) => setFormData({ ...formData, target_audience: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все пользователи</SelectItem>
-                    <SelectItem value="new">Новые пользователи</SelectItem>
-                    <SelectItem value="active">Активные пользователи</SelectItem>
-                    <SelectItem value="premium">Premium пользователи</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Limits and Expiration */}
+            <Card className="card-steel-lighter">
+              <CardHeader>
+                <CardTitle className="text-lg">Ограничения и срок действия</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="usage_limit" className="text-base">Лимит использований</Label>
+                    <Input
+                      id="usage_limit"
+                      type="number"
+                      min="1"
+                      value={formData.usage_limit}
+                      onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
+                      placeholder="Оставьте пустым для безлимитного"
+                      className="text-base"
+                    />
+                    <p className="text-xs text-steel-400">
+                      Сколько раз можно активировать промокод (пусто = неограниченно)
+                    </p>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="distribution_method">Способ распространения</Label>
-                <Select 
-                  value={formData.distribution_method} 
-                  onValueChange={(value) => setFormData({ ...formData, distribution_method: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="manual">Ручная раздача</SelectItem>
-                    <SelectItem value="notification">Уведомления в приложении</SelectItem>
-                    <SelectItem value="telegram">Telegram группа</SelectItem>
-                    <SelectItem value="email">Email рассылка</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="expires_at" className="text-base">Срок действия до *</Label>
+                    <Input
+                      id="expires_at"
+                      type="datetime-local"
+                      value={formData.expires_at}
+                      onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
+                      className="text-base"
+                    />
+                    <p className="text-xs text-steel-400">
+                      Дата и время, до которого промокод будет активен
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Описание</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Дополнительная информация о промокоде"
-                rows={4}
-              />
-            </div>
+            {/* Distribution Settings */}
+            <Card className="card-steel-lighter">
+              <CardHeader>
+                <CardTitle className="text-lg">Параметры распространения</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="target_audience" className="text-base">Целевая аудитория</Label>
+                    <Select 
+                      value={formData.target_audience} 
+                      onValueChange={(value) => setFormData({ ...formData, target_audience: value })}
+                    >
+                      <SelectTrigger className="text-base">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все пользователи</SelectItem>
+                        <SelectItem value="new">Новые пользователи</SelectItem>
+                        <SelectItem value="active">Активные пользователи</SelectItem>
+                        <SelectItem value="premium">Premium пользователи</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-steel-400">
+                      Для какой группы пользователей предназначен промокод
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="distribution_method" className="text-base">Способ распространения</Label>
+                    <Select 
+                      value={formData.distribution_method} 
+                      onValueChange={(value) => setFormData({ ...formData, distribution_method: value })}
+                    >
+                      <SelectTrigger className="text-base">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="manual">Ручная раздача</SelectItem>
+                        <SelectItem value="notification">Уведомления в приложении</SelectItem>
+                        <SelectItem value="telegram">Telegram группа</SelectItem>
+                        <SelectItem value="email">Email рассылка</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-steel-400">
+                      Как пользователи узнают о промокоде
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             <Button 
               onClick={createPromoCode} 
-              disabled={loading}
-              className="w-full"
+              disabled={loading} 
+              className="w-full h-auto py-4"
+              size="lg"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              {loading ? 'Создание...' : 'Создать промокод'}
+              <Plus className="w-5 h-5 mr-2" />
+              <span className="text-base">Создать промокод</span>
             </Button>
           </TabsContent>
 
           <TabsContent value="list" className="space-y-4">
-            <div className="grid gap-4">
-              {promoCodes.map((promoCode) => (
-                <Card key={promoCode.id} className="border">
-                  <CardContent className="p-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-medium">{promoCode.name}</h3>
-                          {getStatusBadge(promoCode)}
+            {promoCodes.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-steel-400 mb-4">Промокоды пока не созданы</p>
+                <Button onClick={() => setSelectedTab('create')} variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Создать первый промокод
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {promoCodes.map((promo) => (
+                  <Card key={promo.id} className="card-steel-lighter">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-semibold text-steel-100">{promo.name}</h3>
+                                {getStatusBadge(promo)}
+                              </div>
+                              
+                              <div className="flex items-center gap-2 mb-2">
+                                <code className="px-3 py-1 bg-steel-700 rounded-lg text-primary font-mono text-lg">
+                                  {promo.code}
+                                </code>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => copyToClipboard(promo.code)}
+                                >
+                                  <Copy className="w-4 h-4" />
+                                </Button>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                <div>
+                                  <span className="text-steel-400">Тип:</span>{' '}
+                                  <span className="text-steel-100">
+                                    {promo.promo_type === 'bonus' && '💰 Бонус'}
+                                    {promo.promo_type === 'discount_percent' && '📊 Скидка %'}
+                                    {promo.promo_type === 'discount_fixed' && '💸 Скидка фикс.'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-steel-400">Значение:</span>{' '}
+                                  <span className="text-steel-100">
+                                    {promo.promo_type === 'bonus' && `${promo.bonus_amount} GT`}
+                                    {promo.promo_type === 'discount_percent' && `${promo.discount_value}%`}
+                                    {promo.promo_type === 'discount_fixed' && `${promo.discount_value} GT`}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-steel-400">Использований:</span>{' '}
+                                  <span className="text-steel-100">
+                                    {promo.usage_count} {promo.usage_limit ? `/ ${promo.usage_limit}` : ''}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {promo.description && (
+                                <p className="text-steel-300 text-sm mt-2">{promo.description}</p>
+                              )}
+
+                              <p className="text-steel-400 text-xs mt-2">
+                                Действует до: {format(new Date(promo.expires_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <p>Код: <span className="font-mono bg-muted px-1 py-0.5 rounded">{promoCode.code}</span></p>
-                          <p>Тип: {
-                            promoCode.promo_type === 'bonus' ? '💰 Бонус' : 
-                            promoCode.promo_type === 'discount_percent' ? '📊 Скидка %' : 
-                            '💸 Скидка фикс.'
-                          }</p>
-                          {promoCode.promo_type === 'bonus' && <p>Бонус: {promoCode.bonus_amount} GT</p>}
-                          {promoCode.promo_type === 'discount_percent' && (
-                            <p>Скидка: {promoCode.discount_value}% {promoCode.max_discount && `(макс. ${promoCode.max_discount} GT)`}</p>
-                          )}
-                          {promoCode.promo_type === 'discount_fixed' && <p>Скидка: {promoCode.discount_value} GT</p>}
-                          {promoCode.min_order_amount > 0 && <p>Мин. заказ: {promoCode.min_order_amount} GT</p>}
-                          <p>Использований: {promoCode.usage_count} {promoCode.usage_limit ? `/ ${promoCode.usage_limit}` : ''}</p>
-                          <p>Истекает: {format(new Date(promoCode.expires_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
-                          {promoCode.description && <p className="text-xs italic">{promoCode.description}</p>}
+
+                        <div className="flex flex-col gap-2">
+                          <Button 
+                            variant={promo.is_active ? "destructive" : "default"}
+                            onClick={() => togglePromoCode(promo.id, promo.is_active)}
+                            className="w-full md:w-auto"
+                            size="sm"
+                          >
+                            {promo.is_active ? (
+                              <>
+                                <ToggleRight className="w-4 h-4 mr-2" />
+                                Деактивировать
+                              </>
+                            ) : (
+                              <>
+                                <ToggleLeft className="w-4 h-4 mr-2" />
+                                Активировать
+                              </>
+                            )}
+                          </Button>
+                          
+                          <Button 
+                            variant="outline"
+                            onClick={() => sendToTelegram(promo)}
+                            disabled={loading}
+                            className="w-full md:w-auto"
+                            size="sm"
+                          >
+                            <Send className="w-4 h-4 mr-2" />
+                            В Telegram
+                          </Button>
                         </div>
                       </div>
-
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(promoCode.code)}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => sendToTelegram(promoCode)}
-                          disabled={loading}
-                        >
-                          <Send className="w-4 h-4" />
-                        </Button>
-
-                        <Button
-                          variant={promoCode.is_active ? "destructive" : "default"}
-                          size="sm"
-                          onClick={() => togglePromoCode(promoCode.id, promoCode.is_active)}
-                        >
-                          {promoCode.is_active ? (
-                            <ToggleRight className="w-4 h-4" />
-                          ) : (
-                            <ToggleLeft className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {promoCodes.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  Промокоды не найдены
-                </div>
-              )}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>
