@@ -245,7 +245,7 @@ export const PromoCodeSection: React.FC = () => {
                     : 'bg-gradient-to-br from-card to-card/80 border border-primary/20 shadow-md'
                 }`}
               >
-                <div className="p-3 space-y-2.5">
+                <div className="p-3 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <Badge variant={promo.used ? "secondary" : "default"} className="text-[10px] font-medium mb-1.5 h-5">
@@ -257,35 +257,35 @@ export const PromoCodeSection: React.FC = () => {
                       </Badge>
                       <h3 className="text-sm font-semibold text-foreground mb-1 line-clamp-1">{promo.name}</h3>
                       {promo.description && (
-                        <p className="text-[11px] text-muted-foreground leading-snug line-clamp-1">{promo.description}</p>
+                        <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{promo.description}</p>
                       )}
                     </div>
-                    <div className="flex-shrink-0 text-right ml-2">
+                    <div className="flex-shrink-0 text-right">
                       {promo.promo_type === 'bonus' && (
-                        <div className="text-lg font-bold text-green-500 whitespace-nowrap">
+                        <div className="text-lg font-bold text-green-500">
                           +{promo.bonus_amount} GT
                         </div>
                       )}
                       {promo.promo_type === 'discount_percent' && (
-                        <div className="text-lg font-bold text-orange-500 whitespace-nowrap">
+                        <div className="text-lg font-bold text-orange-500">
                           -{promo.discount_value}%
                         </div>
                       )}
                       {promo.promo_type === 'discount_fixed' && (
-                        <div className="text-lg font-bold text-orange-500 whitespace-nowrap">
+                        <div className="text-lg font-bold text-orange-500">
                           -{promo.discount_value} GT
                         </div>
                       )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border/30">
-                    <code className="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-background/50 border border-primary/30 text-primary whitespace-nowrap">
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
+                    <code className="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-background/50 border border-primary/30 text-primary">
                       {promo.code}
                     </code>
-                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground whitespace-nowrap flex-shrink-0">
-                      <Clock className="w-3 h-3 flex-shrink-0" />
-                      <span>{formatExpiryDate(promo.expires_at)}</span>
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      <span className="whitespace-nowrap">{formatExpiryDate(promo.expires_at)}</span>
                     </div>
                   </div>
                 </div>
