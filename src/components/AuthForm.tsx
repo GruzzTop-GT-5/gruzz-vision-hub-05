@@ -11,7 +11,6 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { BackButton } from '@/components/BackButton';
 import { TelegramAuthForm } from './TelegramAuthForm';
 import { TermsAcceptance } from './TermsAcceptance';
-import { RoleSelection } from './RoleSelection';
 import { useTelegram } from '@/hooks/useTelegram';
 
 interface AuthFormProps {
@@ -112,7 +111,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   const { toast } = useToast();
   const { isInTelegram } = useTelegram();
   const [showTermsAcceptance, setShowTermsAcceptance] = useState(false);
-  const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [pendingSignup, setPendingSignup] = useState<any>(null);
 
   if (isInTelegram) {
@@ -182,12 +180,12 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
 
       toast({
         title: "Регистрация успешна",
-        description: "Теперь выберите вашу роль"
+        description: "Добро пожаловать на платформу!"
       });
 
       setShowTermsAcceptance(false);
       setPendingSignup(null);
-      setShowRoleSelection(true);
+      onSuccess(); // Сразу перенаправляем на главную
     } catch (error) {
       toast({
         title: "Ошибка",
@@ -735,14 +733,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         onCancel={() => {
           setShowTermsAcceptance(false);
           setPendingSignup(null);
-        }}
-      />
-
-      <RoleSelection
-        isOpen={showRoleSelection}
-        onComplete={() => {
-          setShowRoleSelection(false);
-          onSuccess();
         }}
       />
     </AnimatedBackground>
