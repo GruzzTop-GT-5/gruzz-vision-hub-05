@@ -28,10 +28,22 @@ import {
   Minus,
   Shield,
   Award,
-  Clock
+  Clock,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface UserData {
   id: string;
@@ -82,6 +94,10 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
   const [banType, setBanType] = useState<'order_mute' | 'payment_mute' | 'account_block'>('order_mute');
   const [banDuration, setBanDuration] = useState('60');
   const [banReason, setBanReason] = useState('');
+  
+  // Delete account
+  const [deleteReason, setDeleteReason] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Admin actions
   const [adminNote, setAdminNote] = useState('');
@@ -454,6 +470,68 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!user || !deleteReason.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Укажите причину удаления",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const currentUser = await supabase.auth.getUser();
+
+      // Log admin action before deletion
+      await supabase
+        .from('admin_logs')
+        .insert({
+          action: 'delete_user',
+          user_id: currentUser.data.user?.id,
+          target_id: user.id,
+          target_type: 'user'
+        });
+
+      // Create notification for user before deletion
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: user.id,
+          type: 'account_deleted',
+          title: 'Аккаунт удален',
+          content: `Ваш аккаунт был удален администратором. Причина: ${deleteReason}`
+        });
+
+      // Delete user profile (cascading deletes should handle related data)
+      const { error: deleteError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+
+      if (deleteError) throw deleteError;
+
+      toast({
+        title: "Успешно",
+        description: "Аккаунт пользователя удален"
+      });
+
+      setShowDeleteDialog(false);
+      onClose();
+      onUserUpdate();
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось удалить аккаунт",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getBanTypeLabel = (type: string) => {
     switch (type) {
       case 'order_mute': return 'Запрет на заказы';
@@ -491,15 +569,78 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                  'Пользователь'}
               </Badge>
             </div>
-            <Button
-              onClick={handleOpenChat}
-              disabled={loading}
-              className="flex items-center gap-2"
-              variant="default"
-            >
-              <MessageSquare className="w-4 h-4" />
-              Открыть чат
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleOpenChat}
+                disabled={loading}
+                className="flex items-center gap-2"
+                variant="default"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Открыть чат
+              </Button>
+              
+              <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    disabled={loading}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="card-steel-dialog">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-steel-100">
+                      Удалить аккаунт пользователя?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-steel-300">
+                      Это действие нельзя отменить. Все данные пользователя будут безвозвратно удалены.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  
+                  <div className="space-y-3">
+                    <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
+                        <div className="text-sm text-steel-200">
+                          <p className="font-semibold mb-1">Будет удалено:</p>
+                          <ul className="list-disc list-inside space-y-1 text-steel-300">
+                            <li>Профиль пользователя</li>
+                            <li>История транзакций</li>
+                            <li>Заказы и объявления</li>
+                            <li>Отзывы и сообщения</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Textarea
+                      placeholder="Причина удаления (обязательно)"
+                      value={deleteReason}
+                      onChange={(e) => setDeleteReason(e.target.value)}
+                      rows={3}
+                      className="bg-background"
+                    />
+                  </div>
+                  
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Отмена</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeleteAccount();
+                      }}
+                      disabled={!deleteReason.trim() || loading}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      {loading ? "Удаление..." : "Удалить аккаунт"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </DialogTitle>
           <DialogDescription>
             Просмотр и редактирование данных пользователя
