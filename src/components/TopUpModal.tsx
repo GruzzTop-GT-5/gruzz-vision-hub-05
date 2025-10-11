@@ -279,8 +279,23 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
               </div>
             ) : (
               <div className="space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-steel-100">Реквизиты для перевода</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setPaymentDetails(null);
+                      setSelectedPaymentMethod('');
+                      setProofImage(null);
+                    }}
+                    className="text-primary hover:text-primary-hover"
+                  >
+                    Выбрать другой способ
+                  </Button>
+                </div>
+
                 <Card className="card-steel p-4 space-y-3">
-                  <h4 className="font-medium text-steel-100">Реквизиты для перевода:</h4>
                   
                   {paymentDetails.card_number && (
                     <div className="flex items-center justify-between">
