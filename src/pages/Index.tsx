@@ -128,13 +128,7 @@ const Index = () => {
                 </div>
               </div>
             </Card>
-          ) : (
-            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => setShowAuth(true)}>
-              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
-...
-              </div>
-            </Card>
-          )}
+          ) : null}
           
           {/* Мои задания */}
           {user ? (
@@ -152,20 +146,7 @@ const Index = () => {
                 </div>
               </Card>
             </Link>
-          ) : (
-            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10" onClick={() => setShowAuth(true)}>
-              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Briefcase className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
-                  </div>
-                  <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
-                  <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Управление размещенными заказами</p>
-                </div>
-              </div>
-            </Card>
-          )}
+          ) : null}
           
           {/* Найти работу */}
           {user ? (
@@ -183,20 +164,7 @@ const Index = () => {
                 </div>
               </Card>
             </Link>
-          ) : (
-            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10" onClick={() => setShowAuth(true)}>
-              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Search className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
-                  </div>
-                  <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
-                  <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Просмотр доступных заказов</p>
-                </div>
-              </div>
-            </Card>
-          )}
+          ) : null}
         </div>
 
 
