@@ -91,7 +91,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
     <TelegramLayout>
       <AnimatedBackground className="min-h-screen">
       {/* Header - Адаптивный для всех устройств */}
-      <header className="relative z-50 flex items-center justify-between p-3 sm:p-4 md:p-5 lg:p-6 3xl:p-8 border-b border-steel-600">
+      <header className="relative z-30 flex items-center justify-between p-3 sm:p-4 md:p-5 lg:p-6 3xl:p-8 border-b border-steel-600">
         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-5">
           <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 3xl:w-20 3xl:h-20 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary to-electric-600">
             <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
