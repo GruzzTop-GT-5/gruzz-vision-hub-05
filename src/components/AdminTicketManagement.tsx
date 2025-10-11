@@ -365,7 +365,8 @@ export const AdminTicketManagement = () => {
       case 'in_progress': return 'В работе';
       case 'resolved': return 'Решен';
       case 'closed': return 'Закрыт';
-      default: return status;
+      case 'active': return 'Активен';
+      default: return status || 'Неизвестно';
     }
   };
 
@@ -375,6 +376,7 @@ export const AdminTicketManagement = () => {
       case 'in_progress': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
       case 'resolved': return 'text-green-400 bg-green-400/10 border-green-400/20';
       case 'closed': return 'text-gray-400 bg-gray-400/10 border-gray-400/20';
+      case 'active': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
       default: return 'text-steel-400 bg-steel-400/10 border-steel-400/20';
     }
   };
@@ -582,9 +584,11 @@ export const AdminTicketManagement = () => {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="font-mono text-sm text-primary">
-                          {ticket.ticket_number}
-                        </span>
+                        {ticket.ticket_number && (
+                          <span className="font-mono text-sm text-primary">
+                            {ticket.ticket_number}
+                          </span>
+                        )}
                         <Badge className={getStatusColor(ticket.status)}>
                           {getStatusLabel(ticket.status)}
                         </Badge>
