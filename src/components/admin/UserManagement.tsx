@@ -162,6 +162,35 @@ export const UserManagement: React.FC = () => {
         </TabsList>
       </Tabs>
 
+      {filterTab === 'needs_attention' && usersNeedingAttention.length > 0 && (
+        <Card className="mb-4 border-orange-500/30 bg-orange-500/5">
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-orange-400 mb-2">Что означает "Не завершил регистрацию"?</h4>
+                <p className="text-sm text-steel-300 mb-3">
+                  Эти пользователи зарегистрировались, но не выбрали свой тип профиля 
+                  (Заказчик/Исполнитель) и специализацию. Без этого они не могут полноценно 
+                  использовать платформу.
+                </p>
+                <h4 className="font-semibold text-orange-400 mb-2">Что делать?</h4>
+                <ul className="text-sm text-steel-300 space-y-1 list-disc list-inside">
+                  <li>Нажмите на пользователя, чтобы открыть его профиль</li>
+                  <li>Свяжитесь с ним через систему поддержки или напрямую</li>
+                  <li>Попросите завершить регистрацию в приложении</li>
+                  <li>При необходимости можете помочь с выбором типа профиля</li>
+                </ul>
+                <p className="text-xs text-steel-400 mt-3">
+                  💡 Пользователи должны сами выбрать тип в своем профиле. Это гарантирует, 
+                  что они понимают функционал платформы.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="mb-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4" />
