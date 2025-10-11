@@ -223,86 +223,133 @@ export default function Orders() {
             </div>
           </div>
 
-          {/* Compact Stats Grid */}
+          {/* Premium Stats Grid with Gradients */}
           <div className="grid grid-cols-5 gap-1.5 xs:gap-2 sm:gap-3">
-            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-primary/50 transition-colors">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-primary">{stats.total}</div>
-              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Всего</div>
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4 text-center">
+                <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-br from-primary via-electric-400 to-primary bg-clip-text text-transparent">
+                  {stats.total}
+                </div>
+                <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Всего</div>
+              </div>
             </Card>
             
-            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-yellow-400/50 transition-colors">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-400">{stats.pending}</div>
-              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Ожидают</div>
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4 text-center">
+                <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-br from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent">
+                  {stats.pending}
+                </div>
+                <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Ожидают</div>
+              </div>
             </Card>
             
-            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-blue-400/50 transition-colors">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-blue-400">{stats.in_progress}</div>
-              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">В работе</div>
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4 text-center">
+                <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-br from-blue-400 via-blue-300 to-blue-400 bg-clip-text text-transparent">
+                  {stats.in_progress}
+                </div>
+                <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">В работе</div>
+              </div>
             </Card>
             
-            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-green-400/50 transition-colors">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-green-400">{stats.completed}</div>
-              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Завершены</div>
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4 text-center">
+                <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-br from-green-400 via-green-300 to-green-400 bg-clip-text text-transparent">
+                  {stats.completed}
+                </div>
+                <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Завершены</div>
+              </div>
             </Card>
 
-            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-red-400/50 transition-colors">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-red-400">{stats.expired}</div>
-              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Истекли</div>
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 via-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4 text-center">
+                <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-br from-red-400 via-red-300 to-red-400 bg-clip-text text-transparent">
+                  {stats.expired}
+                </div>
+                <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Истекли</div>
+              </div>
             </Card>
           </div>
 
-          {/* Compact Search & Filters */}
-          <Card className="card-steel-dialog p-2.5 xs:p-3 sm:p-4">
-            <div className="flex flex-col xs:flex-row gap-2 xs:gap-2.5 sm:gap-3">
-              <input
-                type="text"
-                placeholder="Поиск заказов..."
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="flex-1 bg-steel-800/50 border border-steel-600 rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm text-steel-100 placeholder-steel-500 focus:outline-none focus:border-primary transition-colors"
-              />
-              <select
-                value={filters.status}
-                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="bg-steel-800/50 border border-steel-600 rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm text-steel-100 focus:outline-none focus:border-primary transition-colors"
-              >
-                <option value="all">Все статусы</option>
-                <option value="pending">Ожидают</option>
-                <option value="accepted">Приняты</option>
-                <option value="in_progress">В работе</option>
-                <option value="completed">Завершены</option>
-                <option value="cancelled">Отменены</option>
-              </select>
-              {(filters.search || filters.status !== 'all') && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="h-9 xs:h-10 px-3 text-xs xs:text-sm"
-                >
-                  Сбросить
-                </Button>
-              )}
+          {/* Premium Search & Filters */}
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-electric-600/5 opacity-50"></div>
+            <div className="relative p-2.5 xs:p-3 sm:p-4">
+              <div className="space-y-2.5 xs:space-y-3">
+                {/* Search with gradient border effect */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-electric-400 to-primary rounded-lg opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
+                  <input
+                    type="text"
+                    placeholder="Поиск заказов..."
+                    value={filters.search}
+                    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                    className="relative w-full bg-steel-800/50 border border-steel-600 focus:border-primary/50 rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm text-steel-100 placeholder-steel-500 focus:outline-none transition-all duration-300"
+                  />
+                </div>
+
+                {/* Filters Row with gradient effects */}
+                <div className="flex gap-2 xs:gap-2.5">
+                  <div className="relative flex-1 group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-electric-600/20 rounded-lg opacity-0 group-hover:opacity-100 blur transition-opacity duration-300"></div>
+                    <select
+                      value={filters.status}
+                      onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                      className="relative w-full bg-steel-800/50 border border-steel-600 hover:border-primary/50 rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm text-steel-100 focus:outline-none transition-all duration-300"
+                    >
+                      <option value="all">Все статусы</option>
+                      <option value="pending">Ожидают</option>
+                      <option value="accepted">Приняты</option>
+                      <option value="in_progress">В работе</option>
+                      <option value="completed">Завершены</option>
+                      <option value="cancelled">Отменены</option>
+                    </select>
+                  </div>
+                  
+                  {(filters.search || filters.status !== 'all') && (
+                    <Button
+                      variant="outline"
+                      onClick={clearFilters}
+                      className="h-9 xs:h-10 px-3 text-xs xs:text-sm bg-steel-800/50 border-steel-600 hover:border-primary/50 hover:bg-primary/10 transition-all duration-300"
+                    >
+                      Сбросить
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </Card>
 
-          {/* Orders List - Compact View */}
+          {/* Premium Orders List */}
           {isLoading ? (
-            <Card className="card-steel-dialog p-6 xs:p-8 text-center">
-              <Loader2 className="w-6 h-6 xs:w-8 xs:h-8 text-primary animate-spin mx-auto mb-3 xs:mb-4" />
-              <p className="text-xs xs:text-sm text-steel-300">Загрузка заказов...</p>
+            <Card className="relative overflow-hidden p-6 xs:p-8">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-electric-600/5"></div>
+              <div className="relative text-center">
+                <Loader2 className="w-6 h-6 xs:w-8 xs:h-8 text-primary animate-spin mx-auto mb-3 xs:mb-4" />
+                <p className="text-xs xs:text-sm text-steel-300">Загрузка заказов...</p>
+              </div>
             </Card>
           ) : filteredOrders.length === 0 ? (
-            <Card className="card-steel-dialog p-6 xs:p-8 text-center space-y-3 xs:space-y-4">
-              <Package className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 text-steel-500 mx-auto" />
-              <h3 className="text-base xs:text-lg sm:text-xl font-bold text-steel-300">
-                {orders.length === 0 ? 'У вас пока нет заказов' : 'Ничего не найдено'}
-              </h3>
-              <p className="text-xs xs:text-sm sm:text-base text-steel-400">
-                {orders.length === 0 
-                  ? 'Создайте заказ через главную страницу' 
-                  : 'Попробуйте изменить параметры фильтрации'}
-              </p>
+            <Card className="relative overflow-hidden p-6 xs:p-8">
+              <div className="absolute inset-0 bg-gradient-to-br from-steel-800/50 via-steel-700/30 to-steel-800/50"></div>
+              <div className="relative text-center space-y-3 xs:space-y-4">
+                <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-steel-600/20 to-steel-700/20 rounded-full flex items-center justify-center mx-auto backdrop-blur-sm">
+                  <Package className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-steel-400" />
+                </div>
+                <h3 className="text-base xs:text-lg sm:text-xl font-bold text-steel-100">
+                  {orders.length === 0 ? 'У вас пока нет заказов' : 'Ничего не найдено'}
+                </h3>
+                <p className="text-xs xs:text-sm sm:text-base text-steel-400">
+                  {orders.length === 0 
+                    ? 'Создайте заказ через главную страницу' 
+                    : 'Попробуйте изменить параметры фильтрации'}
+                </p>
+              </div>
             </Card>
           ) : (
             <div className="space-y-2 xs:space-y-2.5 sm:space-y-3">
