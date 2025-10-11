@@ -246,7 +246,7 @@ export const PromoCodeSection: React.FC = () => {
                 }`}
               >
                 <div className="p-3 space-y-2">
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <Badge variant={promo.used ? "secondary" : "default"} className="text-[10px] font-medium mb-1.5 h-5">
                         {promo.used ? (
@@ -279,13 +279,13 @@ export const PromoCodeSection: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/30">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-2 border-t border-border/30">
                     <code className="font-mono font-bold text-sm px-3 py-1.5 rounded-md bg-background/50 border border-primary/30 text-primary">
                       {promo.code}
                     </code>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>{formatExpiryDate(promo.expires_at)}</span>
+                      <span className="whitespace-nowrap">{formatExpiryDate(promo.expires_at)}</span>
                     </div>
                   </div>
                 </div>
