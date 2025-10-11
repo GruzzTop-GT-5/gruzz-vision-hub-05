@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -16,7 +16,8 @@ import {
   Shield,
   FileText,
   Menu,
-  X
+  X,
+  Home
 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { UserManagement } from '@/components/admin/UserManagement';
@@ -70,6 +71,7 @@ const navigationItems: NavigationItem[] = [
 
 export default function AdminPanel() {
   const { user, userRole, loading } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<AdminSection>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -189,23 +191,33 @@ export default function AdminPanel() {
           {/* Page header */}
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                {(() => {
-                  const activeItem = navigationItems.find(item => item.id === activeSection);
-                  if (!activeItem) return null;
-                  const Icon = activeItem.icon;
-                  return (
-                    <>
-                      <Icon className="h-6 w-6 text-primary" />
-                      <div>
-                        <div className="text-2xl">{activeItem.label}</div>
-                        <div className="text-sm text-muted-foreground font-normal mt-1">
-                          {activeItem.description}
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {(() => {
+                    const activeItem = navigationItems.find(item => item.id === activeSection);
+                    if (!activeItem) return null;
+                    const Icon = activeItem.icon;
+                    return (
+                      <>
+                        <Icon className="h-6 w-6 text-primary" />
+                        <div>
+                          <div className="text-2xl">{activeItem.label}</div>
+                          <div className="text-sm text-muted-foreground font-normal mt-1">
+                            {activeItem.description}
+                          </div>
                         </div>
-                      </div>
-                    </>
-                  );
-                })()}
+                      </>
+                    );
+                  })()}
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/')}
+                  className="flex items-center gap-2"
+                >
+                  <Home className="h-4 w-4" />
+                  На главную
+                </Button>
               </CardTitle>
             </CardHeader>
           </Card>
