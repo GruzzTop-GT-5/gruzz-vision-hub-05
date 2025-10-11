@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreditCard, Smartphone, Upload, Copy, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -228,12 +227,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="direct" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="direct">Прямой платеж</TabsTrigger>
-            <TabsTrigger value="manual">Ручной перевод</TabsTrigger>
-          </TabsList>
-
+        <div className="space-y-4">
           {/* Amount Input */}
           <div className="space-y-2">
             <Label htmlFor="amount">Сумма пополнения (GT Coins)</Label>
@@ -258,165 +252,100 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
             </p>
           </div>
 
-          <TabsContent value="direct" className="space-y-4">
-            {!paymentDetails ? (
-              <div className="space-y-3">
-                <Label>Выберите способ оплаты:</Label>
-                {paymentMethods.map((method) => (
-                  <Card
-                    key={method.id}
-                    className="card-steel p-4 cursor-pointer hover:bg-steel-700 hover:scale-105 transition-all duration-300"
-                    onClick={() => generatePaymentDetails(method.id)}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 bg-gradient-to-br ${method.color} rounded-lg flex items-center justify-center`}>
-                        <method.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <span className="font-medium text-steel-100">{method.name}</span>
+          {!paymentDetails ? (
+            <div className="space-y-3">
+              <Label>Выберите способ оплаты:</Label>
+              {paymentMethods.map((method) => (
+                <Card
+                  key={method.id}
+                  className="card-steel p-4 cursor-pointer hover:bg-steel-700 hover:scale-105 transition-all duration-300"
+                  onClick={() => generatePaymentDetails(method.id)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 bg-gradient-to-br ${method.color} rounded-lg flex items-center justify-center`}>
+                      <method.icon className="w-5 h-5 text-white" />
                     </div>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-steel-100">Реквизиты для перевода</h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setPaymentDetails(null);
-                      setSelectedPaymentMethod('');
-                      setProofImage(null);
-                    }}
-                    className="text-primary hover:text-primary-hover"
-                  >
-                    Выбрать другой способ
-                  </Button>
-                </div>
-
-                <Card className="card-steel p-4 space-y-3">
-                  
-                  {paymentDetails.card_number && (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-steel-400">Номер карты</p>
-                        <p className="font-mono">2204 3204 7436 8950</p>
-                      </div>
-                      <CopyButton text={paymentDetails.card_number} field="card" />
-                    </div>
-                  )}
-                  
-                  {paymentDetails.account && (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-steel-400">Счет</p>
-                        <p className="font-mono">{paymentDetails.account}</p>
-                      </div>
-                      <CopyButton text={paymentDetails.account} field="account" />
-                    </div>
-                  )}
-                  
-                  {paymentDetails.phone && (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-steel-400">Номер телефона</p>
-                        <p className="font-mono">{paymentDetails.phone}</p>
-                      </div>
-                      <CopyButton text={paymentDetails.phone} field="phone" />
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-steel-400">Код платежа</p>
-                      <p className="font-mono font-bold text-primary">{paymentDetails.payment_reference}</p>
-                    </div>
-                    <CopyButton text={paymentDetails.payment_reference} field="reference" />
-                  </div>
-                  
-                  <div className="pt-2 border-t border-steel-600">
-                    <p className="text-xs text-steel-400">{paymentDetails.instructions}</p>
+                    <span className="font-medium text-steel-100">{method.name}</span>
                   </div>
                 </Card>
-
-                {/* Proof Upload */}
-                <div className="space-y-2">
-                  <Label htmlFor="proof">Скриншот перевода</Label>
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      id="proof"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="input-steel"
-                    />
-                    <Upload className="w-5 h-5 text-steel-400" />
-                  </div>
-                  {proofImage && (
-                    <p className="text-xs text-green-400">
-                      Файл загружен: {proofImage.name}
-                    </p>
-                  )}
-                </div>
-
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-steel-100">Реквизиты для перевода</h4>
                 <Button
-                  onClick={() => submitTransaction(selectedPaymentMethod)}
-                  disabled={loading || !proofImage || !selectedPaymentMethod}
-                  className="w-full btn-3d"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setPaymentDetails(null);
+                    setSelectedPaymentMethod('');
+                    setProofImage(null);
+                  }}
+                  className="text-primary hover:text-primary-hover"
                 >
-                  {loading ? "Отправка..." : "Подтвердить платеж"}
+                  Выбрать другой способ
                 </Button>
               </div>
-            )}
-          </TabsContent>
 
-          <TabsContent value="manual" className="space-y-4">
-            <div className="space-y-4">
-              <Card className="card-steel p-4">
-                <h4 className="font-medium text-steel-100 mb-3">Реквизиты для ручного пополнения:</h4>
+              <Card className="card-steel p-4 space-y-3">
                 
-                <div className="space-y-4">
-                  {/* Юмани карта */}
-                  <div className="border border-steel-600 rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h5 className="font-medium text-purple-400">ЮMoney</h5>
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <CreditCard className="w-4 h-4 text-white" />
-                      </div>
+                {paymentDetails.card_number && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-steel-400">Номер карты</p>
+                      <p className="font-mono">2204 3204 7436 8950</p>
                     </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-steel-400">Карта:</span>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-mono">2204 1201 2644 4419</span>
-                          <CopyButton text="2204120126444419" field="yoomoney-card" />
-                        </div>
-                      </div>
-                      <p className="text-xs text-steel-400">
-                        Переводите с указанием вашего номера телефона в комментарии
-                      </p>
-                    </div>
+                    <CopyButton text={paymentDetails.card_number} field="card" />
                   </div>
-
+                )}
+                
+                {paymentDetails.account && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-steel-400">Счет</p>
+                      <p className="font-mono">{paymentDetails.account}</p>
+                    </div>
+                    <CopyButton text={paymentDetails.account} field="account" />
+                  </div>
+                )}
+                
+                {paymentDetails.phone && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-steel-400">Номер телефона</p>
+                      <p className="font-mono">{paymentDetails.phone}</p>
+                    </div>
+                    <CopyButton text={paymentDetails.phone} field="phone" />
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-steel-400">Код платежа</p>
+                    <p className="font-mono font-bold text-primary">{paymentDetails.payment_reference}</p>
+                  </div>
+                  <CopyButton text={paymentDetails.payment_reference} field="reference" />
                 </div>
                 
-                <div className="mt-4 p-3 bg-steel-900/50 rounded-lg">
-                  <p className="text-xs text-steel-300">
-                    <strong>Важно:</strong> Обязательно укажите ваш номер телефона в комментарии к переводу для быстрой идентификации платежа.
-                  </p>
+                <div className="pt-2 border-t border-steel-600">
+                  <p className="text-xs text-steel-400">{paymentDetails.instructions}</p>
                 </div>
               </Card>
 
+              {/* Proof Upload */}
               <div className="space-y-2">
-                <Label htmlFor="manual-proof">Скриншот перевода</Label>
-                <Input
-                  id="manual-proof"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="input-steel"
-                />
+                <Label htmlFor="proof">Скриншот перевода</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="proof"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="input-steel"
+                  />
+                  <Upload className="w-5 h-5 text-steel-400" />
+                </div>
                 {proofImage && (
                   <p className="text-xs text-green-400">
                     Файл загружен: {proofImage.name}
@@ -425,15 +354,15 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
               </div>
 
               <Button
-                onClick={() => submitTransaction('manual_transfer', true)}
-                disabled={loading || !proofImage || !amount}
+                onClick={() => submitTransaction(selectedPaymentMethod)}
+                disabled={loading || !proofImage || !selectedPaymentMethod}
                 className="w-full btn-3d"
               >
-                {loading ? "Отправка..." : "Отправить на проверку"}
+                {loading ? "Отправка..." : "Подтвердить платеж"}
               </Button>
             </div>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
