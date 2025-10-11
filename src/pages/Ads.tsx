@@ -309,7 +309,7 @@ export default function Ads() {
               <div className="flex items-start gap-2 mb-1.5 sm:mb-2">
                 <Package className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-xs sm:text-lg font-semibold text-steel-100 mb-0.5 sm:mb-1">Заказы на работу</h3>
+                  <h3 className="text-xs sm:text-lg font-semibold text-steel-100 mb-0.5 sm:mb-1">Доска Объявлений</h3>
                   <p className="text-[10px] sm:text-sm text-steel-300 leading-tight">
                     Здесь размещаются заказы на различные виды работ от заказчиков. Найдите подходящую работу или разместите свой заказ.
                   </p>
