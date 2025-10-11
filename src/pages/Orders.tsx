@@ -209,64 +209,62 @@ export default function Orders() {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="min-h-screen p-4">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center space-x-3">
-              <BackButton />
-              <Package className="w-8 h-8 text-primary" />
-              <div>
-                <h1 className="text-3xl font-bold text-glow">Мои задания</h1>
-                <p className="text-sm text-steel-400 mt-1">
-                  Управляйте своими заказами
-                </p>
-              </div>
+      <div className="min-h-screen p-2 xs:p-3 sm:p-4">
+        <div className="max-w-7xl mx-auto space-y-3 xs:space-y-4 sm:space-y-6">
+          {/* Compact Header */}
+          <div className="flex items-center gap-2 xs:gap-3">
+            <BackButton />
+            <Package className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-glow truncate">Мои задания</h1>
+              <p className="text-xs xs:text-sm text-steel-400 hidden xs:block truncate">
+                Управляйте своими заказами
+              </p>
             </div>
           </div>
 
-          {/* Simple Stats - Quick View */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <Card className="card-steel-dialog p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
-              <div className="text-3xl font-bold text-primary">{stats.total}</div>
-              <div className="text-xs text-steel-400 mt-1">Всего</div>
+          {/* Compact Stats Grid */}
+          <div className="grid grid-cols-5 gap-1.5 xs:gap-2 sm:gap-3">
+            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-primary/50 transition-colors">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-primary">{stats.total}</div>
+              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Всего</div>
             </Card>
             
-            <Card className="card-steel-dialog p-4 text-center hover:border-yellow-400/50 transition-colors cursor-pointer">
-              <div className="text-3xl font-bold text-yellow-400">{stats.pending}</div>
-              <div className="text-xs text-steel-400 mt-1">Ожидают</div>
+            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-yellow-400/50 transition-colors">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-400">{stats.pending}</div>
+              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Ожидают</div>
             </Card>
             
-            <Card className="card-steel-dialog p-4 text-center hover:border-blue-400/50 transition-colors cursor-pointer">
-              <div className="text-3xl font-bold text-blue-400">{stats.in_progress}</div>
-              <div className="text-xs text-steel-400 mt-1">В работе</div>
+            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-blue-400/50 transition-colors">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-blue-400">{stats.in_progress}</div>
+              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">В работе</div>
             </Card>
             
-            <Card className="card-steel-dialog p-4 text-center hover:border-green-400/50 transition-colors cursor-pointer">
-              <div className="text-3xl font-bold text-green-400">{stats.completed}</div>
-              <div className="text-xs text-steel-400 mt-1">Завершены</div>
+            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-green-400/50 transition-colors">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-green-400">{stats.completed}</div>
+              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Завершены</div>
             </Card>
 
-            <Card className="card-steel-dialog p-4 text-center hover:border-red-400/50 transition-colors cursor-pointer">
-              <div className="text-3xl font-bold text-red-400">{stats.expired}</div>
-              <div className="text-xs text-steel-400 mt-1">Истекли</div>
+            <Card className="card-steel-dialog p-2 xs:p-3 sm:p-4 text-center hover:border-red-400/50 transition-colors">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-red-400">{stats.expired}</div>
+              <div className="text-[10px] xs:text-xs text-steel-400 mt-0.5 xs:mt-1">Истекли</div>
             </Card>
           </div>
 
-          {/* Simple Search */}
-          <Card className="card-steel-dialog p-4">
-            <div className="flex items-center space-x-3">
+          {/* Compact Search & Filters */}
+          <Card className="card-steel-dialog p-2.5 xs:p-3 sm:p-4">
+            <div className="flex flex-col xs:flex-row gap-2 xs:gap-2.5 sm:gap-3">
               <input
                 type="text"
                 placeholder="Поиск заказов..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="flex-1 bg-steel-800/50 border border-steel-600 rounded-lg px-4 py-2 text-steel-100 placeholder-steel-500 focus:outline-none focus:border-primary transition-colors"
+                className="flex-1 bg-steel-800/50 border border-steel-600 rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm text-steel-100 placeholder-steel-500 focus:outline-none focus:border-primary transition-colors"
               />
               <select
                 value={filters.status}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="bg-steel-800/50 border border-steel-600 rounded-lg px-4 py-2 text-steel-100 focus:outline-none focus:border-primary transition-colors"
+                className="bg-steel-800/50 border border-steel-600 rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm text-steel-100 focus:outline-none focus:border-primary transition-colors"
               >
                 <option value="all">Все статусы</option>
                 <option value="pending">Ожидают</option>
@@ -280,6 +278,7 @@ export default function Orders() {
                   variant="outline"
                   size="sm"
                   onClick={clearFilters}
+                  className="h-9 xs:h-10 px-3 text-xs xs:text-sm"
                 >
                   Сбросить
                 </Button>
@@ -287,26 +286,26 @@ export default function Orders() {
             </div>
           </Card>
 
-          {/* Orders List - Simple View */}
+          {/* Orders List - Compact View */}
           {isLoading ? (
-            <Card className="card-steel-dialog p-8 text-center">
-              <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-              <p className="text-steel-300">Загрузка заказов...</p>
+            <Card className="card-steel-dialog p-6 xs:p-8 text-center">
+              <Loader2 className="w-6 h-6 xs:w-8 xs:h-8 text-primary animate-spin mx-auto mb-3 xs:mb-4" />
+              <p className="text-xs xs:text-sm text-steel-300">Загрузка заказов...</p>
             </Card>
           ) : filteredOrders.length === 0 ? (
-            <Card className="card-steel-dialog p-8 text-center space-y-4">
-              <Package className="w-16 h-16 text-steel-500 mx-auto" />
-              <h3 className="text-xl font-bold text-steel-300">
+            <Card className="card-steel-dialog p-6 xs:p-8 text-center space-y-3 xs:space-y-4">
+              <Package className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 text-steel-500 mx-auto" />
+              <h3 className="text-base xs:text-lg sm:text-xl font-bold text-steel-300">
                 {orders.length === 0 ? 'У вас пока нет заказов' : 'Ничего не найдено'}
               </h3>
-              <p className="text-steel-400">
+              <p className="text-xs xs:text-sm sm:text-base text-steel-400">
                 {orders.length === 0 
                   ? 'Создайте заказ через главную страницу' 
                   : 'Попробуйте изменить параметры фильтрации'}
               </p>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 xs:space-y-2.5 sm:space-y-3">
               {filteredOrders.map((order) => (
                 <OrderCard
                   key={order.id}
