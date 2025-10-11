@@ -122,15 +122,37 @@ export const AdminDashboard: React.FC = () => {
         ticket.status === 'open' || ticket.status === 'pending'
       ).length || 0;
 
-      // Создаем данные для графика (последние 7 дней)
+      // Создаем данные для графика (последние 7 дней) на основе реальных данных
       const last7Days = Array.from({ length: 7 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - (6 - i));
+        const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+        
+        // Подсчитываем реальные данные за день
+        const dayUsers = users?.filter(u => {
+          const createdAt = new Date(u.created_at);
+          return createdAt >= startOfDay && createdAt < endOfDay;
+        }).length || 0;
+        
+        const dayOrders = orders?.filter(o => {
+          const createdAt = new Date(o.created_at);
+          return createdAt >= startOfDay && createdAt < endOfDay;
+        }).length || 0;
+        
+        const dayRevenue = transactions?.filter(t => {
+          const createdAt = new Date(t.created_at);
+          return t.status === 'completed' && 
+                 t.type === 'deposit' && 
+                 createdAt >= startOfDay && 
+                 createdAt < endOfDay;
+        }).reduce((sum, t) => sum + (Number(t.amount) || 0), 0) || 0;
+        
         return {
           date: date.toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' }),
-          users: Math.floor(Math.random() * 20) + 5,
-          orders: Math.floor(Math.random() * 15) + 2,
-          revenue: Math.floor(Math.random() * 50000) + 10000
+          users: dayUsers,
+          orders: dayOrders,
+          revenue: dayRevenue
         };
       });
 
