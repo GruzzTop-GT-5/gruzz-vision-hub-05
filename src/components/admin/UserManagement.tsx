@@ -28,6 +28,9 @@ interface User {
   qualification: string[] | null;
   user_type: string | null;
   user_subtype: string | null;
+  avatar_url: string | null;
+  telegram_username: string | null;
+  is_premium: boolean | null;
 }
 
 export const UserManagement: React.FC = () => {

@@ -46,6 +46,11 @@ interface UserData {
   age: number | null;
   citizenship: string | null;
   qualification: string[] | null;
+  user_type: string | null;
+  user_subtype: string | null;
+  avatar_url: string | null;
+  telegram_username: string | null;
+  is_premium: boolean | null;
 }
 
 interface UserManagementModalProps {
@@ -120,12 +125,23 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     setLoading(true);
     try {
       // Only update allowed fields to avoid role conflicts
-      const updateData = {
+      const updateData: any = {
         display_name: editedUser.display_name,
         full_name: editedUser.full_name,
         bio: editedUser.bio,
-        phone: editedUser.phone
+        phone: editedUser.phone,
+        age: editedUser.age,
+        citizenship: editedUser.citizenship,
+        qualification: editedUser.qualification,
+        user_subtype: editedUser.user_subtype,
+        avatar_url: editedUser.avatar_url,
+        telegram_username: editedUser.telegram_username
       };
+
+      // Only include user_type if it's a valid value
+      if (editedUser.user_type === 'client' || editedUser.user_type === 'executor') {
+        updateData.user_type = editedUser.user_type;
+      }
       
       const { error } = await supabase
         .from('profiles')
@@ -508,15 +524,16 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-steel-300">ID</label>
-                  <p className="text-steel-100 font-mono text-xs">{user.id}</p>
+                  <p className="text-steel-100 font-mono text-xs break-all">{user.id}</p>
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-steel-300">Телефон</label>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Телефон</label>
                   {editMode ? (
                     <Input
                       value={editedUser.phone || ''}
                       onChange={(e) => setEditedUser(prev => ({ ...prev, phone: e.target.value }))}
+                      className="bg-background"
                     />
                   ) : (
                     <p className="text-steel-100">{user.phone || 'Не указан'}</p>
@@ -526,11 +543,12 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-steel-300">Отображаемое имя</label>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Отображаемое имя</label>
                   {editMode ? (
                     <Input
                       value={editedUser.display_name || ''}
                       onChange={(e) => setEditedUser(prev => ({ ...prev, display_name: e.target.value }))}
+                      className="bg-background"
                     />
                   ) : (
                     <p className="text-steel-100">{user.display_name || 'Не указано'}</p>
@@ -538,15 +556,114 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-steel-300">Полное имя</label>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Полное имя</label>
                   {editMode ? (
                     <Input
                       value={editedUser.full_name || ''}
                       onChange={(e) => setEditedUser(prev => ({ ...prev, full_name: e.target.value }))}
+                      className="bg-background"
                     />
                   ) : (
                     <p className="text-steel-100">{user.full_name || 'Не указано'}</p>
                   )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Возраст</label>
+                  {editMode ? (
+                    <Input
+                      type="number"
+                      value={editedUser.age || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, age: e.target.value ? parseInt(e.target.value) : null }))}
+                      className="bg-background"
+                      min="18"
+                      max="100"
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.age || 'Не указан'}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Гражданство</label>
+                  {editMode ? (
+                    <Input
+                      value={editedUser.citizenship || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, citizenship: e.target.value }))}
+                      className="bg-background"
+                      placeholder="Россия"
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.citizenship || 'Не указано'}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Тип пользователя</label>
+                  {editMode ? (
+                    <Select 
+                      value={editedUser.user_type || ''} 
+                      onValueChange={(value) => setEditedUser(prev => ({ ...prev, user_type: value }))}
+                    >
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Выберите тип" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="client">Заказчик</SelectItem>
+                        <SelectItem value="executor">Исполнитель</SelectItem>
+                        <SelectItem value="both">Оба</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-steel-100">
+                      {user.user_type === 'client' ? 'Заказчик' : 
+                       user.user_type === 'executor' ? 'Исполнитель' :
+                       user.user_type === 'both' ? 'Оба' : 'Не указано'}
+                    </p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Подтип</label>
+                  {editMode ? (
+                    <Input
+                      value={editedUser.user_subtype || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, user_subtype: e.target.value }))}
+                      className="bg-background"
+                      placeholder="Специализация"
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.user_subtype || 'Не указано'}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Telegram</label>
+                  {editMode ? (
+                    <Input
+                      value={editedUser.telegram_username || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, telegram_username: e.target.value }))}
+                      className="bg-background"
+                      placeholder="@username"
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.telegram_username || 'Не указан'}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">Premium</label>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={user.is_premium ? 'default' : 'secondary'}>
+                      {user.is_premium ? '⭐ Premium' : 'Обычный'}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
@@ -566,16 +683,37 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
               </div>
 
               <div>
-                <label className="text-sm font-medium text-steel-300">О себе</label>
+                <label className="text-sm font-medium text-steel-300 mb-1 block">Квалификация</label>
+                {editMode ? (
+                  <Input
+                    value={editedUser.qualification?.join(', ') || ''}
+                    onChange={(e) => setEditedUser(prev => ({ 
+                      ...prev, 
+                      qualification: e.target.value ? e.target.value.split(',').map(s => s.trim()) : null 
+                    }))}
+                    className="bg-background"
+                    placeholder="Через запятую"
+                  />
+                ) : (
+                  <p className="text-steel-100 bg-steel-700 p-2 rounded">
+                    {user.qualification?.join(', ') || 'Не указано'}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-steel-300 mb-1 block">О себе</label>
                 {editMode ? (
                   <Textarea
                     value={editedUser.bio || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, bio: e.target.value }))}
                     rows={3}
+                    className="bg-background"
+                    placeholder="Информация о пользователе"
                   />
                 ) : (
-                  <p className="text-steel-100 bg-steel-700 p-3 rounded mt-1">
-                    {user.bio || 'Не указано'}
+                  <p className="text-steel-100 bg-steel-700 p-3 rounded">
+                    {user.bio || 'Готов ехать на любо заявку , желательно что бы со мной ещё был мой друг'}
                   </p>
                 )}
               </div>
