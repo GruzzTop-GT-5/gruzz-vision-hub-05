@@ -8,7 +8,6 @@ interface AuthContextType {
   userRole: string | null;
   userType: string | null;
   userSubtype: string | null;
-  needsRoleSelection: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
 }

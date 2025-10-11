@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
 import { AuthForm } from '@/components/AuthForm';
-import { RoleSelection } from '@/components/RoleSelection';
 import { LegalFooter } from '@/components/LegalFooter';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
-  const { user, userRole, needsRoleSelection, loading, signOut } = useAuthContext();
+  const { user, userRole, loading, signOut } = useAuthContext();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
@@ -242,17 +241,6 @@ const Index = () => {
       </div>
 
       {/* Service Modals - removed, redirecting to /create-order page */}
-
-      {/* Role Selection Modal */}
-      {user && needsRoleSelection && (
-        <RoleSelection
-          isOpen={needsRoleSelection}
-          onComplete={() => {
-            // Reload user data after role selection
-            window.location.reload();
-          }}
-        />
-      )}
     </Layout>
   );
 };

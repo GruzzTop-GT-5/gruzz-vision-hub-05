@@ -8,7 +8,6 @@ interface AuthContextType {
   userRole: string | null;
   userType: string | null;
   userSubtype: string | null;
-  needsRoleSelection: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -19,7 +18,6 @@ export const useAuth = (): AuthContextType => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
   const [userSubtype, setUserSubtype] = useState<string | null>(null);
-  const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -87,14 +85,12 @@ export const useAuth = (): AuthContextType => {
       setUserType(type);
       setUserSubtype(subtype);
       
-      setNeedsRoleSelection(!type || !subtype);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching user data:', error);
       setUserRole('user');
       setUserType(null);
       setUserSubtype(null);
-      setNeedsRoleSelection(false);
       setLoading(false);
     }
   };
@@ -106,7 +102,6 @@ export const useAuth = (): AuthContextType => {
     setUserRole(null);
     setUserType(null);
     setUserSubtype(null);
-    setNeedsRoleSelection(false);
     // Перенаправление будет обработано в компонентах
   };
 
@@ -116,7 +111,6 @@ export const useAuth = (): AuthContextType => {
     userRole,
     userType,
     userSubtype,
-    needsRoleSelection,
     loading,
     signOut
   };
