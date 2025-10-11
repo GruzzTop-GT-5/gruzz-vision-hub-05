@@ -178,7 +178,7 @@ export const PromoCodeSection: React.FC = () => {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 max-w-4xl mx-auto">
       {/* Promo Code Input Section */}
       <Card className="card-steel overflow-hidden">
         <CardHeader className="pb-2 px-4 pt-4">
@@ -279,13 +279,13 @@ export const PromoCodeSection: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
-                    <code className="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-background/50 border border-primary/30 text-primary">
+                  <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/30">
+                    <code className="font-mono font-bold text-sm px-3 py-1.5 rounded-md bg-background/50 border border-primary/30 text-primary">
                       {promo.code}
                     </code>
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      <span className="whitespace-nowrap">{formatExpiryDate(promo.expires_at)}</span>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
+                      <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{formatExpiryDate(promo.expires_at)}</span>
                     </div>
                   </div>
                 </div>
