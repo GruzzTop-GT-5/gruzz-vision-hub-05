@@ -236,40 +236,7 @@ export const AnalyticsDashboard = () => {
   useEffect(() => {
     fetchAnalytics();
     
-    // Обновляем каждые 10 секунд для реального времени
-    const interval = setInterval(fetchAnalytics, 10000);
-    
-    // Подписка на изменения в реальном времени
-    const channels = [
-      supabase
-        .channel('analytics-users')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-          console.log('Analytics: Users updated');
-          fetchAnalytics();
-        })
-        .subscribe(),
-        
-      supabase
-        .channel('analytics-orders')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-          console.log('Analytics: Orders updated');
-          fetchAnalytics();
-        })
-        .subscribe(),
-        
-      supabase
-        .channel('analytics-transactions')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
-          console.log('Analytics: Transactions updated');
-          fetchAnalytics();
-        })
-        .subscribe()
-    ];
-    
-    return () => {
-      clearInterval(interval);
-      channels.forEach(channel => supabase.removeChannel(channel));
-    };
+    // Убрали автоматическое обновление - только ручное обновление по кнопке
   }, []);
 
   const exportData = async () => {
