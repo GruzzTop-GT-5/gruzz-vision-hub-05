@@ -124,9 +124,23 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
 
   const viewProofImage = async (imagePath: string) => {
     try {
+      console.log('Attempting to view proof image:', imagePath);
+      
+      // First, check if file exists
+      const { data: fileData, error: listError } = await supabase.storage
+        .from('payment-proofs')
+        .list(imagePath.split('/')[0], {
+          search: imagePath.split('/')[1]
+        });
+
+      console.log('File list result:', fileData, listError);
+
+      // Try to create signed URL
       const { data, error } = await supabase.storage
         .from('payment-proofs')
         .createSignedUrl(imagePath, 3600);
+
+      console.log('Signed URL result:', data, error);
 
       if (error) {
         console.error('Error creating signed URL:', error);
@@ -142,7 +156,7 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
       console.error('Error viewing proof:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось открыть изображение. Возможно, файл был удален.",
+        description: `Не удалось открыть изображение: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
         variant: "destructive"
       });
     }
