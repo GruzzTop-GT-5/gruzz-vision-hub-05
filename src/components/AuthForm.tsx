@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Phone, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Phone, Lock, User, Globe, Calendar, MessageCircle, Briefcase, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
@@ -16,22 +18,48 @@ interface AuthFormProps {
   onBack?: () => void;
 }
 
+const specializationsList = [
+  'Грузчик',
+  'Разнорабочий',
+  'Квартирный переезд',
+  'Офисный переезд',
+  'Погрузка/разгрузка',
+  'Сборка мебели',
+  'Уборка помещений',
+  'Строительные работы',
+  'Ремонтные работы',
+  'Демонтаж',
+  'Подсобные работы',
+  'Складские работы',
+  'Курьерские услуги',
+  'Садовые работы',
+  'Другое'
+];
+
 export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState(() => {
-    // Загружаем сохраненные данные при инициализации
     const savedPhone = localStorage.getItem('rememberedPhone');
     const savedPassword = localStorage.getItem('rememberedPassword');
     return {
       phone: savedPhone || '',
       password: savedPassword || '',
-      confirmPassword: ''
+      confirmPassword: '',
+      // Новые поля для регистрации
+      firstName: '',
+      lastName: '',
+      citizenship: '',
+      age: '',
+      telegram: '',
+      userType: '', // 'client' или 'executor'
+      specialization: '',
+      customSpecialization: '',
+      bio: ''
     };
   });
   const [rememberMe, setRememberMe] = useState(() => {
-    // Проверяем есть ли сохраненные данные
     return localStorage.getItem('rememberedPhone') !== null;
   });
   
@@ -41,7 +69,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [pendingSignup, setPendingSignup] = useState<any>(null);
 
-  // If running in Telegram, use Telegram auth
   if (isInTelegram) {
     return (
       <AnimatedBackground className="min-h-screen flex items-center justify-center p-4">
@@ -57,10 +84,9 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
     if (!pendingSignup) return;
     
     try {
-      // Генерируем email из номера телефона для внутренней аутентификации
       const email = `${pendingSignup.cleanPhone}@gruzztop.local`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email: email,
         password: pendingSignup.password,
         options: {
@@ -76,10 +102,31 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       if (error) {
         toast({
           title: "Ошибка регистрации",
-          description: "Проверьте правильность данных",
+          description: error.message || "Проверьте правильность данных",
           variant: "destructive"
         });
         return;
+      }
+
+      if (signUpData.user) {
+        // Обновляем профиль с дополнительными данными
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            display_name: `${formData.firstName} ${formData.lastName}`,
+            citizenship: formData.citizenship,
+            age: parseInt(formData.age),
+            telegram_username: formData.telegram || null,
+            bio: formData.bio || null,
+            user_type: formData.userType as 'client' | 'executor',
+            qualification: formData.specialization === 'Другое' ? formData.customSpecialization : formData.specialization
+          })
+          .eq('id', signUpData.user.id);
+
+        if (updateError) {
+          console.error('Error updating profile:', updateError);
+        }
       }
 
       toast({
@@ -98,15 +145,11 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       });
     }
   };
-  // Форматирование номера телефона
+
   const formatPhoneNumber = (value: string) => {
-    // Удаляем все символы кроме цифр
     const cleaned = value.replace(/\D/g, '');
-    
-    // Ограничиваем до 11 цифр (1 + 10)
     const limited = cleaned.slice(0, 11);
     
-    // Добавляем +7 если номер начинается с 8 или пустой
     let formatted = limited;
     if (formatted.startsWith('8')) {
       formatted = '7' + formatted.slice(1);
@@ -114,7 +157,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       formatted = '7' + formatted;
     }
     
-    // Форматируем как +7 XXX-XXX-XX-XX
     if (formatted.length >= 1) {
       let result = '+7';
       if (formatted.length > 1) {
@@ -157,6 +199,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
           description: "Введите корректный номер телефона",
           variant: "destructive"
         });
+        setIsLoading(false);
         return;
       }
 
@@ -166,20 +209,85 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
           description: "Пароль должен содержать минимум 6 символов",
           variant: "destructive"
         });
+        setIsLoading(false);
         return;
       }
 
-      if (!isLogin && formData.password !== formData.confirmPassword) {
-        toast({
-          title: "Ошибка", 
-          description: "Пароли не совпадают",
-          variant: "destructive"
-        });
-        return;
+      if (!isLogin) {
+        // Валидация полей регистрации
+        if (!formData.firstName.trim() || !formData.lastName.trim()) {
+          toast({
+            title: "Ошибка",
+            description: "Укажите имя и фамилию",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (!formData.citizenship.trim()) {
+          toast({
+            title: "Ошибка",
+            description: "Укажите гражданство",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        const age = parseInt(formData.age);
+        if (!age || age < 18 || age > 100) {
+          toast({
+            title: "Ошибка",
+            description: "Возраст должен быть от 18 до 100 лет",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (!formData.userType) {
+          toast({
+            title: "Ошибка",
+            description: "Выберите тип пользователя",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (!formData.specialization) {
+          toast({
+            title: "Ошибка",
+            description: "Выберите специализацию",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (formData.specialization === 'Другое' && !formData.customSpecialization.trim()) {
+          toast({
+            title: "Ошибка",
+            description: "Укажите вашу специализацию",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+          toast({
+            title: "Ошибка", 
+            description: "Пароли не совпадают",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
       }
 
       if (isLogin) {
-        // Логин - генерируем email из телефона
         const email = `${cleanPhone}@gruzztop.local`;
         
         const { error } = await supabase.auth.signInWithPassword({
@@ -193,35 +301,30 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             description: "Неверный номер телефона или пароль",
             variant: "destructive"
           });
+          setIsLoading(false);
           return;
         }
 
-        // Сохраняем или удаляем данные в зависимости от настройки
         if (rememberMe) {
           localStorage.setItem('rememberedPhone', formData.phone);
           localStorage.setItem('rememberedPassword', formData.password);
         } else {
           localStorage.removeItem('rememberedPhone');
           localStorage.removeItem('rememberedPassword');
-          // Не удаляем сессию Supabase, оставляем её работать
         }
 
         toast({
           title: "Успешный вход",
           description: "Добро пожаловать в GruzzTop!"
         });
+        
+        onSuccess();
       } else {
-        // Registration - show terms acceptance first
         setPendingSignup({
           cleanPhone,
           password: formData.password
         });
         setShowTermsAcceptance(true);
-        return;
-      }
-
-      if (!showTermsAcceptance) {
-        onSuccess();
       }
     } catch (error) {
       toast({
@@ -235,83 +338,245 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
   };
 
   return (
-    <AnimatedBackground className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <AnimatedBackground className="min-h-screen flex items-center justify-center p-2 sm:p-4">
+      <div className="w-full max-w-2xl space-y-4 sm:space-y-6">
         {onBack && <BackButton onClick={onBack} />}
-        <Card className="card-steel p-8 space-y-6">
-        {/* Header */}
+        <Card className="card-steel p-4 sm:p-8 space-y-4 sm:space-y-6 max-h-[90vh] overflow-y-auto">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary to-electric-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-steel-900" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary to-electric-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <User className="w-6 h-6 sm:w-8 sm:h-8 text-steel-900" />
           </div>
-          <h1 className="text-2xl font-bold text-glow">
+          <h1 className="text-xl sm:text-2xl font-bold text-glow">
             {isLogin ? 'Вход в систему' : 'Регистрация'}
           </h1>
-          <p className="text-steel-400">
+          <p className="text-xs sm:text-sm text-steel-400">
             {isLogin ? 'Войдите в ваш аккаунт' : 'Создайте новый аккаунт для работы'}
           </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Phone Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-steel-200">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          {/* Поля регистрации */}
+          {!isLogin && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {/* Имя */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  Имя <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <User className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    placeholder="Иван"
+                    className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Фамилия */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  Фамилия <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <User className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    placeholder="Иванов"
+                    className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Гражданство */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  Гражданство <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <Globe className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
+                  <input
+                    type="text"
+                    value={formData.citizenship}
+                    onChange={(e) => setFormData({ ...formData, citizenship: e.target.value })}
+                    placeholder="Россия"
+                    className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Возраст */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  Возраст <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
+                  <input
+                    type="number"
+                    value={formData.age}
+                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                    placeholder="18"
+                    min="18"
+                    max="100"
+                    className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Telegram */}
+              <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  Telegram (необязательно)
+                </label>
+                <div className="relative">
+                  <MessageCircle className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
+                  <input
+                    type="text"
+                    value={formData.telegram}
+                    onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                    placeholder="@username"
+                    className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
+                  />
+                </div>
+              </div>
+
+              {/* Тип пользователя */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  Тип пользователя <span className="text-red-400">*</span>
+                </label>
+                <Select value={formData.userType} onValueChange={(value) => setFormData({ ...formData, userType: value })}>
+                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base">
+                    <SelectValue placeholder="Выберите тип" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="client">Заказчик</SelectItem>
+                    <SelectItem value="executor">Исполнитель</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Специализация */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  Специализация <span className="text-red-400">*</span>
+                </label>
+                <Select value={formData.specialization} onValueChange={(value) => setFormData({ ...formData, specialization: value })}>
+                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base">
+                    <SelectValue placeholder="Выберите" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {specializationsList.map((spec) => (
+                      <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Своя специализация если выбрано "Другое" */}
+              {formData.specialization === 'Другое' && (
+                <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
+                  <label className="text-xs sm:text-sm font-medium text-steel-200">
+                    Укажите вашу специализацию <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
+                    <input
+                      type="text"
+                      value={formData.customSpecialization}
+                      onChange={(e) => setFormData({ ...formData, customSpecialization: e.target.value })}
+                      placeholder="Ваша специализация"
+                      className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* О себе */}
+              <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
+                <label className="text-xs sm:text-sm font-medium text-steel-200">
+                  О себе (необязательно)
+                </label>
+                <Textarea
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  placeholder="Расскажите о себе, опыте работы и навыках..."
+                  className="input-steel min-h-20 text-xs sm:text-base"
+                  maxLength={500}
+                />
+                <p className="text-[10px] sm:text-xs text-steel-500">{formData.bio.length}/500</p>
+              </div>
+            </div>
+          )}
+
+          {/* Номер телефона */}
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-xs sm:text-sm font-medium text-steel-200">
               Номер телефона
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-5 h-5" />
+              <Phone className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={handlePhoneChange}
                 placeholder="+7 XXX-XXX-XX-XX"
-                className="w-full pl-10 pr-4 py-3 input-steel rounded-lg"
+                className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
                 required
               />
             </div>
           </div>
 
-          {/* Password Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-steel-200">
+          {/* Пароль */}
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-xs sm:text-sm font-medium text-steel-200">
               Пароль
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-5 h-5" />
+              <Lock className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="Минимум 6 символов"
-                className="w-full pl-10 pr-12 py-3 input-steel rounded-lg"
+                className="w-full pl-8 sm:pl-10 pr-10 sm:pr-12 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
                 required
                 minLength={6}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-steel-400 hover:text-primary transition-colors"
+                className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-steel-400 hover:text-primary transition-colors"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
             </div>
           </div>
 
-          {/* Confirm Password Input (only for registration) */}
+          {/* Подтверждение пароля */}
           {!isLogin && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-steel-200">
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium text-steel-200">
                 Повторите пароль
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-5 h-5" />
+                <Lock className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   placeholder="Повторите пароль"
-                  className="w-full pl-10 pr-4 py-3 input-steel rounded-lg"
+                  className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
                   required
                   minLength={6}
                 />
@@ -319,7 +584,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             </div>
           )}
 
-          {/* Remember Me Checkbox (only for login) */}
+          {/* Запомнить меня */}
           {isLogin && (
             <div className="flex items-center space-x-2">
               <input
@@ -331,23 +596,22 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                   setRememberMe(checked);
                   
                   if (!checked) {
-                    // Если отключили "Запомнить меня", очищаем сохраненные данные
                     localStorage.removeItem('rememberedPhone');
                     localStorage.removeItem('rememberedPassword');
                     setFormData({
+                      ...formData,
                       phone: '',
                       password: '',
                       confirmPassword: ''
                     });
                   } else {
-                    // Если включили "Запомнить меня", загружаем сохраненные данные
                     const savedPhone = localStorage.getItem('rememberedPhone');
                     const savedPassword = localStorage.getItem('rememberedPassword');
                     if (savedPhone || savedPassword) {
                       setFormData({
+                        ...formData,
                         phone: savedPhone || '',
-                        password: savedPassword || '',
-                        confirmPassword: ''
+                        password: savedPassword || ''
                       });
                     }
                   }
@@ -356,37 +620,36 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
               />
               <label
                 htmlFor="remember-me"
-                className="text-sm text-steel-200 cursor-pointer"
+                className="text-xs sm:text-sm text-steel-200 cursor-pointer"
               >
                 Запомнить меня
               </label>
             </div>
           )}
 
-          {/* Submit Button */}
+          {/* Кнопка отправки */}
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full btn-3d py-3 text-lg font-bold bg-gradient-to-r from-primary to-electric-600 text-steel-900"
+            className="w-full btn-3d py-2.5 sm:py-3 text-sm sm:text-lg font-bold bg-gradient-to-r from-primary to-electric-600 text-steel-900"
           >
             {isLoading ? (
-              <div className="w-6 h-6 border-2 border-steel-900 border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-steel-900 border-t-transparent rounded-full animate-spin" />
             ) : (
               isLogin ? 'Войти' : 'Зарегистрироваться'
             )}
           </Button>
         </form>
 
-        {/* Toggle Mode */}
-        <div className="text-center pt-4 border-t border-steel-600">
-          <p className="text-steel-400 mb-2">
+        {/* Переключение режима */}
+        <div className="text-center pt-3 sm:pt-4 border-t border-steel-600">
+          <p className="text-xs sm:text-sm text-steel-400 mb-2">
             {isLogin ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
           </p>
           <button
             type="button"
             onClick={() => {
               setIsLogin(!isLogin);
-              // Очищаем пароль при переключении, если не нужно запоминать
               if (!rememberMe) {
                 setFormData({ 
                   ...formData, 
@@ -395,7 +658,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                 });
               }
             }}
-            className="text-primary hover:text-electric-400 font-medium transition-colors"
+            className="text-primary hover:text-electric-400 font-medium transition-colors text-xs sm:text-sm"
           >
             {isLogin ? 'Создать аккаунт' : 'Войти в систему'}
           </button>
@@ -403,7 +666,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       </Card>
       </div>
       
-      {/* Terms Acceptance Modal */}
       <TermsAcceptance
         isOpen={showTermsAcceptance}
         onAccept={handleTermsAccept}
@@ -413,7 +675,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
         }}
       />
 
-      {/* Role Selection Modal */}
       <RoleSelection
         isOpen={showRoleSelection}
         onComplete={() => {
