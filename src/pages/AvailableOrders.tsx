@@ -310,7 +310,7 @@ const AvailableOrders = () => {
                 <Link to="/ads" className="w-full sm:w-auto">
                   <Button variant="outline" className="w-full text-xs sm:text-sm h-9 sm:h-10">
                     <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                    Разместить заказ
+                    Смотреть заказы
                   </Button>
                 </Link>
               </div>
