@@ -58,7 +58,7 @@ export const useAuth = (): AuthContextType => {
   const fetchUserRole = async (userId: string) => {
     try {
       // Fetch role from user_roles table (new secure system)
-      const { data: roleData, error: roleError } = await supabase
+      const { data: roleData, error: roleError } = await (supabase as any)
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)

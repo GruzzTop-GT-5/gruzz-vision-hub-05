@@ -100,8 +100,8 @@ export const RoleManagement: React.FC = () => {
 
       if (profilesError) throw profilesError;
 
-      // Fetch roles from user_roles table
-      const { data: roles, error: rolesError } = await supabase
+      // Fetch roles from user_roles table (using any to bypass type checking)
+      const { data: roles, error: rolesError } = await (supabase as any)
         .from('user_roles')
         .select('user_id, role');
 
@@ -109,7 +109,7 @@ export const RoleManagement: React.FC = () => {
 
       // Merge role data with profiles
       const usersWithRoles = profiles?.map(profile => {
-        const userRole = roles?.find(r => r.user_id === profile.id);
+        const userRole = roles?.find((r: any) => r.user_id === profile.id);
         return {
           ...profile,
           role: (userRole?.role || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
@@ -172,18 +172,18 @@ export const RoleManagement: React.FC = () => {
     try {
       setLoading(true);
 
-      // Delete old role assignment from user_roles table
-      await supabase
+      // Delete old role assignment from user_roles table (using any to bypass type checking)
+      await (supabase as any)
         .from('user_roles')
         .delete()
         .eq('user_id', change.userId);
 
       // Insert new role assignment
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('user_roles')
         .insert({
           user_id: change.userId,
-          role: change.toRole as any,
+          role: change.toRole,
           assigned_by: currentUser?.id
         });
 
