@@ -400,22 +400,10 @@ export const SupportSystem = () => {
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="response_time">Время ответа (минуты)</Label>
-                <Select
-                  value={newTicket.response_time?.toString() || '30'}
-                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, response_time: parseInt(value) }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5 минут</SelectItem>
-                    <SelectItem value="15">15 минут</SelectItem>
-                    <SelectItem value="30">30 минут</SelectItem>
-                    <SelectItem value="60">1 час</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="p-3 bg-primary/10 border border-primary/20 rounded-md">
+                <p className="text-sm text-steel-300">
+                  ⏱️ Время ответа оператора от 5 до 30 минут в зависимости от загруженности
+                </p>
               </div>
               
               <div>
