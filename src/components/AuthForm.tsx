@@ -144,6 +144,31 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       });
 
       if (error) {
+        // Если пользователь уже зарегистрирован, пытаемся войти
+        if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: pendingSignup.password
+          });
+
+          if (signInError) {
+            toast({
+              title: "Ошибка входа",
+              description: "Пользователь уже зарегистрирован. Попробуйте войти через форму входа.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Вход выполнен",
+              description: "Добро пожаловать!"
+            });
+            setShowTermsAcceptance(false);
+            setPendingSignup(null);
+            onSuccess();
+          }
+          return;
+        }
+
         toast({
           title: "Ошибка регистрации",
           description: error.message || "Проверьте правильность данных",
