@@ -418,7 +418,7 @@ export const AdminTicketManagement = () => {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="calls" className="flex items-center gap-2">
             <Bell className="w-4 h-4" />
-            Вызовы ({adminCalls.filter(c => !c.is_read).length})
+            Вызовы ({adminCalls.length})
           </TabsTrigger>
           <TabsTrigger value="tickets" className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
