@@ -304,13 +304,13 @@ const AvailableOrders = () => {
                 <Link to="/create-ad" className="w-full sm:w-auto">
                   <Button className="w-full bg-primary hover:bg-primary/80 text-xs sm:text-sm h-9 sm:h-10">
                     <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                    Смотреть заказы
+                    Разместить резюме
                   </Button>
                 </Link>
-                <Link to="/orders" className="w-full sm:w-auto">
+                <Link to="/ads" className="w-full sm:w-auto">
                   <Button variant="outline" className="w-full text-xs sm:text-sm h-9 sm:h-10">
                     <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                    Мои заказы
+                    Разместить заказ
                   </Button>
                 </Link>
               </div>
