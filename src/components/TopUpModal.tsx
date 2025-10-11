@@ -39,8 +39,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
 
   const paymentMethods = [
     { id: 'bank_card', name: 'Банковская карта', icon: CreditCard, color: 'from-blue-500 to-blue-600' },
-    { id: 'yoomoney', name: 'ЮMoney', icon: CreditCard, color: 'from-purple-500 to-purple-600' },
-    { id: 'ozon', name: 'Ozon', icon: Smartphone, color: 'from-orange-500 to-orange-600' }
+    { id: 'yoomoney', name: 'ЮMoney', icon: CreditCard, color: 'from-purple-500 to-purple-600' }
   ];
 
   const generatePaymentDetails = async (method: string) => {
