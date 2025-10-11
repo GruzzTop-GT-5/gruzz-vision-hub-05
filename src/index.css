@@ -90,6 +90,42 @@
   background: transparent;
 }
 
+/* Адаптивные стили для всех устройств */
+@media (min-width: 360px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1920px) {
+  body {
+    font-size: 18px;
+  }
+}
+
+/* Оптимизация для телевизоров и больших экранов */
+@media (min-width: 2560px) {
+  body {
+    font-size: 20px;
+  }
+  
+  .container {
+    max-width: 2400px;
+  }
+}
+
 @layer base {
   :root {
     /* Premium Professional Dark Theme - Deep Navy & Electric Blue Accents */

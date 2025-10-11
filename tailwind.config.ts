@@ -5,11 +5,23 @@ export default {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
+    screens: {
+      'xs': '360px',    // Малые телефоны
+      'sm': '640px',    // Большие телефоны
+      'md': '768px',    // Планшеты
+      'lg': '1024px',   // Малые ПК/Ноутбуки
+      'xl': '1280px',   // Средние ПК
+      '2xl': '1536px',  // Большие ПК/Мониторы
+      '3xl': '1920px',  // Телевизоры/Большие мониторы
+      '4xl': '2560px',  // 4K экраны
+    },
     container: {
       center: true,
       padding: "2rem",
       screens: {
         "2xl": "1400px",
+        "3xl": "1800px",
+        "4xl": "2400px",
       },
     },
     extend: {

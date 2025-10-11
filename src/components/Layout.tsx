@@ -91,14 +91,14 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
     <TelegramLayout>
       <AnimatedBackground className="min-h-screen">
       {/* Header - Адаптивный для всех устройств */}
-      <header className="relative z-50 flex items-center justify-between p-3 sm:p-4 border-b border-steel-600">
-        <div className="flex items-center space-x-2 sm:space-x-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary to-electric-600">
+      <header className="relative z-50 flex items-center justify-between p-3 sm:p-4 md:p-5 lg:p-6 3xl:p-8 border-b border-steel-600">
+        <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-5">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 3xl:w-20 3xl:h-20 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary to-electric-600">
             <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow">GruzzTop</h1>
-            <p className="text-[10px] sm:text-xs text-steel-300">GT-V5</p>
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl 3xl:text-5xl font-bold text-glow">GruzzTop</h1>
+            <p className="text-[10px] sm:text-xs md:text-sm 3xl:text-base text-steel-300">GT-V5</p>
           </div>
         </div>
 
@@ -123,7 +123,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
 
       {/* Slide-down Menu - Адаптивная ширина */}
       <div
-        className={`fixed top-0 right-0 z-40 w-full sm:w-96 md:w-[420px] max-w-full h-screen card-steel-menu transition-transform duration-300 overflow-y-auto ${
+        className={`fixed top-0 right-0 z-40 w-full sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px] 3xl:w-[640px] max-w-full h-screen card-steel-menu transition-transform duration-300 overflow-y-auto ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -214,7 +214,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
       </div>
 
       {/* Main Content - Адаптивные отступы */}
-      <main className="relative z-10 pb-20 sm:pb-6">
+      <main className="relative z-10 pb-20 sm:pb-6 lg:pb-8 xl:pb-10 3xl:pb-12 max-w-[2400px] mx-auto">
         {children}
       </main>
       

@@ -50,23 +50,23 @@ const Index = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div className="p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 3xl:p-16 space-y-4 sm:space-y-6 lg:space-y-8 xl:space-y-10">
         {/* Hero Section - Адаптивные размеры текста */}
-        <div className="text-center space-y-4 sm:space-y-6 mb-6 sm:mb-8 animate-fade-in">
-          <div className="space-y-3 sm:space-y-4">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow">
+        <div className="text-center space-y-4 sm:space-y-6 lg:space-y-8 mb-6 sm:mb-8 lg:mb-12 animate-fade-in">
+          <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 3xl:text-8xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow">
               GruzzTop
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-foreground/90 font-semibold px-4">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 3xl:text-4xl text-foreground/90 font-semibold px-4">
               Сервис поиска надежных исполнителей
             </p>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl 3xl:text-2xl text-muted-foreground max-w-2xl lg:max-w-4xl 3xl:max-w-6xl mx-auto leading-relaxed px-4">
               Соединяем заказчиков с проверенными специалистами. Прозрачная оплата через платформу с фиксированными тарифами.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto px-2">
-            <div className="bg-card hover:bg-accent/5 p-4 sm:p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10 max-w-4xl lg:max-w-6xl 3xl:max-w-7xl mx-auto px-2">
+            <div className="bg-card hover:bg-accent/5 p-4 sm:p-6 lg:p-8 xl:p-10 3xl:p-12 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
               <div className="flex items-center justify-center mb-3">
                 <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center ring-2 ring-green-500/20">
                   <Shield className="w-6 h-6 text-green-500" />
@@ -100,7 +100,7 @@ const Index = () => {
 
 
         {/* Main Navigation Cards - Адаптивная сетка */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl mx-auto px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 3xl:gap-12 max-w-5xl lg:max-w-6xl xl:max-w-7xl 3xl:max-w-[2000px] mx-auto px-2">
           {/* Создать объявление */}
           {user ? (
             <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => navigate('/create-order')}>
@@ -214,9 +214,9 @@ const Index = () => {
 
             {/* How it works - Адаптивная сетка */}
             <Card className="bg-card border-border">
-              <div className="p-4 sm:p-6 text-center space-y-4 sm:space-y-6">
-                <h3 className="text-xl sm:text-2xl font-bold text-foreground">Как это работает?</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="p-4 sm:p-6 lg:p-8 xl:p-10 3xl:p-12 text-center space-y-4 sm:space-y-6 lg:space-y-8">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl 3xl:text-5xl font-bold text-foreground">Как это работает?</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 xl:gap-10">
                   <div className="space-y-3">
                     <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto ring-2 ring-primary/20">
                       <span className="text-2xl font-bold text-primary">1</span>
