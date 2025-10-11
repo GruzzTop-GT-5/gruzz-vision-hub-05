@@ -57,31 +57,45 @@ export const useAuth = (): AuthContextType => {
 
   const fetchUserRole = async (userId: string) => {
     try {
-      // Fetch role from user_roles table (new secure system)
-      const { data: roleData, error: roleError } = await (supabase as any)
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .order('assigned_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      // Fetch user type/subtype from profiles
-      const { data: profileData, error: profileError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('user_type, user_subtype')
         .eq('id', userId)
         .maybeSingle();
 
-      if (profileError) {
-        console.error('Error fetching profile data:', profileError);
+      if (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole('user');
+        setUserType(null);
+        setUserSubtype(null);
+        setNeedsRoleSelection(false);
+        setLoading(false);
+        return;
       }
 
-      const role = roleData?.role || 'user';
-      const type = profileData?.user_type || null;
-      const subtype = profileData?.user_subtype || null;
+      // Try to get role from user_roles table (new secure system)
+      try {
+        const { data: roleData } = await (supabase as any)
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .order('assigned_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (roleData?.role) {
+          setUserRole(roleData.role);
+        } else {
+          setUserRole('user');
+        }
+      } catch {
+        // Fallback to user role if user_roles table doesn't exist yet
+        setUserRole('user');
+      }
+
+      const type = data?.user_type || null;
+      const subtype = data?.user_subtype || null;
       
-      setUserRole(role);
       setUserType(type);
       setUserSubtype(subtype);
       

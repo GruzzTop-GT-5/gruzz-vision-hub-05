@@ -92,7 +92,7 @@ export const RoleManagement: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Fetch profiles
+      // Fetch profiles with roles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, phone, display_name, full_name, rating, balance, created_at')
@@ -100,23 +100,36 @@ export const RoleManagement: React.FC = () => {
 
       if (profilesError) throw profilesError;
 
-      // Fetch roles from user_roles table (using any to bypass type checking)
-      const { data: roles, error: rolesError } = await (supabase as any)
-        .from('user_roles')
-        .select('user_id, role');
+      // Try to fetch roles from user_roles table
+      let usersWithRoles: UserProfile[] = [];
+      try {
+        const { data: roles } = await (supabase as any)
+          .from('user_roles')
+          .select('user_id, role');
 
-      if (rolesError) console.error('Error fetching roles:', rolesError);
+        if (roles && profiles) {
+          usersWithRoles = profiles.map(profile => {
+            const userRole = roles.find((r: any) => r.user_id === profile.id);
+            return {
+              ...profile,
+              role: (userRole?.role || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
+            };
+          });
+        } else if (profiles) {
+          usersWithRoles = profiles.map(p => ({ 
+            ...p, 
+            role: 'user' as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
+          }));
+        }
+      } catch (err) {
+        console.error('user_roles table not available, defaulting to user role');
+        usersWithRoles = profiles?.map(p => ({ 
+          ...p, 
+          role: 'user' as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
+        })) || [];
+      }
 
-      // Merge role data with profiles
-      const usersWithRoles = profiles?.map(profile => {
-        const userRole = roles?.find((r: any) => r.user_id === profile.id);
-        return {
-          ...profile,
-          role: (userRole?.role || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
-        };
-      });
-
-      setUsers(usersWithRoles || []);
+      setUsers(usersWithRoles);
     } catch (error) {
       handleError(error, { component: 'RoleManagement', action: 'fetchUsers' });
     } finally {

@@ -46,23 +46,28 @@ export const UserManagement: React.FC = () => {
 
       if (profilesError) throw profilesError;
 
-      // Fetch roles from user_roles table (using any to bypass type checking)
-      const { data: roles, error: rolesError } = await (supabase as any)
-        .from('user_roles')
-        .select('user_id, role');
+      // Try to fetch roles from user_roles table
+      let usersWithRoles = profiles || [];
+      try {
+        const { data: roles } = await (supabase as any)
+          .from('user_roles')
+          .select('user_id, role');
 
-      if (rolesError) console.error('Error fetching roles:', rolesError);
+        if (roles) {
+          usersWithRoles = profiles?.map(profile => {
+            const userRole = roles?.find((r: any) => r.user_id === profile.id);
+            return {
+              ...profile,
+              role: userRole?.role || 'user'
+            };
+          }) || [];
+        }
+      } catch (err) {
+        console.error('user_roles table not available, defaulting to user role');
+        usersWithRoles = profiles?.map(p => ({ ...p, role: 'user' })) || [];
+      }
 
-      // Merge role data with profiles
-      const usersWithRoles = profiles?.map(profile => {
-        const userRole = roles?.find((r: any) => r.user_id === profile.id);
-        return {
-          ...profile,
-          role: userRole?.role || 'user'
-        };
-      });
-
-      setUsers(usersWithRoles || []);
+      setUsers(usersWithRoles);
     } catch (error) {
       toast({
         title: "Ошибка",
