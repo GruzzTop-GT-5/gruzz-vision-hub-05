@@ -55,80 +55,78 @@ const Index = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 3xl:p-16 space-y-3 xs:space-y-4 sm:space-y-6 lg:space-y-8 xl:space-y-10">
+      <div className="p-3 xs:p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 space-y-4 sm:space-y-6 lg:space-y-8">
         {/* Кнопка "Назад к приветственному экрану" - только для незарегистрированных */}
         {!user && (
-          <div className="mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowWelcome(true)}
-              className="text-xs xs:text-sm hover:bg-primary/10"
-            >
-              ← Вернуться к приветственному экрану
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowWelcome(true)}
+            className="text-xs xs:text-sm hover:bg-primary/10"
+          >
+            ← Вернуться к приветственному экрану
+          </Button>
         )}
-        {/* Hero Section - Адаптивные размеры текста */}
-        <div className="text-center space-y-3 xs:space-y-4 sm:space-y-6 lg:space-y-8 mb-4 xs:mb-6 sm:mb-8 lg:mb-12 animate-fade-in">
-          <div className="space-y-2 xs:space-y-3 sm:space-y-4 lg:space-y-6">
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 3xl:text-8xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow leading-tight">
+        {/* Hero Section - Компактная версия для мобильных */}
+        <div className="text-center space-y-3 sm:space-y-4 lg:space-y-6 mb-4 sm:mb-6 lg:mb-8 animate-fade-in">
+          <div className="space-y-2 sm:space-y-3 lg:space-y-4">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow leading-tight">
               GruzzTop
             </h1>
-            <p className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 3xl:text-4xl text-foreground/90 font-semibold px-3 xs:px-4">
+            <p className="text-base xs:text-lg sm:text-xl lg:text-2xl xl:text-3xl text-foreground/90 font-semibold px-3">
               Сервис поиска надежных исполнителей
             </p>
-            <p className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl 3xl:text-2xl text-muted-foreground max-w-2xl lg:max-w-4xl 3xl:max-w-6xl mx-auto leading-relaxed px-3 xs:px-4">
+            <p className="text-xs xs:text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl lg:max-w-4xl mx-auto leading-relaxed px-3">
               Соединяем заказчиков с проверенными специалистами. Прозрачная оплата через платформу с фиксированными тарифами.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 xs:gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10 max-w-4xl lg:max-w-6xl 3xl:max-w-7xl mx-auto px-2">
-            <div className="bg-card hover:bg-accent/5 p-3 xs:p-4 sm:p-6 lg:p-8 xl:p-10 3xl:p-12 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
-              <div className="flex items-center justify-center mb-2 xs:mb-3">
-                <div className="w-10 h-10 xs:w-12 xs:h-12 bg-green-500/10 rounded-full flex items-center justify-center ring-2 ring-green-500/20">
-                  <Shield className="w-5 h-5 xs:w-6 xs:h-6 text-green-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 max-w-4xl lg:max-w-5xl mx-auto px-2">
+            <div className="bg-card/50 backdrop-blur-sm hover:bg-accent/5 p-4 sm:p-5 lg:p-6 rounded-xl border border-border/50 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-green-500/30">
+              <div className="flex items-center justify-center mb-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/10 rounded-full flex items-center justify-center ring-2 ring-green-500/20">
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
                 </div>
               </div>
-              <h3 className="font-semibold text-foreground mb-1 xs:mb-2 text-center text-sm xs:text-base">Проверенные специалисты</h3>
-              <p className="text-muted-foreground text-xs xs:text-sm text-center leading-tight">Все исполнители проходят модерацию</p>
+              <h3 className="font-semibold text-foreground mb-1 text-center text-sm sm:text-base">Проверенные специалисты</h3>
+              <p className="text-muted-foreground text-xs text-center leading-tight">Все исполнители проходят модерацию</p>
             </div>
             
-            <div className="bg-card hover:bg-accent/5 p-3 xs:p-4 sm:p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
-              <div className="flex items-center justify-center mb-2 xs:mb-3">
-                <div className="w-10 h-10 xs:w-12 xs:h-12 bg-primary/10 rounded-full flex items-center justify-center ring-2 ring-primary/20">
-                  <Clock className="w-5 h-5 xs:w-6 xs:h-6 text-primary" />
+            <div className="bg-card/50 backdrop-blur-sm hover:bg-accent/5 p-4 sm:p-5 lg:p-6 rounded-xl border border-border/50 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-primary/30">
+              <div className="flex items-center justify-center mb-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center ring-2 ring-primary/20">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
               </div>
-              <h3 className="font-semibold text-foreground mb-1 xs:mb-2 text-center text-sm xs:text-base">Быстрые сделки</h3>
-              <p className="text-muted-foreground text-xs xs:text-sm text-center leading-tight">Находите исполнителя за минуты</p>
+              <h3 className="font-semibold text-foreground mb-1 text-center text-sm sm:text-base">Быстрые сделки</h3>
+              <p className="text-muted-foreground text-xs text-center leading-tight">Находите исполнителя за минуты</p>
             </div>
             
-            <div className="bg-card hover:bg-accent/5 p-3 xs:p-4 sm:p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
-              <div className="flex items-center justify-center mb-2 xs:mb-3">
-                <div className="w-10 h-10 xs:w-12 xs:h-12 bg-blue-500/10 rounded-full flex items-center justify-center ring-2 ring-blue-500/20">
-                  <User className="w-5 h-5 xs:w-6 xs:h-6 text-blue-500" />
+            <div className="bg-card/50 backdrop-blur-sm hover:bg-accent/5 p-4 sm:p-5 lg:p-6 rounded-xl border border-border/50 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-blue-500/30">
+              <div className="flex items-center justify-center mb-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/10 rounded-full flex items-center justify-center ring-2 ring-blue-500/20">
+                  <User className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                 </div>
               </div>
-              <h3 className="font-semibold text-foreground mb-1 xs:mb-2 text-center text-sm xs:text-base">Фиксированные тарифы</h3>
-              <p className="text-muted-foreground text-xs xs:text-sm text-center leading-tight">Прозрачная система оплаты</p>
+              <h3 className="font-semibold text-foreground mb-1 text-center text-sm sm:text-base">Фиксированные тарифы</h3>
+              <p className="text-muted-foreground text-xs text-center leading-tight">Прозрачная система оплаты</p>
             </div>
           </div>
         </div>
 
 
-        {/* Main Navigation Cards - Адаптивная сетка */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 xs:gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 3xl:gap-12 max-w-5xl lg:max-w-6xl xl:max-w-7xl 3xl:max-w-[2000px] mx-auto px-2">
+        {/* Main Navigation Cards - Компактная сетка */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto">
           {/* Создать объявление */}
           {user ? (
-            <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => navigate('/create-order')}>
-              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
+            <Card className="group cursor-pointer overflow-hidden bg-gradient-to-br from-card to-card/50 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 backdrop-blur-sm" onClick={() => navigate('/create-order')}>
+              <div className="p-5 sm:p-6 lg:p-7 text-center space-y-2 sm:space-y-3 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Plus className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-primary-foreground" />
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/50">
+                    <Plus className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-primary-foreground" />
                   </div>
-                  <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors">Создать заказ</h3>
                   <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Разместите задание для исполнителей</p>
                 </div>
               </div>
@@ -138,14 +136,14 @@ const Index = () => {
           {/* Мои задания */}
           {user ? (
             <Link to="/orders">
-              <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10">
-                <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
+              <Card className="group cursor-pointer overflow-hidden bg-gradient-to-br from-card to-card/50 border-border hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 backdrop-blur-sm">
+                <div className="p-5 sm:p-6 lg:p-7 text-center space-y-2 sm:space-y-3 relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                      <Briefcase className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl group-hover:shadow-green-500/50">
+                      <Briefcase className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-white" />
                     </div>
-                    <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-1 group-hover:text-green-500 transition-colors">Мои заказы</h3>
                     <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Управление размещенными заказами</p>
                   </div>
                 </div>
@@ -156,14 +154,14 @@ const Index = () => {
           {/* Найти работу */}
           {user ? (
             <Link to="/ads">
-              <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10">
-                <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
+              <Card className="group cursor-pointer overflow-hidden bg-gradient-to-br from-card to-card/50 border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 backdrop-blur-sm">
+                <div className="p-5 sm:p-6 lg:p-7 text-center space-y-2 sm:space-y-3 relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                      <Search className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl group-hover:shadow-orange-500/50">
+                      <Search className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-white" />
                     </div>
-                    <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-1 group-hover:text-orange-500 transition-colors">Найти работу</h3>
                     <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Просмотр доступных заказов</p>
                   </div>
                 </div>
