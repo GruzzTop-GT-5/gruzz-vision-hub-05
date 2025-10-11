@@ -18,6 +18,11 @@ const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
 
+  // Scroll to top when changing screens
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [showWelcome, showAuth]);
+
   const handleAuthSuccess = () => {
     setShowAuth(false);
   };
