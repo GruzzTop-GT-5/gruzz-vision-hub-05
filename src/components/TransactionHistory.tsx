@@ -249,7 +249,7 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
 
         {/* Proof Image Modal */}
         <Dialog open={showProofModal} onOpenChange={setShowProofModal}>
-          <DialogContent className="max-w-4xl bg-steel-800 border-steel-600 p-0">
+          <DialogContent className="max-w-7xl max-h-[95vh] bg-steel-800 border-steel-600 p-2">
             <div className="relative">
               <Button
                 variant="ghost"
@@ -263,7 +263,7 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
                 <img 
                   src={proofImageUrl} 
                   alt="Чек об оплате" 
-                  className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                  className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
                 />
               )}
             </div>
