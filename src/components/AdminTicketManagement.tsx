@@ -685,128 +685,152 @@ export const AdminTicketManagement = () => {
                             Детали
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
-                            <DialogTitle>Детали тикета {ticket.ticket_number}</DialogTitle>
-                            <DialogDescription>
-                              Подробная информация об обращении в поддержку
+                            <DialogTitle className="text-xl">Тикет {ticket.ticket_number}</DialogTitle>
+                            <DialogDescription className="text-base">
+                              Управление обращением в поддержку
                             </DialogDescription>
                           </DialogHeader>
                           
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm font-medium text-steel-300">Статус</label>
-                                <Select value={newStatus || ticket.status} onValueChange={setNewStatus}>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="open">Открыт</SelectItem>
-                                    <SelectItem value="in_progress">В работе</SelectItem>
-                                    <SelectItem value="resolved">Решен</SelectItem>
-                                    <SelectItem value="closed">Закрыт</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                          <div className="space-y-6">
+                            {/* Current Status Info */}
+                            <Card className="card-steel-lighter p-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <label className="text-sm font-medium text-steel-400 block mb-2">Текущий статус</label>
+                                  <Badge className={`${getStatusColor(ticket.status)} text-base px-3 py-1`}>
+                                    {getStatusLabel(ticket.status)}
+                                  </Badge>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium text-steel-400 block mb-2">Приоритет</label>
+                                  <Badge className={`${getPriorityColor(ticket.priority)} text-base px-3 py-1`}>
+                                    {ticket.priority}
+                                  </Badge>
+                                </div>
                               </div>
-                              
-                              <div>
-                                <label className="text-sm font-medium text-steel-300">Приоритет</label>
-                                <Badge className={getPriorityColor(ticket.priority)}>
-                                  {ticket.priority}
-                                </Badge>
+                            </Card>
+
+                            {/* Description */}
+                            <div>
+                              <label className="text-sm font-medium text-steel-300 block mb-2">Описание проблемы</label>
+                              <div className="bg-steel-700/50 border border-steel-600 rounded-lg p-4">
+                                <p className="text-steel-100 text-base whitespace-pre-wrap">
+                                  {ticket.description || 'Описание отсутствует'}
+                                </p>
                               </div>
                             </div>
                             
+                            {/* Admin Response */}
                             <div>
-                              <label className="text-sm font-medium text-steel-300">Описание</label>
-                              <p className="text-steel-100 bg-steel-700 p-3 rounded">
-                                {ticket.description || 'Нет описания'}
-                              </p>
-                            </div>
-                            
-                            <div>
-                              <label className="text-sm font-medium text-steel-300 mb-2 block">
-                                Комментарий администратора
+                              <label className="text-sm font-medium text-steel-300 block mb-2">
+                                Ваш ответ пользователю
                               </label>
                               <Textarea
-                                placeholder="Закрыто и решено\nили\nЗакрыто\nфиафиа"
+                                placeholder="Напишите комментарий для пользователя..."
                                 value={adminNote}
                                 onChange={(e) => setAdminNote(e.target.value)}
                                 rows={4}
-                                className="bg-background/50"
+                                className="bg-background/50 text-base resize-none"
                               />
-                              <p className="text-xs text-steel-400 mt-1">
-                                Комментарий будет отправлен пользователю вместе с обновлением статуса
+                              <p className="text-xs text-steel-400 mt-2 flex items-start gap-2">
+                                <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                <span>Комментарий будет отправлен пользователю при изменении статуса</span>
                               </p>
                             </div>
-                            
-                            <div className="grid grid-cols-3 gap-2">
-                              {ticket.conversation_id && (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => openTicketChat(ticket)}
-                                  className="w-full"
-                                >
-                                  <MessageSquare className="w-4 h-4 mr-2" />
-                                  Войти в чат
-                                </Button>
-                              )}
+
+                            {/* Quick Actions */}
+                            <div className="space-y-3">
+                              <label className="text-sm font-medium text-steel-300 block">Быстрые действия</label>
                               
-                              {ticket.status === 'open' && (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => {
-                                    updateTicketStatus(ticket.id, 'in_progress');
-                                    setNewStatus('in_progress');
-                                  }}
-                                  className="w-full"
-                                >
-                                  <Pause className="w-4 h-4 mr-2" />
-                                  Взять в работу
-                                </Button>
-                              )}
-                              
-                              {ticket.status !== 'resolved' && ticket.status !== 'closed' && (
-                                <Button
-                                  variant="default"
-                                  onClick={() => {
-                                    updateTicketStatus(ticket.id, 'resolved', adminNote);
-                                    setNewStatus('resolved');
-                                  }}
-                                  className="w-full bg-green-600 hover:bg-green-700"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Решить
-                                </Button>
-                              )}
-                              
-                              {ticket.status !== 'closed' && (
-                                <Button
-                                  variant="destructive"
-                                  onClick={() => {
-                                    updateTicketStatus(ticket.id, 'closed', adminNote);
-                                    setNewStatus('closed');
-                                    setDetailsOpen(false);
-                                  }}
-                                  className="w-full"
-                                >
-                                  <XCircle className="w-4 h-4 mr-2" />
-                                  Закрыть тикет
-                                </Button>
-                              )}
-                              
-                              {newStatus && newStatus !== ticket.status && (
-                                <Button
-                                  onClick={() => {
-                                    updateTicketStatus(ticket.id, newStatus, adminNote);
-                                  }}
-                                  className="w-full col-span-3"
-                                >
-                                  <Send className="w-4 h-4 mr-2" />
-                                  Применить статус: {getStatusLabel(newStatus)}
-                                </Button>
-                              )}
+                              <div className="grid grid-cols-2 gap-3">
+                                {ticket.conversation_id && (
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => openTicketChat(ticket)}
+                                    className="w-full h-auto py-3"
+                                    size="lg"
+                                  >
+                                    <MessageSquare className="w-5 h-5 mr-2" />
+                                    <span className="text-base">Открыть чат</span>
+                                  </Button>
+                                )}
+                                
+                                {ticket.status === 'open' && (
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      updateTicketStatus(ticket.id, 'in_progress', adminNote);
+                                      setNewStatus('in_progress');
+                                    }}
+                                    className="w-full h-auto py-3"
+                                    size="lg"
+                                  >
+                                    <Pause className="w-5 h-5 mr-2" />
+                                    <span className="text-base">Взять в работу</span>
+                                  </Button>
+                                )}
+                                
+                                {ticket.status !== 'resolved' && ticket.status !== 'closed' && (
+                                  <Button
+                                    onClick={() => {
+                                      updateTicketStatus(ticket.id, 'resolved', adminNote);
+                                      setNewStatus('resolved');
+                                    }}
+                                    className="w-full h-auto py-3 bg-green-600 hover:bg-green-700"
+                                    size="lg"
+                                  >
+                                    <CheckCircle className="w-5 h-5 mr-2" />
+                                    <span className="text-base">Отметить решенным</span>
+                                  </Button>
+                                )}
+                                
+                                {ticket.status !== 'closed' && (
+                                  <Button
+                                    variant="destructive"
+                                    onClick={() => {
+                                      updateTicketStatus(ticket.id, 'closed', adminNote);
+                                      setNewStatus('closed');
+                                      setDetailsOpen(false);
+                                    }}
+                                    className="w-full h-auto py-3"
+                                    size="lg"
+                                  >
+                                    <XCircle className="w-5 h-5 mr-2" />
+                                    <span className="text-base">Закрыть тикет</span>
+                                  </Button>
+                                )}
+                              </div>
+
+                              {/* Manual Status Change */}
+                              <Card className="card-steel-lighter p-4 mt-4">
+                                <label className="text-sm font-medium text-steel-300 block mb-3">Изменить статус вручную</label>
+                                <div className="flex gap-3">
+                                  <Select value={newStatus || ticket.status} onValueChange={setNewStatus}>
+                                    <SelectTrigger className="text-base">
+                                      <SelectValue placeholder="Выберите статус" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="open">Открыт</SelectItem>
+                                      <SelectItem value="in_progress">В работе</SelectItem>
+                                      <SelectItem value="resolved">Решен</SelectItem>
+                                      <SelectItem value="closed">Закрыт</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  
+                                  <Button
+                                    onClick={() => {
+                                      updateTicketStatus(ticket.id, newStatus || ticket.status, adminNote);
+                                    }}
+                                    disabled={!newStatus || newStatus === ticket.status}
+                                    size="lg"
+                                  >
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Применить
+                                  </Button>
+                                </div>
+                              </Card>
                             </div>
                           </div>
                         </DialogContent>
