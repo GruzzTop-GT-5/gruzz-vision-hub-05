@@ -69,9 +69,10 @@ interface Conversation {
 interface ChatInterfaceProps {
   conversationId: string;
   onClose?: () => void;
+  onConversationDeleted?: () => void;
 }
 
-export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) => {
+export const ChatInterface = ({ conversationId, onClose, onConversationDeleted }: ChatInterfaceProps) => {
   const { user } = useAuthContext();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -303,21 +304,53 @@ export const ChatInterface = ({ conversationId, onClose }: ChatInterfaceProps) =
   };
 
   const handleDeleteConversation = async () => {
+    if (!user?.id) return;
+    
     try {
+      // Получаем текущий разговор
+      const { data: conv, error: fetchError } = await supabase
+        .from('conversations')
+        .select('deleted_by, participants')
+        .eq('id', conversationId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Добавляем текущего пользователя в список удаливших
+      const currentDeletedBy = conv.deleted_by || [];
+      
+      // Проверяем, не удалил ли пользователь уже этот чат
+      if (currentDeletedBy.includes(user.id)) {
+        toast({
+          title: "Уже удалено",
+          description: "Вы уже удалили этот чат"
+        });
+        return;
+      }
+      
+      const updatedDeletedBy = [...currentDeletedBy, user.id];
+
       const { error } = await supabase
         .from('conversations')
-        .update({ status: 'deleted' })
+        .update({ 
+          deleted_by: updatedDeletedBy,
+          deleted_at: new Date().toISOString()
+        })
         .eq('id', conversationId);
 
       if (error) throw error;
 
       toast({
         title: "Чат удален",
-        description: "Чат успешно удален"
+        description: "Чат удален только для вас"
       });
 
       if (onClose) {
         onClose();
+      }
+      
+      if (onConversationDeleted) {
+        onConversationDeleted();
       }
     } catch (error) {
       console.error('Error deleting conversation:', error);
