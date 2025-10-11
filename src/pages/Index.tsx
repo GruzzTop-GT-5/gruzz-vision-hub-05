@@ -50,82 +50,75 @@ const Index = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 3xl:p-16 space-y-4 sm:space-y-6 lg:space-y-8 xl:space-y-10">
+      <div className="p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 3xl:p-16 space-y-3 xs:space-y-4 sm:space-y-6 lg:space-y-8 xl:space-y-10">
         {/* Hero Section - Адаптивные размеры текста */}
-        <div className="text-center space-y-4 sm:space-y-6 lg:space-y-8 mb-6 sm:mb-8 lg:mb-12 animate-fade-in">
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 3xl:text-8xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow">
+        <div className="text-center space-y-3 xs:space-y-4 sm:space-y-6 lg:space-y-8 mb-4 xs:mb-6 sm:mb-8 lg:mb-12 animate-fade-in">
+          <div className="space-y-2 xs:space-y-3 sm:space-y-4 lg:space-y-6">
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 3xl:text-8xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow leading-tight">
               GruzzTop
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 3xl:text-4xl text-foreground/90 font-semibold px-4">
+            <p className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 3xl:text-4xl text-foreground/90 font-semibold px-3 xs:px-4">
               Сервис поиска надежных исполнителей
             </p>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl 3xl:text-2xl text-muted-foreground max-w-2xl lg:max-w-4xl 3xl:max-w-6xl mx-auto leading-relaxed px-4">
+            <p className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl 3xl:text-2xl text-muted-foreground max-w-2xl lg:max-w-4xl 3xl:max-w-6xl mx-auto leading-relaxed px-3 xs:px-4">
               Соединяем заказчиков с проверенными специалистами. Прозрачная оплата через платформу с фиксированными тарифами.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10 max-w-4xl lg:max-w-6xl 3xl:max-w-7xl mx-auto px-2">
-            <div className="bg-card hover:bg-accent/5 p-4 sm:p-6 lg:p-8 xl:p-10 3xl:p-12 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
-              <div className="flex items-center justify-center mb-3">
-                <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center ring-2 ring-green-500/20">
-                  <Shield className="w-6 h-6 text-green-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 xs:gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10 max-w-4xl lg:max-w-6xl 3xl:max-w-7xl mx-auto px-2">
+            <div className="bg-card hover:bg-accent/5 p-3 xs:p-4 sm:p-6 lg:p-8 xl:p-10 3xl:p-12 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center mb-2 xs:mb-3">
+                <div className="w-10 h-10 xs:w-12 xs:h-12 bg-green-500/10 rounded-full flex items-center justify-center ring-2 ring-green-500/20">
+                  <Shield className="w-5 h-5 xs:w-6 xs:h-6 text-green-500" />
                 </div>
               </div>
-              <h3 className="font-semibold text-foreground mb-2 text-center">Проверенные специалисты</h3>
-              <p className="text-muted-foreground text-sm text-center">Все исполнители проходят модерацию</p>
+              <h3 className="font-semibold text-foreground mb-1 xs:mb-2 text-center text-sm xs:text-base">Проверенные специалисты</h3>
+              <p className="text-muted-foreground text-xs xs:text-sm text-center leading-tight">Все исполнители проходят модерацию</p>
             </div>
             
-            <div className="bg-card hover:bg-accent/5 p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
-              <div className="flex items-center justify-center mb-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center ring-2 ring-primary/20">
-                  <Clock className="w-6 h-6 text-primary" />
+            <div className="bg-card hover:bg-accent/5 p-3 xs:p-4 sm:p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center mb-2 xs:mb-3">
+                <div className="w-10 h-10 xs:w-12 xs:h-12 bg-primary/10 rounded-full flex items-center justify-center ring-2 ring-primary/20">
+                  <Clock className="w-5 h-5 xs:w-6 xs:h-6 text-primary" />
                 </div>
               </div>
-              <h3 className="font-semibold text-foreground mb-2 text-center">Быстрые сделки</h3>
-              <p className="text-muted-foreground text-sm text-center">Находите исполнителя за минуты</p>
+              <h3 className="font-semibold text-foreground mb-1 xs:mb-2 text-center text-sm xs:text-base">Быстрые сделки</h3>
+              <p className="text-muted-foreground text-xs xs:text-sm text-center leading-tight">Находите исполнителя за минуты</p>
             </div>
             
-            <div className="bg-card hover:bg-accent/5 p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
-              <div className="flex items-center justify-center mb-3">
-                <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center ring-2 ring-blue-500/20">
-                  <User className="w-6 h-6 text-blue-500" />
+            <div className="bg-card hover:bg-accent/5 p-3 xs:p-4 sm:p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center mb-2 xs:mb-3">
+                <div className="w-10 h-10 xs:w-12 xs:h-12 bg-blue-500/10 rounded-full flex items-center justify-center ring-2 ring-blue-500/20">
+                  <User className="w-5 h-5 xs:w-6 xs:h-6 text-blue-500" />
                 </div>
               </div>
-              <h3 className="font-semibold text-foreground mb-2 text-center">Фиксированные тарифы</h3>
-              <p className="text-muted-foreground text-sm text-center">Прозрачная система оплаты</p>
+              <h3 className="font-semibold text-foreground mb-1 xs:mb-2 text-center text-sm xs:text-base">Фиксированные тарифы</h3>
+              <p className="text-muted-foreground text-xs xs:text-sm text-center leading-tight">Прозрачная система оплаты</p>
             </div>
           </div>
         </div>
 
 
         {/* Main Navigation Cards - Адаптивная сетка */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 3xl:gap-12 max-w-5xl lg:max-w-6xl xl:max-w-7xl 3xl:max-w-[2000px] mx-auto px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 xs:gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 3xl:gap-12 max-w-5xl lg:max-w-6xl xl:max-w-7xl 3xl:max-w-[2000px] mx-auto px-2">
           {/* Создать объявление */}
           {user ? (
             <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => navigate('/create-order')}>
-              <div className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 relative">
+              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Plus className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-primary-foreground" />
+                  <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                    <Plus className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-primary-foreground" />
                   </div>
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
-                  <p className="text-muted-foreground text-xs sm:text-sm">Разместите задание для исполнителей</p>
+                  <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Разместите задание для исполнителей</p>
                 </div>
               </div>
             </Card>
           ) : (
             <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => setShowAuth(true)}>
-              <div className="p-8 text-center space-y-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Plus className="w-10 h-10 text-primary-foreground" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
-                  <p className="text-muted-foreground text-sm">Разместите задание для исполнителей</p>
-                </div>
+              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
+...
               </div>
             </Card>
           )}
@@ -134,28 +127,28 @@ const Index = () => {
           {user ? (
             <Link to="/orders">
               <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10">
-                <div className="p-8 text-center space-y-4 relative">
+                <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                      <Briefcase className="w-10 h-10 text-white" />
+                    <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                      <Briefcase className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
-                    <p className="text-muted-foreground text-sm">Управление размещенными заказами</p>
+                    <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
+                    <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Управление размещенными заказами</p>
                   </div>
                 </div>
               </Card>
             </Link>
           ) : (
             <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10" onClick={() => setShowAuth(true)}>
-              <div className="p-8 text-center space-y-4 relative">
+              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Briefcase className="w-10 h-10 text-white" />
+                  <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                    <Briefcase className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
-                  <p className="text-muted-foreground text-sm">Управление размещенными заказами</p>
+                  <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-green-500 transition-colors">Мои заказы</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Управление размещенными заказами</p>
                 </div>
               </div>
             </Card>
@@ -165,28 +158,28 @@ const Index = () => {
           {user ? (
             <Link to="/ads">
               <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10">
-                <div className="p-8 text-center space-y-4 relative">
+                <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                      <Search className="w-10 h-10 text-white" />
+                    <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                      <Search className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
-                    <p className="text-muted-foreground text-sm">Просмотр доступных заказов</p>
+                    <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
+                    <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Просмотр доступных заказов</p>
                   </div>
                 </div>
               </Card>
             </Link>
           ) : (
             <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10" onClick={() => setShowAuth(true)}>
-              <div className="p-8 text-center space-y-4 relative">
+              <div className="p-3 xs:p-4 sm:p-6 md:p-8 text-center space-y-2 xs:space-y-3 sm:space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Search className="w-10 h-10 text-white" />
+                  <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-2 xs:mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                    <Search className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
-                  <p className="text-muted-foreground text-sm">Просмотр доступных заказов</p>
+                  <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 xs:mb-2 group-hover:text-orange-500 transition-colors">Найти работу</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Просмотр доступных заказов</p>
                 </div>
               </div>
             </Card>
