@@ -30,11 +30,11 @@ export const useAdminNotifications = () => {
       const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000).toISOString();
       const oneHourAgo = new Date(now - 60 * 60 * 1000).toISOString();
 
-      // Новые пользователи за последние 24 часа
+      // Пользователи без выбранной роли (требуют внимания)
       const { count: usersCount, error: usersError } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
-        .gte('created_at', oneDayAgo);
+        .or('user_type.is.null,user_subtype.is.null');
       
       // Активные заказы
       const { count: ordersCount, error: ordersError } = await supabase
