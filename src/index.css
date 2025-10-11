@@ -91,21 +91,52 @@
 }
 
 /* Адаптивные стили для всех устройств */
-@media (min-width: 360px) {
-  body {
-    font-size: 14px;
-  }
+html {
+  font-size: 14px;
 }
 
-@media (min-width: 768px) {
-  body {
+@media (min-width: 375px) {
+  html {
     font-size: 15px;
   }
 }
 
-@media (min-width: 1024px) {
-  body {
+@media (min-width: 414px) {
+  html {
     font-size: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Мобильная адаптация */
+@layer utilities {
+  .mobile-safe {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .text-responsive {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+  
+  .heading-responsive {
+    font-size: clamp(1.25rem, 4vw, 1.875rem);
   }
 }
 
