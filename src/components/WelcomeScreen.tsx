@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/logo-round.png';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { Shield, Users, Zap, Trophy, Star } from 'lucide-react';
+import { CONSTANTS } from '@/config';
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;
@@ -56,9 +57,21 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
               <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
             </div>
           </div>
-          <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-glow tracking-tight leading-tight">
-            GruzzTop GT-V5
-          </h1>
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-glow tracking-tight leading-tight">
+              GruzzTop
+            </h1>
+            <div className="flex items-center gap-2">
+              <span className="text-sm xs:text-base sm:text-lg text-steel-400 font-medium">
+                v{CONSTANTS.APP_VERSION}
+              </span>
+              {CONSTANTS.IS_BETA && (
+                <span className="px-2 py-0.5 text-xs sm:text-sm font-semibold bg-primary/20 text-primary-foreground rounded border border-primary/30 animate-pulse">
+                  BETA
+                </span>
+              )}
+            </div>
+          </div>
           <p className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl text-steel-300 max-w-3xl mx-auto leading-relaxed font-medium px-2">
             Революционная платформа для поиска талантов и возможностей! 
             Соединяем мечты с реальностью. Находите идеальных исполнителей или работу мечты за считанные минуты. 
