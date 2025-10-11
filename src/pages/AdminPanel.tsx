@@ -19,7 +19,8 @@ import {
   FileText,
   Menu,
   X,
-  Home
+  Home,
+  MessageSquare
 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { UserManagement } from '@/components/admin/UserManagement';
@@ -33,6 +34,7 @@ import { SystemSettingsManager } from '@/components/admin/SystemSettingsManager'
 import { SecurityLogsViewer } from '@/components/admin/SecurityLogsViewer';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminTicketManagement } from '@/components/AdminTicketManagement';
+import { DeletedConversationsManager } from '@/components/admin/DeletedConversationsManager';
 import { cn } from '@/lib/utils';
 
 type AdminSection = 
@@ -47,7 +49,8 @@ type AdminSection =
   | 'promo-codes'
   | 'roles'
   | 'settings'
-  | 'security';
+  | 'security'
+  | 'deleted-chats';
 
 interface NavigationItem {
   id: AdminSection;
@@ -64,6 +67,7 @@ const navigationItems: NavigationItem[] = [
   { id: 'reviews', label: 'Отзывы', icon: Star, description: 'Модерация отзывов' },
   { id: 'ads', label: 'Объявления', icon: Megaphone, description: 'Модерация объявлений' },
   { id: 'support', label: 'Поддержка', icon: HelpCircle, description: 'Тикеты поддержки' },
+  { id: 'deleted-chats', label: 'Удаленные чаты', icon: MessageSquare, description: 'Управление удаленными чатами' },
   { id: 'categories', label: 'Категории', icon: Tag, description: 'Управление категориями' },
   { id: 'promo-codes', label: 'Промокоды', icon: Tag, description: 'Управление промокодами' },
   { id: 'roles', label: 'Роли', icon: Shield, description: 'Управление ролями' },
@@ -122,6 +126,8 @@ export default function AdminPanel() {
         return <ContentModerationQueue />;
       case 'support':
         return <AdminTicketManagement />;
+      case 'deleted-chats':
+        return <DeletedConversationsManager />;
       case 'categories':
         return <CategoriesManagement />;
       case 'promo-codes':

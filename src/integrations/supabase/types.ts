@@ -159,9 +159,14 @@ export type Database = {
           category: string | null
           created_at: string | null
           created_by: string
+          deleted_at: string | null
+          deleted_by: string[] | null
           id: string
           last_message_at: string | null
           participants: string[]
+          permanently_deleted: boolean | null
+          permanently_deleted_at: string | null
+          permanently_deleted_by: string | null
           priority: string | null
           status: string | null
           title: string | null
@@ -173,9 +178,14 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           created_by: string
+          deleted_at?: string | null
+          deleted_by?: string[] | null
           id?: string
           last_message_at?: string | null
           participants: string[]
+          permanently_deleted?: boolean | null
+          permanently_deleted_at?: string | null
+          permanently_deleted_by?: string | null
           priority?: string | null
           status?: string | null
           title?: string | null
@@ -187,9 +197,14 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           created_by?: string
+          deleted_at?: string | null
+          deleted_by?: string[] | null
           id?: string
           last_message_at?: string | null
           participants?: string[]
+          permanently_deleted?: boolean | null
+          permanently_deleted_at?: string | null
+          permanently_deleted_by?: string | null
           priority?: string | null
           status?: string | null
           title?: string | null

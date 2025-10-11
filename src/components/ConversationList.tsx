@@ -307,25 +307,43 @@ export const ConversationList = ({
   });
 
   const deleteConversation = async (conversationId: string) => {
+    if (!user?.id) return;
+    
     try {
+      // Получаем текущий разговор
+      const { data: conv, error: fetchError } = await supabase
+        .from('conversations')
+        .select('deleted_by, participants')
+        .eq('id', conversationId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Добавляем текущего пользователя в список удаливших
+      const currentDeletedBy = conv.deleted_by || [];
+      const updatedDeletedBy = [...currentDeletedBy, user.id];
+
       const { error } = await supabase
         .from('conversations')
-        .update({ status: 'deleted' })
+        .update({ 
+          deleted_by: updatedDeletedBy,
+          deleted_at: new Date().toISOString()
+        })
         .eq('id', conversationId);
 
       if (error) throw error;
 
-      // Remove from local state
+      // Удаляем из локального состояния
       setConversations(prev => prev.filter(c => c.id !== conversationId));
       
-      // Clear selection if this conversation was selected
+      // Сбрасываем выделение если этот чат был выбран
       if (selectedConversationId === conversationId) {
         onSelectConversation('');
       }
 
       toast({
         title: "Успешно",
-        description: "Чат удален"
+        description: "Чат удален. Если все участники удалят чат, он будет удален навсегда."
       });
 
       onConversationDeleted?.();
@@ -345,23 +363,38 @@ export const ConversationList = ({
     try {
       const conversationIds = conversations.map(c => c.id);
       
-      const { error } = await supabase
-        .from('conversations')
-        .update({ status: 'deleted' })
-        .in('id', conversationIds);
+      // Для каждого чата добавляем пользователя в deleted_by
+      const updates = conversationIds.map(async (id) => {
+        const { data: conv } = await supabase
+          .from('conversations')
+          .select('deleted_by')
+          .eq('id', id)
+          .single();
 
-      if (error) throw error;
+        const currentDeletedBy = conv?.deleted_by || [];
+        const updatedDeletedBy = [...currentDeletedBy, user.id];
 
-      // Clear local state
+        return supabase
+          .from('conversations')
+          .update({ 
+            deleted_by: updatedDeletedBy,
+            deleted_at: new Date().toISOString()
+          })
+          .eq('id', id);
+      });
+
+      await Promise.all(updates);
+
+      // Очищаем локальное состояние
       setConversations([]);
       setLastMessages({});
       
-      // Clear selection
+      // Сбрасываем выделение
       onSelectConversation('');
 
       toast({
         title: "Успешно",
-        description: "Все чаты очищены"
+        description: "Все чаты удалены"
       });
 
       onConversationDeleted?.();
