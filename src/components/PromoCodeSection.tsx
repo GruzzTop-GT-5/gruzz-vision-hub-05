@@ -279,12 +279,12 @@ export const PromoCodeSection: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
-                    <code className="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-background/50 border border-primary/30 text-primary">
+                  <div className="flex flex-col gap-2 pt-2 border-t border-border/30">
+                    <code className="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-background/50 border border-primary/30 text-primary text-center">
                       {promo.code}
                     </code>
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Clock className="w-3 h-3" />
+                    <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                      <Clock className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="whitespace-nowrap">{formatExpiryDate(promo.expires_at)}</span>
                     </div>
                   </div>
