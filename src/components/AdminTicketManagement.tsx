@@ -220,8 +220,11 @@ export const AdminTicketManagement = () => {
   };
 
   const handleMarkAsResolved = async (callId: string) => {
+    console.log('handleMarkAsResolved called with:', callId);
+    
     try {
       // Отмечаем уведомление как прочитанное
+      console.log('Attempting to update notification:', callId);
       const { error: updateError } = await supabase
         .from('notifications')
         .update({ is_read: true })
@@ -229,9 +232,15 @@ export const AdminTicketManagement = () => {
 
       if (updateError) {
         console.error('Update error:', updateError);
-        throw updateError;
+        toast({
+          title: "Ошибка обновления",
+          description: updateError.message || "Не удалось обновить статус",
+          variant: "destructive"
+        });
+        return;
       }
 
+      console.log('Update successful');
       toast({
         title: "Отмечено как решено",
         description: "Вызов помечен как решенный"
@@ -243,19 +252,25 @@ export const AdminTicketManagement = () => {
           call.id === callId ? { ...call, is_read: true } : call
         )
       );
-    } catch (error) {
+      
+      // Перезагружаем список вызовов
+      fetchAdminCalls();
+    } catch (error: any) {
       console.error('Error marking call as resolved:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось обновить статус",
+        description: error?.message || "Не удалось обновить статус",
         variant: "destructive"
       });
     }
   };
 
   const handleCloseCall = async (callId: string) => {
+    console.log('handleCloseCall called with:', callId);
+    
     try {
       // Удаляем уведомление
+      console.log('Attempting to delete notification:', callId);
       const { error: deleteError } = await supabase
         .from('notifications')
         .delete()
@@ -263,9 +278,15 @@ export const AdminTicketManagement = () => {
 
       if (deleteError) {
         console.error('Delete error:', deleteError);
-        throw deleteError;
+        toast({
+          title: "Ошибка удаления",
+          description: deleteError.message || "Не удалось удалить вызов",
+          variant: "destructive"
+        });
+        return;
       }
 
+      console.log('Delete successful');
       toast({
         title: "Вызов закрыт",
         description: "Вызов успешно закрыт"
@@ -273,11 +294,14 @@ export const AdminTicketManagement = () => {
 
       // Удаляем вызов из локального состояния
       setAdminCalls(prev => prev.filter(call => call.id !== callId));
-    } catch (error) {
+      
+      // Перезагружаем список вызовов
+      fetchAdminCalls();
+    } catch (error: any) {
       console.error('Error closing call:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось закрыть вызов",
+        description: error?.message || "Не удалось закрыть вызов",
         variant: "destructive"
       });
     }
