@@ -51,12 +51,10 @@ const countriesList = [
   'Другое'
 ];
 
-const specializationsList = [
+// Специализации для исполнителей
+const executorSpecializations = [
   'Грузчик',
   'Разнорабочий',
-  'Квартирный переезд',
-  'Офисный переезд',
-  'Погрузка/разгрузка',
   'Сборка мебели',
   'Уборка помещений',
   'Строительные работы',
@@ -66,6 +64,21 @@ const specializationsList = [
   'Складские работы',
   'Курьерские услуги',
   'Садовые работы',
+  'Водитель',
+  'Другое'
+];
+
+// Специализации для заказчиков
+const clientSpecializations = [
+  'Квартирный переезд',
+  'Офисный переезд',
+  'Погрузка/разгрузка',
+  'Строительство',
+  'Ремонт',
+  'Уборка',
+  'Вывоз мусора',
+  'Доставка грузов',
+  'Складские услуги',
   'Другое'
 ];
 
@@ -510,11 +523,17 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
               </div>
 
               {/* Тип пользователя */}
-              <div className="space-y-1.5 sm:space-y-2">
+              <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
                 <label className="text-xs sm:text-sm font-medium text-steel-200">
                   Тип пользователя <span className="text-red-400">*</span>
                 </label>
-                <Select value={formData.userType} onValueChange={(value) => setFormData({ ...formData, userType: value })}>
+                <Select 
+                  value={formData.userType} 
+                  onValueChange={(value) => {
+                    // При смене типа пользователя сбрасываем специализации
+                    setFormData({ ...formData, userType: value, specializations: [] });
+                  }}
+                >
                   <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base bg-steel-800/80 border-steel-600 z-50">
                     <SelectValue placeholder="Выберите тип" />
                   </SelectTrigger>
@@ -523,20 +542,28 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                     <SelectItem value="executor" className="text-steel-100 hover:bg-steel-700 focus:bg-steel-700">Исполнитель</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-[10px] sm:text-xs text-steel-500">
+                  Заказчик - создает заказы, Исполнитель - выполняет работу
+                </p>
               </div>
 
-              {/* Специализации - множественный выбор */}
-              <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
-                <label className="text-xs sm:text-sm font-medium text-steel-200">
-                  Специализации <span className="text-red-400">*</span>
-                </label>
-                <p className="text-[10px] sm:text-xs text-steel-500 mb-1">Выберите все подходящие специализации</p>
-                <MultiSelectSpecializations
-                  value={formData.specializations}
-                  onChange={(value) => setFormData({ ...formData, specializations: value })}
-                  options={specializationsList}
-                />
-              </div>
+              {/* Специализации - показываем только после выбора типа пользователя */}
+              {formData.userType && (
+                <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
+                  <label className="text-xs sm:text-sm font-medium text-steel-200">
+                    Специализации <span className="text-red-400">*</span>
+                  </label>
+                  <p className="text-[10px] sm:text-xs text-steel-500 mb-1">
+                    Выберите до 3 специализаций {formData.userType === 'executor' ? 'которые вы выполняете' : 'которые вас интересуют'}
+                  </p>
+                  <MultiSelectSpecializations
+                    value={formData.specializations}
+                    onChange={(value) => setFormData({ ...formData, specializations: value })}
+                    options={formData.userType === 'executor' ? executorSpecializations : clientSpecializations}
+                    maxSelections={3}
+                  />
+                </div>
+              )}
 
               {/* О себе */}
               <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">

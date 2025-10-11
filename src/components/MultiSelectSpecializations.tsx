@@ -13,12 +13,14 @@ interface MultiSelectSpecializationsProps {
   value: string[];
   onChange: (value: string[]) => void;
   options: string[];
+  maxSelections?: number;
 }
 
 export const MultiSelectSpecializations = ({
   value,
   onChange,
-  options
+  options,
+  maxSelections = 999
 }: MultiSelectSpecializationsProps) => {
   const [open, setOpen] = useState(false);
   const [customValue, setCustomValue] = useState('');
@@ -28,12 +30,20 @@ export const MultiSelectSpecializations = ({
     if (value.includes(option)) {
       onChange(value.filter(v => v !== option));
     } else {
+      // Проверяем максимальное количество выбранных элементов
+      if (value.length >= maxSelections) {
+        return; // Не добавляем, если достигнут максимум
+      }
       onChange([...value, option]);
     }
   };
 
   const handleAddCustom = () => {
     if (customValue.trim() && !value.includes(customValue.trim())) {
+      // Проверяем максимальное количество выбранных элементов
+      if (value.length >= maxSelections) {
+        return; // Не добавляем, если достигнут максимум
+      }
       onChange([...value, customValue.trim()]);
       setCustomValue('');
       setShowCustomInput(false);
@@ -53,7 +63,7 @@ export const MultiSelectSpecializations = ({
             className="w-full justify-start text-left font-normal input-steel bg-steel-800/80 border-steel-600 h-auto min-h-[2.75rem] py-2"
           >
             {value.length === 0 ? (
-              <span className="text-steel-400">Выберите специализации...</span>
+              <span className="text-steel-400">Выберите до {maxSelections} специализаций...</span>
             ) : (
               <div className="flex flex-wrap gap-1">
                 {value.map((item) => (
@@ -75,17 +85,22 @@ export const MultiSelectSpecializations = ({
               const isSelected = value.includes(option);
               const isOther = option === 'Другое';
               
+              const isDisabled = !isSelected && value.length >= maxSelections;
+              
               return (
                 <div
                   key={option}
                   onClick={() => {
+                    if (isDisabled) return;
                     if (isOther) {
                       setShowCustomInput(true);
                     } else {
                       toggleSelection(option);
                     }
                   }}
-                  className="flex items-center space-x-2 px-2 py-1.5 cursor-pointer hover:bg-steel-700 rounded text-steel-100 text-sm"
+                  className={`flex items-center space-x-2 px-2 py-1.5 rounded text-sm ${
+                    isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-steel-700'
+                  } text-steel-100`}
                 >
                   <div className={`w-4 h-4 border rounded flex items-center justify-center ${
                     isSelected ? 'bg-primary border-primary' : 'border-steel-500'
