@@ -38,13 +38,31 @@ export const UserManagement: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Fetch profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (profilesError) throw profilesError;
+
+      // Fetch roles from user_roles table
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) console.error('Error fetching roles:', rolesError);
+
+      // Merge role data with profiles
+      const usersWithRoles = profiles?.map(profile => {
+        const userRole = roles?.find(r => r.user_id === profile.id);
+        return {
+          ...profile,
+          role: userRole?.role || 'user'
+        };
+      });
+
+      setUsers(usersWithRoles || []);
     } catch (error) {
       toast({
         title: "Ошибка",

@@ -92,13 +92,31 @@ export const RoleManagement: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Fetch profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, phone, display_name, full_name, rating, balance, created_at')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (profilesError) throw profilesError;
+
+      // Fetch roles from user_roles table
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) console.error('Error fetching roles:', rolesError);
+
+      // Merge role data with profiles
+      const usersWithRoles = profiles?.map(profile => {
+        const userRole = roles?.find(r => r.user_id === profile.id);
+        return {
+          ...profile,
+          role: (userRole?.role || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
+        };
+      });
+
+      setUsers(usersWithRoles || []);
     } catch (error) {
       handleError(error, { component: 'RoleManagement', action: 'fetchUsers' });
     } finally {
@@ -154,11 +172,20 @@ export const RoleManagement: React.FC = () => {
     try {
       setLoading(true);
 
-      // Обновляем роль пользователя
+      // Delete old role assignment from user_roles table
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', change.userId);
+
+      // Insert new role assignment
       const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ role: change.toRole as any })
-        .eq('id', change.userId);
+        .from('user_roles')
+        .insert({
+          user_id: change.userId,
+          role: change.toRole as any,
+          assigned_by: currentUser?.id
+        });
 
       if (updateError) throw updateError;
 

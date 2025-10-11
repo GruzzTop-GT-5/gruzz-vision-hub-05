@@ -57,25 +57,29 @@ export const useAuth = (): AuthContextType => {
 
   const fetchUserRole = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch role from user_roles table (new secure system)
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .order('assigned_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Fetch user type/subtype from profiles
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('role, user_type, user_subtype')
+        .select('user_type, user_subtype')
         .eq('id', userId)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching user role:', error);
-        setUserRole('user');
-        setUserType(null);
-        setUserSubtype(null);
-        setNeedsRoleSelection(false);
-        setLoading(false);
-        return;
+      if (profileError) {
+        console.error('Error fetching profile data:', profileError);
       }
 
-      const role = data?.role || 'user';
-      const type = data?.user_type || null;
-      const subtype = data?.user_subtype || null;
+      const role = roleData?.role || 'user';
+      const type = profileData?.user_type || null;
+      const subtype = profileData?.user_subtype || null;
       
       setUserRole(role);
       setUserType(type);
