@@ -71,16 +71,9 @@ export const TermsAcceptance: React.FC<TermsAcceptanceProps> = ({
   onCancel, 
   isOpen 
 }) => {
-  const [agreements, setAgreements] = useState<Record<string, boolean>>({});
+  const [acceptAll, setAcceptAll] = useState(false);
   const [showDocument, setShowDocument] = useState<string | null>(null);
   const { toast } = useToast();
-
-  const handleAgreementChange = (agreementId: string, checked: boolean) => {
-    setAgreements(prev => ({
-      ...prev,
-      [agreementId]: checked
-    }));
-  };
 
   const getDocumentContent = (agreementId: string) => {
     switch (agreementId) {
@@ -100,19 +93,21 @@ export const TermsAcceptance: React.FC<TermsAcceptanceProps> = ({
     return agreement?.title || 'Документ';
   };
 
-  const canProceed = REQUIRED_AGREEMENTS
-    .filter(agreement => agreement.required)
-    .every(agreement => agreements[agreement.id]);
-
   const handleAccept = () => {
-    if (!canProceed) {
+    if (!acceptAll) {
       toast({
         title: "Необходимо согласие",
-        description: "Пожалуйста, примите все обязательные соглашения",
+        description: "Пожалуйста, примите все соглашения",
         variant: "destructive"
       });
       return;
     }
+
+    // Создаем объект со всеми соглашениями
+    const agreements: Record<string, boolean> = {};
+    REQUIRED_AGREEMENTS.forEach(agreement => {
+      agreements[agreement.id] = true;
+    });
 
     onAccept(agreements);
   };
@@ -120,107 +115,88 @@ export const TermsAcceptance: React.FC<TermsAcceptanceProps> = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={() => onCancel?.()}>
-        <DialogContent className="max-w-2xl max-h-[90vh] data-[state=open]:animate-none data-[state=closed]:animate-none data-[state=open]:duration-0 data-[state=closed]:duration-0">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              Соглашения платформы GruzzTop
+        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] p-4 sm:p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
+              <span>Соглашения платформы GruzzTop</span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Для использования платформы необходимо ознакомиться и принять следующие соглашения
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-1 mb-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Badge variant="outline">Версия {TERMS_VERSION}</Badge>
-            </div>
+          <div className="mb-3">
+            <Badge variant="outline" className="text-xs">Версия {TERMS_VERSION}</Badge>
           </div>
 
-          <ScrollArea className="h-[50vh] w-full pr-4">
-            <div className="space-y-4">
+          <ScrollArea className="h-[45vh] sm:h-[40vh] w-full pr-2">
+            <div className="space-y-3">
               {REQUIRED_AGREEMENTS.map((agreement) => (
-                <Card key={agreement.id} className="relative">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-base flex items-center gap-2">
-                          {agreement.required && (
-                            <AlertTriangle className="h-4 w-4 text-red-500" />
-                          )}
-                          {agreement.title}
-                          {agreement.required && (
-                            <Badge variant="destructive" className="text-xs">
-                              Обязательно
-                            </Badge>
-                          )}
-                        </CardTitle>
-                        <CardDescription className="mt-1">
-                          {agreement.description}
-                        </CardDescription>
-                      </div>
+                <Card key={agreement.id} className="border-steel-600 bg-steel-800/50">
+                  <CardHeader className="p-3 sm:p-4 pb-2">
+                    <CardTitle className="text-sm sm:text-base flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <span className="flex-1">{agreement.title}</span>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowDocument(agreement.id)}
-                        className="ml-2"
+                        className="h-7 w-7 p-0 flex-shrink-0"
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
-                    </div>
+                    </CardTitle>
+                    <CardDescription className="mt-1 text-xs">
+                      {agreement.description}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id={agreement.id}
-                        checked={agreements[agreement.id] || false}
-                        onCheckedChange={(checked) => 
-                          handleAgreementChange(agreement.id, checked as boolean)
-                        }
-                      />
-                      <label
-                        htmlFor={agreement.id}
-                        className="text-sm cursor-pointer"
-                      >
-                        Я ознакомился(ась) и согласен(на) с условиями
-                      </label>
-                    </div>
-                  </CardContent>
                 </Card>
               ))}
             </div>
           </ScrollArea>
 
-          <Separator />
+          <Separator className="my-4" />
 
-          <div className="flex items-center justify-between pt-4">
-            <div className="text-sm text-muted-foreground">
-              {canProceed ? (
-                <span className="text-green-600 font-medium">
-                  ✓ Все обязательные соглашения приняты
-                </span>
-              ) : (
-                <span className="text-red-600">
-                  Необходимо принять все обязательные соглашения
-                </span>
-              )}
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={onCancel}
+          {/* Одна галочка для всех соглашений */}
+          <div className="bg-steel-800/30 border border-steel-600 rounded-lg p-3 sm:p-4">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="accept-all"
+                checked={acceptAll}
+                onCheckedChange={(checked) => setAcceptAll(checked as boolean)}
+                className="mt-0.5 flex-shrink-0"
+              />
+              <label
+                htmlFor="accept-all"
+                className="text-sm sm:text-base cursor-pointer leading-tight"
               >
-                Отмена
-              </Button>
-              <Button
-                onClick={handleAccept}
-                disabled={!canProceed}
-                className="min-w-[120px]"
-              >
-                Принимаю условия
-              </Button>
+                Я ознакомился(ась) и согласен(на) со всеми условиями использования платформы, политикой конфиденциальности и соглашением о комиссиях
+              </label>
             </div>
+          </div>
+
+          {!acceptAll && (
+            <p className="text-xs sm:text-sm text-red-400 text-center">
+              Необходимо принять все обязательные соглашения
+            </p>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              className="flex-1 text-sm sm:text-base"
+            >
+              Отмена
+            </Button>
+            <Button
+              onClick={handleAccept}
+              disabled={!acceptAll}
+              className="flex-1 text-sm sm:text-base"
+            >
+              Принимаю условия
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
