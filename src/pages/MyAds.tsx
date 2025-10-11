@@ -579,119 +579,142 @@ const MyAds = () => {
             </div>
           </Card>
 
-          {/* Items List */}
+          {/* Premium Items List */}
           {isLoading ? (
-            <Card className="card-steel p-8 text-center">
-              <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-              <p className="text-steel-300">Загрузка...</p>
+            <Card className="relative overflow-hidden p-6 xs:p-8">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-electric-600/5"></div>
+              <div className="relative text-center">
+                <Loader2 className="w-6 h-6 xs:w-8 xs:h-8 text-primary animate-spin mx-auto mb-3 xs:mb-4" />
+                <p className="text-xs xs:text-sm text-steel-300">Загрузка...</p>
+              </div>
             </Card>
           ) : filteredItems.length === 0 ? (
-            <Card className="card-steel p-8 text-center space-y-4">
-              <Package className="w-16 h-16 text-steel-500 mx-auto" />
-              <h3 className="text-xl font-bold text-steel-300">
-                {items.length === 0 ? 'Нет публикаций' : 'Ничего не найдено'}
-              </h3>
-              <p className="text-steel-400">
-                {items.length === 0 
-                  ? 'Создайте ваше первое объявление или вакансию' 
-                  : 'Попробуйте изменить параметры поиска'
-                }
-              </p>
-              {items.length === 0 && (
-                <div className="flex gap-4 justify-center">
-                  <Button onClick={() => navigate('/create-order')}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Создать объявление
-                  </Button>
-                  <Button variant="outline" onClick={() => {
-                    resetForm();
-                    setShowCreateModal(true);
-                  }}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Создать вакансию
-                  </Button>
+            <Card className="relative overflow-hidden p-6 xs:p-8">
+              <div className="absolute inset-0 bg-gradient-to-br from-steel-800/50 via-steel-700/30 to-steel-800/50"></div>
+              <div className="relative text-center space-y-3 xs:space-y-4">
+                <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-steel-600/20 to-steel-700/20 rounded-full flex items-center justify-center mx-auto backdrop-blur-sm">
+                  <Package className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-steel-500" />
                 </div>
-              )}
+                <h3 className="text-base xs:text-lg sm:text-xl font-bold text-steel-300">
+                  {items.length === 0 ? 'Нет публикаций' : 'Ничего не найдено'}
+                </h3>
+                <p className="text-xs xs:text-sm sm:text-base text-steel-400">
+                  {items.length === 0 
+                    ? 'Создайте ваше первое объявление или вакансию' 
+                    : 'Попробуйте изменить параметры поиска'
+                  }
+                </p>
+                {items.length === 0 && (
+                  <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4 justify-center mt-4 xs:mt-6">
+                    <Button onClick={() => navigate('/create-order')} className="bg-gradient-to-r from-primary to-electric-600 hover:from-primary/80 hover:to-electric-600/80 h-9 xs:h-10 text-xs xs:text-sm">
+                      <Plus className="w-3.5 h-3.5 xs:w-4 xs:h-4 mr-1.5 xs:mr-2" />
+                      Создать объявление
+                    </Button>
+                    <Button variant="outline" onClick={() => {
+                      resetForm();
+                      setShowCreateModal(true);
+                    }} className="h-9 xs:h-10 text-xs xs:text-sm">
+                      <Plus className="w-3.5 h-3.5 xs:w-4 xs:h-4 mr-1.5 xs:mr-2" />
+                      Создать вакансию
+                    </Button>
+                  </div>
+                )}
+              </div>
             </Card>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-2 xs:space-y-2.5 sm:space-y-3">
               {filteredItems.map((item) => (
-                <Card key={`${item.type}-${item.id}`} className="card-steel border border-steel-600 h-full">
-                  <div className="p-6 space-y-4">
-                    {/* Header */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex gap-2">
-                        {getStatusBadge(item.status, item.type)}
-                        <Badge variant="outline" className="text-xs">
-                          {item.type === 'ad' ? 'Объявление' : 'Вакансия'}
-                        </Badge>
+                <Card 
+                  key={`${item.type}-${item.id}`} 
+                  className="relative overflow-hidden group transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-electric-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative p-3 xs:p-4 sm:p-5 lg:p-6">
+                    <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-3 xs:gap-4">
+                      {/* Left Content */}
+                      <div className="flex-1 min-w-0 space-y-2 xs:space-y-2.5 sm:space-y-3">
+                        {/* Header */}
+                        <div className="flex flex-wrap items-center gap-1.5 xs:gap-2">
+                          {getStatusBadge(item.status, item.type)}
+                          <Badge variant="outline" className="text-[10px] xs:text-xs">
+                            {item.type === 'ad' ? 'Объявление' : 'Вакансия'}
+                          </Badge>
+                          {item.type === 'vacancy' && (
+                            <span className="text-[10px] xs:text-xs text-steel-400">
+                              № {(item as Vacancy).order_number}
+                            </span>
+                          )}
+                          <span className="text-[10px] xs:text-xs text-steel-400 ml-auto xs:ml-0">
+                            {format(new Date(item.created_at), 'dd MMM yyyy', { locale: ru })}
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-sm xs:text-base sm:text-lg font-bold text-steel-100 line-clamp-2 group-hover:text-primary transition-colors">
+                          {item.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-steel-300 text-xs xs:text-sm line-clamp-2">
+                          {item.description || 'Описание не указано'}
+                        </p>
+
+                        {/* Info Row */}
+                        <div className="flex flex-wrap items-center gap-2 xs:gap-3 sm:gap-4 text-xs xs:text-sm">
+                          <div className="flex items-center gap-1 xs:gap-1.5">
+                            <Coins className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 text-primary" />
+                            <span className="font-semibold bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent">
+                              {item.price} {item.type === 'ad' ? '₽' : 'GT'}
+                            </span>
+                          </div>
+                          {item.category && (
+                            <div className="flex items-center gap-1">
+                              <Package className="w-3 h-3 xs:w-3.5 xs:h-3.5 text-steel-400" />
+                              <Badge variant="outline" className="text-[10px] xs:text-xs">
+                                {item.category}
+                              </Badge>
+                            </div>
+                          )}
+                          {item.type === 'vacancy' && (item as Vacancy).deadline && (
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 xs:w-3.5 xs:h-3.5 text-steel-400" />
+                              <span className="text-[10px] xs:text-xs text-steel-400">
+                                До: {format(new Date((item as Vacancy).deadline!), 'dd MMM', { locale: ru })}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <span className="text-xs text-steel-400">
-                        {format(new Date(item.created_at), 'dd MMM yyyy', { locale: ru })}
-                      </span>
-                    </div>
 
-                    {/* Title */}
-                    <h3 className="text-lg font-bold text-steel-100 line-clamp-2">
-                      {item.title}
-                    </h3>
-
-                    {/* Order Number for vacancies */}
-                    {item.type === 'vacancy' && (
-                      <p className="text-xs text-steel-400">
-                        № {(item as Vacancy).order_number}
-                      </p>
-                    )}
-
-                    {/* Description */}
-                    <p className="text-steel-300 text-sm line-clamp-3">
-                      {item.description || 'Описание не указано'}
-                    </p>
-
-                    {/* Category */}
-                    <div className="flex items-center space-x-2 text-sm text-steel-400">
-                      <Package className="w-4 h-4" />
-                      <span>{item.category || 'Не указано'}</span>
-                    </div>
-
-                    {/* Deadline for vacancies */}
-                    {item.type === 'vacancy' && (item as Vacancy).deadline && (
-                      <div className="flex items-center space-x-2 text-sm text-steel-400">
-                        <Clock className="w-4 h-4" />
-                        <span>До: {format(new Date((item as Vacancy).deadline!), 'dd MMM yyyy', { locale: ru })}</span>
-                      </div>
-                    )}
-
-                    {/* Price and Actions */}
-                    <div className="flex items-center justify-between pt-4 border-t border-steel-600">
-                      <div className="flex items-center space-x-2">
-                        <Coins className="w-4 h-4 text-green-400" />
-                        <span className="text-lg font-bold text-steel-100">
-                          {item.price} {item.type === 'ad' ? '₽' : 'GT'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Link to={`/ad/${item.id}`}>
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4" />
+                      {/* Actions */}
+                      <div className="flex xs:flex-col gap-2 shrink-0">
+                        <Link to={`/ad/${item.id}`} className="flex-1 xs:flex-none">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full h-8 xs:h-9 px-2 xs:px-3 text-xs hover:bg-primary/10 hover:border-primary/50 transition-all"
+                          >
+                            <Eye className="w-3 h-3 xs:w-3.5 xs:h-3.5 xs:mr-1.5" />
+                            <span className="hidden xs:inline">Смотреть</span>
                           </Button>
                         </Link>
-                        
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => openEditModal(item)}
+                          className="flex-1 xs:flex-none h-8 xs:h-9 px-2 xs:px-3 text-xs hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-blue-400 transition-all"
                         >
-                          <Edit3 className="w-4 h-4" />
+                          <Edit3 className="w-3 h-3 xs:w-3.5 xs:h-3.5 xs:mr-1.5" />
+                          <span className="hidden xs:inline">Изменить</span>
                         </Button>
-                        
-                        <Button 
-                          variant="destructive" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => openDeleteDialog(item)}
+                          className="flex-1 xs:flex-none h-8 xs:h-9 px-2 xs:px-3 text-xs hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-400 transition-all"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3 xs:w-3.5 xs:h-3.5 xs:mr-1.5" />
+                          <span className="hidden xs:inline">Удалить</span>
                         </Button>
                       </div>
                     </div>
