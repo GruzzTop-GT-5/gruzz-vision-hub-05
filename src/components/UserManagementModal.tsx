@@ -479,7 +479,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] lg:max-w-[1400px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
+          <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <User className="w-5 h-5" />
               <span className="font-semibold">Управление пользователем</span>
@@ -500,7 +500,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
               <MessageSquare className="w-4 h-4" />
               Открыть чат
             </Button>
-          </div>
+          </DialogTitle>
           <DialogDescription>
             Просмотр и редактирование данных пользователя
           </DialogDescription>
