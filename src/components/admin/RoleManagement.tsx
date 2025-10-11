@@ -92,17 +92,26 @@ export const RoleManagement: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Fetch profiles with roles directly from profiles table
+      
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, phone, display_name, full_name, role, rating, balance, created_at')
+        .select('id, phone, display_name, full_name, rating, balance, created_at')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
 
+      // Fetch roles from secure user_roles table
+      const userIds = profiles?.map(u => u.id) || [];
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+
+      const rolesMap = new Map(rolesData?.map(r => [r.user_id, r.role]) || []);
+      
       const usersWithRoles: UserProfile[] = profiles?.map(p => ({
         ...p,
-        role: (p.role || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
+        role: (rolesMap.get(p.id) || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
       })) || [];
 
       setUsers(usersWithRoles);
@@ -161,11 +170,15 @@ export const RoleManagement: React.FC = () => {
     try {
       setLoading(true);
 
-      // Update role in profiles table
+      // Update role in secure user_roles table
       const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ role: change.toRole as any })
-        .eq('id', change.userId);
+        .from('user_roles')
+        .upsert({ 
+          user_id: change.userId, 
+          role: change.toRole 
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (updateError) throw updateError;
 

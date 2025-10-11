@@ -57,36 +57,40 @@ export const useAuth = (): AuthContextType => {
 
   const fetchUserRole = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch role from secure user_roles table
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      // Fetch user type and subtype from profiles
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('role, user_type, user_subtype')
+        .select('user_type, user_subtype')
         .eq('id', userId)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching user role:', error);
-        setUserRole('user');
-        setUserType(null);
-        setUserSubtype(null);
-        setNeedsRoleSelection(false);
-        setLoading(false);
-        return;
+      if (roleError && roleError.code !== 'PGRST116') {
+        console.error('Error fetching user role:', roleError);
       }
 
-      // Get role from profiles (will be migrated to user_roles table later)
-      const role = data?.role || 'user';
-      const type = data?.user_type || null;
-      const subtype = data?.user_subtype || null;
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      }
+
+      const role = roleData?.role || 'user';
+      const type = profileData?.user_type || null;
+      const subtype = profileData?.user_subtype || null;
       
       setUserRole(role);
       setUserType(type);
       setUserSubtype(subtype);
       
-      // Если user_type не установлен, пользователю нужно выбрать роль
       setNeedsRoleSelection(!type || !subtype);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching user role:', error);
+      console.error('Error fetching user data:', error);
       setUserRole('user');
       setUserType(null);
       setUserSubtype(null);
