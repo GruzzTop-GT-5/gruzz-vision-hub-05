@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +57,7 @@ interface UserManagementModalProps {
 
 export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: UserManagementModalProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   
@@ -362,6 +364,80 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     }
   };
 
+  const handleOpenChat = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const currentUser = await supabase.auth.getUser();
+      if (!currentUser.data.user) {
+        toast({
+          title: "Ошибка",
+          description: "Вы не авторизованы",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Проверяем, есть ли уже разговор между администратором и пользователем
+      const { data: existingConversation } = await supabase
+        .from('conversations')
+        .select('id')
+        .contains('participants', [currentUser.data.user.id, user.id])
+        .eq('type', 'chat')
+        .single();
+
+      if (existingConversation) {
+        // Открываем существующий чат
+        navigate(`/chat?conversation=${existingConversation.id}`);
+        onClose();
+        return;
+      }
+
+      // Создаем новый разговор
+      const { data: newConversation, error } = await supabase
+        .from('conversations')
+        .insert({
+          type: 'chat',
+          participants: [currentUser.data.user.id, user.id],
+          created_by: currentUser.data.user.id,
+          title: `Чат с ${user.display_name || user.full_name || user.phone}`
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Отправляем приветственное сообщение от администратора
+      await supabase
+        .from('messages')
+        .insert({
+          conversation_id: newConversation.id,
+          sender_id: currentUser.data.user.id,
+          content: `Здравствуйте! Администратор связался с вами.`,
+          message_type: 'text'
+        });
+
+      toast({
+        title: "Успешно",
+        description: "Чат создан"
+      });
+
+      // Переходим в чат
+      navigate(`/chat?conversation=${newConversation.id}`);
+      onClose();
+    } catch (error) {
+      console.error('Error creating chat:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось создать чат",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getBanTypeLabel = (type: string) => {
     switch (type) {
       case 'order_mute': return 'Запрет на заказы';
@@ -387,17 +463,28 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] lg:max-w-[1400px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <User className="w-5 h-5" />
-            <span>Управление пользователем</span>
-            <Badge className={getRoleColor(user.role)}>
-              {user.role === 'system_admin' ? 'Системный администратор' :
-               user.role === 'admin' ? 'Администратор' :
-               user.role === 'moderator' ? 'Модератор' :
-               user.role === 'support' ? 'Поддержка' :
-               'Пользователь'}
-            </Badge>
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <User className="w-5 h-5" />
+              <span className="font-semibold">Управление пользователем</span>
+              <Badge className={getRoleColor(user.role)}>
+                {user.role === 'system_admin' ? 'Системный администратор' :
+                 user.role === 'admin' ? 'Администратор' :
+                 user.role === 'moderator' ? 'Модератор' :
+                 user.role === 'support' ? 'Поддержка' :
+                 'Пользователь'}
+              </Badge>
+            </div>
+            <Button
+              onClick={handleOpenChat}
+              disabled={loading}
+              className="flex items-center gap-2"
+              variant="default"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Открыть чат
+            </Button>
+          </div>
           <DialogDescription>
             Просмотр и редактирование данных пользователя
           </DialogDescription>
