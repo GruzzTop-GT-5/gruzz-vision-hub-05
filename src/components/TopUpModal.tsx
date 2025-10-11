@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CreditCard, Smartphone, Upload, Copy, Check } from 'lucide-react';
+import { CreditCard, Smartphone, Upload, Copy, Check, Gift } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from '@/integrations/supabase/types';
@@ -35,6 +35,9 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [proofImage, setProofImage] = useState<File | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<any>(null);
+  const [checkingPromo, setCheckingPromo] = useState(false);
   const { toast } = useToast();
 
   const paymentMethods = [
@@ -157,16 +160,44 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
         proofImageUrl = fileName;
       }
 
+      // Mark promo as used if applied
+      if (appliedPromo) {
+        const { error: promoError } = await supabase
+          .from('promo_code_usage')
+          .insert({
+            promo_code_id: appliedPromo.id,
+            user_id: userId,
+            bonus_received: 0 // For deposit promos, no direct bonus
+          });
+
+        if (promoError) throw promoError;
+
+        // Update promo usage count
+        await supabase
+          .from('promo_codes')
+          .update({ usage_count: (appliedPromo.usage_count || 0) + 1 })
+          .eq('id', appliedPromo.id);
+      }
+
+      const finalAmount = calculateFinalAmount();
+      
       // Create transaction
       const { error } = await supabase
         .from('transactions')
         .insert({
           user_id: userId,
           type: 'deposit' as Database['public']['Enums']['transaction_type'],
-          amount: parseFloat(amount),
+          amount: finalAmount,
           payment_method: method as 'bank_card' | 'yoomoney' | 'ozon' | 'manual_transfer',
           proof_image: proofImageUrl || null,
-          payment_details: paymentDetails ? JSON.parse(JSON.stringify(paymentDetails)) : null
+          payment_details: appliedPromo 
+            ? { 
+                ...paymentDetails, 
+                promo_code: appliedPromo.code,
+                original_amount: parseFloat(amount),
+                discount_applied: parseFloat(amount) - finalAmount
+              }
+            : (paymentDetails ? JSON.parse(JSON.stringify(paymentDetails)) : null)
         });
 
       if (error) throw error;
@@ -193,12 +224,100 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
     }
   };
 
+  const checkPromoCode = async () => {
+    if (!promoCode.trim()) return;
+    
+    setCheckingPromo(true);
+    try {
+      const { data, error } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .eq('code', promoCode.toUpperCase().trim())
+        .eq('is_active', true)
+        .single();
+
+      if (error || !data) {
+        toast({
+          title: "Ошибка",
+          description: "Промокод не найден или неактивен",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check if expired
+      if (new Date(data.expires_at) <= new Date()) {
+        toast({
+          title: "Ошибка",
+          description: "Промокод истёк",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check if user already used it
+      const { data: usageData } = await supabase
+        .from('promo_code_usage')
+        .select('id')
+        .eq('promo_code_id', data.id)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (usageData) {
+        toast({
+          title: "Ошибка",
+          description: "Вы уже использовали этот промокод",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check if it's a deposit promo (only for balance top-ups)
+      if (data.promo_type !== 'bonus') {
+        setAppliedPromo(data);
+        toast({
+          title: "Промокод применён!",
+          description: `Скидка ${data.promo_type === 'discount_percent' ? data.discount_value + '%' : data.discount_value + ' GT'} будет применена`,
+        });
+      } else {
+        toast({
+          title: "Неверный тип промокода",
+          description: "Этот промокод предназначен для прямого начисления бонусов, а не для пополнений",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error checking promo:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось проверить промокод",
+        variant: "destructive"
+      });
+    } finally {
+      setCheckingPromo(false);
+    }
+  };
+
+  const calculateFinalAmount = () => {
+    const baseAmount = parseFloat(amount) || 0;
+    if (!appliedPromo) return baseAmount;
+
+    if (appliedPromo.promo_type === 'discount_percent') {
+      return baseAmount * (1 - appliedPromo.discount_value / 100);
+    } else if (appliedPromo.promo_type === 'discount_fixed') {
+      return Math.max(0, baseAmount - appliedPromo.discount_value);
+    }
+    return baseAmount;
+  };
+
   const resetForm = () => {
     setAmount('');
     setPaymentDetails(null);
     setProofImage(null);
     setCopiedField(null);
     setSelectedPaymentMethod('');
+    setPromoCode('');
+    setAppliedPromo(null);
   };
 
   const CopyButton = ({ text, field }: { text: string; field: string }) => (
@@ -234,20 +353,82 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
               id="amount"
               type="number"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                setAppliedPromo(null); // Reset promo when amount changes
+              }}
               placeholder="Введите сумму в GT Coins"
               min="1"
               step="0.01"
               className="input-steel"
             />
             {amount && parseFloat(amount) > 0 && (
-              <div className="text-xs text-steel-400 flex justify-between">
-                <span>К оплате: {formatRubles(parseFloat(amount))}</span>
-                <span>1 GT = 1 ₽</span>
+              <div className="text-xs text-steel-400 space-y-1">
+                {appliedPromo && (
+                  <div className="p-2 bg-primary/10 border border-primary/20 rounded text-primary flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Gift className="w-4 h-4" />
+                      <span>Промокод применён: {appliedPromo.code}</span>
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAppliedPromo(null);
+                        setPromoCode('');
+                      }}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Удалить
+                    </Button>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span>Исходная сумма: {formatRubles(parseFloat(amount))}</span>
+                  <span>1 GT = 1 ₽</span>
+                </div>
+                {appliedPromo && (
+                  <>
+                    <div className="flex justify-between text-green-400">
+                      <span>Скидка:</span>
+                      <span>-{formatRubles(parseFloat(amount) - calculateFinalAmount())}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-primary">
+                      <span>К оплате:</span>
+                      <span>{formatRubles(calculateFinalAmount())}</span>
+                    </div>
+                  </>
+                )}
               </div>
             )}
             <p className="text-xs text-steel-400">
               Минимальная сумма: 100 GT • Максимальная: 50,000 GT
+            </p>
+          </div>
+
+          {/* Promo Code Input */}
+          <div className="space-y-2">
+            <Label htmlFor="promo">Промокод (необязательно)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="promo"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                placeholder="ВВЕДИТЕ ПРОМОКОД"
+                className="input-steel font-mono"
+                disabled={!!appliedPromo}
+              />
+              <Button
+                onClick={checkPromoCode}
+                disabled={!promoCode.trim() || checkingPromo || !!appliedPromo}
+                variant="outline"
+                className="whitespace-nowrap"
+              >
+                {checkingPromo ? 'Проверка...' : 'Применить'}
+              </Button>
+            </div>
+            <p className="text-xs text-steel-400">
+              Промокоды на скидку можно применить только при пополнении баланса
             </p>
           </div>
 
