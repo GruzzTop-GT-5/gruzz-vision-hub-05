@@ -38,7 +38,7 @@ interface ProfileData {
 }
 
 const Profile = () => {
-  const { user, userRole, userType, userSubtype, signOut } = useAuthContext();
+  const { user, userRole, userType, userSubtype, signOut, loading: authLoading } = useAuthContext();
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState<ProfileData>({});
   const [isEditing, setIsEditing] = useState(false);
@@ -59,13 +59,19 @@ const Profile = () => {
 
   // Load profile data
   useEffect(() => {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+    
     if (user?.id) {
       loadProfile();
-    } else if (!loading) {
-      // Если пользователь не авторизован, перенаправляем на главную
-      navigate('/');
+    } else {
+      // Если пользователь не авторизован, перенаправляем на страницу входа
+      setLoading(false);
+      navigate('/auth');
     }
-  }, [user?.id, loading, navigate]);
+  }, [user?.id, authLoading, navigate]);
 
   const loadProfile = async () => {
     if (!user?.id) return;
