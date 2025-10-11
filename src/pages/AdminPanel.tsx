@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -71,9 +73,24 @@ const navigationItems: NavigationItem[] = [
 
 export default function AdminPanel() {
   const { user, userRole, loading } = useAuth();
+  const { counts, loading: notificationsLoading } = useAdminNotifications();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<AdminSection>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Маппинг секций к счетчикам
+  const getNotificationCount = (sectionId: AdminSection): number => {
+    switch (sectionId) {
+      case 'users': return counts.users;
+      case 'orders': return counts.orders;
+      case 'transactions': return counts.transactions;
+      case 'reviews': return counts.reviews;
+      case 'ads': return counts.ads;
+      case 'support': return counts.support;
+      case 'security': return counts.security;
+      default: return 0;
+    }
+  };
 
   const isAdmin = userRole && ['system_admin', 'admin', 'moderator'].includes(userRole);
 
@@ -149,13 +166,14 @@ export default function AdminPanel() {
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
+            const notificationCount = getNotificationCount(item.id);
             
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all",
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all relative",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "hover:bg-accent hover:text-accent-foreground",
@@ -165,14 +183,32 @@ export default function AdminPanel() {
               >
                 <Icon className={cn("h-5 w-5 flex-shrink-0", !sidebarOpen && "h-6 w-6")} />
                 {sidebarOpen && (
-                  <div className="flex flex-col items-start overflow-hidden">
-                    <span className="font-medium">{item.label}</span>
+                  <div className="flex flex-col items-start overflow-hidden flex-1">
+                    <div className="flex items-center gap-2 w-full">
+                      <span className="font-medium">{item.label}</span>
+                      {notificationCount > 0 && (
+                        <Badge 
+                          variant={isActive ? "secondary" : "destructive"} 
+                          className="ml-auto text-xs px-1.5 py-0.5 h-5"
+                        >
+                          {notificationCount}
+                        </Badge>
+                      )}
+                    </div>
                     {isActive && (
                       <span className="text-xs opacity-80 truncate w-full">
                         {item.description}
                       </span>
                     )}
                   </div>
+                )}
+                {!sidebarOpen && notificationCount > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
+                  >
+                    {notificationCount > 9 ? '9+' : notificationCount}
+                  </Badge>
                 )}
               </button>
             );
