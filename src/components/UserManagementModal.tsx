@@ -557,93 +557,91 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] lg:max-w-[1400px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center space-x-2">
-                <User className="w-5 h-5" />
-                <span className="font-semibold">Управление пользователем</span>
-                <Badge className={getRoleColor(user.role)}>
-                  {user.role === 'system_admin' ? 'Системный администратор' :
-                   user.role === 'admin' ? 'Администратор' :
-                   user.role === 'moderator' ? 'Модератор' :
-                   user.role === 'support' ? 'Поддержка' :
-                   'Пользователь'}
-                </Badge>
-              </div>
+          <DialogTitle className="flex items-center justify-between w-full pr-10">
+            <div className="flex items-center space-x-2">
+              <User className="w-5 h-5" />
+              <span className="font-semibold">Управление пользователем</span>
+              <Badge className={getRoleColor(user.role)}>
+                {user.role === 'system_admin' ? 'Системный администратор' :
+                 user.role === 'admin' ? 'Администратор' :
+                 user.role === 'moderator' ? 'Модератор' :
+                 user.role === 'support' ? 'Поддержка' :
+                 'Пользователь'}
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleOpenChat}
+                disabled={loading}
+                className="flex items-center gap-2"
+                variant="default"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Открыть чат
+              </Button>
               
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={handleOpenChat}
-                  disabled={loading}
-                  className="flex items-center gap-2"
-                  variant="default"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Открыть чат
-                </Button>
-                
-                <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      disabled={loading}
-                      className="shrink-0"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="card-steel-dialog">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-steel-100">
-                        Удалить аккаунт пользователя?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="text-steel-300">
-                        Это действие нельзя отменить. Все данные пользователя будут безвозвратно удалены.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    
-                    <div className="space-y-3">
-                      <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
-                        <div className="flex items-start gap-2">
-                          <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
-                          <div className="text-sm text-steel-200">
-                            <p className="font-semibold mb-1">Будет удалено:</p>
-                            <ul className="list-disc list-inside space-y-1 text-steel-300">
-                              <li>Профиль пользователя</li>
-                              <li>История транзакций</li>
-                              <li>Заказы и объявления</li>
-                              <li>Отзывы и сообщения</li>
-                            </ul>
-                          </div>
+              <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    disabled={loading}
+                    className="shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="card-steel-dialog">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-steel-100">
+                      Удалить аккаунт пользователя?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-steel-300">
+                      Это действие нельзя отменить. Все данные пользователя будут безвозвратно удалены.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  
+                  <div className="space-y-3">
+                    <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
+                        <div className="text-sm text-steel-200">
+                          <p className="font-semibold mb-1">Будет удалено:</p>
+                          <ul className="list-disc list-inside space-y-1 text-steel-300">
+                            <li>Профиль пользователя</li>
+                            <li>История транзакций</li>
+                            <li>Заказы и объявления</li>
+                            <li>Отзывы и сообщения</li>
+                          </ul>
                         </div>
                       </div>
-                      
-                      <Textarea
-                        placeholder="Причина удаления (обязательно)"
-                        value={deleteReason}
-                        onChange={(e) => setDeleteReason(e.target.value)}
-                        rows={3}
-                        className="bg-background"
-                      />
                     </div>
                     
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Отмена</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDeleteAccount();
-                        }}
-                        disabled={!deleteReason.trim() || loading}
-                        className="bg-destructive hover:bg-destructive/90"
-                      >
-                        {loading ? "Удаление..." : "Удалить аккаунт"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+                    <Textarea
+                      placeholder="Причина удаления (обязательно)"
+                      value={deleteReason}
+                      onChange={(e) => setDeleteReason(e.target.value)}
+                      rows={3}
+                      className="bg-background"
+                    />
+                  </div>
+                  
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Отмена</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeleteAccount();
+                      }}
+                      disabled={!deleteReason.trim() || loading}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      {loading ? "Удаление..." : "Удалить аккаунт"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </DialogTitle>
           <DialogDescription>
