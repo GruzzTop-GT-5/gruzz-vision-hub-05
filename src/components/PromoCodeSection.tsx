@@ -169,11 +169,20 @@ export const PromoCodeSection: React.FC = () => {
     
     if (diffDays < 1) {
       const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
-      return `Истекает через ${diffHours} ч`;
+      if (diffHours === 1) return 'Истекает через 1 час';
+      if (diffHours < 5) return `Истекает через ${diffHours} часа`;
+      return `Истекает через ${diffHours} часов`;
     } else if (diffDays === 1) {
       return 'Истекает завтра';
     } else {
-      return `Истекает через ${diffDays} дн`;
+      // Russian pluralization rules
+      if (diffDays % 10 === 1 && diffDays % 100 !== 11) {
+        return `Истекает через ${diffDays} день`;
+      } else if (diffDays % 10 >= 2 && diffDays % 10 <= 4 && (diffDays % 100 < 10 || diffDays % 100 >= 20)) {
+        return `Истекает через ${diffDays} дня`;
+      } else {
+        return `Истекает через ${diffDays} дней`;
+      }
     }
   };
 
