@@ -882,11 +882,15 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          discount_value: number | null
           distribution_method: string | null
           expires_at: string
           id: string
           is_active: boolean
+          max_discount: number | null
+          min_order_amount: number | null
           name: string
+          promo_type: string | null
           target_audience: Json | null
           updated_at: string
           usage_count: number
@@ -898,11 +902,15 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          discount_value?: number | null
           distribution_method?: string | null
           expires_at: string
           id?: string
           is_active?: boolean
+          max_discount?: number | null
+          min_order_amount?: number | null
           name: string
+          promo_type?: string | null
           target_audience?: Json | null
           updated_at?: string
           usage_count?: number
@@ -914,11 +922,15 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          discount_value?: number | null
           distribution_method?: string | null
           expires_at?: string
           id?: string
           is_active?: boolean
+          max_discount?: number | null
+          min_order_amount?: number | null
           name?: string
+          promo_type?: string | null
           target_audience?: Json | null
           updated_at?: string
           usage_count?: number
@@ -1620,6 +1632,19 @@ export type Database = {
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_user_active_promos: {
+        Args: { p_user_id: string }
+        Returns: {
+          bonus_amount: number
+          code: string
+          description: string
+          discount_value: number
+          expires_at: string
+          name: string
+          promo_type: string
+          used: boolean
+        }[]
       }
       get_user_badge: {
         Args: { p_rating: number }

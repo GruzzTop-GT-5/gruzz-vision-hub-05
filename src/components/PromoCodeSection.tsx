@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,13 +6,51 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Gift, Sparkles } from 'lucide-react';
+import { Gift, Sparkles, Percent, Coins, Clock, Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+
+interface PromoCode {
+  code: string;
+  name: string;
+  description: string;
+  promo_type: string;
+  bonus_amount: number;
+  discount_value: number;
+  expires_at: string;
+  used: boolean;
+}
 
 export const PromoCodeSection: React.FC = () => {
   const [promoCode, setPromoCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activePromos, setActivePromos] = useState<PromoCode[]>([]);
+  const [loadingPromos, setLoadingPromos] = useState(true);
   const { toast } = useToast();
   const { user } = useAuthContext();
+
+  // Load active promos
+  useEffect(() => {
+    if (user) {
+      loadActivePromos();
+    }
+  }, [user]);
+
+  const loadActivePromos = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase.rpc('get_user_active_promos', {
+        p_user_id: user.id
+      });
+
+      if (error) throw error;
+      setActivePromos(data || []);
+    } catch (error) {
+      console.error('Error loading active promos:', error);
+    } finally {
+      setLoadingPromos(false);
+    }
+  };
 
   const activatePromoCode = async () => {
     if (!promoCode.trim()) {
@@ -42,17 +80,36 @@ export const PromoCodeSection: React.FC = () => {
 
       if (error) throw error;
 
-      const result = data as { success: boolean; bonus?: number; error?: string; name?: string };
+      const result = data as { 
+        success: boolean; 
+        bonus?: number; 
+        error?: string; 
+        name?: string;
+        promo_type?: string;
+        discount_value?: number;
+      };
       
       if (result.success) {
+        let message = '';
+        if (result.promo_type === 'bonus') {
+          message = `Вы получили ${result.bonus} GT на баланс!`;
+        } else if (result.promo_type === 'discount_percent') {
+          message = `Скидка ${result.discount_value}% на следующий заказ!`;
+        } else if (result.promo_type === 'discount_fixed') {
+          message = `Скидка ${result.discount_value} GT на следующий заказ!`;
+        }
+
         toast({
           title: '🎉 Промокод активирован!',
-          description: `Вы получили ${result.bonus} ₽ на баланс!`
+          description: message
         });
         setPromoCode('');
+        loadActivePromos();
         
-        // Refresh the page to update balance
-        window.location.reload();
+        // Refresh the page to update balance if it's a bonus type
+        if (result.promo_type === 'bonus') {
+          setTimeout(() => window.location.reload(), 1500);
+        }
       } else {
         toast({
           title: 'Ошибка',
@@ -78,55 +135,165 @@ export const PromoCodeSection: React.FC = () => {
     }
   };
 
-  return (
-    <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-            <Gift className="w-4 h-4 text-white" />
-          </div>
-          Промокод
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400 mb-3">
-          <Sparkles className="w-4 h-4" />
-          <span>Введите промокод и получите бонус на баланс!</span>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="promo-code" className="text-sm font-medium">
-            Промокод
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="promo-code"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-              onKeyPress={handleKeyPress}
-              placeholder="Введите промокод"
-              className="flex-1 font-mono text-center text-lg tracking-wider border-purple-200 dark:border-purple-700 focus:border-purple-500 dark:focus:border-purple-400"
-              maxLength={20}
-              disabled={loading}
-            />
-            <Button 
-              onClick={activatePromoCode}
-              disabled={loading || !promoCode.trim()}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6"
-            >
-              {loading ? 'Проверка...' : 'Активировать'}
-            </Button>
-          </div>
-        </div>
+  const getPromoIcon = (type: string) => {
+    switch (type) {
+      case 'bonus':
+        return <Coins className="w-4 h-4" />;
+      case 'discount_percent':
+        return <Percent className="w-4 h-4" />;
+      case 'discount_fixed':
+        return <Gift className="w-4 h-4" />;
+      default:
+        return <Gift className="w-4 h-4" />;
+    }
+  };
 
-        <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 border border-purple-200 dark:border-purple-700">
-          <p className="text-xs text-purple-600 dark:text-purple-400 leading-relaxed">
-            💡 <strong>Подсказка:</strong> Промокоды можно получить в нашей Telegram группе, 
-            через уведомления в приложении или от администраторов. 
-            Каждый промокод можно использовать только один раз.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+  const getPromoTypeName = (type: string) => {
+    switch (type) {
+      case 'bonus':
+        return 'Бонус';
+      case 'discount_percent':
+        return 'Скидка %';
+      case 'discount_fixed':
+        return 'Скидка';
+      default:
+        return type;
+    }
+  };
+
+  const formatExpiryDate = (date: string) => {
+    const d = new Date(date);
+    const now = new Date();
+    const diffTime = d.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 1) {
+      const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+      return `Истекает через ${diffHours} ч`;
+    } else if (diffDays === 1) {
+      return 'Истекает завтра';
+    } else {
+      return `Истекает через ${diffDays} дн`;
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
+        <CardHeader className="pb-3 xs:pb-4">
+          <CardTitle className="flex items-center gap-2 text-base xs:text-lg text-purple-700 dark:text-purple-300">
+            <div className="w-7 h-7 xs:w-8 xs:h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+              <Gift className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white" />
+            </div>
+            <span className="break-words">Промокод</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 xs:space-y-4">
+          <div className="flex items-center gap-2 text-xs xs:text-sm text-purple-600 dark:text-purple-400">
+            <Sparkles className="w-3.5 h-3.5 xs:w-4 xs:h-4 flex-shrink-0" />
+            <span className="leading-tight">Введите промокод и получите бонусы!</span>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="promo-code" className="text-sm">
+              Промокод
+            </Label>
+            <div className="flex flex-col xs:flex-row gap-2">
+              <Input
+                id="promo-code"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                onKeyPress={handleKeyPress}
+                placeholder="ВВЕДИТЕ КОД"
+                className="flex-1 font-mono text-center text-base xs:text-lg tracking-wider border-purple-200 dark:border-purple-700 focus:border-purple-500 dark:focus:border-purple-400"
+                maxLength={20}
+                disabled={loading}
+              />
+              <Button 
+                onClick={activatePromoCode}
+                disabled={loading || !promoCode.trim()}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-5 xs:px-6 w-full xs:w-auto"
+              >
+                {loading ? 'Проверка...' : 'Активировать'}
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-white/50 dark:bg-black/20 rounded-lg p-2.5 xs:p-3 border border-purple-200 dark:border-purple-700">
+            <p className="text-xs text-purple-600 dark:text-purple-400 leading-relaxed">
+              💡 <strong>Подсказка:</strong> Промокоды можно получить в Telegram группе, 
+              через уведомления или от администраторов. Каждый промокод можно использовать только один раз.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Active Promos */}
+      {!loadingPromos && activePromos.length > 0 && (
+        <Card className="border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-3 xs:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base xs:text-lg text-blue-700 dark:text-blue-300">
+              <Sparkles className="w-4 h-4 xs:w-5 xs:h-5 flex-shrink-0" />
+              <span className="break-words">Доступные промокоды</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 xs:space-y-3">
+            {activePromos.map((promo, index) => (
+              <div 
+                key={index}
+                className={`p-3 xs:p-4 rounded-lg border ${
+                  promo.used 
+                    ? 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700' 
+                    : 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-700'
+                }`}
+              >
+                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 xs:gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5 xs:mb-2 flex-wrap">
+                      <code className="font-mono font-bold text-sm xs:text-base bg-white dark:bg-black/30 px-2 py-1 rounded border border-blue-300 dark:border-blue-600 break-all">
+                        {promo.code}
+                      </code>
+                      <Badge variant={promo.used ? "secondary" : "default"} className="text-xs flex-shrink-0">
+                        {promo.used ? (
+                          <><Check className="w-3 h-3 mr-1" /> Использован</>
+                        ) : (
+                          <>{getPromoIcon(promo.promo_type)} {getPromoTypeName(promo.promo_type)}</>
+                        )}
+                      </Badge>
+                    </div>
+                    <p className="text-xs xs:text-sm font-medium text-foreground mb-1 break-words">{promo.name}</p>
+                    {promo.description && (
+                      <p className="text-xs text-muted-foreground leading-tight break-words">{promo.description}</p>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col items-start xs:items-end gap-1 flex-shrink-0">
+                    {promo.promo_type === 'bonus' && (
+                      <div className="text-base xs:text-lg font-bold text-green-600 dark:text-green-400">
+                        +{promo.bonus_amount} GT
+                      </div>
+                    )}
+                    {promo.promo_type === 'discount_percent' && (
+                      <div className="text-base xs:text-lg font-bold text-orange-600 dark:text-orange-400">
+                        -{promo.discount_value}%
+                      </div>
+                    )}
+                    {promo.promo_type === 'discount_fixed' && (
+                      <div className="text-base xs:text-lg font-bold text-orange-600 dark:text-orange-400">
+                        -{promo.discount_value} GT
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                      <Clock className="w-3 h-3 flex-shrink-0" />
+                      <span>{formatExpiryDate(promo.expires_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
