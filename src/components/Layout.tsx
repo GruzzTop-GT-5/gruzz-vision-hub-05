@@ -127,7 +127,19 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-6 pt-20 pb-24">
+        {/* Close Button */}
+        <div className="sticky top-0 z-50 bg-steel-800/95 backdrop-blur border-b border-steel-600 p-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-steel-100">Меню</h2>
+          <button
+            onClick={toggleMenu}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-steel-700 transition-colors"
+            aria-label="Закрыть меню"
+          >
+            <X className="w-6 h-6 text-steel-300" />
+          </button>
+        </div>
+
+        <div className="p-6 pb-24">
           {/* User Info */}
           {user && (
             <div className="mb-8 pb-6 border-b border-steel-600">
