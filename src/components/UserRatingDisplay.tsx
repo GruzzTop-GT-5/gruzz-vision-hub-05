@@ -44,22 +44,41 @@ export function UserRatingDisplay({
     try {
       setLoading(true);
       
-      // Используем raw запрос пока типы не обновились
-      const { data: profile, error } = await supabase
+      // Получаем профиль пользователя
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('rating, reviews_count, verified_reviews_count, rating_distribution')
+        .select('rating')
         .eq('id', userId)
-        .single() as any;
+        .single();
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Получаем количество отзывов о пользователе
+      const { count: totalReviews } = await supabase
+        .from('reviews')
+        .select('*', { count: 'exact', head: true })
+        .eq('target_user_id', userId)
+        .eq('is_hidden', false);
+
+      // Получаем распределение оценок
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('target_user_id', userId)
+        .eq('is_hidden', false);
+
+      const distribution = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
+      reviews?.forEach(review => {
+        if (review.rating) {
+          distribution[review.rating.toString() as keyof typeof distribution]++;
+        }
+      });
 
       setRatingData({
         rating: profile?.rating || 5.0,
-        totalReviews: profile?.reviews_count || 0,
-        verifiedReviews: profile?.verified_reviews_count || 0,
-        ratingDistribution: profile?.rating_distribution || {
-          "1": 0, "2": 0, "3": 0, "4": 0, "5": 0
-        }
+        totalReviews: totalReviews || 0,
+        verifiedReviews: 0, // Пока не реализовано
+        ratingDistribution: distribution
       });
     } catch (error) {
       console.error('Error fetching user rating:', error);

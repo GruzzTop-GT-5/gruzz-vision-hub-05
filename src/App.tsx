@@ -44,7 +44,7 @@ const App = () => (
             <Route path="/orders" element={<Pages.Orders />} />
             <Route path="/available-orders" element={<Pages.AvailableOrders />} />
             <Route path="/history" element={<Pages.History />} />
-            <Route path="/admin" element={<Pages.AdminPanelNew />} />
+            <Route path="/admin" element={<Pages.AdminPanel />} />
             <Route path="/chat-system" element={<Pages.ChatSystem />} />
             <Route path="*" element={<Pages.NotFound />} />
           </Routes>
