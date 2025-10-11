@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { CreditCard, Search, Check, X, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { handleError } from '@/lib/errorHandler';
@@ -34,6 +35,8 @@ export const TransactionManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
+  const [proofImageUrl, setProofImageUrl] = useState<string | null>(null);
+  const [showProofModal, setShowProofModal] = useState(false);
   const { toast } = useToast();
   const { userRole } = useAuthContext();
 
@@ -121,6 +124,33 @@ export const TransactionManagement: React.FC = () => {
       fetchTransactions();
     } catch (error) {
       handleError(error, { component: 'TransactionManagement', action: 'updateTransactionStatus' });
+    }
+  };
+
+  const viewProofImage = async (imagePath: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('payment-proofs')
+        .createSignedUrl(imagePath, 3600);
+
+      if (error) {
+        console.error('Error creating signed URL:', error);
+        throw error;
+      }
+
+      if (data?.signedUrl) {
+        setProofImageUrl(data.signedUrl);
+        setShowProofModal(true);
+      } else {
+        throw new Error('Signed URL not generated');
+      }
+    } catch (error) {
+      console.error('Error viewing proof:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть изображение",
+        variant: "destructive"
+      });
     }
   };
 
@@ -250,7 +280,7 @@ export const TransactionManagement: React.FC = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => window.open(transaction.proof_image!, '_blank')}
+                      onClick={() => viewProofImage(transaction.proof_image!)}
                     >
                       <Eye className="w-4 h-4 mr-1" />
                       Чек
@@ -268,6 +298,29 @@ export const TransactionManagement: React.FC = () => {
           </div>
         </ScrollArea>
       )}
+
+      {/* Proof Image Modal */}
+      <Dialog open={showProofModal} onOpenChange={setShowProofModal}>
+        <DialogContent className="max-w-4xl bg-steel-800 border-steel-600 p-0">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 z-10 bg-steel-900/80 hover:bg-steel-900"
+              onClick={() => setShowProofModal(false)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+            {proofImageUrl && (
+              <img 
+                src={proofImageUrl} 
+                alt="Чек об оплате" 
+                className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
