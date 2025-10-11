@@ -150,31 +150,36 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-muted/20">
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full bg-card border-r border-border transition-all duration-300 z-50",
-          sidebarOpen ? "w-64" : "w-16"
+          "fixed left-0 top-0 h-full bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 backdrop-blur-xl transition-all duration-300 z-50 shadow-xl",
+          sidebarOpen ? "w-72" : "w-20"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-secondary/5">
           {sidebarOpen && (
-            <h2 className="font-semibold text-lg">Админ панель</h2>
+            <div>
+              <h2 className="font-bold text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Админ Панель
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Управление системой</p>
+            </div>
           )}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="ml-auto"
+            className="ml-auto hover:bg-primary/10 transition-colors"
           >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
 
         {/* Navigation */}
-        <nav className="p-2 space-y-1">
+        <nav className="p-3 space-y-1.5 overflow-y-auto h-[calc(100vh-88px)]">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
@@ -185,39 +190,42 @@ export default function AdminPanel() {
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all relative",
+                  "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm transition-all relative group",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "hover:bg-accent hover:text-accent-foreground",
-                  !sidebarOpen && "justify-center"
+                    ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]"
+                    : "hover:bg-accent/50 hover:shadow-md hover:scale-[1.01]",
+                  !sidebarOpen && "justify-center px-2"
                 )}
                 title={!sidebarOpen ? item.label : undefined}
               >
-                <Icon className={cn("h-5 w-5 flex-shrink-0", !sidebarOpen && "h-6 w-6")} />
+                <div className={cn(
+                  "flex items-center justify-center rounded-lg p-1.5",
+                  isActive ? "bg-white/20" : "bg-primary/10 group-hover:bg-primary/15"
+                )}>
+                  <Icon className={cn("flex-shrink-0", sidebarOpen ? "h-5 w-5" : "h-6 w-6")} />
+                </div>
                 {sidebarOpen && (
-                  <div className="flex flex-col items-start overflow-hidden flex-1">
+                  <div className="flex flex-col items-start overflow-hidden flex-1 min-w-0">
                     <div className="flex items-center gap-2 w-full">
-                      <span className="font-medium">{item.label}</span>
+                      <span className="font-semibold truncate">{item.label}</span>
                       {notificationCount > 0 && (
                         <Badge 
                           variant={isActive ? "secondary" : "destructive"} 
-                          className="ml-auto text-xs px-1.5 py-0.5 h-5"
+                          className="ml-auto text-xs px-2 py-0.5 h-5 shadow-sm animate-pulse"
                         >
                           {notificationCount}
                         </Badge>
                       )}
                     </div>
-                    {isActive && (
-                      <span className="text-xs opacity-80 truncate w-full">
-                        {item.description}
-                      </span>
-                    )}
+                    <span className="text-xs opacity-70 truncate w-full mt-0.5">
+                      {item.description}
+                    </span>
                   </div>
                 )}
                 {!sidebarOpen && notificationCount > 0 && (
                   <Badge 
                     variant="destructive" 
-                    className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
+                    className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] shadow-lg animate-pulse"
                   >
                     {notificationCount > 9 ? '9+' : notificationCount}
                   </Badge>
@@ -232,46 +240,56 @@ export default function AdminPanel() {
       <main
         className={cn(
           "flex-1 transition-all duration-300",
-          sidebarOpen ? "ml-64" : "ml-16"
+          sidebarOpen ? "ml-72" : "ml-20"
         )}
       >
-        <div className="p-6">
-          {/* Page header */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {(() => {
-                    const activeItem = navigationItems.find(item => item.id === activeSection);
-                    if (!activeItem) return null;
-                    const Icon = activeItem.icon;
-                    return (
-                      <>
-                        <Icon className="h-6 w-6 text-primary" />
-                        <div>
-                          <div className="text-2xl">{activeItem.label}</div>
-                          <div className="text-sm text-muted-foreground font-normal mt-1">
-                            {activeItem.description}
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
+        {/* Top Bar */}
+        <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
+          <div className="flex items-center justify-between px-8 py-4">
+            <div className="flex items-center gap-4">
+              {(() => {
+                const activeItem = navigationItems.find(item => item.id === activeSection);
+                if (!activeItem) return null;
+                const Icon = activeItem.icon;
+                return (
+                  <>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+                      <Icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                        {activeItem.label}
+                      </h1>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        {activeItem.description}
+                      </p>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+            <div className="flex items-center gap-3">
+              {!notificationsLoading && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-muted-foreground">Система активна</span>
                 </div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate('/')}
-                  className="flex items-center gap-2"
-                >
-                  <Home className="h-4 w-4" />
-                  На главную
-                </Button>
-              </CardTitle>
-            </CardHeader>
-          </Card>
+              )}
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <Home className="h-4 w-4" />
+                На главную
+              </Button>
+            </div>
+          </div>
+        </div>
 
-          {/* Content */}
-          <div className="space-y-6">
+        {/* Content */}
+        <div className="p-8">
+          <div className="max-w-[1600px] mx-auto space-y-6">
             {renderContent()}
           </div>
         </div>
