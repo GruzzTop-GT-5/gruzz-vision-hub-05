@@ -420,10 +420,10 @@ export default function CreateOrder() {
             )}
           </Card>
 
-            {/* Compact Order Creation Form */}
-            <Card className="relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-steel-800/50 via-transparent to-steel-700/30"></div>
-              <div className="relative p-3 xs:p-4 sm:p-6 border border-steel-600/50">
+          {/* Compact Order Creation Form */}
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-steel-800/50 via-transparent to-steel-700/30"></div>
+            <div className="relative p-3 xs:p-4 sm:p-6 border border-steel-600/50">
                 <div className="mb-4 xs:mb-5 sm:mb-6">
                   <h2 className="text-base xs:text-lg sm:text-xl font-bold text-steel-100 mb-1 xs:mb-2">Создание заказа</h2>
                   <p className="text-xs xs:text-sm text-steel-400">Заполните все обязательные поля, отмеченные <span className="text-red-400">*</span></p>
@@ -783,9 +783,10 @@ export default function CreateOrder() {
                     `Разместить заказ (${priorityCosts[form.watch('priority') as keyof typeof priorityCosts] || 15} GT Coins)`
                   )}
                 </Button>
-              </form>
-            </Form>
-          </Card>
+                  </form>
+                </Form>
+              </div>
+            </Card>
         </div>
       </div>
 
