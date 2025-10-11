@@ -20,7 +20,8 @@ import {
   Menu,
   X,
   Home,
-  MessageSquare
+  MessageSquare,
+  Send
 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { UserManagement } from '@/components/admin/UserManagement';
@@ -35,6 +36,7 @@ import { SecurityLogsViewer } from '@/components/admin/SecurityLogsViewer';
 import { CategoriesManagement } from '@/components/CategoriesManagement';
 import { AdminTicketManagement } from '@/components/AdminTicketManagement';
 import { DeletedConversationsManager } from '@/components/admin/DeletedConversationsManager';
+import { BroadcastMessagePanel } from '@/components/admin/BroadcastMessagePanel';
 import { cn } from '@/lib/utils';
 
 type AdminSection = 
@@ -50,7 +52,8 @@ type AdminSection =
   | 'roles'
   | 'settings'
   | 'security'
-  | 'deleted-chats';
+  | 'deleted-chats'
+  | 'broadcast';
 
 interface NavigationItem {
   id: AdminSection;
@@ -61,6 +64,7 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   { id: 'dashboard', label: 'Панель управления', icon: LayoutDashboard, description: 'Общая статистика и активность' },
+  { id: 'broadcast', label: 'Рассылка сообщений', icon: Send, description: 'Массовая рассылка системных сообщений' },
   { id: 'users', label: 'Пользователи', icon: Users, description: 'Управление пользователями' },
   { id: 'orders', label: 'Заказы', icon: ShoppingCart, description: 'Управление заказами' },
   { id: 'transactions', label: 'Транзакции', icon: CreditCard, description: 'Финансовые операции' },
@@ -114,6 +118,8 @@ export default function AdminPanel() {
     switch (activeSection) {
       case 'dashboard':
         return <AdminDashboard />;
+      case 'broadcast':
+        return <BroadcastMessagePanel />;
       case 'users':
         return <UserManagement />;
       case 'orders':
