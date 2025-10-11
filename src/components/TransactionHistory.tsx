@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowUpCircle, ArrowDownCircle, Clock, CheckCircle, XCircle, FileImage } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, Clock, CheckCircle, XCircle, FileImage, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatBalance } from '@/utils/currency';
@@ -29,6 +29,8 @@ interface Transaction {
 export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHistoryProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [proofImageUrl, setProofImageUrl] = useState<string | null>(null);
+  const [showProofModal, setShowProofModal] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -124,23 +126,9 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
 
   const viewProofImage = async (imagePath: string) => {
     try {
-      console.log('Attempting to view proof image:', imagePath);
-      
-      // First, check if file exists
-      const { data: fileData, error: listError } = await supabase.storage
-        .from('payment-proofs')
-        .list(imagePath.split('/')[0], {
-          search: imagePath.split('/')[1]
-        });
-
-      console.log('File list result:', fileData, listError);
-
-      // Try to create signed URL
       const { data, error } = await supabase.storage
         .from('payment-proofs')
         .createSignedUrl(imagePath, 3600);
-
-      console.log('Signed URL result:', data, error);
 
       if (error) {
         console.error('Error creating signed URL:', error);
@@ -148,7 +136,8 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
       }
 
       if (data?.signedUrl) {
-        window.open(data.signedUrl, '_blank');
+        setProofImageUrl(data.signedUrl);
+        setShowProofModal(true);
       } else {
         throw new Error('Signed URL not generated');
       }
@@ -156,7 +145,7 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
       console.error('Error viewing proof:', error);
       toast({
         title: "Ошибка",
-        description: `Не удалось открыть изображение: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
+        description: "Не удалось открыть изображение",
         variant: "destructive"
       });
     }
@@ -257,6 +246,29 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
             ))
           )}
         </div>
+
+        {/* Proof Image Modal */}
+        <Dialog open={showProofModal} onOpenChange={setShowProofModal}>
+          <DialogContent className="max-w-4xl bg-steel-800 border-steel-600 p-0">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 z-10 bg-steel-900/80 hover:bg-steel-900"
+                onClick={() => setShowProofModal(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+              {proofImageUrl && (
+                <img 
+                  src={proofImageUrl} 
+                  alt="Чек об оплате" 
+                  className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   );
