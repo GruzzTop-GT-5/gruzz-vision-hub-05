@@ -420,31 +420,33 @@ export default function CreateOrder() {
             )}
           </Card>
 
-          {/* Order Creation Form */}
-          <Card className="card-steel p-6 border-steel-600/50">
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-steel-100 mb-2">Создание заказа</h2>
-              <p className="text-sm text-steel-400">Заполните все обязательные поля, отмеченные <span className="text-red-400">*</span></p>
-            </div>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-steel-100">Название заказа <span className="text-red-400">*</span></FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Например: Нужен грузчик для переезда в субботу"
-                          className="bg-steel-700/50"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            {/* Compact Order Creation Form */}
+            <Card className="relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-steel-800/50 via-transparent to-steel-700/30"></div>
+              <div className="relative p-3 xs:p-4 sm:p-6 border border-steel-600/50">
+                <div className="mb-4 xs:mb-5 sm:mb-6">
+                  <h2 className="text-base xs:text-lg sm:text-xl font-bold text-steel-100 mb-1 xs:mb-2">Создание заказа</h2>
+                  <p className="text-xs xs:text-sm text-steel-400">Заполните все обязательные поля, отмеченные <span className="text-red-400">*</span></p>
+                </div>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 xs:space-y-4 sm:space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-steel-100 text-xs xs:text-sm">Название заказа <span className="text-red-400">*</span></FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Например: Нужен грузчик для переезда в субботу"
+                              className="bg-steel-700/50 h-9 xs:h-10 text-xs xs:text-sm"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-xs" />
+                        </FormItem>
+                      )}
+                    />
 
                 <FormField
                   control={form.control}

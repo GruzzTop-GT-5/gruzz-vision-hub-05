@@ -28,14 +28,14 @@ const Balance = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <AnimatedBackground className="min-h-screen p-4">
-        <div className="max-w-2xl mx-auto space-y-6">
+      <AnimatedBackground className="min-h-screen p-2 xs:p-3 sm:p-4">
+        <div className="max-w-2xl mx-auto space-y-3 xs:space-y-4 sm:space-y-6">
           <BackButton />
           
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-glow">GT Coins</h1>
-            <p className="text-steel-300">Внутренняя валюта платформы GruzzTop</p>
+          {/* Compact Header */}
+          <div className="text-center space-y-1 xs:space-y-2">
+            <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-glow">GT Coins</h1>
+            <p className="text-xs xs:text-sm text-steel-300">Внутренняя валюта платформы GruzzTop</p>
           </div>
 
           {/* Balance Card */}
@@ -45,60 +45,66 @@ const Balance = () => {
             onHistoryClick={() => setShowHistory(true)}
           />
 
-          {/* Information Cards */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="card-steel p-6 space-y-3 border-primary/20">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <Info className="w-5 h-5 text-primary" />
+          {/* Compact Information Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 xs:gap-3 sm:gap-4">
+            <Card className="relative overflow-hidden group transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative p-3 xs:p-4 sm:p-6 space-y-2 xs:space-y-3 border border-primary/20">
+                <div className="flex items-center gap-2 xs:gap-3">
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Info className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-steel-100 text-sm xs:text-base sm:text-lg">Как это работает</h3>
                 </div>
-                <h3 className="font-semibold text-steel-100 text-lg">Как это работает</h3>
+                <ul className="text-xs xs:text-sm text-steel-300 space-y-1.5 xs:space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-primary mr-1.5 xs:mr-2">•</span>
+                    <span><span className="font-semibold text-primary">1 GT Coin = 1 ₽</span> (рубль)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-primary mr-1.5 xs:mr-2">•</span>
+                    <span>Пополнение от <span className="font-semibold">100 GT</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-primary mr-1.5 xs:mr-2">•</span>
+                    <span>Стоимость: <span className="font-semibold text-primary">15-55 GT (₽)</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-primary mr-1.5 xs:mr-2">•</span>
+                    <span>Быстрое подтверждение</span>
+                  </li>
+                </ul>
               </div>
-              <ul className="text-sm text-steel-300 space-y-2">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span><span className="font-semibold text-primary">1 GT Coin = 1 ₽</span> (рубль)</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Пополнение от <span className="font-semibold">100 GT</span></span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Стоимость размещения: <span className="font-semibold text-primary">15-55 GT (₽)</span></span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Быстрое подтверждение платежей</span>
-                </li>
-              </ul>
             </Card>
 
-            <Card className="card-steel p-6 space-y-3 border-green-500/20">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-green-400" />
+            <Card className="relative overflow-hidden group transition-all duration-300 hover:shadow-lg hover:shadow-green-500/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative p-3 xs:p-4 sm:p-6 space-y-2 xs:space-y-3 border border-green-500/20">
+                <div className="flex items-center gap-2 xs:gap-3">
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-green-400" />
+                  </div>
+                  <h3 className="font-semibold text-steel-100 text-sm xs:text-base sm:text-lg">Безопасность</h3>
                 </div>
-                <h3 className="font-semibold text-steel-100 text-lg">Безопасность</h3>
+                <ul className="text-xs xs:text-sm text-steel-300 space-y-1.5 xs:space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-1.5 xs:mr-2">✓</span>
+                    <span>Защищенные транзакции</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-1.5 xs:mr-2">✓</span>
+                    <span>Контроль администрации</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-1.5 xs:mr-2">✓</span>
+                    <span>История всех операций</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-1.5 xs:mr-2">✓</span>
+                    <span>Возврат при ошибках</span>
+                  </li>
+                </ul>
               </div>
-              <ul className="text-sm text-steel-300 space-y-2">
-                <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>Защищенные транзакции</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>Контроль администрации</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>История всех операций</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>Возврат при ошибках</span>
-                </li>
-              </ul>
             </Card>
           </div>
 
