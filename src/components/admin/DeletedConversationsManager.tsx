@@ -150,9 +150,18 @@ export const DeletedConversationsManager = () => {
     }
   };
 
-  const viewConversationMessages = (conversationId: string) => {
+  const viewConversationMessages = (conversation: DeletedConversation) => {
+    // Блокируем просмотр полностью удалённых чатов
+    if (conversation.permanently_deleted) {
+      toast({
+        title: "Недоступно",
+        description: "Полностью удалённые чаты нельзя просмотреть",
+        variant: "destructive"
+      });
+      return;
+    }
     // Navigate to chat with this conversation
-    window.location.href = `/chat-system?conversation=${conversationId}`;
+    window.location.href = `/chat-system?conversation=${conversation.id}`;
   };
 
   const filteredConversations = conversations.filter(conv => {
@@ -260,8 +269,9 @@ export const DeletedConversationsManager = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => viewConversationMessages(conversation.id)}
+                        onClick={() => viewConversationMessages(conversation)}
                         className="flex items-center gap-2"
+                        disabled={conversation.permanently_deleted}
                       >
                         <Eye className="w-4 h-4" />
                         Просмотр
