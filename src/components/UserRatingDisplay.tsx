@@ -53,18 +53,20 @@ export function UserRatingDisplay({
 
       if (profileError) throw profileError;
 
-      // Получаем количество отзывов о пользователе
+      // Получаем количество ОДОБРЕННЫХ отзывов о пользователе
       const { count: totalReviews } = await supabase
         .from('reviews')
         .select('*', { count: 'exact', head: true })
         .eq('target_user_id', userId)
+        .eq('moderation_status', 'approved')
         .eq('is_hidden', false);
 
-      // Получаем распределение оценок
+      // Получаем распределение оценок только для ОДОБРЕННЫХ отзывов
       const { data: reviews } = await supabase
         .from('reviews')
         .select('rating')
         .eq('target_user_id', userId)
+        .eq('moderation_status', 'approved')
         .eq('is_hidden', false);
 
       const distribution = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };

@@ -30,7 +30,8 @@ interface Review {
   author_id: string;
   target_user_id: string;
   is_reported: boolean;
-  is_moderated: boolean;
+  moderation_status?: 'pending' | 'approved' | 'rejected';
+  admin_bonus_points?: number;
 }
 
 interface ReviewCardProps {
@@ -137,12 +138,12 @@ export const ReviewCard = ({ review, onReviewReported }: ReviewCardProps) => {
 
         {/* Status badges */}
         <div className="flex items-center space-x-2">
-          {review.is_moderated && (
+          {review.moderation_status === 'rejected' && (
             <Badge variant="outline" className="text-red-400 border-red-400/20">
-              Заблокирован
+              Отклонен
             </Badge>
           )}
-          {review.is_reported && !review.is_moderated && (
+          {review.is_reported && review.moderation_status !== 'rejected' && (
             <Badge variant="outline" className="text-yellow-400 border-yellow-400/20">
               На модерации
             </Badge>

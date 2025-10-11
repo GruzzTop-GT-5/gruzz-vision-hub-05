@@ -16,7 +16,8 @@ interface Review {
   author_id: string;
   target_user_id: string;
   is_reported: boolean;
-  is_moderated: boolean;
+  moderation_status: 'pending' | 'approved' | 'rejected';
+  admin_bonus_points: number;
   transaction_id: string | null;
 }
 
@@ -64,7 +65,8 @@ export const UserReviews = ({ userId, canLeaveReview = false, transactionId }: U
         .from('reviews')
         .select('*')
         .eq('target_user_id', userId)
-        .eq('is_moderated', false) // Only show non-moderated reviews
+        .eq('moderation_status', 'approved') // Only show approved reviews
+        .eq('is_hidden', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
