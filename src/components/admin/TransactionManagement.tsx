@@ -301,21 +301,21 @@ export const TransactionManagement: React.FC = () => {
 
       {/* Proof Image Modal */}
       <Dialog open={showProofModal} onOpenChange={setShowProofModal}>
-        <DialogContent className="max-w-7xl max-h-[95vh] bg-steel-800 border-steel-600 p-2">
-          <div className="relative">
+        <DialogContent className="max-w-[95vw] w-full max-h-[98vh] bg-steel-800 border-steel-600 p-1 overflow-hidden">
+          <div className="relative w-full h-full flex items-center justify-center">
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-2 right-2 z-10 bg-steel-900/80 hover:bg-steel-900"
+              className="absolute top-1 right-1 z-10 bg-steel-900/90 hover:bg-steel-900 text-white"
               onClick={() => setShowProofModal(false)}
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </Button>
             {proofImageUrl && (
               <img 
                 src={proofImageUrl} 
                 alt="Чек об оплате" 
-                className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
+                className="max-w-full max-h-[96vh] object-contain rounded-lg"
               />
             )}
           </div>
