@@ -592,7 +592,7 @@ export const PromoCodeManagement: React.FC = () => {
                                 </Button>
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                 <div>
                                   <span className="text-steel-400">Тип:</span>{' '}
                                   <span className="text-steel-100">
@@ -609,12 +609,45 @@ export const PromoCodeManagement: React.FC = () => {
                                     {promo.promo_type === 'discount_fixed' && `${promo.discount_value} GT`}
                                   </span>
                                 </div>
-                                <div>
-                                  <span className="text-steel-400">Использований:</span>{' '}
-                                  <span className="text-steel-100">
-                                    {promo.usage_count} {promo.usage_limit ? `/ ${promo.usage_limit}` : ''}
-                                  </span>
+                              </div>
+
+                              <div className="mt-2 p-3 bg-steel-700/50 rounded-lg border border-steel-600">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <span className="text-steel-400 text-sm">Лимит использований:</span>{' '}
+                                    <span className="text-steel-100 font-semibold text-base">
+                                      {promo.usage_limit ? `${promo.usage_limit} раз` : 'Неограниченно'}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="text-steel-400 text-sm">Уже использовано:</span>{' '}
+                                    <span className={`font-semibold text-base ${
+                                      promo.usage_limit && promo.usage_count >= promo.usage_limit 
+                                        ? 'text-red-400' 
+                                        : 'text-green-400'
+                                    }`}>
+                                      {promo.usage_count} раз
+                                    </span>
+                                  </div>
                                 </div>
+                                {promo.usage_limit && (
+                                  <div className="mt-2">
+                                    <div className="flex justify-between text-xs text-steel-400 mb-1">
+                                      <span>Прогресс</span>
+                                      <span>{Math.round((promo.usage_count / promo.usage_limit) * 100)}%</span>
+                                    </div>
+                                    <div className="w-full bg-steel-600 rounded-full h-2">
+                                      <div 
+                                        className={`h-2 rounded-full transition-all ${
+                                          promo.usage_count >= promo.usage_limit 
+                                            ? 'bg-red-500' 
+                                            : 'bg-green-500'
+                                        }`}
+                                        style={{ width: `${Math.min((promo.usage_count / promo.usage_limit) * 100, 100)}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
                               </div>
 
                               {promo.description && (
