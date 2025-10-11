@@ -178,50 +178,52 @@ export const PromoCodeSection: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-6">
+      {/* Promo Code Input Card */}
       <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
-        <CardHeader className="pb-3 xs:pb-4">
-          <CardTitle className="flex items-center gap-2 text-base xs:text-lg text-purple-700 dark:text-purple-300">
-            <div className="w-7 h-7 xs:w-8 xs:h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-              <Gift className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-white" />
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-3 text-lg md:text-xl text-purple-700 dark:text-purple-300">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Gift className="w-5 h-5 text-white" />
             </div>
-            <span className="break-words">Промокод</span>
+            <span>Промокод</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 xs:space-y-4">
-          <div className="flex items-center gap-2 text-xs xs:text-sm text-purple-600 dark:text-purple-400">
-            <Sparkles className="w-3.5 h-3.5 xs:w-4 xs:h-4 flex-shrink-0" />
-            <span className="leading-tight">Введите промокод и получите бонусы!</span>
+        <CardContent className="space-y-5">
+          <div className="flex items-start gap-3 text-sm md:text-base text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30 p-3 md:p-4 rounded-lg">
+            <Sparkles className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <span className="leading-relaxed">Введите промокод и получите бонусы!</span>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="promo-code" className="text-sm">
+          <div className="space-y-3">
+            <Label htmlFor="promo-code" className="text-sm md:text-base font-medium">
               Промокод
             </Label>
-            <div className="flex flex-col xs:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Input
                 id="promo-code"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                 onKeyPress={handleKeyPress}
                 placeholder="ВВЕДИТЕ КОД"
-                className="flex-1 font-mono text-center text-base xs:text-lg tracking-wider border-purple-200 dark:border-purple-700 focus:border-purple-500 dark:focus:border-purple-400"
+                className="flex-1 font-mono text-center text-lg md:text-xl tracking-widest border-2 border-purple-200 dark:border-purple-700 focus:border-purple-500 dark:focus:border-purple-400 h-12 md:h-14"
                 maxLength={20}
                 disabled={loading}
               />
               <Button 
                 onClick={activatePromoCode}
                 disabled={loading || !promoCode.trim()}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-5 xs:px-6 w-full xs:w-auto"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 h-12 md:h-14 text-base md:text-lg font-medium shadow-lg hover:shadow-xl transition-all"
               >
                 {loading ? 'Проверка...' : 'Активировать'}
               </Button>
             </div>
           </div>
 
-          <div className="bg-white/50 dark:bg-black/20 rounded-lg p-2.5 xs:p-3 border border-purple-200 dark:border-purple-700">
-            <p className="text-xs text-purple-600 dark:text-purple-400 leading-relaxed">
-              💡 <strong>Подсказка:</strong> Промокоды можно получить в Telegram группе, 
+          <div className="bg-white/60 dark:bg-black/30 rounded-xl p-4 md:p-5 border border-purple-200 dark:border-purple-700">
+            <p className="text-sm md:text-base text-purple-700 dark:text-purple-300 leading-relaxed">
+              <span className="text-lg mr-2">💡</span>
+              <strong className="font-semibold">Подсказка:</strong> Промокоды можно получить в Telegram группе, 
               через уведомления или от администраторов. Каждый промокод можно использовать только один раз.
             </p>
           </div>
@@ -231,62 +233,166 @@ export const PromoCodeSection: React.FC = () => {
       {/* Active Promos */}
       {!loadingPromos && activePromos.length > 0 && (
         <Card className="border-blue-200 dark:border-blue-800">
-          <CardHeader className="pb-3 xs:pb-4">
-            <CardTitle className="flex items-center gap-2 text-base xs:text-lg text-blue-700 dark:text-blue-300">
-              <Sparkles className="w-4 h-4 xs:w-5 xs:h-5 flex-shrink-0" />
-              <span className="break-words">Доступные промокоды</span>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-lg md:text-xl text-blue-700 dark:text-blue-300">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span>Доступные промокоды</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 xs:space-y-3">
+          <CardContent className="space-y-3 md:space-y-4">
             {activePromos.map((promo, index) => (
               <div 
                 key={index}
-                className={`p-3 xs:p-4 rounded-lg border ${
+                className={`rounded-xl border-2 overflow-hidden transition-all ${
                   promo.used 
-                    ? 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700' 
-                    : 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-700'
+                    ? 'bg-gray-50 dark:bg-gray-900/20 border-gray-300 dark:border-gray-700' 
+                    : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-900/20 dark:via-background dark:to-purple-900/20 border-blue-300 dark:border-blue-600 shadow-md hover:shadow-lg'
                 }`}
               >
-                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 xs:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5 xs:mb-2 flex-wrap">
-                      <code className="font-mono font-bold text-sm xs:text-base bg-white dark:bg-black/30 px-2 py-1 rounded border border-blue-300 dark:border-blue-600 break-all">
-                        {promo.code}
-                      </code>
-                      <Badge variant={promo.used ? "secondary" : "default"} className="text-xs flex-shrink-0">
+                {/* Desktop Layout */}
+                <div className="hidden md:grid md:grid-cols-[1fr_auto_auto] md:gap-6 p-5">
+                  {/* Left: Info Section */}
+                  <div className="flex flex-col justify-center min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Badge 
+                        variant={promo.used ? "secondary" : "default"} 
+                        className="text-sm px-3 py-1 flex items-center gap-1.5"
+                      >
                         {promo.used ? (
-                          <><Check className="w-3 h-3 mr-1" /> Использован</>
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>Использован</span>
+                          </>
                         ) : (
-                          <>{getPromoIcon(promo.promo_type)} {getPromoTypeName(promo.promo_type)}</>
+                          <>
+                            {getPromoIcon(promo.promo_type)}
+                            <span>{getPromoTypeName(promo.promo_type)}</span>
+                          </>
                         )}
                       </Badge>
                     </div>
-                    <p className="text-xs xs:text-sm font-medium text-foreground mb-1 break-words">{promo.name}</p>
+                    <h3 className="text-base md:text-lg font-semibold text-foreground mb-1.5 leading-tight">
+                      {promo.name}
+                    </h3>
                     {promo.description && (
-                      <p className="text-xs text-muted-foreground leading-tight break-words">{promo.description}</p>
+                      <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                        {promo.description}
+                      </p>
                     )}
                   </div>
                   
-                  <div className="flex flex-col items-start xs:items-end gap-1 flex-shrink-0">
+                  {/* Center: Promo Code */}
+                  <div className="flex items-center justify-center px-4 border-l-2 border-r-2 border-dashed border-blue-200 dark:border-blue-700">
+                    <div className="text-center">
+                      <div className="text-xs md:text-sm text-muted-foreground mb-2 font-medium uppercase tracking-wide">
+                        Промокод
+                      </div>
+                      <code className="font-mono font-bold text-xl md:text-2xl bg-white dark:bg-black/40 px-6 py-3 rounded-lg border-2 border-blue-400 dark:border-blue-500 inline-block shadow-sm">
+                        {promo.code}
+                      </code>
+                    </div>
+                  </div>
+                  
+                  {/* Right: Bonus & Time */}
+                  <div className="flex flex-col items-center justify-center gap-3 min-w-[140px]">
                     {promo.promo_type === 'bonus' && (
-                      <div className="text-base xs:text-lg font-bold text-green-600 dark:text-green-400">
+                      <div className="text-center">
+                        <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Бонус</div>
+                        <div className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400">
+                          +{promo.bonus_amount} GT
+                        </div>
+                      </div>
+                    )}
+                    {promo.promo_type === 'discount_percent' && (
+                      <div className="text-center">
+                        <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Скидка</div>
+                        <div className="text-2xl md:text-3xl font-bold text-orange-600 dark:text-orange-400">
+                          -{promo.discount_value}%
+                        </div>
+                      </div>
+                    )}
+                    {promo.promo_type === 'discount_fixed' && (
+                      <div className="text-center">
+                        <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Скидка</div>
+                        <div className="text-2xl md:text-3xl font-bold text-orange-600 dark:text-orange-400">
+                          -{promo.discount_value} GT
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground bg-gray-100 dark:bg-gray-800/50 px-3 py-1.5 rounded-full">
+                      <Clock className="w-4 h-4" />
+                      <span className="whitespace-nowrap">{formatExpiryDate(promo.expires_at)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Layout */}
+                <div className="md:hidden p-4 space-y-4">
+                  {/* Badge */}
+                  <div className="flex items-center justify-between">
+                    <Badge 
+                      variant={promo.used ? "secondary" : "default"} 
+                      className="text-xs px-2.5 py-1 flex items-center gap-1.5"
+                    >
+                      {promo.used ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Использован</span>
+                        </>
+                      ) : (
+                        <>
+                          {getPromoIcon(promo.promo_type)}
+                          <span>{getPromoTypeName(promo.promo_type)}</span>
+                        </>
+                      )}
+                    </Badge>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{formatExpiryDate(promo.expires_at)}</span>
+                    </div>
+                  </div>
+
+                  {/* Title & Description */}
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground mb-1.5 leading-tight">
+                      {promo.name}
+                    </h3>
+                    {promo.description && (
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {promo.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Promo Code */}
+                  <div className="bg-white dark:bg-black/30 p-4 rounded-lg border-2 border-dashed border-blue-300 dark:border-blue-600">
+                    <div className="text-xs text-muted-foreground mb-2 text-center font-medium uppercase tracking-wide">
+                      Промокод
+                    </div>
+                    <code className="font-mono font-bold text-lg text-center bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded border border-blue-400 dark:border-blue-500 block">
+                      {promo.code}
+                    </code>
+                  </div>
+
+                  {/* Bonus */}
+                  <div className="text-center">
+                    {promo.promo_type === 'bonus' && (
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                         +{promo.bonus_amount} GT
                       </div>
                     )}
                     {promo.promo_type === 'discount_percent' && (
-                      <div className="text-base xs:text-lg font-bold text-orange-600 dark:text-orange-400">
+                      <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                         -{promo.discount_value}%
                       </div>
                     )}
                     {promo.promo_type === 'discount_fixed' && (
-                      <div className="text-base xs:text-lg font-bold text-orange-600 dark:text-orange-400">
+                      <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                         -{promo.discount_value} GT
                       </div>
                     )}
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-                      <Clock className="w-3 h-3 flex-shrink-0" />
-                      <span>{formatExpiryDate(promo.expires_at)}</span>
-                    </div>
                   </div>
                 </div>
               </div>
