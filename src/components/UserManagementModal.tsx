@@ -81,41 +81,13 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
   // Admin actions
   const [adminNote, setAdminNote] = useState('');
   const [userBans, setUserBans] = useState<any[]>([]);
-  
-  // Quick chat
-  const [quickMessage, setQuickMessage] = useState('');
-  const [conversationId, setConversationId] = useState<string | null>(null);
-  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     if (user) {
       setEditedUser(user);
       fetchUserBans();
-      checkExistingConversation();
     }
   }, [user]);
-
-  const checkExistingConversation = async () => {
-    if (!user) return;
-    
-    try {
-      const currentUser = await supabase.auth.getUser();
-      if (!currentUser.data.user) return;
-
-      const { data } = await supabase
-        .from('conversations')
-        .select('id')
-        .contains('participants', [currentUser.data.user.id, user.id])
-        .eq('type', 'chat')
-        .maybeSingle();
-
-      if (data) {
-        setConversationId(data.id);
-      }
-    } catch (error) {
-      console.error('Error checking conversation:', error);
-    }
-  };
 
   const fetchUserBans = async () => {
     if (!user) return;
@@ -466,71 +438,6 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     }
   };
 
-  const handleSendQuickMessage = async () => {
-    if (!user || !quickMessage.trim()) {
-      toast({
-        title: "Ошибка",
-        description: "Введите сообщение",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setSendingMessage(true);
-    try {
-      const currentUser = await supabase.auth.getUser();
-      if (!currentUser.data.user) throw new Error('Not authenticated');
-
-      let chatConversationId = conversationId;
-
-      // Создаем разговор, если его нет
-      if (!chatConversationId) {
-        const { data: newConversation, error: convError } = await supabase
-          .from('conversations')
-          .insert({
-            type: 'chat',
-            participants: [currentUser.data.user.id, user.id],
-            created_by: currentUser.data.user.id,
-            title: `Чат с ${user.display_name || user.full_name || user.phone}`
-          })
-          .select()
-          .single();
-
-        if (convError) throw convError;
-        chatConversationId = newConversation.id;
-        setConversationId(chatConversationId);
-      }
-
-      // Отправляем сообщение
-      const { error: messageError } = await supabase
-        .from('messages')
-        .insert({
-          conversation_id: chatConversationId,
-          sender_id: currentUser.data.user.id,
-          content: quickMessage,
-          message_type: 'text'
-        });
-
-      if (messageError) throw messageError;
-
-      toast({
-        title: "Успешно",
-        description: "Сообщение отправлено"
-      });
-
-      setQuickMessage('');
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось отправить сообщение",
-        variant: "destructive"
-      });
-    } finally {
-      setSendingMessage(false);
-    }
-  };
-
   const getBanTypeLabel = (type: string) => {
     switch (type) {
       case 'order_mute': return 'Запрет на заказы';
@@ -554,7 +461,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[95vw] lg:max-w-[1400px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -583,99 +490,133 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-1">
-          <div className="space-y-4">
-            {/* User Information - компактная версия */}
-            <Card className="card-steel-lighter p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-base font-semibold text-steel-100">Информация о пользователе</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditMode(!editMode)}
-                >
-                  {editMode ? <X className="w-3 h-3" /> : <Edit className="w-3 h-3" />}
-                </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* User Information */}
+          <Card className="card-steel-lighter p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-steel-100">Информация о пользователе</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditMode(!editMode)}
+              >
+                {editMode ? <X className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300">ID</label>
+                  <p className="text-steel-100 font-mono text-xs">{user.id}</p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-steel-300">Телефон</label>
+                  {editMode ? (
+                    <Input
+                      value={editedUser.phone || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, phone: e.target.value }))}
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.phone || 'Не указан'}</p>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <label className="text-xs text-steel-400">Телефон</label>
-                    {editMode ? (
-                      <Input
-                        value={editedUser.phone || ''}
-                        onChange={(e) => setEditedUser(prev => ({ ...prev, phone: e.target.value }))}
-                        className="h-8 text-sm"
-                      />
-                    ) : (
-                      <p className="text-steel-100">{user.phone || 'Не указан'}</p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs text-steel-400">Отображаемое имя</label>
-                    {editMode ? (
-                      <Input
-                        value={editedUser.display_name || ''}
-                        onChange={(e) => setEditedUser(prev => ({ ...prev, display_name: e.target.value }))}
-                        className="h-8 text-sm"
-                      />
-                    ) : (
-                      <p className="text-steel-100">{user.display_name || 'Не указано'}</p>
-                    )}
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300">Отображаемое имя</label>
+                  {editMode ? (
+                    <Input
+                      value={editedUser.display_name || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, display_name: e.target.value }))}
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.display_name || 'Не указано'}</p>
+                  )}
                 </div>
-
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <label className="text-xs text-steel-400">Рейтинг</label>
-                    <UserRatingDisplay userId={user.id} showDetails={false} />
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs text-steel-400">Баланс</label>
-                    <p className="text-steel-100 font-medium flex items-center text-sm">
-                      <Wallet className="w-3 h-3 mr-1" />
-                      {user.balance.toFixed(2)} GT
-                    </p>
-                  </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-steel-300">Полное имя</label>
+                  {editMode ? (
+                    <Input
+                      value={editedUser.full_name || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, full_name: e.target.value }))}
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.full_name || 'Не указано'}</p>
+                  )}
                 </div>
+              </div>
 
-                {editMode && (
-                  <Button
-                    onClick={handleUpdateUser}
-                    disabled={loading}
-                    className="w-full h-8 text-sm"
-                    size="sm"
-                  >
-                    <Save className="w-3 h-3 mr-2" />
-                    Сохранить изменения
-                  </Button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300">Рейтинг</label>
+                  <UserRatingDisplay userId={user.id} showDetails={true} />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-steel-300">Баланс</label>
+                  <p className="text-steel-100 font-medium flex items-center">
+                    <Wallet className="w-4 h-4 mr-1" />
+                    {user.balance.toFixed(2)} GT Coins
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-steel-300">О себе</label>
+                {editMode ? (
+                  <Textarea
+                    value={editedUser.bio || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, bio: e.target.value }))}
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-steel-100 bg-steel-700 p-3 rounded mt-1">
+                    {user.bio || 'Не указано'}
+                  </p>
                 )}
               </div>
-            </Card>
 
-            {/* Управление балансом - компактно */}
+              {editMode && (
+                <Button
+                  onClick={handleUpdateUser}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Сохранить изменения
+                </Button>
+              )}
+            </div>
+          </Card>
+
+          {/* Actions */}
+          <div className="space-y-4">
+            {/* Balance Management */}
             <Card className="card-steel-lighter p-4">
-              <h3 className="text-base font-semibold text-steel-100 mb-3">Управление балансом</h3>
-              <div className="space-y-2">
-                <div className="flex gap-2">
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Управление балансом</h3>
+              
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={balanceOperation === 'add' ? 'default' : 'outline'}
-                    size="sm"
                     onClick={() => setBalanceOperation('add')}
-                    className="flex-1 h-8 text-xs"
+                    className="flex items-center space-x-2"
                   >
-                    Начислить
+                    <Plus className="w-4 h-4" />
+                    <span>Начислить</span>
                   </Button>
+                  
                   <Button
                     variant={balanceOperation === 'subtract' ? 'default' : 'outline'}
-                    size="sm"
                     onClick={() => setBalanceOperation('subtract')}
-                    className="flex-1 h-8 text-xs"
+                    className="flex items-center space-x-2"
                   >
-                    Списать
+                    <Minus className="w-4 h-4" />
+                    <span>Списать</span>
                   </Button>
                 </div>
                 
@@ -684,7 +625,6 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   placeholder="Сумма"
                   value={balanceAmount}
                   onChange={(e) => setBalanceAmount(e.target.value)}
-                  className="h-8 text-sm"
                 />
                 
                 <Textarea
@@ -692,58 +632,129 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   value={balanceReason}
                   onChange={(e) => setBalanceReason(e.target.value)}
                   rows={2}
-                  className="text-sm"
                 />
                 
                 <Button
                   onClick={handleBalanceOperation}
                   disabled={loading || !balanceAmount.trim() || !balanceReason.trim()}
-                  className="w-full h-8 text-sm"
-                  size="sm"
+                  className="w-full"
                 >
-                  Начислить средства
+                  {balanceOperation === 'add' ? 'Начислить' : 'Списать'} средства
+                </Button>
+              </div>
+            </Card>
+
+            {/* Ban Management */}
+            <Card className="card-steel-lighter p-4">
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Управление ограничениями</h3>
+              
+              <div className="space-y-3">
+                <Select value={banType} onValueChange={(value: any) => setBanType(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="order_mute">Запрет на заказы</SelectItem>
+                    <SelectItem value="payment_mute">Запрет на платежи</SelectItem>
+                    <SelectItem value="account_block">Блокировка аккаунта</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={banDuration} onValueChange={setBanDuration}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="60">1 час</SelectItem>
+                    <SelectItem value="360">6 часов</SelectItem>
+                    <SelectItem value="720">12 часов</SelectItem>
+                    <SelectItem value="1440">1 день</SelectItem>
+                    <SelectItem value="4320">3 дня</SelectItem>
+                    <SelectItem value="10080">7 дней</SelectItem>
+                    <SelectItem value="43200">30 дней</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Textarea
+                  placeholder="Причина ограничения (обязательно)"
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  rows={2}
+                />
+                
+                <Button
+                  onClick={handleBanUser}
+                  disabled={loading || !banReason.trim()}
+                  variant="destructive"
+                  className="w-full"
+                >
+                  <Ban className="w-4 h-4 mr-2" />
+                  Наложить ограничение
+                </Button>
+              </div>
+
+              {/* Active Bans */}
+              {userBans.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-steel-600">
+                  <h4 className="text-sm font-medium text-steel-300 mb-2">Активные ограничения</h4>
+                  <div className="space-y-2">
+                    {userBans.map((ban) => (
+                      <div key={ban.id} className="bg-steel-700 p-2 rounded">
+                        <div className="flex items-center justify-between">
+                          <Badge variant="destructive">
+                            {getBanTypeLabel(ban.ban_type)}
+                          </Badge>
+                          <span className="text-xs text-steel-400">
+                            до {format(new Date(ban.expires_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                          </span>
+                        </div>
+                        <p className="text-xs text-steel-300 mt-1">{ban.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+
+            {/* Rating Management */}
+            <Card className="card-steel-lighter p-4">
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Изменение рейтинга</h3>
+              
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">
+                    Текущий рейтинг: {user.rating?.toFixed(2) || '0.00'}
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Новый рейтинг (0-5)"
+                    value={newRating}
+                    onChange={(e) => setNewRating(e.target.value)}
+                    min="0"
+                    max="5"
+                    step="0.1"
+                  />
+                </div>
+                
+                <Textarea
+                  placeholder="Причина изменения рейтинга (обязательно)"
+                  value={ratingReason}
+                  onChange={(e) => setRatingReason(e.target.value)}
+                  rows={2}
+                />
+                
+                <Button
+                  onClick={handleRatingChange}
+                  disabled={loading || !newRating.trim() || !ratingReason.trim()}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  <Award className="w-4 h-4 mr-2" />
+                  Изменить рейтинг
                 </Button>
               </div>
             </Card>
           </div>
-        </div>
-
-        {/* Быстрый чат внизу */}
-        <div className="border-t border-border mt-4 pt-4">
-          <h3 className="text-sm font-semibold text-steel-100 mb-3 flex items-center gap-2">
-            <MessageSquare className="w-4 h-4" />
-            Быстрое сообщение пользователю
-          </h3>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Введите сообщение..."
-              value={quickMessage}
-              onChange={(e) => setQuickMessage(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendQuickMessage();
-                }
-              }}
-              className="h-9 text-sm"
-              disabled={sendingMessage}
-            />
-            <Button
-              onClick={handleSendQuickMessage}
-              disabled={sendingMessage || !quickMessage.trim()}
-              size="sm"
-              className="h-9 px-3"
-            >
-              {sendingMessage ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <MessageSquare className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
-          <p className="text-xs text-steel-400 mt-2">
-            {conversationId ? '✓ Чат уже создан' : 'Чат будет создан автоматически при отправке'}
-          </p>
         </div>
       </DialogContent>
     </Dialog>
