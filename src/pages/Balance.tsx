@@ -118,17 +118,17 @@ const Balance = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-4">
-              {/* Bank Card - In Development */}
-              <Card className="card-steel p-4 space-y-3 opacity-50 border-steel-600/30">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-lg">
+              {/* Bank Card - Active */}
+              <Card className="card-steel p-4 space-y-3 border-blue-500/30 hover:border-blue-500/50 hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-blue-500/20">
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>
                 <div className="text-center space-y-1">
-                  <h4 className="font-semibold text-steel-200">Банковская карта</h4>
-                  <Badge variant="outline" className="text-xs text-steel-400 border-steel-500">
-                    В разработке
+                  <h4 className="font-semibold text-steel-100">Банковская карта</h4>
+                  <Badge className="text-xs bg-blue-500/20 text-blue-400 border-blue-400/20">
+                    Активно
                   </Badge>
-                  <p className="text-xs text-steel-400 pt-1">Скоро будет доступно</p>
+                  <p className="text-xs text-steel-400 pt-1">Быстрое пополнение</p>
                 </div>
               </Card>
               
