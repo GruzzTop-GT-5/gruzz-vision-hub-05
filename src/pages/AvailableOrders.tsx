@@ -17,7 +17,7 @@ import {
   Clock, 
   MapPin, 
   Users, 
-  DollarSign,
+  Coins,
   MessageSquare,
   Calendar,
   Plus,

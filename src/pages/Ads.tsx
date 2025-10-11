@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { OrderDetailsModal } from '@/components/OrderDetailsModal';
 import { OrderBidForm } from '@/components/OrderBidForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Filter, Plus, Calendar, MapPin, DollarSign, User, Info, HelpCircle, Lightbulb, X, Package, Clock, Send } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, MapPin, Coins, User, Info, HelpCircle, Lightbulb, X, Package, Clock, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { format } from 'date-fns';
@@ -502,7 +502,7 @@ export default function Ads() {
                       <div className="pt-4 border-t border-steel-600/50">
                         <div className="flex items-center justify-between gap-3 mb-3">
                           <div className="flex items-center space-x-2">
-                            <DollarSign className="w-5 h-5 text-green-400 flex-shrink-0" />
+                            <Coins className="w-5 h-5 text-green-400 flex-shrink-0" />
                             <span className="text-xl font-bold text-steel-100 whitespace-nowrap">
                               {order.price.toLocaleString('ru-RU')} ₽
                             </span>

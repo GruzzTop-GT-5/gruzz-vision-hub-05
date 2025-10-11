@@ -15,7 +15,7 @@ import {
   MessageSquare,
   CreditCard,
   Activity,
-  DollarSign,
+  Coins,
   TrendingUp,
   AlertTriangle,
   Eye,
@@ -191,7 +191,7 @@ export default function AdminPanelSimple() {
                     <p className="text-2xl font-bold text-steel-100">{stats.totalRevenue.toLocaleString('ru-RU')}₽</p>
                   </div>
                   <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-yellow-400" />
+                    <Coins className="w-6 h-6 text-yellow-400" />
                   </div>
                 </div>
               </CardContent>
@@ -287,7 +287,7 @@ export default function AdminPanelSimple() {
               <CardContent className="space-y-3">
                 <Link to="/admin" className="block">
                   <Button className="w-full justify-start bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20">
-                    <DollarSign className="w-4 h-4 mr-2" />
+                    <Coins className="w-4 h-4 mr-2" />
                     Транзакции
                   </Button>
                 </Link>

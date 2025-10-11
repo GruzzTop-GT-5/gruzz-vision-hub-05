@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Clock, DollarSign, Activity } from 'lucide-react';
+import { Users, Clock, Coins, Activity } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { startOfDay } from 'date-fns';
 
@@ -200,7 +200,7 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ stats: propStats }) => {
             <p className="text-xs text-steel-400">Реальная выручка</p>
             <p className="text-lg font-bold text-steel-100">{stats.totalRevenue.toLocaleString()}₽</p>
           </div>
-          <DollarSign className="w-5 h-5 text-green-400" />
+          <Coins className="w-5 h-5 text-green-400" />
         </div>
         <Badge variant="secondary" className="text-xs mt-2">
           От GT коинов

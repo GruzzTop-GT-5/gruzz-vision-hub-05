@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Wrench, Truck, Package, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Clock, User, DollarSign, MapPin, Calendar } from 'lucide-react';
+import { Clock, User, Coins, MapPin, Calendar } from 'lucide-react';
 import { formatRubles } from '@/utils/currency';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -131,7 +131,7 @@ export const OptimizedOrderCard = memo<OptimizedOrderCardProps>(({
         
         <div className="text-right">
           <div className="flex items-center gap-1 text-xl font-bold text-primary mb-1">
-            <DollarSign className="w-5 h-5" />
+            <Coins className="w-5 h-5" />
             {formatRubles(order.price)}
           </div>
           

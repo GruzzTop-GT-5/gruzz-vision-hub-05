@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Truck, Phone, Calendar, Clock, MapPin, DollarSign, Wrench, MessageSquare, Send, ChevronDown, ChevronUp, User } from 'lucide-react';
+import { Truck, Phone, Calendar, Clock, MapPin, Coins, Wrench, MessageSquare, Send, ChevronDown, ChevronUp, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BackButton } from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Package, Plus, Edit3, Trash2, Search, Filter, DollarSign, Calendar, Clock, Eye, Loader2 } from 'lucide-react';
+import { Package, Plus, Edit3, Trash2, Search, Filter, Coins, Calendar, Clock, Eye, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Link, useNavigate } from 'react-router-dom';
@@ -658,7 +658,7 @@ const MyAds = () => {
                     {/* Price and Actions */}
                     <div className="flex items-center justify-between pt-4 border-t border-steel-600">
                       <div className="flex items-center space-x-2">
-                        <DollarSign className="w-4 h-4 text-green-400" />
+                        <Coins className="w-4 h-4 text-green-400" />
                         <span className="text-lg font-bold text-steel-100">
                           {item.price} {item.type === 'ad' ? '₽' : 'GT'}
                         </span>

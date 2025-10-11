@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  DollarSign
+  Coins
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -326,7 +326,7 @@ export const AdminDashboard: React.FC = () => {
                 <p className="text-2xl font-bold">₽{stats.totalRevenue.toLocaleString()}</p>
                 <p className="text-sm text-green-600">{stats.completedTransactions} транзакций</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              <Coins className="w-8 h-8 text-green-500" />
             </div>
           </CardContent>
         </Card>

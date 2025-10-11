@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Calendar, DollarSign, MessageCircle, X } from 'lucide-react';
+import { User, Calendar, Coins, MessageCircle, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
@@ -110,7 +110,7 @@ export function AdDetailsModal({ ad, isOpen, onClose }: AdDetailsModalProps) {
           <div>
             <h3 className="text-sm font-semibold text-steel-200 mb-2">Стоимость</h3>
             <div className="flex items-center space-x-2">
-              <DollarSign className="w-5 h-5 text-primary" />
+              <Coins className="w-5 h-5 text-primary" />
               <span className="text-2xl font-bold text-primary">
                 {formatPrice(adDetails.price)} GT
               </span>

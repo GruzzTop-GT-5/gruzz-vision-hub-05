@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Activity, Search, Clock, DollarSign, User, Edit, Trash2, RefreshCw, Eye, UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
+import { Activity, Search, Clock, Coins, User, Edit, Trash2, RefreshCw, Eye, UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { handleError } from '@/lib/errorHandler';
 import { formatRubles } from '@/utils/currency';
@@ -388,7 +388,7 @@ export const OrderManagement: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <div className="flex items-center gap-1 text-lg font-bold text-steel-100">
-                      <DollarSign className="w-4 h-4" />
+                      <Coins className="w-4 h-4" />
                       {formatRubles(order.price)}
                     </div>
                   </div>

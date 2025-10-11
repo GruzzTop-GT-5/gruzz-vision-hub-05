@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, Users, ShoppingCart, DollarSign, Activity, Calendar as CalendarIcon, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users, ShoppingCart, Coins, Activity, Calendar as CalendarIcon, Download } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -419,7 +419,7 @@ export const AnalyticsDashboard = () => {
                   От пополнений пользователей (1 GT = 1₽)
                 </p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              <Coins className="w-8 h-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
@@ -592,7 +592,7 @@ export const AnalyticsDashboard = () => {
             <Card>
               <CardContent className="p-4">
                 <div className="text-center">
-                  <DollarSign className="w-8 h-8 mx-auto mb-2 text-green-500" />
+                  <Coins className="w-8 h-8 mx-auto mb-2 text-green-500" />
                   <p className="text-2xl font-bold">₽{analytics?.orders.revenue.toLocaleString()}</p>
                   <p className="text-sm text-muted-foreground">Общий доход</p>
                 </div>

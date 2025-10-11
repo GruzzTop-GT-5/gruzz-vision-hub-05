@@ -18,7 +18,7 @@ import {
   Clock,
   User,
   Calendar,
-  DollarSign,
+  Coins,
   MessageSquare,
   FileText,
   Tag,
@@ -339,7 +339,7 @@ export const AdModerationModal = ({ ad, isOpen, onClose, onAdUpdate }: AdModerat
                   <div>
                     <Label className="text-steel-300">Цена</Label>
                     <div className="flex items-center space-x-2 mt-1">
-                      <DollarSign className="w-4 h-4 text-green-400" />
+                      <Coins className="w-4 h-4 text-green-400" />
                       <span className="text-steel-100 font-medium">{ad.price.toLocaleString()} GT Coins</span>
                     </div>
                   </div>

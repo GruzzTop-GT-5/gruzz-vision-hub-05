@@ -29,7 +29,7 @@ import {
   Banknote,
   BarChart3,
   Activity,
-  DollarSign,
+  Coins,
   TrendingUp,
   UserCheck,
   Settings,
@@ -1366,7 +1366,7 @@ export default function AdminPanel() {
                 <Card className="card-steel p-6">
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-green-500/20 rounded-lg">
-                      <DollarSign className="w-6 h-6 text-green-400" />
+                      <Coins className="w-6 h-6 text-green-400" />
                     </div>
                     <div>
                       <p className="text-steel-400 text-sm">Транзакции</p>
@@ -2104,7 +2104,7 @@ export default function AdminPanel() {
                     {/* Fees */}
                     <div className="space-y-4">
                       <div className="flex items-center space-x-3">
-                        <DollarSign className="w-5 h-5 text-green-400" />
+                        <Coins className="w-5 h-5 text-green-400" />
                         <h3 className="text-lg font-semibold text-steel-100">Платежи</h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

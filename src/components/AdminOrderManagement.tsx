@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Clock, Star, AlertTriangle, Settings, Edit, Trash2, DollarSign } from 'lucide-react';
+import { Clock, Star, AlertTriangle, Settings, Edit, Trash2, Coins } from 'lucide-react';
 import { getOrderTimeRemaining, getPriorityColor, getPriorityText } from '@/hooks/useOrderSorting';
 import { formatRubles } from '@/utils/currency';
 
@@ -234,7 +234,7 @@ export const AdminOrderManagement: React.FC<AdminOrderManagementProps> = ({
       <Card className="card-steel p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-steel-100 flex items-center space-x-2">
-            <DollarSign className="w-5 h-5 text-primary" />
+            <Coins className="w-5 h-5 text-primary" />
             <span>Стоимость приоритетов</span>
           </h3>
           <Dialog open={isPriceModalOpen} onOpenChange={setIsPriceModalOpen}>

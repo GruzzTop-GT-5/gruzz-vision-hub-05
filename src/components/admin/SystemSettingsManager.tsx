@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Settings, Save, RefreshCw, AlertTriangle, Info, DollarSign, 
+  Settings, Save, RefreshCw, AlertTriangle, Info, Coins, 
   Shield, Users, Bell, HelpCircle, ShieldCheck, Clock, MessageSquare, Database, Zap
  } from 'lucide-react';
 import { PromoCodeManagement } from './PromoCodeManagement';
@@ -501,7 +501,7 @@ export const SystemSettingsManager: React.FC = () => {
   const getCategoryIcon = (category: string) => {
     const icons = {
       'general': <Settings className="w-5 h-5" />,
-      'financial': <DollarSign className="w-5 h-5" />,
+      'financial': <Coins className="w-5 h-5" />,
       'timing': <Clock className="w-5 h-5" />,
       'moderation': <Shield className="w-5 h-5" />,
       'notifications': <Bell className="w-5 h-5" />,
@@ -621,7 +621,7 @@ export const SystemSettingsManager: React.FC = () => {
                 {/* Финансовые настройки */}
                 <div>
                   <h4 className="text-lg font-semibold text-yellow-400 mb-3 flex items-center">
-                    <DollarSign className="w-5 h-5 mr-2" />
+                    <Coins className="w-5 h-5 mr-2" />
                     Финансовые настройки (GT коины)
                   </h4>
                   <div className="bg-steel-900 p-4 rounded-lg space-y-3 text-sm">

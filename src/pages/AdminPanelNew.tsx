@@ -48,7 +48,7 @@ import {
   Clock,
   HelpCircle,
   ArrowLeft,
-  DollarSign,
+  Coins,
   Percent,
   Truck
 } from 'lucide-react';
