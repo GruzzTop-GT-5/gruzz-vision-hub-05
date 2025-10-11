@@ -280,47 +280,47 @@ export default function Ads() {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="min-h-screen p-2 xs:p-3 sm:p-4">
-        <div className="max-w-6xl mx-auto space-y-3 sm:space-y-4">
-          {/* Compact Header */}
+      <div className="min-h-screen p-2 sm:p-4">
+        <div className="max-w-6xl mx-auto space-y-2 sm:space-y-4">
+          {/* Очень компактный Header для мобильных */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 xs:gap-3 min-w-0">
-              <div className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <Package className="w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6 text-steel-900" />
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 sm:w-6 sm:h-6 text-steel-900" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-lg xs:text-xl sm:text-3xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent truncate">
+                <h1 className="text-base sm:text-3xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent leading-tight">
                   Заказы на работу
                 </h1>
-                <p className="text-xs xs:text-sm text-steel-400 hidden xs:block truncate">Найдите подходящую работу от заказчиков</p>
+                <p className="text-[10px] sm:text-sm text-steel-400">Найдите подходящую работу от заказчиков</p>
               </div>
             </div>
             <Link to="/create-order" className="flex-shrink-0">
-              <Button className="bg-gradient-to-r from-primary to-electric-600 hover:from-primary/80 hover:to-electric-600/80 shadow-lg h-8 xs:h-9 sm:h-10 px-2 xs:px-3 sm:px-4 text-xs xs:text-sm">
-                <Plus className="w-3 h-3 xs:w-4 xs:h-4 sm:mr-2" />
+              <Button className="bg-gradient-to-r from-primary to-electric-600 hover:from-primary/80 hover:to-electric-600/80 shadow-lg h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm">
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Разместить заказ</span>
               </Button>
             </Link>
           </div>
 
-          {/* Compact Information Card */}
+          {/* Минималистичный Information Card для мобильных */}
           <Card className="card-steel border-primary/20">
-            <div className="p-3 xs:p-4">
-              <div className="flex items-start gap-2 xs:gap-3 mb-2">
-                <Package className="w-5 h-5 xs:w-6 xs:h-6 text-primary flex-shrink-0 mt-0.5" />
+            <div className="p-2.5 sm:p-4">
+              <div className="flex items-start gap-2 mb-1.5 sm:mb-2">
+                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm xs:text-base sm:text-lg font-semibold text-steel-100 mb-1">Заказы на работу</h3>
-                  <p className="text-xs xs:text-sm text-steel-300 leading-relaxed">
+                  <h3 className="text-xs sm:text-lg font-semibold text-steel-100 mb-0.5 sm:mb-1">Заказы на работу</h3>
+                  <p className="text-[10px] sm:text-sm text-steel-300 leading-tight">
                     Здесь размещаются заказы на различные виды работ от заказчиков. Найдите подходящую работу или разместите свой заказ.
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 xs:gap-2.5 text-xs xs:text-sm mt-3">
-                <div className="flex items-center gap-2 text-steel-400">
-                  <Lightbulb className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-yellow-400 flex-shrink-0" />
+              <div className="flex flex-col gap-1.5 sm:gap-2 text-[10px] sm:text-sm mt-2 sm:mt-3">
+                <div className="flex items-center gap-1.5 text-steel-400">
+                  <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 flex-shrink-0" />
                   <span className="line-clamp-1">Пример: "Нужен грузчик для переезда в субботу"</span>
                 </div>
-                <div className="flex flex-wrap gap-2 xs:gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   <Link to="/available-orders" className="text-primary hover:text-primary/80 font-medium inline-flex items-center gap-1">
                     <span>Смотреть вакансии →</span>
                   </Link>
@@ -332,29 +332,29 @@ export default function Ads() {
             </div>
           </Card>
 
-          {/* Compact Filters */}
-          <Card className="card-steel p-2.5 xs:p-3 sm:p-4">
-            <div className="space-y-2.5 xs:space-y-3">
+          {/* Минималистичные Filters для мобильных */}
+          <Card className="card-steel p-2 sm:p-4">
+            <div className="space-y-2 sm:space-y-3">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-2.5 xs:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 xs:w-4 xs:h-4 text-steel-400 pointer-events-none" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-steel-400 pointer-events-none" />
                 <Input
                   placeholder="Найти заказ по описанию работы..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 xs:pl-10 h-9 xs:h-10 text-xs xs:text-sm"
+                  className="pl-8 sm:pl-10 h-8 sm:h-10 text-xs sm:text-sm"
                 />
               </div>
 
               {/* Filters Row */}
-              <div className="flex gap-2 xs:gap-2.5">
+              <div className="flex gap-2">
                 <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
-                  <SelectTrigger className="h-9 xs:h-10 text-xs xs:text-sm flex-1">
-                    <SelectValue placeholder="Тип услуги" />
+                  <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm flex-1">
+                    <SelectValue placeholder="Все типы" />
                   </SelectTrigger>
                   <SelectContent>
                     {serviceTypes.map((type) => (
-                      <SelectItem key={type} value={type} className="text-xs xs:text-sm">
+                      <SelectItem key={type} value={type} className="text-xs sm:text-sm">
                         {type}
                       </SelectItem>
                     ))}
@@ -362,12 +362,12 @@ export default function Ads() {
                 </Select>
 
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="h-9 xs:h-10 text-xs xs:text-sm flex-1">
-                    <SelectValue placeholder="Категория" />
+                  <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm flex-1">
+                    <SelectValue placeholder="Все категории" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
-                      <SelectItem key={category} value={category} className="text-xs xs:text-sm">
+                      <SelectItem key={category} value={category} className="text-xs sm:text-sm">
                         {category === 'Все категории' ? 'Все категории' : category}
                       </SelectItem>
                     ))}
@@ -378,19 +378,19 @@ export default function Ads() {
                   <Button
                     variant="outline"
                     onClick={clearFilters}
-                    className="h-9 xs:h-10 px-2 xs:px-3 flex-shrink-0"
+                    className="h-8 sm:h-10 px-2 sm:px-3 flex-shrink-0"
                     size="sm"
                   >
-                    <X className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
-                    <span className="hidden xs:inline ml-1.5">Сбросить</span>
+                    <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline ml-1.5">Сбросить</span>
                   </Button>
                 )}
               </div>
               
-              {/* Results Count */}
+              {/* Results Count - скрыт на маленьких экранах */}
               {filteredOrders.length > 0 && (
-                <div className="text-center pt-1">
-                  <span className="text-steel-400 text-xs xs:text-sm">
+                <div className="text-center pt-0.5 hidden sm:block">
+                  <span className="text-steel-400 text-xs sm:text-sm">
                     Найдено {filteredOrders.length} {filteredOrders.length === 1 ? 'заказ' : filteredOrders.length < 5 ? 'заказа' : 'заказов'}
                   </span>
                 </div>
@@ -398,29 +398,29 @@ export default function Ads() {
             </div>
           </Card>
 
-          {/* Orders Grid */}
+          {/* Orders Grid - Компактно для мобильных */}
           {filteredOrders.length === 0 ? (
-            <Card className="card-steel p-4 xs:p-6 sm:p-8 text-center">
-              <div className="space-y-3 xs:space-y-4">
-                <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 bg-steel-600/20 rounded-full flex items-center justify-center mx-auto">
-                  <HelpCircle className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-steel-400" />
+            <Card className="card-steel p-6 sm:p-8 text-center">
+              <div className="space-y-2 sm:space-y-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-steel-600/20 rounded-full flex items-center justify-center mx-auto">
+                  <HelpCircle className="w-6 h-6 sm:w-8 sm:h-8 text-steel-400" />
                 </div>
-                <h3 className="text-base xs:text-lg sm:text-xl font-semibold text-steel-100">Заказы не найдены</h3>
-                <p className="text-xs xs:text-sm sm:text-base text-steel-300 max-w-md mx-auto">
+                <h3 className="text-sm sm:text-xl font-semibold text-steel-100">Заказы не найдены</h3>
+                <p className="text-xs sm:text-base text-steel-300 max-w-md mx-auto leading-tight">
                   {searchQuery || selectedCategory !== 'Все категории'
                     ? 'Попробуйте изменить параметры поиска'
                     : 'Пока что заказчики не разместили заказы на работу'}
                 </p>
-                <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 justify-center mt-4 xs:mt-6">
-                  <Link to="/create-order">
-                    <Button className="bg-primary hover:bg-primary/80 w-full xs:w-auto h-9 xs:h-10 text-xs xs:text-sm">
-                      <Plus className="w-3.5 h-3.5 xs:w-4 xs:h-4 mr-1.5 xs:mr-2" />
+                <div className="flex flex-col sm:flex-row gap-2 justify-center mt-3 sm:mt-6">
+                  <Link to="/create-order" className="w-full sm:w-auto">
+                    <Button className="bg-primary hover:bg-primary/80 w-full h-9 sm:h-10 text-xs sm:text-sm">
+                      <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       Разместить заказ
                     </Button>
                   </Link>
-                  <Link to="/available-orders">
-                    <Button variant="outline" className="w-full xs:w-auto h-9 xs:h-10 text-xs xs:text-sm">
-                      <Calendar className="w-3.5 h-3.5 xs:w-4 xs:h-4 mr-1.5 xs:mr-2" />
+                  <Link to="/available-orders" className="w-full sm:w-auto">
+                    <Button variant="outline" className="w-full h-9 sm:h-10 text-xs sm:text-sm">
+                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       Смотреть вакансии
                     </Button>
                   </Link>
