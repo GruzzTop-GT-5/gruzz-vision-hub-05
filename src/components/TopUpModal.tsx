@@ -253,7 +253,7 @@ export const TopUpModal = ({ isOpen, onClose, userId, onSuccess }: TopUpModalPro
 
           {!paymentDetails ? (
             <div className="space-y-3">
-              <Label>Выберите способ оплаты:</Label>
+              <Label>Способы пополнения</Label>
               {paymentMethods.map((method) => (
                 <Card
                   key={method.id}
