@@ -437,138 +437,145 @@ const MyAds = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="min-h-screen p-4">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+      <div className="min-h-screen p-2 xs:p-3 sm:p-4">
+        <div className="max-w-7xl mx-auto space-y-3 xs:space-y-4 sm:space-y-6">
+          {/* Compact Header */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 xs:gap-3 min-w-0 flex-1">
               <BackButton />
-              <div className="flex items-center space-x-3">
-                <Package className="w-8 h-8 text-primary" />
-                <h1 className="text-3xl font-bold text-glow">Мои публикации</h1>
-              </div>
+              <Package className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+              <h1 className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-glow truncate">Мои публикации</h1>
             </div>
             
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => navigate('/create-order')}
-                className="bg-primary hover:bg-primary/80"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Создать объявление
-              </Button>
-              
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  resetForm();
-                  setShowCreateModal(true);
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Создать вакансию
-              </Button>
-            </div>
+            <Button 
+              onClick={() => navigate('/create-order')}
+              className="bg-gradient-to-r from-primary to-electric-600 hover:from-primary/80 hover:to-electric-600/80 h-8 xs:h-9 sm:h-10 px-2 xs:px-3 sm:px-4 text-xs xs:text-sm flex-shrink-0"
+            >
+              <Plus className="w-3 h-3 xs:w-4 xs:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Создать</span>
+            </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="card-steel p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-steel-600 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-steel-300" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-steel-100">{stats.total}</p>
-                  <p className="text-sm text-steel-400">Всего публикаций</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="card-steel p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-steel-100">{stats.ads}</p>
-                  <p className="text-sm text-steel-400">Вакансий</p>
+          {/* Premium Stats Grid */}
+          <div className="grid grid-cols-4 gap-1.5 xs:gap-2 sm:gap-3 lg:gap-4">
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-steel-500/20 via-steel-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4">
+                <div className="flex items-center gap-2 xs:gap-3">
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-steel-600 to-steel-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Package className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-steel-300" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-lg xs:text-xl sm:text-2xl font-bold bg-gradient-to-br from-steel-100 to-steel-300 bg-clip-text text-transparent">{stats.total}</p>
+                    <p className="text-[10px] xs:text-xs text-steel-400 truncate">Всего публикаций</p>
+                  </div>
                 </div>
               </div>
             </Card>
 
-            <Card className="card-steel p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-steel-100">{stats.vacancies}</p>
-                  <p className="text-sm text-steel-400">Объявлений</p>
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4">
+                <div className="flex items-center gap-2 xs:gap-3">
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Package className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-blue-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-lg xs:text-xl sm:text-2xl font-bold bg-gradient-to-br from-blue-400 to-blue-300 bg-clip-text text-transparent">{stats.ads}</p>
+                    <p className="text-[10px] xs:text-xs text-steel-400 truncate">Вакансий</p>
+                  </div>
                 </div>
               </div>
             </Card>
 
-            <Card className="card-steel p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-green-400" />
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4">
+                <div className="flex items-center gap-2 xs:gap-3">
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Package className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-purple-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-lg xs:text-xl sm:text-2xl font-bold bg-gradient-to-br from-purple-400 to-purple-300 bg-clip-text text-transparent">{stats.vacancies}</p>
+                    <p className="text-[10px] xs:text-xs text-steel-400 truncate">Объявлений</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-steel-100">{stats.active}</p>
-                  <p className="text-sm text-steel-400">Активных</p>
+              </div>
+            </Card>
+
+            <Card className="relative overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-2 xs:p-3 sm:p-4">
+                <div className="flex items-center gap-2 xs:gap-3">
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Package className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-green-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-lg xs:text-xl sm:text-2xl font-bold bg-gradient-to-br from-green-400 to-green-300 bg-clip-text text-transparent">{stats.active}</p>
+                    <p className="text-[10px] xs:text-xs text-steel-400 truncate">Активных</p>
+                  </div>
                 </div>
               </div>
             </Card>
           </div>
 
-          {/* Filters */}
-          <Card className="card-steel p-4">
-            <div className="grid md:grid-cols-5 gap-4">
-              <div className="relative md:col-span-2">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-steel-400" />
-                <Input
-                  placeholder="Поиск по названию или описанию..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+          {/* Premium Filters */}
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-electric-600/5 opacity-50"></div>
+            <div className="relative p-2.5 xs:p-3 sm:p-4">
+              <div className="space-y-2.5 xs:space-y-3">
+                {/* Search */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-electric-400 to-primary rounded-lg opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 xs:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 xs:w-4 xs:h-4 text-steel-400 pointer-events-none z-10" />
+                    <Input
+                      placeholder="Поиск по названию или описанию..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-8 xs:pl-10 h-9 xs:h-10 text-xs xs:text-sm bg-steel-800/50 border-steel-600 focus:border-primary/50 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Filters Row */}
+                <div className="grid grid-cols-3 gap-2 xs:gap-2.5">
+                  <Select value={selectedType} onValueChange={setSelectedType}>
+                    <SelectTrigger className="h-9 xs:h-10 text-xs xs:text-sm bg-steel-800/50 border-steel-600 hover:border-primary/50 transition-colors">
+                      <SelectValue placeholder="Тип" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all" className="text-xs xs:text-sm">Все типы</SelectItem>
+                      <SelectItem value="ad" className="text-xs xs:text-sm">Объявления</SelectItem>
+                      <SelectItem value="vacancy" className="text-xs xs:text-sm">Вакансии</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="h-9 xs:h-10 text-xs xs:text-sm bg-steel-800/50 border-steel-600 hover:border-primary/50 transition-colors">
+                      <SelectValue placeholder="Категория" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category} className="text-xs xs:text-sm">{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger className="h-9 xs:h-10 text-xs xs:text-sm bg-steel-800/50 border-steel-600 hover:border-primary/50 transition-colors">
+                      <SelectValue placeholder="Статус" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all" className="text-xs xs:text-sm">Все статусы</SelectItem>
+                      <SelectItem value="active" className="text-xs xs:text-sm">Активные</SelectItem>
+                      <SelectItem value="pending" className="text-xs xs:text-sm">Ожидающие</SelectItem>
+                      <SelectItem value="completed" className="text-xs xs:text-sm">Завершенные</SelectItem>
+                      <SelectItem value="cancelled" className="text-xs xs:text-sm">Отмененные</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Тип" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все типы</SelectItem>
-                  <SelectItem value="ad">Объявления</SelectItem>
-                  <SelectItem value="vacancy">Вакансии</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Категория" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Статус" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все статусы</SelectItem>
-                  <SelectItem value="active">Активные</SelectItem>
-                  <SelectItem value="pending">Ожидающие</SelectItem>
-                  <SelectItem value="completed">Завершенные</SelectItem>
-                  <SelectItem value="cancelled">Отмененные</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </Card>
 
