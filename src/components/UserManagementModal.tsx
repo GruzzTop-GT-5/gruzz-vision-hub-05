@@ -124,9 +124,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
         display_name: editedUser.display_name,
         full_name: editedUser.full_name,
         bio: editedUser.bio,
-        phone: editedUser.phone,
-        age: editedUser.age,
-        citizenship: editedUser.citizenship
+        phone: editedUser.phone
       };
       
       const { error } = await supabase
@@ -463,7 +461,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] lg:max-w-[1400px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -492,7 +490,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* User Information */}
           <Card className="card-steel-lighter p-4">
             <div className="flex items-center justify-between mb-4">
@@ -507,12 +505,12 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-steel-300">ID</label>
-                <p className="text-steel-100 font-mono text-xs break-all">{user.id}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300">ID</label>
+                  <p className="text-steel-100 font-mono text-xs">{user.id}</p>
+                </div>
+                
                 <div>
                   <label className="text-sm font-medium text-steel-300">Телефон</label>
                   {editMode ? (
@@ -521,61 +519,38 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                       onChange={(e) => setEditedUser(prev => ({ ...prev, phone: e.target.value }))}
                     />
                   ) : (
-                    <p className="text-steel-100 text-sm">{user.phone || 'Не указан'}</p>
+                    <p className="text-steel-100">{user.phone || 'Не указан'}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-steel-300">Отображаемое имя</label>
+                  {editMode ? (
+                    <Input
+                      value={editedUser.display_name || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, display_name: e.target.value }))}
+                    />
+                  ) : (
+                    <p className="text-steel-100">{user.display_name || 'Не указано'}</p>
                   )}
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-steel-300">Возраст</label>
+                  <label className="text-sm font-medium text-steel-300">Полное имя</label>
                   {editMode ? (
                     <Input
-                      type="number"
-                      value={editedUser.age || ''}
-                      onChange={(e) => setEditedUser(prev => ({ ...prev, age: parseInt(e.target.value) || null }))}
+                      value={editedUser.full_name || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, full_name: e.target.value }))}
                     />
                   ) : (
-                    <p className="text-steel-100 text-sm">{user.age || 'Не указан'}</p>
+                    <p className="text-steel-100">{user.full_name || 'Не указано'}</p>
                   )}
                 </div>
               </div>
 
-              <div>
-                <label className="text-sm font-medium text-steel-300">Отображаемое имя</label>
-                {editMode ? (
-                  <Input
-                    value={editedUser.display_name || ''}
-                    onChange={(e) => setEditedUser(prev => ({ ...prev, display_name: e.target.value }))}
-                  />
-                ) : (
-                  <p className="text-steel-100 text-sm">{user.display_name || 'Не указано'}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-steel-300">Полное имя</label>
-                {editMode ? (
-                  <Input
-                    value={editedUser.full_name || ''}
-                    onChange={(e) => setEditedUser(prev => ({ ...prev, full_name: e.target.value }))}
-                  />
-                ) : (
-                  <p className="text-steel-100 text-sm">{user.full_name || 'Не указано'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-steel-300">Гражданство</label>
-                {editMode ? (
-                  <Input
-                    value={editedUser.citizenship || ''}
-                    onChange={(e) => setEditedUser(prev => ({ ...prev, citizenship: e.target.value }))}
-                  />
-                ) : (
-                  <p className="text-steel-100 text-sm">{user.citizenship || 'Не указано'}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-steel-300">Рейтинг</label>
                   <UserRatingDisplay userId={user.id} showDetails={true} />
@@ -583,9 +558,9 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                 
                 <div>
                   <label className="text-sm font-medium text-steel-300">Баланс</label>
-                  <p className="text-steel-100 font-medium flex items-center text-sm">
+                  <p className="text-steel-100 font-medium flex items-center">
                     <Wallet className="w-4 h-4 mr-1" />
-                    {user.balance.toFixed(2)} GT
+                    {user.balance.toFixed(2)} GT Coins
                   </p>
                 </div>
               </div>
@@ -596,10 +571,10 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   <Textarea
                     value={editedUser.bio || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, bio: e.target.value }))}
-                    rows={2}
+                    rows={3}
                   />
                 ) : (
-                  <p className="text-steel-100 bg-steel-700 p-2 rounded mt-1 text-sm">
+                  <p className="text-steel-100 bg-steel-700 p-3 rounded mt-1">
                     {user.bio || 'Не указано'}
                   </p>
                 )}
@@ -619,29 +594,29 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
           </Card>
 
           {/* Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-4">
             {/* Balance Management */}
-            <Card className="card-steel-lighter p-3">
-              <h3 className="text-base font-semibold text-steel-100 mb-3">Баланс</h3>
+            <Card className="card-steel-lighter p-4">
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Управление балансом</h3>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={balanceOperation === 'add' ? 'default' : 'outline'}
                     onClick={() => setBalanceOperation('add')}
-                    size="sm"
+                    className="flex items-center space-x-2"
                   >
-                    <Plus className="w-3 h-3 mr-1" />
-                    Начислить
+                    <Plus className="w-4 h-4" />
+                    <span>Начислить</span>
                   </Button>
                   
                   <Button
                     variant={balanceOperation === 'subtract' ? 'default' : 'outline'}
                     onClick={() => setBalanceOperation('subtract')}
-                    size="sm"
+                    className="flex items-center space-x-2"
                   >
-                    <Minus className="w-3 h-3 mr-1" />
-                    Списать
+                    <Minus className="w-4 h-4" />
+                    <span>Списать</span>
                   </Button>
                 </div>
                 
@@ -650,32 +625,30 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   placeholder="Сумма"
                   value={balanceAmount}
                   onChange={(e) => setBalanceAmount(e.target.value)}
-                  className="text-sm"
                 />
                 
-                <Input
-                  placeholder="Причина"
+                <Textarea
+                  placeholder="Причина операции (обязательно)"
                   value={balanceReason}
                   onChange={(e) => setBalanceReason(e.target.value)}
-                  className="text-sm"
+                  rows={2}
                 />
                 
                 <Button
                   onClick={handleBalanceOperation}
                   disabled={loading || !balanceAmount.trim() || !balanceReason.trim()}
                   className="w-full"
-                  size="sm"
                 >
-                  Применить
+                  {balanceOperation === 'add' ? 'Начислить' : 'Списать'} средства
                 </Button>
               </div>
             </Card>
 
             {/* Ban Management */}
-            <Card className="card-steel-lighter p-3">
-              <h3 className="text-base font-semibold text-steel-100 mb-3">Ограничения</h3>
+            <Card className="card-steel-lighter p-4">
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Управление ограничениями</h3>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Select value={banType} onValueChange={(value: any) => setBanType(value)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -702,11 +675,11 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   </SelectContent>
                 </Select>
                 
-                <Input
-                  placeholder="Причина"
+                <Textarea
+                  placeholder="Причина ограничения (обязательно)"
                   value={banReason}
                   onChange={(e) => setBanReason(e.target.value)}
-                  className="text-sm"
+                  rows={2}
                 />
                 
                 <Button
@@ -714,25 +687,28 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   disabled={loading || !banReason.trim()}
                   variant="destructive"
                   className="w-full"
-                  size="sm"
                 >
-                  <Ban className="w-3 h-3 mr-1" />
-                  Применить
+                  <Ban className="w-4 h-4 mr-2" />
+                  Наложить ограничение
                 </Button>
               </div>
 
+              {/* Active Bans */}
               {userBans.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-steel-600">
-                  <h4 className="text-xs font-medium text-steel-300 mb-2">Активные</h4>
-                  <div className="space-y-1">
+                <div className="mt-4 pt-4 border-t border-steel-600">
+                  <h4 className="text-sm font-medium text-steel-300 mb-2">Активные ограничения</h4>
+                  <div className="space-y-2">
                     {userBans.map((ban) => (
-                      <div key={ban.id} className="bg-steel-700 p-1.5 rounded text-xs">
-                        <Badge variant="destructive" className="text-xs">
-                          {getBanTypeLabel(ban.ban_type)}
-                        </Badge>
-                        <p className="text-steel-400 mt-0.5 text-xs">
-                          до {format(new Date(ban.expires_at), 'dd.MM HH:mm', { locale: ru })}
-                        </p>
+                      <div key={ban.id} className="bg-steel-700 p-2 rounded">
+                        <div className="flex items-center justify-between">
+                          <Badge variant="destructive">
+                            {getBanTypeLabel(ban.ban_type)}
+                          </Badge>
+                          <span className="text-xs text-steel-400">
+                            до {format(new Date(ban.expires_at), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                          </span>
+                        </div>
+                        <p className="text-xs text-steel-300 mt-1">{ban.reason}</p>
                       </div>
                     ))}
                   </div>
@@ -741,31 +717,30 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
             </Card>
 
             {/* Rating Management */}
-            <Card className="card-steel-lighter p-3">
-              <h3 className="text-base font-semibold text-steel-100 mb-3">Рейтинг</h3>
+            <Card className="card-steel-lighter p-4">
+              <h3 className="text-lg font-semibold text-steel-100 mb-4">Изменение рейтинга</h3>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-steel-300 mb-1 block">
-                    Текущий: {user.rating?.toFixed(2) || '0.00'}
+                  <label className="text-sm font-medium text-steel-300 mb-1 block">
+                    Текущий рейтинг: {user.rating?.toFixed(2) || '0.00'}
                   </label>
                   <Input
                     type="number"
-                    placeholder="Новый (0-5)"
+                    placeholder="Новый рейтинг (0-5)"
                     value={newRating}
                     onChange={(e) => setNewRating(e.target.value)}
                     min="0"
                     max="5"
                     step="0.1"
-                    className="text-sm"
                   />
                 </div>
                 
-                <Input
-                  placeholder="Причина"
+                <Textarea
+                  placeholder="Причина изменения рейтинга (обязательно)"
                   value={ratingReason}
                   onChange={(e) => setRatingReason(e.target.value)}
-                  className="text-sm"
+                  rows={2}
                 />
                 
                 <Button
@@ -773,10 +748,9 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                   disabled={loading || !newRating.trim() || !ratingReason.trim()}
                   className="w-full"
                   variant="secondary"
-                  size="sm"
                 >
-                  <Award className="w-3 h-3 mr-1" />
-                  Применить
+                  <Award className="w-4 h-4 mr-2" />
+                  Изменить рейтинг
                 </Button>
               </div>
             </Card>
