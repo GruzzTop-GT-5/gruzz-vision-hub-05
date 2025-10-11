@@ -59,7 +59,7 @@ export const useAuth = (): AuthContextType => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_type, user_subtype')
+        .select('role, user_type, user_subtype')
         .eq('id', userId)
         .maybeSingle();
 
@@ -73,29 +73,12 @@ export const useAuth = (): AuthContextType => {
         return;
       }
 
-      // Try to get role from user_roles table (new secure system)
-      try {
-        const { data: roleData } = await (supabase as any)
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', userId)
-          .order('assigned_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        
-        if (roleData?.role) {
-          setUserRole(roleData.role);
-        } else {
-          setUserRole('user');
-        }
-      } catch {
-        // Fallback to user role if user_roles table doesn't exist yet
-        setUserRole('user');
-      }
-
+      // Get role from profiles (will be migrated to user_roles table later)
+      const role = data?.role || 'user';
       const type = data?.user_type || null;
       const subtype = data?.user_subtype || null;
       
+      setUserRole(role);
       setUserType(type);
       setUserSubtype(subtype);
       

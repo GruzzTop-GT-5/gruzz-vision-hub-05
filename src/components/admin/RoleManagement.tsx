@@ -92,42 +92,18 @@ export const RoleManagement: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Fetch profiles with roles
+      // Fetch profiles with roles directly from profiles table
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, phone, display_name, full_name, rating, balance, created_at')
+        .select('id, phone, display_name, full_name, role, rating, balance, created_at')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
 
-      // Try to fetch roles from user_roles table
-      let usersWithRoles: UserProfile[] = [];
-      try {
-        const { data: roles } = await (supabase as any)
-          .from('user_roles')
-          .select('user_id, role');
-
-        if (roles && profiles) {
-          usersWithRoles = profiles.map(profile => {
-            const userRole = roles.find((r: any) => r.user_id === profile.id);
-            return {
-              ...profile,
-              role: (userRole?.role || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
-            };
-          });
-        } else if (profiles) {
-          usersWithRoles = profiles.map(p => ({ 
-            ...p, 
-            role: 'user' as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
-          }));
-        }
-      } catch (err) {
-        console.error('user_roles table not available, defaulting to user role');
-        usersWithRoles = profiles?.map(p => ({ 
-          ...p, 
-          role: 'user' as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
-        })) || [];
-      }
+      const usersWithRoles: UserProfile[] = profiles?.map(p => ({
+        ...p,
+        role: (p.role || 'user') as 'user' | 'support' | 'moderator' | 'admin' | 'system_admin'
+      })) || [];
 
       setUsers(usersWithRoles);
     } catch (error) {
@@ -185,20 +161,11 @@ export const RoleManagement: React.FC = () => {
     try {
       setLoading(true);
 
-      // Delete old role assignment from user_roles table (using any to bypass type checking)
-      await (supabase as any)
-        .from('user_roles')
-        .delete()
-        .eq('user_id', change.userId);
-
-      // Insert new role assignment
-      const { error: updateError } = await (supabase as any)
-        .from('user_roles')
-        .insert({
-          user_id: change.userId,
-          role: change.toRole,
-          assigned_by: currentUser?.id
-        });
+      // Update role in profiles table
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ role: change.toRole as any })
+        .eq('id', change.userId);
 
       if (updateError) throw updateError;
 

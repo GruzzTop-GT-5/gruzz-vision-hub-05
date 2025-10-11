@@ -38,36 +38,14 @@ export const UserManagement: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Fetch profiles
-      const { data: profiles, error: profilesError } = await supabase
+      // Fetch profiles with roles directly from profiles table
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (profilesError) throw profilesError;
-
-      // Try to fetch roles from user_roles table
-      let usersWithRoles = profiles || [];
-      try {
-        const { data: roles } = await (supabase as any)
-          .from('user_roles')
-          .select('user_id, role');
-
-        if (roles) {
-          usersWithRoles = profiles?.map(profile => {
-            const userRole = roles?.find((r: any) => r.user_id === profile.id);
-            return {
-              ...profile,
-              role: userRole?.role || 'user'
-            };
-          }) || [];
-        }
-      } catch (err) {
-        console.error('user_roles table not available, defaulting to user role');
-        usersWithRoles = profiles?.map(p => ({ ...p, role: 'user' })) || [];
-      }
-
-      setUsers(usersWithRoles);
+      if (error) throw error;
+      setUsers(data || []);
     } catch (error) {
       toast({
         title: "Ошибка",
