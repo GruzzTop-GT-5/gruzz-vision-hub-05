@@ -26,7 +26,8 @@ import {
   AlertTriangle,
   Settings,
   Bell,
-  Reply
+  Reply,
+  Send
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -41,6 +42,7 @@ interface SupportTicket {
   urgency: string;
   created_by: string;
   assigned_to: string | null;
+  conversation_id: string | null;
   created_at: string;
   updated_at: string;
   resolved_at: string | null;
@@ -130,6 +132,18 @@ export const AdminTicketManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openTicketChat = (ticket: SupportTicket) => {
+    if (ticket.conversation_id) {
+      navigate(`/chat-system?conversation=${ticket.conversation_id}`);
+    } else {
+      toast({
+        title: "Недоступно",
+        description: "Чат для этого тикета не найден",
+        variant: "destructive"
+      });
     }
   };
 
@@ -647,14 +661,28 @@ export const AdminTicketManagement = () => {
                     </div>
                     
                     <div className="flex gap-2">
+                      {ticket.conversation_id && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => openTicketChat(ticket)}
+                          className="flex items-center gap-2"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          Чат
+                        </Button>
+                      )}
+                      
                       <Dialog open={detailsOpen && selectedTicket?.id === ticket.id} onOpenChange={setDetailsOpen}>
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setSelectedTicket(ticket)}
+                            className="flex items-center gap-2"
                           >
                             <Eye className="w-4 h-4" />
+                            Детали
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl">
@@ -698,40 +726,61 @@ export const AdminTicketManagement = () => {
                             </div>
                             
                             <div>
-                              <label className="text-sm font-medium text-steel-300">Комментарий администратора</label>
+                              <label className="text-sm font-medium text-steel-300 mb-2 block">
+                                Комментарий администратора
+                              </label>
                               <Textarea
-                                placeholder="Добавить комментарий..."
+                                placeholder="Закрыто и решено\nили\nЗакрыто\nфиафиа"
                                 value={adminNote}
                                 onChange={(e) => setAdminNote(e.target.value)}
-                                rows={3}
+                                rows={4}
+                                className="bg-background/50"
                               />
+                              <p className="text-xs text-steel-400 mt-1">
+                                Комментарий будет отправлен пользователю вместе с обновлением статуса
+                              </p>
                             </div>
                             
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-2 gap-2">
                               <Button
                                 onClick={() => updateTicketStatus(ticket.id, newStatus || ticket.status, adminNote)}
                                 disabled={!newStatus || newStatus === ticket.status}
+                                className="w-full"
                               >
+                                <Send className="w-4 h-4 mr-2" />
                                 Обновить статус
                               </Button>
+                              
+                              {ticket.conversation_id && (
+                                <Button
+                                  variant="outline"
+                                  onClick={() => openTicketChat(ticket)}
+                                  className="w-full"
+                                >
+                                  <MessageSquare className="w-4 h-4 mr-2" />
+                                  Войти в чат
+                                </Button>
+                              )}
                               
                               {ticket.status !== 'in_progress' && (
                                 <Button
                                   variant="outline"
                                   onClick={() => updateTicketStatus(ticket.id, 'in_progress')}
+                                  className="w-full"
                                 >
                                   <Pause className="w-4 h-4 mr-2" />
-                                  В работу
+                                  Взять в работу
                                 </Button>
                               )}
                               
                               {ticket.status !== 'resolved' && (
                                 <Button
-                                  variant="outline"
+                                  variant="default"
                                   onClick={() => updateTicketStatus(ticket.id, 'resolved', adminNote)}
+                                  className="w-full bg-green-600 hover:bg-green-700"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-2" />
-                                  Решить
+                                  Решить тикет
                                 </Button>
                               )}
                             </div>
@@ -744,7 +793,9 @@ export const AdminTicketManagement = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => updateTicketStatus(ticket.id, 'in_progress')}
+                          className="flex items-center gap-2"
                         >
+                          <Pause className="w-4 h-4" />
                           В работу
                         </Button>
                       )}
