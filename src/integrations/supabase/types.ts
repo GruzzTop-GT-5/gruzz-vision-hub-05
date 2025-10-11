@@ -1385,6 +1385,15 @@ export type Database = {
         }
         Returns: Json
       }
+      calculate_bayesian_rating: {
+        Args: {
+          global_average?: number
+          min_reviews_for_stable?: number
+          raw_rating: number
+          review_count: number
+        }
+        Returns: number
+      }
       deactivate_expired_bans: {
         Args: Record<PropertyKey, never>
         Returns: undefined
