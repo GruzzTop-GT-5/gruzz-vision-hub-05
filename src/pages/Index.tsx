@@ -12,6 +12,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  // Все хуки должны быть вызваны до любых условных return
   const { user, userRole, loading, signOut } = useAuthContext();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
@@ -30,6 +31,7 @@ const Index = () => {
     setShowAuth(false);
   };
 
+  // Условные return только после всех хуков
   if (loading) {
     return (
       <AnimatedBackground className="min-h-screen flex items-center justify-center">
@@ -38,7 +40,6 @@ const Index = () => {
     );
   }
 
-  
   // Показываем приветственный экран при первом посещении
   if (showWelcome && !user) {
     return (
