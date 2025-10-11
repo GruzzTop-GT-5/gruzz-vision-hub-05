@@ -124,17 +124,25 @@ export const TransactionHistory = ({ isOpen, onClose, userId }: TransactionHisto
 
   const viewProofImage = async (imagePath: string) => {
     try {
-      const { data } = await supabase.storage
+      const { data, error } = await supabase.storage
         .from('payment-proofs')
         .createSignedUrl(imagePath, 3600);
 
+      if (error) {
+        console.error('Error creating signed URL:', error);
+        throw error;
+      }
+
       if (data?.signedUrl) {
         window.open(data.signedUrl, '_blank');
+      } else {
+        throw new Error('Signed URL not generated');
       }
     } catch (error) {
+      console.error('Error viewing proof:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось открыть изображение",
+        description: "Не удалось открыть изображение. Возможно, файл был удален.",
         variant: "destructive"
       });
     }
