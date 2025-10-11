@@ -365,24 +365,6 @@ export const SupportSystem = () => {
               </div>
               
               <div>
-                <Label htmlFor="priority">Приоритет</Label>
-                <Select
-                  value={newTicket.priority}
-                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, priority: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Низкий</SelectItem>
-                    <SelectItem value="normal">Обычный</SelectItem>
-                    <SelectItem value="high">Высокий</SelectItem>
-                    <SelectItem value="critical">Критический</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
                 <Label htmlFor="urgency">Срочность</Label>
                 <Select
                   value={newTicket.urgency}
