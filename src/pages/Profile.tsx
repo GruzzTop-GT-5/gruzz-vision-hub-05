@@ -289,53 +289,56 @@ const Profile = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={handleSignOut}>
-      <div className="min-h-screen bg-background p-4">
+      <div className="min-h-screen bg-background p-3 xs:p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-steel-900" />
+          <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between mb-6 xs:mb-8 gap-4">
+            <div className="flex items-center gap-3 xs:gap-4">
+              <div className="w-12 h-12 xs:w-14 xs:h-14 bg-gradient-to-br from-primary to-electric-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="w-6 h-6 xs:w-7 xs:h-7 text-steel-900" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent">
+                <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-glow bg-gradient-to-r from-primary to-electric-400 bg-clip-text text-transparent">
                   Мой профиль
                 </h1>
-                <p className="text-steel-400">Управление личной информацией</p>
+                <p className="text-xs xs:text-sm text-steel-400">Управление личной информацией</p>
               </div>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2 w-full xs:w-auto">
               <Button 
                 variant={showReviews ? "default" : "outline"}
                 onClick={() => setShowReviews(!showReviews)}
-                className="flex items-center space-x-2"
+                className="flex items-center gap-2 flex-1 xs:flex-none"
+                size="sm"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Отзывы</span>
+                <span className="text-sm">Отзывы</span>
               </Button>
               {isEditing ? (
                 <>
                   <Button 
                     variant="outline" 
                     onClick={() => setIsEditing(false)}
-                    className="flex items-center space-x-2"
+                    className="flex items-center gap-2 flex-1 xs:flex-none"
+                    size="sm"
                   >
                     <X className="w-4 h-4" />
-                    <span>Отмена</span>
+                    <span className="text-sm">Отмена</span>
                   </Button>
                   <Button 
                     onClick={saveProfile}
                     disabled={saving}
-                    className="flex items-center space-x-2"
+                    className="flex items-center gap-2 flex-1 xs:flex-none"
+                    size="sm"
                   >
                     {saving ? (
                       <>
                         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        <span>Сохранение...</span>
+                        <span className="text-sm">Сохранение...</span>
                       </>
                     ) : (
                       <>
                         <Save className="w-4 h-4" />
-                        <span>Сохранить</span>
+                        <span className="text-sm">Сохранить</span>
                       </>
                     )}
                   </Button>
@@ -343,35 +346,36 @@ const Profile = () => {
               ) : (
                 <Button 
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center space-x-2"
+                  className="flex items-center gap-2 flex-1 xs:flex-none"
+                  size="sm"
                 >
                   <Edit className="w-4 h-4" />
-                  <span>Редактировать</span>
+                  <span className="text-sm">Редактировать</span>
                 </Button>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 xs:gap-6 sm:gap-8">
             {/* Основная информация */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 xs:space-y-6">
               <Card className="card-steel border-primary/20 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-primary/10 to-electric-600/10 border-b border-steel-600">
-                  <CardTitle className="text-steel-100 flex items-center space-x-2">
-                    <User className="w-5 h-5 text-primary" />
+                <CardHeader className="bg-gradient-to-r from-primary/10 to-electric-600/10 border-b border-steel-600 p-4 xs:p-5 sm:p-6">
+                  <CardTitle className="text-steel-100 flex items-center gap-2 text-base xs:text-lg">
+                    <User className="w-4 h-4 xs:w-5 xs:h-5 text-primary" />
                     <span>Основная информация</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="relative">
-                      <Avatar className="w-20 h-20">
+                <CardContent className="space-y-4 xs:space-y-5 p-4 xs:p-5 sm:p-6">
+                  <div className="flex items-center gap-3 xs:gap-4">
+                    <div className="relative flex-shrink-0">
+                      <Avatar className="w-20 h-20 xs:w-24 xs:h-24">
                         {profileData.avatar_url ? (
                           <AvatarImage src={profileData.avatar_url} alt="Profile" />
                         ) : profileData.telegram_photo_url ? (
                           <AvatarImage src={profileData.telegram_photo_url} alt="Profile" />
                         ) : null}
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-electric-600 text-steel-900 text-xl font-bold">
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-electric-600 text-steel-900 text-xl xs:text-2xl font-bold">
                           {(profileData.full_name || profileData.display_name || 'User')
                             .split(' ')
                             .map(n => n[0])
@@ -381,7 +385,7 @@ const Profile = () => {
                       </Avatar>
                       
                       {/* Photo upload button */}
-                      <div className="absolute -bottom-2 -right-2">
+                      <div className="absolute -bottom-1 xs:-bottom-2 -right-1 xs:-right-2">
                         <label htmlFor="avatar-upload" className="cursor-pointer">
                           <div className="w-8 h-8 bg-primary hover:bg-primary/80 rounded-full flex items-center justify-center transition-colors">
                             {uploading ? (
@@ -401,41 +405,41 @@ const Profile = () => {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2 flex-1">
+                    <div className="space-y-2 flex-1 min-w-0">
                       {isEditing ? (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <div>
-                            <Label htmlFor="display_name" className="text-steel-400">Отображаемое имя</Label>
+                            <Label htmlFor="display_name" className="text-steel-400 text-sm">Отображаемое имя</Label>
                             <Input
                               id="display_name"
                               value={profileData.display_name || ''}
                               onChange={(e) => handleInputChange('display_name', e.target.value)}
-                              className="bg-steel-700 border-steel-600 text-steel-100"
+                              className="bg-steel-700 border-steel-600 text-steel-100 text-base"
                               placeholder="Введите отображаемое имя"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="full_name" className="text-steel-400">Полное имя</Label>
+                            <Label htmlFor="full_name" className="text-steel-400 text-sm">Полное имя</Label>
                             <Input
                               id="full_name"
                               value={profileData.full_name || ''}
                               onChange={(e) => handleInputChange('full_name', e.target.value)}
-                              className="bg-steel-700 border-steel-600 text-steel-100"
+                              className="bg-steel-700 border-steel-600 text-steel-100 text-base"
                               placeholder="Введите полное имя"
                             />
                           </div>
                         </div>
                       ) : (
                         <>
-                          <h2 className="text-2xl font-bold text-steel-100">
+                          <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-steel-100 break-words">
                             {profileData.display_name || profileData.full_name || 'Не указано'}
                           </h2>
                           {profileData.full_name && profileData.display_name && (
-                            <p className="text-steel-300">{profileData.full_name}</p>
+                            <p className="text-sm xs:text-base text-steel-300 break-words">{profileData.full_name}</p>
                           )}
-                          <div className="flex items-center space-x-2">
-                            <Briefcase className="w-4 h-4 text-steel-400" />
-                            <span className="text-steel-300">
+                          <div className="flex items-center gap-2">
+                            <Briefcase className="w-4 h-4 text-steel-400 flex-shrink-0" />
+                            <span className="text-sm xs:text-base text-steel-300 break-words">
                               {profileData.qualification || 'Специализация не указана'}
                             </span>
                           </div>
@@ -444,7 +448,7 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 xs:gap-4">
                     <div className="space-y-2">
                       <Label className="text-steel-400 text-sm">Возраст</Label>
                       {isEditing ? (
@@ -452,13 +456,13 @@ const Profile = () => {
                           type="number"
                           value={profileData.age || ''}
                           onChange={(e) => handleInputChange('age', parseInt(e.target.value) || 0)}
-                          className="bg-steel-700 border-steel-600 text-steel-100"
+                          className="bg-steel-700 border-steel-600 text-steel-100 text-base"
                           placeholder="Введите возраст"
                           min="16"
                           max="100"
                         />
                       ) : (
-                        <p className="text-steel-100">
+                        <p className="text-sm xs:text-base text-steel-100">
                           {profileData.age ? `${profileData.age} лет` : 'Не указано'}
                         </p>
                       )}
@@ -495,15 +499,15 @@ const Profile = () => {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="text-steel-100">{profileData.citizenship || 'Не указано'}</p>
+                        <p className="text-sm xs:text-base text-steel-100">{profileData.citizenship || 'Не указано'}</p>
                       )}
                     </div>
 
                    <div className="space-y-2">
                      <Label className="text-steel-400 text-sm">№ пользователя</Label>
-                     <div className="flex items-center space-x-2">
-                       <User className="w-4 h-4 text-steel-400" />
-                       <p className="text-steel-100 font-mono bg-steel-800 px-2 py-1 rounded text-sm">
+                     <div className="flex items-center gap-2">
+                       <User className="w-4 h-4 text-steel-400 flex-shrink-0" />
+                       <p className="text-sm xs:text-base text-steel-100 font-mono bg-steel-800 px-2 xs:px-3 py-1.5 xs:py-2 rounded">
                          #{profileData.registration_number || 'N/A'}
                        </p>
                      </div>
@@ -511,9 +515,9 @@ const Profile = () => {
 
                    <div className="space-y-2">
                      <Label className="text-steel-400 text-sm">ID аккаунта</Label>
-                     <div className="flex items-center space-x-2">
-                       <User className="w-4 h-4 text-steel-400" />
-                       <p className="text-steel-100 font-mono bg-steel-800 px-2 py-1 rounded text-xs">
+                     <div className="flex items-center gap-2">
+                       <User className="w-4 h-4 text-steel-400 flex-shrink-0" />
+                       <p className="text-xs xs:text-sm text-steel-100 font-mono bg-steel-800 px-2 xs:px-3 py-1.5 xs:py-2 rounded break-all">
                          {profileData.id?.substring(0, 8) || 'N/A'}...
                        </p>
                      </div>
@@ -521,9 +525,9 @@ const Profile = () => {
 
                    <div className="space-y-2">
                      <Label className="text-steel-400 text-sm">Логин аккаунта</Label>
-                     <div className="flex items-center space-x-2">
-                       <User className="w-4 h-4 text-steel-400" />
-                       <p className="text-steel-100 font-mono bg-steel-800 px-2 py-1 rounded text-sm">
+                     <div className="flex items-center gap-2">
+                       <User className="w-4 h-4 text-steel-400 flex-shrink-0" />
+                       <p className="text-sm xs:text-base text-steel-100 font-mono bg-steel-800 px-2 xs:px-3 py-1.5 xs:py-2 rounded break-all">
                          {profileData.phone || profileData.id || 'Не определен'}
                        </p>
                      </div>
@@ -634,7 +638,7 @@ const Profile = () => {
             </div>
 
             {/* Статистика */}
-            <div className="space-y-6">
+            <div className="space-y-4 xs:space-y-6">
               {/* Промокод */}
               <PromoCodeSection />
 
