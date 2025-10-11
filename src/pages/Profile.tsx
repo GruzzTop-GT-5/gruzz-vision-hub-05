@@ -25,7 +25,7 @@ interface ProfileData {
   full_name?: string;
   age?: number;
   citizenship?: string;
-  qualification?: string;
+  qualification?: string[] | null;
   bio?: string;
   phone?: string;
   telegram_username?: string;

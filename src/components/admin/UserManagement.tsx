@@ -24,7 +24,7 @@ interface User {
   created_at: string;
   age: number | null;
   citizenship: string | null;
-  qualification: string | null;
+  qualification: string[] | null;
 }
 
 export const UserManagement: React.FC = () => {

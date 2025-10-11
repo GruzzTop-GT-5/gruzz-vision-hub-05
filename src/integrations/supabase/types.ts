@@ -798,7 +798,7 @@ export type Database = {
           id: string
           is_premium: boolean | null
           phone: string | null
-          qualification: string | null
+          qualification: string[] | null
           rating: number | null
           role: Database["public"]["Enums"]["user_role"] | null
           telegram_id: number | null
@@ -819,7 +819,7 @@ export type Database = {
           id: string
           is_premium?: boolean | null
           phone?: string | null
-          qualification?: string | null
+          qualification?: string[] | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           telegram_id?: number | null
@@ -840,7 +840,7 @@ export type Database = {
           id?: string
           is_premium?: boolean | null
           phone?: string | null
-          qualification?: string | null
+          qualification?: string[] | null
           rating?: number | null
           role?: Database["public"]["Enums"]["user_role"] | null
           telegram_id?: number | null

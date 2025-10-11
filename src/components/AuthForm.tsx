@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { MultiSelectSpecializations } from '@/components/MultiSelectSpecializations';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
@@ -87,8 +88,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
       age: '',
       telegram: '',
       userType: '', // 'client' или 'executor'
-      specialization: '',
-      customSpecialization: '',
+      specializations: [] as string[], // Массив специализаций
       bio: ''
     };
   });
@@ -158,7 +158,7 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             telegram_username: formData.telegram || null,
             bio: formData.bio || null,
             user_type: formData.userType as 'client' | 'executor',
-            qualification: formData.specialization === 'Другое' ? formData.customSpecialization : formData.specialization
+            qualification: formData.specializations.length > 0 ? formData.specializations : null
           })
           .eq('id', signUpData.user.id);
 
@@ -304,20 +304,10 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
           return;
         }
 
-        if (!formData.specialization) {
+        if (!formData.specializations || formData.specializations.length === 0) {
           toast({
             title: "Ошибка",
-            description: "Выберите специализацию",
-            variant: "destructive"
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        if (formData.specialization === 'Другое' && !formData.customSpecialization.trim()) {
-          toast({
-            title: "Ошибка",
-            description: "Укажите вашу специализацию",
+            description: "Выберите хотя бы одну специализацию",
             variant: "destructive"
           });
           setIsLoading(false);
@@ -535,44 +525,18 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
                 </Select>
               </div>
 
-              {/* Специализация */}
-              <div className="space-y-1.5 sm:space-y-2">
+              {/* Специализации - множественный выбор */}
+              <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
                 <label className="text-xs sm:text-sm font-medium text-steel-200">
-                  Специализация <span className="text-red-400">*</span>
+                  Специализации <span className="text-red-400">*</span>
                 </label>
-                <Select value={formData.specialization} onValueChange={(value) => setFormData({ ...formData, specialization: value })}>
-                  <SelectTrigger className="input-steel h-9 sm:h-11 text-xs sm:text-base bg-steel-800/80 border-steel-600 z-50">
-                    <SelectValue placeholder="Выберите" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-steel-800 border-steel-600 z-50 max-h-60">
-                    {specializationsList.map((spec) => (
-                      <SelectItem key={spec} value={spec} className="text-steel-100 hover:bg-steel-700 focus:bg-steel-700">
-                        {spec}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <p className="text-[10px] sm:text-xs text-steel-500 mb-1">Выберите все подходящие специализации</p>
+                <MultiSelectSpecializations
+                  value={formData.specializations}
+                  onChange={(value) => setFormData({ ...formData, specializations: value })}
+                  options={specializationsList}
+                />
               </div>
-
-              {/* Своя специализация если выбрано "Другое" */}
-              {formData.specialization === 'Другое' && (
-                <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
-                  <label className="text-xs sm:text-sm font-medium text-steel-200">
-                    Укажите вашу специализацию <span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <Briefcase className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-steel-400 w-4 h-4 sm:w-5 sm:h-5" />
-                    <input
-                      type="text"
-                      value={formData.customSpecialization}
-                      onChange={(e) => setFormData({ ...formData, customSpecialization: e.target.value })}
-                      placeholder="Ваша специализация"
-                      className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 input-steel rounded-lg text-xs sm:text-base"
-                      required
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* О себе */}
               <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">

@@ -44,7 +44,7 @@ interface UserData {
   created_at: string;
   age: number | null;
   citizenship: string | null;
-  qualification: string | null;
+  qualification: string[] | null;
 }
 
 interface UserManagementModalProps {

@@ -58,7 +58,7 @@ interface UserProfile {
   role: string;
   age?: number;
   citizenship?: string;
-  qualification?: string;
+  qualification?: string[] | null;
 }
 
 interface ModerationHistory {
