@@ -461,7 +461,7 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] lg:max-w-[1400px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] lg:max-w-[1400px] max-h-[75vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
