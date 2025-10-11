@@ -90,15 +90,15 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
   return (
     <TelegramLayout>
       <AnimatedBackground className="min-h-screen">
-      {/* Header */}
-      <header className="relative z-50 flex items-center justify-between p-4 border-b border-steel-600">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary to-electric-600">
+      {/* Header - Адаптивный для всех устройств */}
+      <header className="relative z-50 flex items-center justify-between p-3 sm:p-4 border-b border-steel-600">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary to-electric-600">
             <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-glow">GruzzTop</h1>
-            <p className="text-xs text-steel-300">GT-V5</p>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow">GruzzTop</h1>
+            <p className="text-[10px] sm:text-xs text-steel-300">GT-V5</p>
           </div>
         </div>
 
@@ -121,9 +121,9 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm" onClick={toggleMenu} />
       )}
 
-      {/* Slide-down Menu */}
+      {/* Slide-down Menu - Адаптивная ширина */}
       <div
-        className={`fixed top-0 right-0 z-40 w-80 max-w-full h-screen card-steel-menu transition-transform duration-300 overflow-y-auto ${
+        className={`fixed top-0 right-0 z-40 w-full sm:w-96 md:w-[420px] max-w-full h-screen card-steel-menu transition-transform duration-300 overflow-y-auto ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -213,15 +213,15 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="relative z-10">
+      {/* Main Content - Адаптивные отступы */}
+      <main className="relative z-10 pb-20 sm:pb-6">
         {children}
       </main>
       
-      {/* Mobile bottom navigation for Telegram */}
+      {/* Mobile bottom navigation for Telegram - Улучшенная адаптивность */}
       {isInTelegram && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-steel-800/95 backdrop-blur border-t border-steel-600 md:hidden z-50">
-          <div className="flex items-center justify-around py-2">
+        <nav className="fixed bottom-0 left-0 right-0 bg-steel-800/95 backdrop-blur border-t border-steel-600 md:hidden z-50 safe-area-inset-bottom">
+          <div className="flex items-center justify-around py-2 px-1">
             <Link 
               to="/ads" 
               onClick={handleMenuClick}

@@ -353,31 +353,31 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
 
   return (
     <Card className="card-steel">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
+      <CardHeader className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0">
+          <div className="space-y-2 flex-1">
             <div className="flex items-center space-x-2">
-              <Package className="w-5 h-5 text-primary" />
-              <CardTitle className="text-xl text-steel-100">{order.title}</CardTitle>
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <CardTitle className="text-base sm:text-lg md:text-xl text-steel-100 line-clamp-2">{order.title}</CardTitle>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-steel-400">
+            <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm text-steel-400">
               <span>#{order.order_number}</span>
               <span>•</span>
-              <span>{order.category || 'Без категории'}</span>
+              <span className="line-clamp-1">{order.category || 'Без категории'}</span>
             </div>
           </div>
           
-          <div className="flex flex-col items-end space-y-2">
+          <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
             {getStatusBadge(order.status)}
             {order.priority !== 'normal' && getPriorityBadge(order.priority)}
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
         {/* Description */}
         {order.description && (
-          <p className="text-steel-200 line-clamp-3">{order.description}</p>
+          <p className="text-sm sm:text-base text-steel-200 line-clamp-3">{order.description}</p>
         )}
 
         {/* Additional Services */}
@@ -400,10 +400,10 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
           </div>
         )}
 
-        {/* Participants */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
+        {/* Participants - Адаптивное отображение */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0 sm:justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-1 min-w-0">
               <User className="w-4 h-4 text-steel-400" />
               <span className="text-sm text-steel-300">Клиент:</span>
               <Avatar className="w-6 h-6">
@@ -434,10 +434,10 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
           )}
         </div>
 
-        {/* Price and Payment */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="text-2xl font-bold text-primary">
+        {/* Price and Payment - Адаптивное отображение */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0 sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <div className="text-xl sm:text-2xl font-bold text-primary">
               {order.price.toLocaleString('ru-RU')} GT
             </div>
             {order.payment_status && (
@@ -466,21 +466,23 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-steel-600 flex-wrap gap-3">
-          <div className="flex items-center space-x-2 flex-wrap gap-2">
+        {/* Action Buttons - Адаптивное отображение */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-4 border-t border-steel-600 gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleChatClick}
               disabled={isCreatingChat}
+              className="w-full sm:w-auto text-xs sm:text-sm"
             >
               {isCreatingChat ? (
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+                <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
               ) : (
-                <MessageSquare className="w-4 h-4 mr-1" />
+                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               )}
-              Написать сообщение
+              <span className="hidden sm:inline">Написать сообщение</span>
+              <span className="sm:hidden">Сообщение</span>
             </Button>
             
             <Button 

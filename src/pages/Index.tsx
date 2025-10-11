@@ -50,23 +50,23 @@ const Index = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      <div className="p-4 space-y-6">
-        {/* Hero Section */}
-        <div className="text-center space-y-6 mb-8 animate-fade-in">
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow">
+      <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+        {/* Hero Section - Адаптивные размеры текста */}
+        <div className="text-center space-y-4 sm:space-y-6 mb-6 sm:mb-8 animate-fade-in">
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-electric-400 to-primary bg-clip-text text-transparent animate-glow">
               GruzzTop
             </h1>
-            <p className="text-xl md:text-2xl text-foreground/90 font-semibold">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-foreground/90 font-semibold px-4">
               Сервис поиска надежных исполнителей
             </p>
-            <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
               Соединяем заказчиков с проверенными специалистами. Прозрачная оплата через платформу с фиксированными тарифами.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="bg-card hover:bg-accent/5 p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto px-2">
+            <div className="bg-card hover:bg-accent/5 p-4 sm:p-6 rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-105">
               <div className="flex items-center justify-center mb-3">
                 <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center ring-2 ring-green-500/20">
                   <Shield className="w-6 h-6 text-green-500" />
@@ -99,19 +99,19 @@ const Index = () => {
         </div>
 
 
-        {/* Main Navigation Cards */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {/* Main Navigation Cards - Адаптивная сетка */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl mx-auto px-2">
           {/* Создать объявление */}
           {user ? (
             <Card className="group cursor-pointer overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10" onClick={() => navigate('/create-order')}>
-              <div className="p-8 text-center space-y-4 relative">
+              <div className="p-4 sm:p-6 md:p-8 text-center space-y-3 sm:space-y-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
-                    <Plus className="w-10 h-10 text-primary-foreground" />
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
+                    <Plus className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-primary-foreground" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
-                  <p className="text-muted-foreground text-sm">Разместите задание для исполнителей</p>
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Создать заказ</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Разместите задание для исполнителей</p>
                 </div>
               </div>
             </Card>
@@ -212,11 +212,11 @@ const Index = () => {
               </div>
             </Card>
 
-            {/* How it works */}
+            {/* How it works - Адаптивная сетка */}
             <Card className="bg-card border-border">
-              <div className="p-6 text-center space-y-6">
-                <h3 className="text-2xl font-bold text-foreground">Как это работает?</h3>
-                <div className="grid md:grid-cols-3 gap-6">
+              <div className="p-4 sm:p-6 text-center space-y-4 sm:space-y-6">
+                <h3 className="text-xl sm:text-2xl font-bold text-foreground">Как это работает?</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                   <div className="space-y-3">
                     <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto ring-2 ring-primary/20">
                       <span className="text-2xl font-bold text-primary">1</span>
