@@ -19,13 +19,18 @@ interface PromoCode {
   code: string;
   name: string;
   description: string;
+  promo_type: 'bonus' | 'discount_percent' | 'discount_fixed';
   bonus_amount: number;
+  discount_value: number;
+  min_order_amount: number;
+  max_discount: number | null;
   usage_limit: number | null;
   usage_count: number;
   expires_at: string;
   is_active: boolean;
   created_at: string;
   distribution_method: string;
+  target_audience: any;
 }
 
 export const PromoCodeManagement: React.FC = () => {
@@ -39,10 +44,15 @@ export const PromoCodeManagement: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    promo_type: 'bonus' as 'bonus' | 'discount_percent' | 'discount_fixed',
     bonus_amount: '',
+    discount_value: '',
+    min_order_amount: '',
+    max_discount: '',
     usage_limit: '',
     expires_at: '',
-    distribution_method: 'manual'
+    distribution_method: 'manual',
+    target_audience: 'all'
   });
 
   const generateCode = () => {
@@ -62,7 +72,7 @@ export const PromoCodeManagement: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPromoCodes(data || []);
+      setPromoCodes((data || []) as PromoCode[]);
     } catch (error) {
       console.error('Error fetching promo codes:', error);
       toast({
@@ -84,10 +94,29 @@ export const PromoCodeManagement: React.FC = () => {
       return;
     }
 
-    if (!formData.name || !formData.bonus_amount || !formData.expires_at) {
+    if (!formData.name || !formData.expires_at) {
       toast({
         title: 'Ошибка',
         description: 'Заполните все обязательные поля',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate based on promo type
+    if (formData.promo_type === 'bonus' && !formData.bonus_amount) {
+      toast({
+        title: 'Ошибка',
+        description: 'Укажите сумму бонуса',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if ((formData.promo_type === 'discount_percent' || formData.promo_type === 'discount_fixed') && !formData.discount_value) {
+      toast({
+        title: 'Ошибка',
+        description: 'Укажите размер скидки',
         variant: 'destructive'
       });
       return;
@@ -104,10 +133,15 @@ export const PromoCodeManagement: React.FC = () => {
           code: generateCode(),
           name: formData.name,
           description: formData.description,
-          bonus_amount: parseFloat(formData.bonus_amount),
+          promo_type: formData.promo_type,
+          bonus_amount: formData.bonus_amount ? parseFloat(formData.bonus_amount) : 0,
+          discount_value: formData.discount_value ? parseFloat(formData.discount_value) : 0,
+          min_order_amount: formData.min_order_amount ? parseFloat(formData.min_order_amount) : 0,
+          max_discount: formData.max_discount ? parseFloat(formData.max_discount) : null,
           usage_limit: formData.usage_limit ? parseInt(formData.usage_limit) : null,
           expires_at: formData.expires_at,
           distribution_method: formData.distribution_method,
+          target_audience: { type: formData.target_audience },
           created_by: userData.user.id
         })
         .select()
@@ -124,10 +158,15 @@ export const PromoCodeManagement: React.FC = () => {
       setFormData({
         name: '',
         description: '',
+        promo_type: 'bonus',
         bonus_amount: '',
+        discount_value: '',
+        min_order_amount: '',
+        max_discount: '',
         usage_limit: '',
         expires_at: '',
-        distribution_method: 'manual'
+        distribution_method: 'manual',
+        target_audience: 'all'
       });
 
       fetchPromoCodes();
@@ -185,9 +224,18 @@ export const PromoCodeManagement: React.FC = () => {
     try {
       setLoading(true);
       
+      let benefit = '';
+      if (promoCode.promo_type === 'bonus') {
+        benefit = `💰 Бонус: ${promoCode.bonus_amount} GT`;
+      } else if (promoCode.promo_type === 'discount_percent') {
+        benefit = `💸 Скидка: ${promoCode.discount_value}%`;
+      } else if (promoCode.promo_type === 'discount_fixed') {
+        benefit = `💸 Скидка: ${promoCode.discount_value} GT`;
+      }
+
       const message = `🎉 *Новый промокод!*\n\n` +
         `📝 *${promoCode.name}*\n` +
-        `💰 Бонус: ${promoCode.bonus_amount} ₽\n` +
+        `${benefit}\n` +
         `🎫 Код: \`${promoCode.code}\`\n` +
         `⏰ Действует до: ${format(new Date(promoCode.expires_at), 'dd.MM.yyyy HH:mm', { locale: ru })}\n\n` +
         `${promoCode.description || 'Активируйте промокод в своем профиле!'}`;
@@ -267,17 +315,86 @@ export const PromoCodeManagement: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bonus_amount">Сумма бонуса (₽) *</Label>
-                <Input
-                  id="bonus_amount"
-                  type="number"
-                  min="1"
-                  step="0.01"
-                  value={formData.bonus_amount}
-                  onChange={(e) => setFormData({ ...formData, bonus_amount: e.target.value })}
-                  placeholder="100"
-                />
+                <Label htmlFor="promo_type">Тип промокода *</Label>
+                <Select 
+                  value={formData.promo_type} 
+                  onValueChange={(value: any) => setFormData({ ...formData, promo_type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bonus">💰 Бонус (GT коины)</SelectItem>
+                    <SelectItem value="discount_percent">📊 Скидка (%)</SelectItem>
+                    <SelectItem value="discount_fixed">💸 Скидка (фикс.)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {formData.promo_type === 'bonus' && (
+                <div className="space-y-2">
+                  <Label htmlFor="bonus_amount">Сумма бонуса (GT) *</Label>
+                  <Input
+                    id="bonus_amount"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    value={formData.bonus_amount}
+                    onChange={(e) => setFormData({ ...formData, bonus_amount: e.target.value })}
+                    placeholder="100"
+                  />
+                </div>
+              )}
+
+              {(formData.promo_type === 'discount_percent' || formData.promo_type === 'discount_fixed') && (
+                <div className="space-y-2">
+                  <Label htmlFor="discount_value">
+                    {formData.promo_type === 'discount_percent' ? 'Размер скидки (%) *' : 'Размер скидки (GT) *'}
+                  </Label>
+                  <Input
+                    id="discount_value"
+                    type="number"
+                    min="1"
+                    step={formData.promo_type === 'discount_percent' ? '1' : '0.01'}
+                    max={formData.promo_type === 'discount_percent' ? '100' : undefined}
+                    value={formData.discount_value}
+                    onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
+                    placeholder={formData.promo_type === 'discount_percent' ? '10' : '50'}
+                  />
+                </div>
+              )}
+
+              {(formData.promo_type === 'discount_percent' || formData.promo_type === 'discount_fixed') && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="min_order_amount">Минимальная сумма заказа (GT)</Label>
+                    <Input
+                      id="min_order_amount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.min_order_amount}
+                      onChange={(e) => setFormData({ ...formData, min_order_amount: e.target.value })}
+                      placeholder="0"
+                    />
+                  </div>
+
+                  {formData.promo_type === 'discount_percent' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="max_discount">Максимальная скидка (GT)</Label>
+                      <Input
+                        id="max_discount"
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        value={formData.max_discount}
+                        onChange={(e) => setFormData({ ...formData, max_discount: e.target.value })}
+                        placeholder="Оставьте пустым для неограниченной"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="usage_limit">Лимит использования</Label>
@@ -302,6 +419,24 @@ export const PromoCodeManagement: React.FC = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="target_audience">Целевая аудитория</Label>
+                <Select 
+                  value={formData.target_audience} 
+                  onValueChange={(value) => setFormData({ ...formData, target_audience: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все пользователи</SelectItem>
+                    <SelectItem value="new">Новые пользователи</SelectItem>
+                    <SelectItem value="active">Активные пользователи</SelectItem>
+                    <SelectItem value="premium">Premium пользователи</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="distribution_method">Способ распространения</Label>
                 <Select 
                   value={formData.distribution_method} 
@@ -314,6 +449,7 @@ export const PromoCodeManagement: React.FC = () => {
                     <SelectItem value="manual">Ручная раздача</SelectItem>
                     <SelectItem value="notification">Уведомления в приложении</SelectItem>
                     <SelectItem value="telegram">Telegram группа</SelectItem>
+                    <SelectItem value="email">Email рассылка</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -326,7 +462,7 @@ export const PromoCodeManagement: React.FC = () => {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Дополнительная информация о промокоде"
-                rows={3}
+                rows={4}
               />
             </div>
 
@@ -354,10 +490,20 @@ export const PromoCodeManagement: React.FC = () => {
                         
                         <div className="text-sm text-muted-foreground space-y-1">
                           <p>Код: <span className="font-mono bg-muted px-1 py-0.5 rounded">{promoCode.code}</span></p>
-                          <p>Бонус: {promoCode.bonus_amount} ₽</p>
+                          <p>Тип: {
+                            promoCode.promo_type === 'bonus' ? '💰 Бонус' : 
+                            promoCode.promo_type === 'discount_percent' ? '📊 Скидка %' : 
+                            '💸 Скидка фикс.'
+                          }</p>
+                          {promoCode.promo_type === 'bonus' && <p>Бонус: {promoCode.bonus_amount} GT</p>}
+                          {promoCode.promo_type === 'discount_percent' && (
+                            <p>Скидка: {promoCode.discount_value}% {promoCode.max_discount && `(макс. ${promoCode.max_discount} GT)`}</p>
+                          )}
+                          {promoCode.promo_type === 'discount_fixed' && <p>Скидка: {promoCode.discount_value} GT</p>}
+                          {promoCode.min_order_amount > 0 && <p>Мин. заказ: {promoCode.min_order_amount} GT</p>}
                           <p>Использований: {promoCode.usage_count} {promoCode.usage_limit ? `/ ${promoCode.usage_limit}` : ''}</p>
                           <p>Истекает: {format(new Date(promoCode.expires_at), 'dd.MM.yyyy HH:mm', { locale: ru })}</p>
-                          {promoCode.description && <p>{promoCode.description}</p>}
+                          {promoCode.description && <p className="text-xs italic">{promoCode.description}</p>}
                         </div>
                       </div>
 
