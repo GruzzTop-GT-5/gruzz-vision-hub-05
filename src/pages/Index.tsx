@@ -50,20 +50,20 @@ const Index = () => {
 
   return (
     <Layout user={user} userRole={userRole} onSignOut={signOut}>
-      {/* Кнопка "Назад к приветственному экрану" - только для незарегистрированных */}
-      {!user && (
-        <div className="fixed top-16 xs:top-20 left-2 xs:left-4 z-40">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowWelcome(true)}
-            className="text-xs xs:text-sm"
-          >
-            ← Назад
-          </Button>
-        </div>
-      )}
       <div className="p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 3xl:p-16 space-y-3 xs:space-y-4 sm:space-y-6 lg:space-y-8 xl:space-y-10">
+        {/* Кнопка "Назад к приветственному экрану" - только для незарегистрированных */}
+        {!user && (
+          <div className="mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowWelcome(true)}
+              className="text-xs xs:text-sm hover:bg-primary/10"
+            >
+              ← Вернуться к приветственному экрану
+            </Button>
+          </div>
+        )}
         {/* Hero Section - Адаптивные размеры текста */}
         <div className="text-center space-y-3 xs:space-y-4 sm:space-y-6 lg:space-y-8 mb-4 xs:mb-6 sm:mb-8 lg:mb-12 animate-fade-in">
           <div className="space-y-2 xs:space-y-3 sm:space-y-4 lg:space-y-6">
