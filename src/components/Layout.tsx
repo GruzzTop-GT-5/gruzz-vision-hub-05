@@ -9,6 +9,7 @@ import { useTelegram } from '@/hooks/useTelegram';
 import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import logoImage from '@/assets/logo-round.png';
+import { CONSTANTS } from '@/config';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -97,8 +98,15 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
             <img src={logoImage} alt="GruzzTop Logo" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl 3xl:text-5xl font-bold text-glow">GruzzTop</h1>
-            <p className="text-[10px] sm:text-xs md:text-sm 3xl:text-base text-steel-300">GT-V5</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl 3xl:text-5xl font-bold text-glow">GruzzTop</h1>
+              {CONSTANTS.IS_BETA && (
+                <span className="px-1.5 py-0.5 text-[8px] sm:text-[10px] md:text-xs font-semibold bg-primary/20 text-primary-foreground rounded border border-primary/30">
+                  BETA
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] sm:text-xs md:text-sm 3xl:text-base text-steel-300">v{CONSTANTS.APP_VERSION}</p>
           </div>
         </Link>
 

@@ -6,7 +6,7 @@ import type { AppConfig } from '@/types';
 const config: AppConfig = {
   app: {
     name: 'GruzzTop',
-    version: '1.0.0',
+    version: '1.0.0-beta',
     environment: 'development' // This should be set based on environment
   },
   supabase: {
@@ -87,6 +87,7 @@ export const isProduction = (): boolean => {
 export const CONSTANTS = {
   APP_NAME: config.app.name,
   APP_VERSION: config.app.version,
+  IS_BETA: config.app.version.includes('beta'),
   MAX_FILE_SIZE: config.features.maxFileSize,
   MAX_ADS_PER_USER: config.limits.maxAdsPerUser,
   MIN_TRANSACTION_AMOUNT: config.limits.minTransactionAmount,
