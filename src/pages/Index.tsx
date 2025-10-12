@@ -20,14 +20,8 @@ const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showRoleSelection, setShowRoleSelection] = useState(false);
 
-  // Check if user needs to complete profile
-  useEffect(() => {
-    if (user && !loading && (!userType || !userSubtype)) {
-      setShowRoleSelection(true);
-    } else if (user && !loading && userType && userSubtype) {
-      setShowRoleSelection(false);
-    }
-  }, [user, loading, userType, userSubtype]);
+  // Don't auto-show role selection on Index page
+  // It will be shown after registration in AuthForm
 
   // Scroll to top when changing screens
   useEffect(() => {
@@ -36,7 +30,7 @@ const Index = () => {
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
-    // RoleSelection will be shown automatically by the effect above
+    setShowWelcome(false);
   };
 
   const handleBackToMain = () => {
@@ -69,11 +63,6 @@ const Index = () => {
 
   if (showAuth) {
     return <AuthForm onSuccess={handleAuthSuccess} onBack={handleBackToMain} />;
-  }
-
-  // Show role selection modal if user hasn't completed profile
-  if (user && showRoleSelection) {
-    return <RoleSelection isOpen={showRoleSelection} onComplete={handleRoleSelectionComplete} />;
   }
 
   return (
