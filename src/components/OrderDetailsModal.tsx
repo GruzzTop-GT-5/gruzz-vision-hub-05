@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OrderBidsList } from '@/components/OrderBidsList';
+import { UserProfileModal } from '@/components/UserProfileModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,7 @@ import {
   AlertCircle,
   Package,
   User,
+  Users,
   Calendar,
   CreditCard,
   MessageSquare,
@@ -28,7 +30,8 @@ import {
   FileText,
   Download,
   Eye,
-  History
+  History,
+  MapPin
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -112,6 +115,8 @@ export const OrderDetailsModal = ({
   const [uploadDescription, setUploadDescription] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const [showClientProfile, setShowClientProfile] = useState(false);
+  const [showExecutorProfile, setShowExecutorProfile] = useState(false);
 
   const isClient = user?.id === order?.client_id;
   const isExecutor = user?.id === order?.executor_id;
@@ -413,8 +418,8 @@ export const OrderDetailsModal = ({
                   </div>
                 )}
 
-                {/* Price and Category Grid */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* Price, Category, Workers and Time Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-steel-300 text-sm">💰 Цена</Label>
                     <Card className="card-steel bg-steel-800/30">
@@ -433,63 +438,118 @@ export const OrderDetailsModal = ({
                     </Card>
                   </div>
 
-                  {order.deadline && (
+                  {order.client_requirements?.people_needed && (
                     <div className="space-y-2">
-                      <Label className="text-steel-300 text-sm">⏰ Срок выполнения</Label>
+                      <Label className="text-steel-300 text-sm">👥 Количество людей</Label>
                       <Card className="card-steel bg-steel-800/30">
                         <CardContent className="p-4">
-                          <p className="text-steel-200">
-                            {format(new Date(order.deadline), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                          <p className="text-2xl font-bold text-green-400">
+                            {order.client_requirements.people_needed} {
+                              order.client_requirements.people_needed === 1 ? 'человек' :
+                              order.client_requirements.people_needed < 5 ? 'человека' : 'человек'
+                            }
                           </p>
                         </CardContent>
                       </Card>
                     </div>
                   )}
 
+                  {order.client_requirements?.duration_hours && (
+                    <div className="space-y-2">
+                      <Label className="text-steel-300 text-sm">⏱️ Продолжительность</Label>
+                      <Card className="card-steel bg-steel-800/30">
+                        <CardContent className="p-4">
+                          <p className="text-steel-200">
+                            {order.client_requirements.duration_hours} {
+                              order.client_requirements.duration_hours === 1 ? 'час' :
+                              order.client_requirements.duration_hours < 5 ? 'часа' : 'часов'
+                            }
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
                 </div>
 
-                {/* Participants */}
+                {/* Client Info - Clickable */}
                 <div className="space-y-3">
-                  <Label className="text-steel-300 text-base font-semibold">👥 Участники</Label>
+                  <Label className="text-steel-300 text-base font-semibold">👤 Заказчик</Label>
                   
-                  <Card className="card-steel bg-steel-800/30">
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <User className="w-5 h-5 text-primary flex-shrink-0" />
-                        <span className="text-sm text-steel-400 w-24">Клиент:</span>
-                        <div className="flex items-center space-x-2 flex-1">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={clientProfile?.avatar_url} />
-                            <AvatarFallback>
-                              {(clientProfile?.display_name || clientProfile?.full_name || 'K').charAt(0)}
+                  <Card 
+                    className="card-steel bg-steel-800/30 cursor-pointer hover:bg-steel-800/50 transition-all" 
+                    onClick={() => setShowClientProfile(true)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="w-12 h-12 border-2 border-primary/30">
+                            <AvatarImage src={clientProfile?.avatar_url || clientProfile?.telegram_photo_url} />
+                            <AvatarFallback className="bg-primary/20 text-primary">
+                              {(clientProfile?.display_name || clientProfile?.full_name || 'К').charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-steel-100 font-medium">
-                            {clientProfile?.display_name || clientProfile?.full_name || 'Клиент'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {order.executor_id && executorProfile && (
-                        <div className="flex items-center space-x-3 pt-3 border-t border-steel-600/50">
-                          <User className="w-5 h-5 text-green-400 flex-shrink-0" />
-                          <span className="text-sm text-steel-400 w-24">Исполнитель:</span>
-                          <div className="flex items-center space-x-2 flex-1">
-                            <Avatar className="w-8 h-8">
-                              <AvatarImage src={executorProfile?.avatar_url} />
-                              <AvatarFallback>
-                                {(executorProfile?.display_name || executorProfile?.full_name || 'И').charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-steel-100 font-medium">
-                              {executorProfile?.display_name || executorProfile?.full_name || 'Исполнитель'}
-                            </span>
+                          <div className="flex-1">
+                            <p className="text-steel-100 font-semibold text-lg">
+                              {clientProfile?.display_name || clientProfile?.full_name || 'Заказчик'}
+                            </p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                              <span className="text-yellow-400 font-medium">
+                                {clientProfile?.rating?.toFixed(2) || '5.00'}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      )}
+                        <div className="text-right">
+                          <Button variant="outline" size="sm" className="text-xs">
+                            Профиль
+                          </Button>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Executor Info - если назначен */}
+                {order.executor_id && executorProfile && (
+                  <div className="space-y-3">
+                    <Label className="text-steel-300 text-base font-semibold">⚙️ Исполнитель</Label>
+                    
+                    <Card 
+                      className="card-steel bg-steel-800/30 cursor-pointer hover:bg-steel-800/50 transition-all" 
+                      onClick={() => setShowExecutorProfile(true)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <Avatar className="w-12 h-12 border-2 border-green-500/30">
+                              <AvatarImage src={executorProfile?.avatar_url || executorProfile?.telegram_photo_url} />
+                              <AvatarFallback className="bg-green-500/20 text-green-400">
+                                {(executorProfile?.display_name || executorProfile?.full_name || 'И').charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <p className="text-steel-100 font-semibold text-lg">
+                                {executorProfile?.display_name || executorProfile?.full_name || 'Исполнитель'}
+                              </p>
+                              <div className="flex items-center space-x-2 mt-1">
+                                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                <span className="text-yellow-400 font-medium">
+                                  {executorProfile?.rating?.toFixed(2) || '5.00'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <Button variant="outline" size="sm" className="text-xs">
+                              Профиль
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
 
                 {/* Client Requirements - Structured */}
                 {order.client_requirements && (
@@ -848,6 +908,19 @@ export const OrderDetailsModal = ({
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* User Profile Modals */}
+        <UserProfileModal
+          userId={order?.client_id || null}
+          open={showClientProfile}
+          onOpenChange={setShowClientProfile}
+        />
+        
+        <UserProfileModal
+          userId={order?.executor_id || null}
+          open={showExecutorProfile}
+          onOpenChange={setShowExecutorProfile}
+        />
       </DialogContent>
     </Dialog>
   );

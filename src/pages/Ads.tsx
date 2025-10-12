@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { OrderDetailsModal } from '@/components/OrderDetailsModal';
 import { OrderBidForm } from '@/components/OrderBidForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Filter, Plus, Calendar, MapPin, Coins, User, Info, HelpCircle, Lightbulb, X, Package, Clock, Send } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, MapPin, Coins, User, Users, Info, HelpCircle, Lightbulb, X, Package, Clock, Send, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { format } from 'date-fns';
@@ -55,6 +56,7 @@ interface Profile {
   avatar_url: string | null;
   telegram_photo_url: string | null;
   role: string;
+  rating: number | null;
 }
 
 const categories = [
@@ -431,14 +433,18 @@ export default function Ads() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 xs:gap-4 sm:gap-5 lg:gap-6">
               {filteredOrders.map((order) => {
                 const client = profiles[order.client_id];
+                const peopleNeeded = order.client_requirements?.people_needed;
+                const durationHours = order.client_requirements?.duration_hours;
+                const location = order.client_requirements?.location;
+                
                 return (
                   <Card 
                     key={order.id} 
-                    className="card-steel border border-steel-600 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 flex flex-col h-[420px]"
+                    className="card-steel border border-steel-600 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 flex flex-col"
                   >
-                    <div className="p-6 flex flex-col h-full">
-                      {/* Header - Fixed Height */}
-                      <div className="flex items-start justify-between mb-4 min-h-[32px]">
+                    <div className="p-4 sm:p-5 flex flex-col h-full">
+                      {/* Header - Badges and Date */}
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex gap-2 flex-wrap">
                           <Badge className={`${getStatusColor(order.status)} text-xs`}>
                             Доступен
@@ -454,54 +460,76 @@ export default function Ads() {
                         </span>
                       </div>
 
-                      {/* Title - Fixed Height */}
-                      <h3 className="text-lg font-bold text-steel-100 line-clamp-2 mb-3 min-h-[56px]">
+                      {/* Title */}
+                      <h3 className="text-base sm:text-lg font-bold text-steel-100 line-clamp-2 mb-3">
                         {order.title}
                       </h3>
 
-                      {/* Description - Fixed Height */}
-                      <p className="text-steel-300 text-sm line-clamp-3 mb-4 min-h-[60px]">
+                      {/* Client Info with Rating */}
+                      <div className="flex items-center space-x-2 mb-3 p-2 bg-steel-800/30 rounded-lg">
+                        <Avatar className="w-8 h-8 border border-primary/30">
+                          <AvatarImage src={client?.avatar_url || client?.telegram_photo_url} />
+                          <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                            {(client?.display_name || client?.full_name || 'К').charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-steel-100 truncate">
+                            {client?.display_name || client?.full_name || 'Заказчик'}
+                          </p>
+                          <div className="flex items-center space-x-1">
+                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                            <span className="text-xs text-yellow-400 font-medium">
+                              {client?.rating?.toFixed(2) || '5.00'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-steel-300 text-sm line-clamp-2 mb-3">
                         {order.description || 'Описание не указано'}
                       </p>
 
-                      {/* Service Info - Fixed Height */}
-                      <div className="space-y-2 mb-4 min-h-[60px]">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center space-x-2 text-steel-400">
-                            <Package className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{order.category || 'Не указано'}</span>
-                          </div>
-                          <div className="flex items-center space-x-1 text-lg">
-                            {order.service_type === 'compressor_rent' && <span title="Аренда компрессора">🔨</span>}
-                            {order.service_type === 'garbage_removal' && <span title="Вывоз мусора">🚛</span>}
-                            {order.service_type === 'complex_service' && <span title="Комплексная услуга">🧩</span>}
-                            {(!order.service_type || order.service_type === 'workers') && <span title="Работники">👷</span>}
-                          </div>
+                      {/* Service Details - Grid */}
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div className="flex items-center space-x-1.5 text-xs text-steel-400 bg-steel-800/30 rounded px-2 py-1.5">
+                          <Package className="w-3.5 h-3.5 flex-shrink-0 text-primary" />
+                          <span className="truncate">{order.category || 'Не указано'}</span>
                         </div>
 
-                        <div className="flex items-center space-x-2 text-sm text-steel-400">
-                          <User className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{client?.display_name || client?.full_name || 'Аноним'}</span>
-                        </div>
+                        {peopleNeeded && (
+                          <div className="flex items-center space-x-1.5 text-xs text-green-400 bg-green-500/10 rounded px-2 py-1.5">
+                            <Users className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="font-medium">{peopleNeeded} {peopleNeeded === 1 ? 'чел' : 'чел'}</span>
+                          </div>
+                        )}
 
-                        {order.deadline && (
-                          <div className="flex items-center space-x-2 text-sm text-steel-400">
-                            <Clock className="w-4 h-4 flex-shrink-0" />
-                            <span>До: {format(new Date(order.deadline), 'dd MMM yyyy', { locale: ru })}</span>
+                        {durationHours && (
+                          <div className="flex items-center space-x-1.5 text-xs text-blue-400 bg-blue-500/10 rounded px-2 py-1.5">
+                            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span>{durationHours} {durationHours === 1 ? 'час' : durationHours < 5 ? 'часа' : 'часов'}</span>
+                          </div>
+                        )}
+
+                        {location && (
+                          <div className="flex items-center space-x-1.5 text-xs text-steel-400 bg-steel-800/30 rounded px-2 py-1.5 col-span-2">
+                            <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-red-400" />
+                            <span className="truncate">{location}</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Spacer to push bottom content down */}
+                      {/* Spacer */}
                       <div className="flex-1"></div>
 
-                      {/* Price and Actions - Fixed at Bottom */}
-                      <div className="pt-4 border-t border-steel-600/50">
+                      {/* Price and Actions */}
+                      <div className="pt-3 border-t border-steel-600/50">
                         <div className="flex items-center justify-between gap-3 mb-3">
                           <div className="flex items-center space-x-2">
                             <Coins className="w-5 h-5 text-green-400 flex-shrink-0" />
-                            <span className="text-xl font-bold text-steel-100 whitespace-nowrap">
-                              {order.price.toLocaleString('ru-RU')} ₽
+                            <span className="text-xl font-bold text-green-400">
+                              {order.price.toLocaleString('ru-RU')} GT
                             </span>
                           </div>
                         </div>
@@ -511,19 +539,19 @@ export default function Ads() {
                             size="sm" 
                             variant="outline"
                             onClick={() => handleViewDetails(order)}
-                            className="flex-1 hover:bg-steel-700/50"
+                            className="flex-1 hover:bg-steel-700/50 text-xs"
                           >
-                            <Info className="w-4 h-4 mr-1" />
-                            Подробнее
+                            <Info className="w-3.5 h-3.5 sm:mr-1" />
+                            <span className="hidden sm:inline">Подробнее</span>
                           </Button>
                           {user && (
                             <Button 
                               size="sm" 
-                              className="flex-1 bg-primary hover:bg-primary/80 shadow-lg shadow-primary/20"
+                              className="flex-1 bg-primary hover:bg-primary/80 shadow-lg shadow-primary/20 text-xs"
                               onClick={() => handleBidClick(order)}
                             >
-                              <Send className="w-4 h-4 mr-1" />
-                              Откликнуться
+                              <Send className="w-3.5 h-3.5 sm:mr-1" />
+                              <span className="hidden sm:inline">Откликнуться</span>
                             </Button>
                           )}
                         </div>
