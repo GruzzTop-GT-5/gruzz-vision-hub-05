@@ -183,12 +183,9 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
           ? formData.customCitizenship 
           : formData.citizenship;
         
-        // Определяем user_subtype на основе первой специализации
-        const userSubtype = formData.specializations && formData.specializations.length > 0 
-          ? formData.specializations[0].toLowerCase().replace(/\s+/g, '_')
-          : null;
         
-        // Обновляем профиль с дополнительными данными
+        // Обновляем профиль с базовыми данными регистрации
+        // user_type и user_subtype будут выбраны позже через RoleSelection
         const { error: updateError } = await supabase
           .from('profiles')
           .update({
@@ -198,8 +195,6 @@ export const AuthForm = ({ onSuccess, onBack }: AuthFormProps) => {
             age: parseInt(formData.age),
             telegram_username: formData.telegram || null,
             bio: formData.bio || null,
-            user_type: formData.userType as 'client' | 'executor',
-            user_subtype: userSubtype,
             qualification: formData.specializations.length > 0 ? formData.specializations : null
           })
           .eq('id', signUpData.user.id);

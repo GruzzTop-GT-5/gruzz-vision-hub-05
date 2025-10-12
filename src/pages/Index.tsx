@@ -3,6 +3,7 @@ import { Layout } from '@/components/Layout';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
 import { AuthForm } from '@/components/AuthForm';
 import { LegalFooter } from '@/components/LegalFooter';
+import { RoleSelection } from '@/components/RoleSelection';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,10 +14,18 @@ import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   // Все хуки должны быть вызваны до любых условных return
-  const { user, userRole, loading, signOut } = useAuthContext();
+  const { user, userRole, userType, userSubtype, loading, signOut } = useAuthContext();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
+
+  // Check if user needs to complete profile
+  useEffect(() => {
+    if (user && (!userType || !userSubtype)) {
+      setShowRoleSelection(true);
+    }
+  }, [user, userType, userSubtype]);
 
   // Scroll to top when changing screens
   useEffect(() => {
@@ -25,10 +34,17 @@ const Index = () => {
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
+    // RoleSelection will be shown automatically by the effect above
   };
 
   const handleBackToMain = () => {
     setShowAuth(false);
+  };
+
+  const handleRoleSelectionComplete = async () => {
+    setShowRoleSelection(false);
+    // Refresh auth context to get updated user data
+    window.location.reload();
   };
 
   // Условные return только после всех хуков
@@ -51,6 +67,11 @@ const Index = () => {
 
   if (showAuth) {
     return <AuthForm onSuccess={handleAuthSuccess} onBack={handleBackToMain} />;
+  }
+
+  // Show role selection modal if user hasn't completed profile
+  if (user && showRoleSelection) {
+    return <RoleSelection isOpen={showRoleSelection} onComplete={handleRoleSelectionComplete} />;
   }
 
   return (
