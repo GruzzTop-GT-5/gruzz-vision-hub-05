@@ -436,6 +436,9 @@ export default function Ads() {
                 const peopleNeeded = order.client_requirements?.people_needed;
                 const durationHours = order.client_requirements?.duration_hours;
                 const location = order.client_requirements?.location;
+                const workDate = order.deadline;
+                const startTime = order.client_requirements?.start_time;
+                const endTime = order.client_requirements?.end_time;
                 
                 return (
                   <Card 
@@ -492,32 +495,62 @@ export default function Ads() {
                       </p>
 
                       {/* Service Details - Grid */}
-                      <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div className="flex items-center space-x-1.5 text-xs text-steel-400 bg-steel-800/30 rounded px-2 py-1.5">
-                          <Package className="w-3.5 h-3.5 flex-shrink-0 text-primary" />
-                          <span className="truncate">{order.category || 'Не указано'}</span>
-                        </div>
-
-                        {peopleNeeded && (
-                          <div className="flex items-center space-x-1.5 text-xs text-green-400 bg-green-500/10 rounded px-2 py-1.5">
-                            <Users className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="font-medium">{peopleNeeded} {peopleNeeded === 1 ? 'чел' : 'чел'}</span>
+                      <div className="space-y-2 mb-3">
+                        {/* Дата и время работы */}
+                        {workDate && (
+                          <div className="bg-primary/10 border border-primary/30 rounded-lg p-2.5">
+                            <div className="flex items-center space-x-2 mb-1.5">
+                              <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
+                              <span className="text-sm font-semibold text-primary">
+                                {format(new Date(workDate), 'dd MMMM yyyy', { locale: ru })}
+                              </span>
+                            </div>
+                            {(startTime || endTime) && (
+                              <div className="flex items-center space-x-2 ml-6">
+                                <Clock className="w-3.5 h-3.5 text-primary/70 flex-shrink-0" />
+                                <span className="text-xs text-steel-200">
+                                  {startTime && endTime ? `${startTime} - ${endTime}` : startTime || endTime}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         )}
 
-                        {durationHours && (
-                          <div className="flex items-center space-x-1.5 text-xs text-blue-400 bg-blue-500/10 rounded px-2 py-1.5">
-                            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span>{durationHours} {durationHours === 1 ? 'час' : durationHours < 5 ? 'часа' : 'часов'}</span>
-                          </div>
-                        )}
+                        <div className="grid grid-cols-2 gap-2">
+                          {peopleNeeded && (
+                            <div className="flex items-center space-x-1.5 text-xs text-green-400 bg-green-500/10 border border-green-500/30 rounded px-2.5 py-2">
+                              <Users className="w-4 h-4 flex-shrink-0" />
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-sm">{peopleNeeded}</span>
+                                <span className="text-[10px] text-green-400/70">человек</span>
+                              </div>
+                            </div>
+                          )}
 
-                        {location && (
+                          {durationHours && (
+                            <div className="flex items-center space-x-1.5 text-xs text-blue-400 bg-blue-500/10 border border-blue-500/30 rounded px-2.5 py-2">
+                              <Clock className="w-4 h-4 flex-shrink-0" />
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-sm">{durationHours}</span>
+                                <span className="text-[10px] text-blue-400/70">
+                                  {durationHours === 1 ? 'час' : durationHours < 5 ? 'часа' : 'часов'}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
                           <div className="flex items-center space-x-1.5 text-xs text-steel-400 bg-steel-800/30 rounded px-2 py-1.5 col-span-2">
-                            <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-red-400" />
-                            <span className="truncate">{location}</span>
+                            <Package className="w-3.5 h-3.5 flex-shrink-0 text-primary" />
+                            <span className="truncate">{order.category || 'Не указано'}</span>
                           </div>
-                        )}
+
+                          {location && (
+                            <div className="flex items-center space-x-1.5 text-xs text-steel-400 bg-steel-800/30 rounded px-2 py-1.5 col-span-2">
+                              <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-red-400" />
+                              <span className="truncate">{location}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Spacer */}
