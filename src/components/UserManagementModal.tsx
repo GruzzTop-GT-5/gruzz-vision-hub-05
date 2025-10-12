@@ -140,6 +140,16 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
     
     setLoading(true);
     try {
+      console.log('=== UPDATE USER DEBUG ===');
+      console.log('Original user data:', { 
+        user_type: user.user_type, 
+        user_subtype: user.user_subtype 
+      });
+      console.log('Edited user data:', { 
+        user_type: editedUser.user_type, 
+        user_subtype: editedUser.user_subtype 
+      });
+
       // Only update allowed fields to avoid role conflicts
       const updateData: any = {
         display_name: editedUser.display_name,
@@ -149,20 +159,29 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
         age: editedUser.age,
         citizenship: editedUser.citizenship,
         qualification: editedUser.qualification,
-        user_subtype: editedUser.user_subtype,
         avatar_url: editedUser.avatar_url,
         telegram_username: editedUser.telegram_username
       };
 
       // Only include user_type if it's a valid value
-      if (editedUser.user_type === 'client' || editedUser.user_type === 'executor') {
+      if (editedUser.user_type === 'client' || editedUser.user_type === 'executor' || editedUser.user_type === 'both') {
         updateData.user_type = editedUser.user_type;
       }
+
+      // Always include user_subtype if it's set
+      if (editedUser.user_subtype) {
+        updateData.user_subtype = editedUser.user_subtype;
+      }
+
+      console.log('Update data to be sent:', updateData);
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select();
+
+      console.log('Update result:', { data, error });
 
       if (error) throw error;
 
