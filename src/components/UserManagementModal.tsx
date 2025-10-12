@@ -773,12 +773,31 @@ export const UserManagementModal = ({ user, isOpen, onClose, onUserUpdate }: Use
                 <div>
                   <label className="text-sm font-medium text-steel-300 mb-1 block">Подтип</label>
                   {editMode ? (
-                    <Input
-                      value={editedUser.user_subtype || ''}
-                      onChange={(e) => setEditedUser(prev => ({ ...prev, user_subtype: e.target.value }))}
-                      className="bg-background"
-                      placeholder="Специализация"
-                    />
+                    <Select 
+                      value={editedUser.user_subtype || ''} 
+                      onValueChange={(value) => setEditedUser(prev => ({ ...prev, user_subtype: value }))}
+                    >
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Выберите подтип" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {editedUser.user_type === 'executor' ? (
+                          <>
+                            <SelectItem value="loader">Грузчик</SelectItem>
+                            <SelectItem value="cleaner">Уборщик</SelectItem>
+                            <SelectItem value="handyman">Разнорабочий</SelectItem>
+                            <SelectItem value="builder">Строитель</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value="logistician">Логист</SelectItem>
+                            <SelectItem value="client">Заказчик</SelectItem>
+                            <SelectItem value="foreman">Прораб</SelectItem>
+                            <SelectItem value="manager">Менеджер</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
                   ) : (
                     <p className="text-steel-100">{user.user_subtype || 'Не указано'}</p>
                   )}
