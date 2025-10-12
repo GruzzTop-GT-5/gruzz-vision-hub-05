@@ -63,7 +63,7 @@ export const Layout = ({ children, user, userRole, onSignOut }: LayoutProps) => 
     { icon: UserIcon, label: 'Профиль', href: '/profile' },
     { icon: Package, label: 'Мои задания', href: '/orders' },
     { icon: Search, label: 'Найти исполнителей', href: '/available-orders' },
-    { icon: Megaphone, label: 'Найти работу', href: '/ads' },
+    { icon: Megaphone, label: 'Доска объявлений', href: '/ads' },
     { icon: Truck, label: 'Спецтехника', href: '/special-equipment' },
     { icon: Plus, label: 'Мои услуги', href: '/my-ads' },
     { icon: MessageCircle, label: 'Сообщения', href: '/chat-system' },

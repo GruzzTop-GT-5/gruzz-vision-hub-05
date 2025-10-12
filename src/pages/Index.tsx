@@ -163,7 +163,7 @@ const Index = () => {
             </Link>
           ) : null}
           
-          {/* Найти работу */}
+          {/* Доска объявлений */}
           {user ? (
             <Link to="/ads">
               <Card className="group cursor-pointer overflow-hidden bg-gradient-to-br from-card to-card/50 border-border hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 backdrop-blur-sm">
@@ -173,7 +173,7 @@ const Index = () => {
                     <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-2xl group-hover:shadow-orange-500/50">
                       <Search className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-white" />
                     </div>
-                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-1 group-hover:text-orange-500 transition-colors">Найти работу</h3>
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-1 group-hover:text-orange-500 transition-colors">Доска объявлений</h3>
                     <p className="text-muted-foreground text-xs sm:text-sm leading-tight">Просмотр доступных заказов</p>
                   </div>
                 </div>

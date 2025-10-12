@@ -56,7 +56,7 @@ const navigationSections = {
     },
     {
       id: 'available-orders',
-      title: 'Найти работу',
+      title: 'Доска объявлений',
       icon: <Search className="w-5 h-5" />,
       path: '/available-orders',
       description: 'Доступные задания и заказы'
