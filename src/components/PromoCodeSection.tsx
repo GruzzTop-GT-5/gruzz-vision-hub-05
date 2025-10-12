@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Gift, Sparkles, Percent, Coins, Clock, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PromoCode {
   code: string;
@@ -244,62 +245,66 @@ export const PromoCodeSection: React.FC = () => {
               <span>Доступные промокоды</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2.5 px-4 pb-4">
-            {activePromos.map((promo, index) => (
-              <div 
-                key={index}
-                className={`rounded-lg overflow-hidden transition-all ${
-                  promo.used 
-                    ? 'bg-muted/20 border border-border/50' 
-                    : 'bg-gradient-to-br from-card to-card/80 border border-primary/20 shadow-md'
-                }`}
-              >
-                <div className="p-3 space-y-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <Badge variant={promo.used ? "secondary" : "default"} className="text-[10px] font-medium mb-1.5 h-5">
-                        {promo.used ? (
-                          <><Check className="w-2.5 h-2.5 mr-1" /> Использован</>
-                        ) : (
-                          <>{getPromoIcon(promo.promo_type)} {getPromoTypeName(promo.promo_type)}</>
-                        )}
-                      </Badge>
-                      <h3 className="text-sm font-semibold text-foreground mb-1 line-clamp-1">{promo.name}</h3>
-                      {promo.description && (
-                        <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{promo.description}</p>
-                      )}
-                    </div>
-                    <div className="flex-shrink-0 text-right">
-                      {promo.promo_type === 'bonus' && (
-                        <div className="text-lg font-bold text-green-500">
-                          +{promo.bonus_amount} GT
+          <CardContent className="px-4 pb-4">
+            <ScrollArea className="h-[400px] pr-4">
+              <div className="space-y-2.5">
+                {activePromos.map((promo, index) => (
+                  <div 
+                    key={index}
+                    className={`rounded-lg overflow-hidden transition-all ${
+                      promo.used 
+                        ? 'bg-muted/20 border border-border/50' 
+                        : 'bg-gradient-to-br from-card to-card/80 border border-primary/20 shadow-md'
+                    }`}
+                  >
+                    <div className="p-3 space-y-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <Badge variant={promo.used ? "secondary" : "default"} className="text-[10px] font-medium mb-1.5 h-5">
+                            {promo.used ? (
+                              <><Check className="w-2.5 h-2.5 mr-1" /> Использован</>
+                            ) : (
+                              <>{getPromoIcon(promo.promo_type)} {getPromoTypeName(promo.promo_type)}</>
+                            )}
+                          </Badge>
+                          <h3 className="text-sm font-semibold text-foreground mb-1 line-clamp-1">{promo.name}</h3>
+                          {promo.description && (
+                            <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{promo.description}</p>
+                          )}
                         </div>
-                      )}
-                      {promo.promo_type === 'discount_percent' && (
-                        <div className="text-lg font-bold text-orange-500">
-                          -{promo.discount_value}%
+                        <div className="flex-shrink-0 text-right">
+                          {promo.promo_type === 'bonus' && (
+                            <div className="text-lg font-bold text-green-500">
+                              +{promo.bonus_amount} GT
+                            </div>
+                          )}
+                          {promo.promo_type === 'discount_percent' && (
+                            <div className="text-lg font-bold text-orange-500">
+                              -{promo.discount_value}%
+                            </div>
+                          )}
+                          {promo.promo_type === 'discount_fixed' && (
+                            <div className="text-lg font-bold text-orange-500">
+                              -{promo.discount_value} GT
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {promo.promo_type === 'discount_fixed' && (
-                        <div className="text-lg font-bold text-orange-500">
-                          -{promo.discount_value} GT
+                      </div>
+                      
+                      <div className="flex flex-col gap-2 pt-2 border-t border-border/30">
+                        <code className="font-mono font-bold text-sm px-3 py-1.5 rounded-md bg-background/50 border border-primary/30 text-primary w-fit">
+                          {promo.code}
+                        </code>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>{formatExpiryDate(promo.expires_at)}</span>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="flex flex-col gap-2 pt-2 border-t border-border/30">
-                    <code className="font-mono font-bold text-sm px-3 py-1.5 rounded-md bg-background/50 border border-primary/30 text-primary w-fit">
-                      {promo.code}
-                    </code>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>{formatExpiryDate(promo.expires_at)}</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            </ScrollArea>
           </CardContent>
         </Card>
       )}
