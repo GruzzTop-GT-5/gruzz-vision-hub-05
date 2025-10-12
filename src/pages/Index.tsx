@@ -22,10 +22,12 @@ const Index = () => {
 
   // Check if user needs to complete profile
   useEffect(() => {
-    if (user && (!userType || !userSubtype)) {
+    if (user && !loading && (!userType || !userSubtype)) {
       setShowRoleSelection(true);
+    } else if (user && !loading && userType && userSubtype) {
+      setShowRoleSelection(false);
     }
-  }, [user, userType, userSubtype]);
+  }, [user, loading, userType, userSubtype]);
 
   // Scroll to top when changing screens
   useEffect(() => {
