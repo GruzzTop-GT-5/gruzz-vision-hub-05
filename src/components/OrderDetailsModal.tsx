@@ -446,14 +446,6 @@ export const OrderDetailsModal = ({
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <Label className="text-steel-300 text-sm">🔄 Правки</Label>
-                    <Card className="card-steel bg-steel-800/30">
-                      <CardContent className="p-4">
-                        <p className="text-steel-200">{order.revision_count} из {order.max_revisions}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
                 </div>
 
                 {/* Participants */}

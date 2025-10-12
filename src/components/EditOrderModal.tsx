@@ -59,8 +59,7 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
     price: '',
     priority: 'normal',
     deadline: null as Date | null,
-    deliveryFormat: '',
-    maxRevisions: '3'
+    deliveryFormat: ''
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,8 +74,7 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
         price: order.price?.toString() || '',
         priority: order.priority || 'normal',
         deadline: order.deadline ? new Date(order.deadline) : null,
-        deliveryFormat: order.delivery_format || '',
-        maxRevisions: order.max_revisions?.toString() || '3'
+        deliveryFormat: order.delivery_format || ''
       });
     }
   }, [order]);
@@ -89,8 +87,7 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
       price: '',
       priority: 'normal',
       deadline: null,
-      deliveryFormat: '',
-      maxRevisions: '3'
+      deliveryFormat: ''
     });
   };
 
@@ -163,7 +160,6 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
         priority: formData.priority,
         deadline: formData.deadline ? formData.deadline.toISOString() : null,
         delivery_format: formData.deliveryFormat.trim() ? sanitizeInput(formData.deliveryFormat.trim()) : null,
-        max_revisions: parseInt(formData.maxRevisions) || 3,
         updated_at: new Date().toISOString()
       };
 
@@ -376,28 +372,6 @@ export const EditOrderModal = ({ isOpen, onClose, onOrderUpdated, order }: EditO
             />
           </div>
 
-          {/* Max Revisions */}
-          <div className="space-y-2">
-            <Label htmlFor="maxRevisions" className="text-steel-200">
-              Количество людей
-            </Label>
-            <Select 
-              value={formData.maxRevisions} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, maxRevisions: value }))}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger className="bg-steel-700 border-steel-600 text-steel-100">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-steel-800 border-steel-600">
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <SelectItem key={num} value={num.toString()} className="text-steel-100">
-                    {num} {num === 1 ? 'правка' : num <= 4 ? 'правки' : 'правок'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           {/* Action Buttons */}
           <div className="flex space-x-3 pt-4">

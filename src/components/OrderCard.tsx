@@ -458,14 +458,6 @@ export const OrderCard = ({ order, clientProfile, executorProfile, onUpdate }: O
           )}
         </div>
 
-        {/* Revision Info */}
-        {order.revision_count > 0 && (
-          <div className="flex items-center space-x-2 text-sm text-steel-400">
-            <AlertCircle className="w-4 h-4" />
-            <span>Требуется: {order.revision_count} из {order.max_revisions}</span>
-          </div>
-        )}
-
         {/* Action Buttons - Адаптивное отображение */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-4 border-t border-steel-600 gap-3">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
